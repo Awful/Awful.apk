@@ -35,6 +35,7 @@ public abstract class ThreadDisplay {
      * All the scripts from the javascript folder used in generating HTML
      */
     static final String[] JS_FILES = {
+            "polyfills.js",
             "twitterwidget.js",
             "longtap.js",
             "jsonp.js",

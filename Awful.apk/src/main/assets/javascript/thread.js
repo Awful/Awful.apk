@@ -34,27 +34,27 @@ function containerInit() {
 			handleQuoteLink(target, event);
 			return;
 		}
-		if (target.tagName.toLowerCase() === 'a' && target.href.startsWith('showthread.php?action=showpost')) {
+		if (target.tagName.toLowerCase() === 'a' && target.href.indexOf('showthread.php?action=showpost') !== -1) {
 			loadIgnoredPost(target, event);
+			return;
 		}
-	});
-
-	// Longtaps (emoticons)
-	container.addEventListener('touchstart', Longtap(function longtap(event) {
-		if ((event.target.tagName.toLowerCase() === 'img' || event.target.tagName.toLowerCase() === 'canvas') && event.target.hasAttribute('title')) {
-			// title popup on long-press
-			listener.popupText(event.target.getAttribute('title'));
-		}
-	}));
-	// Some touch events, freezing gifs and blocking side-swiping on code-blocks
-	container.addEventListener('touchstart', function touchStartHandler(event) {
-		var target = event.target;
 		if (target.tagName.toLowerCase() === 'img' && target.hasAttribute('title') && target.src.endsWith('.gif')) {
 			freezeGif(target);
 			return;
 		}
 		if (target.tagName.toLowerCase() === 'canvas' && target.hasAttribute('title') && target.getAttribute('src').endsWith('.gif')) {
 			target.outerHTML = '<img src="' + target.getAttribute('src') + '" title="' + target.getAttribute('title') + '" />';
+		}
+	});
+
+	// Some touch events, freezing gifs and blocking side-swiping on code-blocks
+	container.addEventListener('touchstart', function touchStartHandler(event) {
+		var target = event.target;
+		// title popup on long-press
+		if ((target.tagName.toLowerCase() === 'img' || target.tagName.toLowerCase() === 'canvas') && target.hasAttribute('title')) {
+			Longtap(function longtap() {
+				listener.popupText(target.getAttribute('title'));
+			})(event);
 			return;
 		}
 		var bbcBlock = findInPath(event, 'bbc-block', true);
@@ -446,8 +446,9 @@ function insertIgnoredPost(id) {
  */
 function enlargeTimg(tImg) {
 	tImg.classList.remove('timg');
-	if (!tImg.parentElement.tagName.toLowerCase() === 'a') {
+	if (tImg.parentElement.tagName.toLowerCase() !== 'a') {
 		var link = document.createElement('a');
+		link.href = tImg.src;
 		tImg.parentNode.insertBefore(link, tImg);
 		tImg.parentNode.removeChild(tImg);
 		link.appendChild(tImg);

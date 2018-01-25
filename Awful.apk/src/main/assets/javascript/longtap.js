@@ -5,11 +5,6 @@
  * https://www.npmjs.com/package/longtap
  */
 
-var cancelEvents = ['touchmove', 'touchend', 'touchleave', 'touchcancel'];
-
-Longtap.threshold = 750;
-var timeout;
-
 /**
  * Returns a listener function for a longtap
  * @param {Function} handler Function to handle the longtap that is calculated
@@ -19,7 +14,9 @@ var timeout;
 function Longtap(handler, options) {
 	options = options || {};
 	listener.handler = handler;
-	var threshold = options.threshold || Longtap.threshold;
+	var threshold = options.threshold || 750;
+	var cancelEvents = ['touchmove', 'touchend', 'touchcancel'];
+	var timeout;
 
 	return listener;
 
@@ -30,21 +27,19 @@ function Longtap(handler, options) {
 	 */
 	function listener(baseEvent) {
 		if (timeout) {
-			return cleanUp();
+			cleanUp();
+			return;
 		}
 		if (!baseEvent.touches || baseEvent.touches.length > 1) {
 			return;
 		}
-		var that = this;
-		var args = arguments;
 		timeout = setTimeout(done, threshold);
 
 		/**
 		 * Function that is called when the longtap is done
 		 */
 		function done() {
-			// only send args[0] (event)
-			handler.call(that, args[0]);
+			handler.call(this, baseEvent);
 		}
 
 		/**
