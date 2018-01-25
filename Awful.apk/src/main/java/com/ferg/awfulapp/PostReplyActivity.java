@@ -49,7 +49,7 @@ public class PostReplyActivity extends AwfulActivity {
         ButterKnife.bind(this);
 
         setSupportActionBar(mToolbar);
-        setActionBar();
+        setUpActionBar();
 
         FragmentManager fm = getSupportFragmentManager();
         replyFragment = (PostReplyFragment) fm.findFragmentById(R.id.reply_fragment);

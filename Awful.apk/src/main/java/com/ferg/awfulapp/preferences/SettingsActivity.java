@@ -19,7 +19,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -32,6 +31,8 @@ import com.ferg.awfulapp.preferences.fragments.SettingsFragment;
 import com.ferg.awfulapp.util.AwfulUtils;
 
 import org.apache.commons.lang3.StringUtils;
+
+import timber.log.Timber;
 
 /**
  * Created by baka kaba on 04/05/2015.
@@ -99,7 +100,7 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
     protected void onCreate(Bundle savedInstanceState) {
         prefs = AwfulPreferences.getInstance(this, this);
         currentThemeName = prefs.theme;
-        setCurrentTheme();
+        updateTheme();
         // theme needs to be set BEFORE the super call, or it'll be inconsistent
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
@@ -172,7 +173,7 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
             boolean fromRootMenu = sourceFragment instanceof RootSettings;
             displayFragment(fragment, fromRootMenu);
         } catch (IllegalAccessException | ClassNotFoundException | InstantiationException e) {
-            Log.e(TAG, "Unable to create fragment (" + submenuFragmentName + ")\n", e);
+            Timber.e(e, "Unable to create fragment (%s)", submenuFragmentName);
         }
     }
 
@@ -255,9 +256,9 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
             }
         }
 
-        if (!mPrefs.theme.equals(this.currentThemeName)) {
-            this.currentThemeName = mPrefs.theme;
-            setCurrentTheme();
+        if (!getMPrefs().theme.equals(this.currentThemeName)) {
+            this.currentThemeName = getMPrefs().theme;
+            updateTheme();
             recreate();
         }
     }

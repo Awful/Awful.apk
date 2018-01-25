@@ -54,7 +54,6 @@ import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.preferences.SettingsActivity;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulCursorAdapter;
@@ -144,7 +143,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
 		restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, mPMDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mPMDataCallback);
         syncPMs();
-        setTitle(getTitle());
+        setActionBarTitle(getTitle());
     }
     
     private void syncPMs() {
@@ -219,12 +218,12 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
         	break;
         case R.id.toggle_folder:
         	currentFolder = (currentFolder==FOLDER_INBOX) ? FOLDER_SENT : FOLDER_INBOX;
-            setTitle(getTitle());
+            setActionBarTitle(getTitle());
             changeIcon(item);
         	syncPMs();
         	break;
         case R.id.settings:
-        	startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
+            getAwfulActivity().showSettings();
         	break;
             default:
                 return super.onOptionsItemSelected(item);

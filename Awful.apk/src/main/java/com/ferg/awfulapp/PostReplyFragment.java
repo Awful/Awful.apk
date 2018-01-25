@@ -191,7 +191,7 @@ public class PostReplyFragment extends AwfulFragment {
         mReplyType = intent.getIntExtra(Constants.EDITING, -999);
         mPostId = intent.getIntExtra(Constants.REPLY_POST_ID, 0);
         mThreadId = intent.getIntExtra(Constants.REPLY_THREAD_ID, 0);
-        setTitle(getTitle());
+        setActionBarTitle(getTitle());
 
         // perform some sanity checking
         boolean badRequest = false;

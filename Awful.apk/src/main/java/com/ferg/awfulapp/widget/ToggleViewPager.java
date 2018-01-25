@@ -15,6 +15,22 @@ public class ToggleViewPager extends ViewPager{
         super(context, attrs);
     }
 
+    /**
+     * True if the current page is not the first.
+     */
+    public boolean hasPreviousPage() {
+        return getCurrentItem() > 0;
+    }
+
+    /**
+     * Move to the page in the previous position, if possible.
+     */
+    public void goToPreviousPage() {
+        if (hasPreviousPage()) {
+            setCurrentItem(getCurrentItem() - 1);
+        }
+    }
+
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         return antiCrashEventHandler(ev, true);
@@ -48,7 +64,15 @@ public class ToggleViewPager extends ViewPager{
         return swipeEnabled && result;
     }
 
-    public void setSwipeEnabled(boolean swipe){
-        swipeEnabled = swipe;
+
+    /**
+     * Enable or disable swiping on this viewpager.
+     */
+    public void setSwipeEnabled(boolean enabled){
+        if (enabled) {
+            beginFakeDrag();
+            endFakeDrag();
+        }
+        swipeEnabled = enabled;
     }
 }

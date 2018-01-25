@@ -95,6 +95,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
     public static final String ARG_KEY_FORUM_ID = "forum ID";
     public static final String ARG_KEY_PAGE_NUMBER = "page number";
     public static final String ARG_KEY_SKIP_LOAD = "skip load";
+    public static final int NULL_FORUM_ID = 0;
     public static final int FIRST_PAGE = 1;
     private ListView mListView;
 
@@ -277,7 +278,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
     }
 
 	@Override
-	public void onPageVisible() {
+	public void setAsFocusedPage() {
         // TODO: find out how this relates to onResume / onStart , it's the same code
         // TODO: this can be called before the fragment's views have been inflated, e.g. bookmark widget -> viewpager#onPageSelected -> (create fragment) -> onPageVisible
 		updateColors();
@@ -391,7 +392,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
     }
 
     private void viewThread(int id, int page){
-    	displayThread(id, page, getForumId(), getPage(), true);
+    	displayThread(id, page, null, true);
     }
 
     private void copyUrl(int id) {
@@ -413,7 +414,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
                     												row.getInt(row.getColumnIndex(AwfulThread.HAS_VIEWED_THREAD)));
                     viewThread((int) aId, unreadPage);
             }else if(row != null && row.getColumnIndex(AwfulForum.PARENT_ID)>-1){
-                    displayForumContents((int) aId);
+                    displayForum((int) aId, null);
             }
         }
     };
@@ -476,24 +477,24 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
         mForumId = (forumId < 1) ? USERCP_ID : forumId;
 	}
 
-    public void openForum(int id, int page){
-        // do nothing if we're already looking at this page
-        if(id == mForumId && page == mPage){
+    public void openForum(int id, @Nullable Integer page){
+        // do nothing if we're already looking at this page (or if no page specified)
+        if (id == mForumId && (page == null || page == mPage)) {
             return;
         }
     	closeLoaders();
     	setForumId(id);
-        setPage(page);
+        setPage(page == null ? FIRST_PAGE : page);
         updateColors();
     	mLastPage = 0;
     	lastRefresh = 0;
     	loadFailed = false;
-    	if(getActivity() != null){
-			((ForumsIndexActivity) getActivity()).setNavIds(mForumId, null);
-			getActivity().invalidateOptionsMenu();
-			refreshInfo();
-			syncForum();
-    	}
+        if (getActivity() != null) {
+            ((ForumsIndexActivity) getActivity()).onPageContentChanged();
+        }
+        invalidateOptionsMenu();
+        refreshInfo();
+        syncForum();
     }
 
 	public void syncForum() {
@@ -664,7 +665,6 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 		}
     }
 
-    // TODO: fix race condition, see AwfulFragment#setTitle
 
 	private class ForumDataCallback extends ContentObserver implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -683,8 +683,11 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
         	if(aData != null && !aData.isClosed() && aData.moveToFirst()){
                 mTitle = aData.getString(aData.getColumnIndex(AwfulForum.TITLE));
                 mLastPage = aData.getInt(aData.getColumnIndex(AwfulForum.PAGE_COUNT));
-                setTitle(mTitle);
-        	}
+                ForumsIndexActivity activity = ((ForumsIndexActivity) getActivity());
+                if (activity != null) {
+                    activity.onPageContentChanged();
+                }
+            }
 
 			updatePageBar();
 			refreshProbationBar();
