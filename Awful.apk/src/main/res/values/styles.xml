@@ -57,7 +57,17 @@
         <item name="android:shadowDy">-1</item>
         <item name="android:shadowRadius">0.2</item>
     </style>
-    
+
+    <style name="MaterialImageButton" parent="Base.Widget.AppCompat.ImageButton">
+        <item name="android:layout_width">@dimen/material_touch_target_size</item>
+        <item name="android:layout_height">@dimen/material_touch_target_size</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+    </style>
+
+    <style name="MaterialImageButton.Borderless">
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+    </style>
+
     <!-- QuickActions -->
     <style name="Animations" />
 
