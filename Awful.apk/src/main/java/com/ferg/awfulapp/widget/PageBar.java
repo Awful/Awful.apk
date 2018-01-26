@@ -101,7 +101,7 @@ public class PageBar extends FrameLayout {
 
 
     private void updateDisplay(int currentPage, int lastPage, @NonNull PageType pageType, boolean hasPageCount) {
-        String template = hasPageCount ? "%d / %d" : "page %d";
+        String template = hasPageCount ? "%d / %d" : "%d";
         mPageCountText.setText(String.format(Locale.getDefault(), template, currentPage, lastPage));
         /*
             hide and show the appropriate icons for each state:
