@@ -57,7 +57,6 @@ import com.ferg.awfulapp.messages.PmManager;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.Keys;
 import com.ferg.awfulapp.sync.SyncManager;
-import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.widget.ToggleViewPager;
 
 import org.jetbrains.annotations.NotNull;
@@ -66,7 +65,6 @@ import java.util.Locale;
 
 import timber.log.Timber;
 
-//import com.ToxicBakery.viewpager.transforms.*;
 
 public class ForumsIndexActivity extends AwfulActivity
         implements PmManager.Listener, AnnouncementsManager.AnnouncementListener, PagerCallbacks {
@@ -100,6 +98,11 @@ public class ForumsIndexActivity extends AwfulActivity
         setupImmersion();
         PmManager.registerListener(this);
         AnnouncementsManager.getInstance().registerListener(this);
+
+        // only handle the Activity's intent when it's first created, or that navigation event will be fired whenever the activity is restored
+        if (savedInstanceState == null) {
+            handleIntent(getIntent());
+        }
     }
 
     @Override
@@ -337,6 +340,14 @@ public class ForumsIndexActivity extends AwfulActivity
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        handleIntent(intent);
+    }
+
+
+    /**
+     * Parse and process an intent, e.g. to handle a navigation event.
+     */
+    private void handleIntent(@NonNull Intent intent) {
         NavigationEvent parsed = NavigationEvent.Companion.parse(intent);
         Timber.i("Parsed intent as %s", parsed.toString());
 

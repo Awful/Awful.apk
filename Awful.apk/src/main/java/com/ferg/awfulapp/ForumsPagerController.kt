@@ -80,10 +80,10 @@ class ForumsPagerController(
             viewPager.currentItem = page.ordinal
         }
 
-    // Access to the fragments in the adapter
-    val forumIndexFragment get() = pagerAdapter.fragments[ForumIndex] as ForumsIndexFragment?
-    val forumDisplayFragment get() = pagerAdapter.fragments[ForumDisplay] as ForumDisplayFragment?
-    val threadDisplayFragment get() = pagerAdapter.fragments[ThreadDisplay] as ThreadDisplayFragment?
+    // Access to the fragments in the adapter - as functions so we can pass them as getters for the 'run when not null' tasks
+    fun getForumIndexFragment() = pagerAdapter.fragments[ForumIndex] as ForumsIndexFragment?
+    fun getForumDisplayFragment() = pagerAdapter.fragments[ForumDisplay] as ForumDisplayFragment?
+    fun getThreadDisplayFragment() = pagerAdapter.fragments[ThreadDisplay] as ThreadDisplayFragment?
 
     init {
         onPreferenceChange(prefs)
@@ -101,13 +101,22 @@ class ForumsPagerController(
     //
     // Navigation events
     //
+    // The methods that require a fragment to be in place are a little strange - basically we want to
+    // navigate to that page, and then defer the call to the fragment until it's ready. This means
+    // that intents that open the app (like launcher widgets, or thread URLs clicked in another app)
+    // can trigger a call to #openThread or whatever, when everything is still initialising, and when
+    // the pager gets the fragments, the pending events will get processed.
+    //
+    // So we're passing a *function* that gets the relevant fragment, so it can be retried until it
+    // actually produces a non-null value. Hopefully there's a better way, but this works for now.
+    //
 
     /**
      * Open and display a given forum, at a certain page if required.
      */
     fun openForum(forumId: Int, pageNum: Int? = null) {
         currentPagerItem = ForumDisplay
-        forumDisplayFragment?.openForum(forumId, pageNum)
+        ::getForumDisplayFragment.runWhenNotNull { openForum(forumId, pageNum) }
     }
 
 
@@ -119,9 +128,9 @@ class ForumsPagerController(
      */
     fun openThread(id: Int, page: Int? = null, jump: String? = null, forceReload: Boolean = true) {
         currentPagerItem = ThreadDisplay
-        threadDisplayFragment?.apply {
+        ::getThreadDisplayFragment.runWhenNotNull {
             Timber.i("Opening thread (old/new) ID:$threadId/$id, PAGE:$pageNumber/$page, JUMP:$postJump/$jump - force=$forceReload")
-            this.openThread(id, page, jump, forceReload)
+            openThread(id, page, jump, forceReload)
         }
     }
 
@@ -131,7 +140,7 @@ class ForumsPagerController(
      */
     fun openThread(url: AwfulURL) {
         currentPagerItem = ThreadDisplay
-        threadDisplayFragment?.openThread(url)
+        ::getThreadDisplayFragment.runWhenNotNull { openThread(url) }
     }
 
     /**
@@ -139,6 +148,42 @@ class ForumsPagerController(
      */
     fun onCurrentPageChanged() {
         getCurrentFragment()?.let { fragment -> callbacks.onPageChanged(currentPagerItem, fragment) }
+    }
+
+
+    /**
+     * Called when a new page has been added to the pager (i.e. a page has been set to a fragment).
+     */
+    fun onPageAdded() {
+        attemptAllDeferredTasks()
+    }
+
+    /*
+        This is the code to handle pending tasks, i.e. events to call on a fragment that were sent
+        before the fragment was available. Hopefully there's a better way to do all this...
+        Tasks are just added to a queue, so multiple #showThread calls (for example) will just be
+        run one after the other, and there are potential concurrency issues with the list, BUT this
+        should only happen as soon as the app starts, and very quickly, so there shouldn't be time
+        for any of these issues to happen...
+     */
+
+    private val deferredTasks = mutableListOf<() -> Unit>()
+
+    /**
+     * A getter, and code to run on the result if it's not null. This will be attempted immediately -
+     * if the getter returns null, this call will be deferred until [attemptAllDeferredTasks] is called.
+     */
+    private fun <T> (() -> T?).runWhenNotNull(f: T.() -> Unit) {
+        this()?.f() ?: deferredTasks.add { this.runWhenNotNull(f) }
+    }
+
+    /**
+     * Attempt to run all tasks that were deferred (e.g. from [runWhenNotNull])
+     */
+    private fun attemptAllDeferredTasks() {
+        Timber.d("Attempting ${deferredTasks.size} deferred tasks")
+        deferredTasks.toList().also { deferredTasks.clear() }.forEach { it() }
+        Timber.d("Processed deferred tasks: ${deferredTasks.size} remaining")
     }
 
     //
@@ -267,7 +312,7 @@ private class ForumPagerAdapter(
     override fun getPageWidth(position: Int) = if (controller.tabletMode) Pages[position].width else super.getPageWidth(position)
 
     override fun onPageSelected(pageNum: Int) {
-        if (AwfulActivity.DEBUG) Timber.i("onPageSelected: $pageNum")
+        Timber.i("onPageSelected: $pageNum")
         // TODO: this only allows for one 'focused' page, even though 2 might be visible in tablet mode. If we ever get a way to make #isFragmentVisible work properly, use that here
         fragments[currentPage]?.setAsBackgroundPage()
         currentPage = Pages[pageNum]
@@ -300,9 +345,11 @@ private class ForumPagerAdapter(
     private fun AwfulFragment.setAs(page: Pages) {
         Timber.d("Setting fragment for %s", page)
         fragments[page] = this
+        controller.onPageAdded()
         // #onPageSelected fires before the page's fragments are created/restored, so this callback
         // ensures we update listeners when we actually *get* a new fragment for the current page
         if (page == currentPage) controller.onCurrentPageChanged()
     }
+
 
 }
