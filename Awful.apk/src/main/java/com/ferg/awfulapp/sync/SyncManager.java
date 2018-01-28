@@ -4,9 +4,9 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.widget.Toast;
 
+import com.ferg.awfulapp.Authentication;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.announcements.AnnouncementsManager;
 import com.ferg.awfulapp.forums.CrawlerTask;
@@ -21,7 +21,7 @@ import com.ferg.awfulapp.util.AwfulUtils;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.ferg.awfulapp.constants.Constants.DEBUG;
+import timber.log.Timber;
 
 /**
  * Created by baka kaba on 29/04/2016.
@@ -30,14 +30,17 @@ import static com.ferg.awfulapp.constants.Constants.DEBUG;
  */
 public class SyncManager {
 
-    private static final String TAG = "SyncManager";
     private static final int FORUM_UPDATE_FREQUENCY = 1;
     private static final TimeUnit FORUM_UPDATE_FREQUENCY_UNITS = TimeUnit.DAYS;
 
 
     public static void sync(@NonNull Context context) {
         Context appContext = context.getApplicationContext();
-        Log.i(TAG, "------ syncing profile and forum details");
+        if (!Authentication.INSTANCE.isUserLoggedIn()) {
+            Timber.w("Failed to sync - user is not logged in");
+            return;
+        }
+        Timber.i("------ syncing profile and forum details");
         updateProfile(appContext);
         updateAccountFeatures(appContext);
         updatePms(appContext);
@@ -91,18 +94,15 @@ public class SyncManager {
 
         // unless we really need some forum data (e.g. after a data clear), only update if scheduled and permitted
         if (hasForumData && (limitDataUse || !updateDue)) {
-            if (DEBUG)
-                Log.d(TAG, String.format("Not updating forums - %s %s since last update", timeSinceUpdate, timeUnits));
+                Timber.d("Not updating forums - %s %s since last update", timeSinceUpdate, timeUnits);
             return;
         }
         int updatePriority = hasForumData ? CrawlerTask.PRIORITY_LOW : CrawlerTask.PRIORITY_HIGH;
-        if (DEBUG) {
-            Log.d(TAG, String.format("Updating forums (%s priority) - %s forum data, %d %s since last update",
+            Timber.d("Updating forums (%s priority) - %s forum data, %d %s since last update",
                     updatePriority == CrawlerTask.PRIORITY_HIGH ? "high" : "low",
                     hasForumData ? "we have old" : "no existing",
                     timeSinceUpdate,
-                    timeUnits));
-        }
+                    timeUnits);
 
         // add a listener for the result - this is really to check for failure in a no-data situation
         forumRepo.registerListener(new UpdateResultHandler(forumRepo, context));
@@ -137,10 +137,10 @@ public class SyncManager {
             // check for a serious failure where we have no data, and run the basic dropdown update once if necessary
             boolean noForumData = !forumRepo.hasForumData();
             String message = "onForumsUpdateCompleted: sync %s, no forum data: %b, dropdown parse run: %b";
-            Log.i(TAG, String.format(message, success ? "succeeded" : "failed", noForumData, parsedDropdown));
+            Timber.i(message, success ? "succeeded" : "failed", noForumData, parsedDropdown);
 
             if (noForumData && !parsedDropdown) {
-                Log.w(TAG, "Forum update failed, still have no data - running dropdown parser to get something");
+                Timber.w("Forum update failed, still have no data - running dropdown parser to get something");
                 parsedDropdown = true;
                 // TODO: other callbacks are out of order, since other *Completed callbacks follow this, but this triggers some *Started ones first
                 // basically the problem is, the index fragment gets a callback for this NEW update before it gets

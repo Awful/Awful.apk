@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ActivityInfo
+import android.content.pm.ActivityInfo.*
 import android.graphics.Typeface
 import android.net.Uri
 import android.net.http.HttpResponseCache
@@ -17,7 +17,6 @@ import android.widget.TextView
 import com.ferg.awfulapp.announcements.AnnouncementsManager
 import com.ferg.awfulapp.constants.Constants
 import com.ferg.awfulapp.constants.Constants.*
-import com.ferg.awfulapp.dialog.LogOutDialog
 import com.ferg.awfulapp.network.NetworkUtils
 import com.ferg.awfulapp.preferences.AwfulPreferences
 import com.ferg.awfulapp.preferences.SettingsActivity
@@ -43,23 +42,9 @@ import java.io.File
  * app style and behaviour.
  */
 abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPreferenceUpdate {
-    private var loggedIn = false
     private var customActivityTitle: TextView? = null
     // TODO: this is a var but honestly why does any activity need to replace it with their own copy? It's a singleton - if they're doing it for the callbacks, just use the register method
     var mPrefs: AwfulPreferences = AwfulPreferences.getInstance()
-
-    val isLoggedIn: Boolean
-        get() {
-            if (!loggedIn) {
-                loggedIn = NetworkUtils.restoreLoginCookies(application)
-            }
-            return loggedIn
-        }
-
-    private fun reAuthenticate() {
-        NetworkUtils.clearLoginCookies(this)
-        startActivityForResult(Intent(this, AwfulLoginActivity::class.java), LOGIN_ACTIVITY_REQUEST)
-    }
 
 
     //
@@ -86,14 +71,14 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
         Timber.i("*** onResume")
         super.onResume()
         updateOrientation()
-        // check login state when coming back into use, instead of in onCreate
-        loggedIn = false // reset for the isLoggedIn check
         when {
-            isLoggedIn -> with(mPrefs) {
+            Authentication.isUserLoggedIn() -> with(mPrefs) {
                 if (ignoreFormkey == null || userTitle == null) ProfileRequest(this@AwfulActivity).sendBlind()
                 if (ignoreFormkey == null) FeatureRequest(this@AwfulActivity).sendBlind()
             }
-            this !is AwfulLoginActivity -> reAuthenticate()
+            // TODO: this interferes with the code in AwfulFragment#reAuthenticate - i.e. it forces "return to this activity" behaviour, but fragments may want to return to the main activity.
+            // And the activity isn't always the authority, e.g. using BasicActivity which is a plain container where all the specific behaviour is handled by its fragment. It's awkward
+            this !is AwfulLoginActivity -> showLogIn(returnToMainActivity = false)
         }
     }
 
@@ -129,6 +114,7 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
         super.onActivityResult(request, result, intent)
         supportFragmentManager.fragments.forEach { it.onActivityResult(request, result, intent) }
         if (request == LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_CANCELED) {
+            Timber.w("Result from login activity - cancelled, closing app")
             finish()
         }
     }
@@ -199,10 +185,10 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
 
     private fun updateOrientation() {
         requestedOrientation = when (mPrefs.orientation) {
-            "portrait" -> ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-            "landscape" -> ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-            "sensor" -> ActivityInfo.SCREEN_ORIENTATION_SENSOR
-            else -> ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            "portrait" -> SCREEN_ORIENTATION_PORTRAIT
+            "landscape" -> SCREEN_ORIENTATION_LANDSCAPE
+            "sensor" -> SCREEN_ORIENTATION_SENSOR
+            else -> SCREEN_ORIENTATION_UNSPECIFIED
         }
     }
 
@@ -230,6 +216,23 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
     // App navigation
     //
 
+    /**
+     * Log out, and show the login activity.
+     *
+     * If [returnToMainActivity] is true, after logging in the user will be directed to the main
+     * activity, which receives the login activity result, otherwise the user returns to the current
+     * activity. This is useful if e.g. the user jumps straight into their private messages, receives
+     * a logged out error, and logs in - you can either update the private messages view, or kick them
+     * to the main activity.
+     */
+    fun showLogIn(returnToMainActivity: Boolean = false) {
+        if (returnToMainActivity) {
+            startActivity(NavigationEvent.ReAuthenticate.getIntent(applicationContext))
+        } else {
+            Authentication.reAuthenticate(this)
+        }
+    }
+
     open fun showForumIndex() = startActivity(NavigationEvent.ForumIndex.getIntent(applicationContext))
 
     open fun showBookmarks() = startActivity(NavigationEvent.Bookmarks.getIntent(applicationContext))
@@ -240,7 +243,7 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
     open fun showThread(id: Int, page: Int? = null, postJump: String? = null, forceReload: Boolean) =
             startActivity(NavigationEvent.Thread(id, page, postJump).getIntent(applicationContext))
 
-    fun showLogout() = LogOutDialog(this).show()
+    fun showLogoutDialog() = LogOutDialog(this).show()
 
     /** Display the announcements  */
     fun showAnnouncements() = AnnouncementsManager.getInstance().showAnnouncements(this)
@@ -293,6 +296,7 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
  */
 sealed class NavigationEvent {
 
+    object ReAuthenticate : NavigationEvent()
     object Bookmarks : NavigationEvent()
     object ForumIndex : NavigationEvent()
     data class Thread(val id: Int, val page: Int? = null, val postJump: String? = null) : NavigationEvent()
@@ -316,11 +320,14 @@ sealed class NavigationEvent {
                                 page?.let { putExtra(FORUM_PAGE, page) }
                             }
                             is Bookmarks -> putExtra(FORUM_ID, USERCP_ID)
+                            is ReAuthenticate -> putExtra(TYPE_RE_AUTHENTICATE, true)
                         }
                     }
 
 
     companion object {
+
+        private const val TYPE_RE_AUTHENTICATE = "re-auth"
 
         /**
          * Parse an intent as one of the navigation events we handle. Defaults to [ForumIndex]
@@ -328,6 +335,8 @@ sealed class NavigationEvent {
         fun Intent.parse(): NavigationEvent {
             parseUrl()?.let { return it }
             return when {
+                hasExtra(TYPE_RE_AUTHENTICATE) ->
+                    ReAuthenticate
                 hasExtra(THREAD_ID) ->
                     Thread(
                             id = getIntExtra(THREAD_ID)!!,

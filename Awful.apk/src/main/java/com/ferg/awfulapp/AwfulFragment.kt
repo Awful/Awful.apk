@@ -197,7 +197,34 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
             is AwfulError -> alertView.show(error)
             is VolleyError -> alertView.setTitle(R.string.loading_failed).setIcon(R.drawable.ic_error).show()
         }
+
+        handleLoggedOutErrors(error)
     }
+
+    /**
+     * Handles errors from requests, and looks for signs the user is logged out (and needs to reauth)
+     */
+    private fun handleLoggedOutErrors(error: VolleyError?) {
+        if (error is AwfulError && error.errorCode == AwfulError.ERROR_LOGGED_OUT ||
+                error?.message?.startsWith("java.net.ProtocolException: Too many redirects") == true
+                ) {
+            Timber.w("--- request error - looks like you're logged out, attempting to log in")
+            awfulActivity?.let { reAuthenticate(it) } ?: Authentication.logOut()
+        }
+    }
+
+    /**
+     * Handles showing the login activity.
+     *
+     * By default this reauths using the current activity (always passed in as [activity] so you don't
+     * need to null check) as the result listener. Override it if you want to call [AwfulActivity.showLogIn]
+     * and force a return to the main activity instead, i.e. if you don't want to come back to the current
+     * activity and handle the result there.
+     */
+    open fun reAuthenticate(activity: AwfulActivity) {
+        activity.showLogIn(returnToMainActivity = false)
+    }
+
 
     override fun onPreferenceChange(prefs: AwfulPreferences, key: String?) {
         swipyLayout?.apply {

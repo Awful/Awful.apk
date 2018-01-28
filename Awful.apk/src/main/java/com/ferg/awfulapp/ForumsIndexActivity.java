@@ -364,6 +364,8 @@ public class ForumsIndexActivity extends AwfulActivity
         } else if (parsed instanceof NavigationEvent.Url) {
             NavigationEvent.Url url = (NavigationEvent.Url) parsed;
             forumsPager.openThread(url.getUrl());
+        } else if (parsed instanceof NavigationEvent.ReAuthenticate) {
+            Authentication.INSTANCE.reAuthenticate(this);
         }
     }
 
@@ -436,6 +438,7 @@ public class ForumsIndexActivity extends AwfulActivity
     protected void onActivityResult(int request, int result, Intent intent) {
         super.onActivityResult(request, result, intent);
         if (request == Constants.LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_OK) {
+            Timber.i("Result from login activity: successful login - calling sync");
             SyncManager.sync(this);
         }
     }

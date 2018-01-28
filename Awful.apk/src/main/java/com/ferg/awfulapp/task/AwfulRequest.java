@@ -231,12 +231,16 @@ public abstract class AwfulRequest<T> {
     }
 
     /**
-     * This pretty much only exists so you can replace generic Volley errors with more user-friendly messages (gimmicks)
-     * It is only called after all the normal volley error handling occurs, so this only affects the automatic user alerts.
+     * Customize the error a request delivers in its {@link ProgressListener#requestEnded(AwfulRequest, VolleyError)} callback.
+     *
+     * You can use this to provide a more meaningful error, e.g. for the automatic user alerts that
+     * fragments display - be aware that returning a different error (instead of just changing the
+     * message) may affect error handling, e.g. code that looks for a {@link AwfulError#ERROR_LOGGED_OUT}
+     *
      * @param error The actual error, typically network failure or whatever.
-     * @return Just return an AwfulError with whatever message you want. Or null to disable alerts.
+     * @return the error to pass to listeners, or null for no error (and no alert)
      */
-    protected VolleyError customizeAlert(VolleyError error){
+    protected VolleyError customizeProgressListenerError(VolleyError error){
         return error;
     }
 
@@ -364,7 +368,7 @@ public abstract class AwfulRequest<T> {
         public void deliverError(VolleyError error) {
             super.deliverError(error);
             if(progressListener != null){
-                progressListener.requestEnded(AwfulRequest.this, customizeAlert(error));
+                progressListener.requestEnded(AwfulRequest.this, customizeProgressListenerError(error));
             }
         }
 

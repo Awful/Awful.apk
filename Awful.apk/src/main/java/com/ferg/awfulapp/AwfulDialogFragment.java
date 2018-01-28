@@ -140,11 +140,7 @@ public abstract class AwfulDialogFragment extends DialogFragment implements Acti
 	public void onPreferenceChange(AwfulPreferences prefs, String key) {
 		
 	}
-	
-	protected boolean isLoggedIn(){
-		return getAwfulActivity().isLoggedIn();
-	}
-	
+
 	public boolean onBackPressed() {
 		return false;
 	}

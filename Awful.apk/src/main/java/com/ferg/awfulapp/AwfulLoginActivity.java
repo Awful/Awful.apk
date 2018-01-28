@@ -33,7 +33,6 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -54,6 +53,8 @@ import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.LoginRequest;
 
 import org.apache.http.HttpStatus;
+
+import timber.log.Timber;
 
 public class AwfulLoginActivity extends AwfulActivity {
     private static final String TAG = "LoginActivity";
@@ -101,12 +102,12 @@ public class AwfulLoginActivity extends AwfulActivity {
         });
     }
 
-    //Not sure if this needs a @Override since it worked without one
+    @Override
     public void onResume() {
         super.onResume();
-        Log.i(TAG, "onResume");
-        if (isLoggedIn()) {
-            Log.e(TAG, "Already logged in! Closing AwfulLoginActivity!");
+        Timber.i("onResume");
+        if (Authentication.INSTANCE.isUserLoggedIn()) {
+            Timber.i("Already logged in! Closing AwfulLoginActivity!");
             this.finish();
         }
     }
@@ -163,6 +164,7 @@ public class AwfulLoginActivity extends AwfulActivity {
                 if (response != null && response.statusCode == HttpStatus.SC_MOVED_TEMPORARILY) {
                     Boolean result = NetworkUtils.saveLoginCookies(getApplicationContext());
                     if(result){
+                        // TODO: this should probably be handled by firing a ProfileRequest and getting the username from there, maybe through SyncManager
                         AwfulPreferences prefs = AwfulPreferences.getInstance(getApplicationContext());
                         prefs.setPreference(Keys.USERNAME, username);
                         onLoginSuccess();
