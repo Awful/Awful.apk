@@ -21,7 +21,6 @@ import com.ferg.awfulapp.network.NetworkUtils
 import com.ferg.awfulapp.preferences.AwfulPreferences
 import com.ferg.awfulapp.provider.StringProvider
 import com.ferg.awfulapp.provider.StringProvider.getString
-import com.ferg.awfulapp.util.AwfulUtils
 import java.lang.ref.WeakReference
 
 /**
@@ -107,7 +106,7 @@ class NavigationDrawer(val activity: AwfulActivity, toolbar: Toolbar, val prefs:
                 R.id.sidebar_search -> showSearch()
                 R.id.sidebar_pm -> showPrivateMessages()
                 R.id.sidebar_announcements -> showAnnouncements()
-                R.id.sidebar_logout -> showLogout()
+                R.id.sidebar_logout -> Authentication.logOut()
                 else -> return false //not handled, exit early without closing
             }
             close()

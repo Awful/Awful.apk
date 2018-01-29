@@ -31,7 +31,6 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -453,11 +452,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 
                         @Override
                         public void failure(VolleyError error) {
-                            if(null != error.getMessage() && error.getMessage().startsWith("java.net.ProtocolException: Too many redirects")){
-                                Timber.e("Error: " + error.getMessage() + "\nFailed to sync thread list - You are now LOGGED OUT");
-                                NetworkUtils.clearLoginCookies(getAwfulActivity());
-                                getAwfulActivity().startActivity(new Intent().setClass(getAwfulActivity(), AwfulLoginActivity.class));
-                            }
+                            Timber.w("Failed to sync thread list!");
                             refreshInfo();
                             lastRefresh = System.currentTimeMillis();
                             loadFailed = true;

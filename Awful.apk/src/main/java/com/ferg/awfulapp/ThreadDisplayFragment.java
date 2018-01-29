@@ -829,11 +829,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
 				@Override
 				public void failure(VolleyError error) {
-					if (null != error.getMessage() && error.getMessage().startsWith("java.net.ProtocolException: Too many redirects")) {
-						Timber.e("Error: " + error.getMessage() + "\nFailed to sync thread - You are now LOGGED OUT");
-						NetworkUtils.clearLoginCookies(activity);
-						activity.startActivity(new Intent().setClass(activity, AwfulLoginActivity.class));
-					}
+					Timber.w("Failed to sync thread! Error: %s", error.getMessage());
 					refreshInfo();
 					refreshPosts();
 				}

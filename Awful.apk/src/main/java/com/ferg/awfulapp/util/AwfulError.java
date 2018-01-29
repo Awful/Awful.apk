@@ -1,15 +1,11 @@
 package com.ferg.awfulapp.util;
 
-import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.animation.Animation;
 
 import com.android.volley.VolleyError;
-import com.ferg.awfulapp.AwfulLoginActivity;
 import com.ferg.awfulapp.R;
-import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.Keys;
 
@@ -23,6 +19,8 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import timber.log.Timber;
 
 /**
  * AwfulError
@@ -62,7 +60,7 @@ public class AwfulError extends VolleyError {
     public AwfulError(int code, @Nullable String message) {
         errorCode = code;
         errorMessage = message;
-        Log.e(TAG, "Error: " + code + " - " + getMessage());
+        Timber.e("Error: " + code + " - " + getMessage());
     }
 
     /**
@@ -140,9 +138,7 @@ public class AwfulError extends VolleyError {
     public static AwfulError checkPageErrors(Document page, AwfulPreferences prefs) {
         // not logged in
         if (null != page.getElementById("notregistered")) {
-            Log.e(TAG, "!!!Page says not registered - You are now LOGGED OUT");
-                NetworkUtils.clearLoginCookies(prefs.getContext());
-                prefs.getContext().startActivity(new Intent().setClass(prefs.getContext(), AwfulLoginActivity.class));
+            Timber.w("!!!Page says not registered - You are now LOGGED OUT");
             return new AwfulError(ERROR_LOGGED_OUT);
         }
 
@@ -186,10 +182,10 @@ public class AwfulError extends VolleyError {
                     //TODO this might have timezone issues?
                     probTimestamp = probationFormat.parse(date).getTime();
                 } catch (ParseException e) {
-                    Log.w(TAG, "checkPageErrors: couldn't parse probation date text: " + date, e);
+                    Timber.tag(TAG).w(e, "checkPageErrors: couldn't parse probation date text: %s", date);
                 }
             } else {
-                Log.w(TAG, "checkPageErrors: couldn't find expected probation date text!\nFull text: " + probation.text());
+                Timber.tag(TAG).w("checkPageErrors: couldn't find expected probation date text!\nFull text: %s", probation.text());
             }
 
             prefs.setPreference(Keys.PROBATION_TIME, probTimestamp);

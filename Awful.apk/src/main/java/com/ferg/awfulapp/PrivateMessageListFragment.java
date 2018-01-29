@@ -52,7 +52,6 @@ import android.widget.ListView;
 
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
@@ -62,6 +61,8 @@ import com.ferg.awfulapp.task.PMListRequest;
 import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.util.AwfulUtils;
+
+import timber.log.Timber;
 
 public class PrivateMessageListFragment extends AwfulFragment implements SwipeRefreshLayout.OnRefreshListener {
 	
@@ -159,14 +160,9 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
 
                 @Override
                 public void failure(VolleyError error) {
-                    if(null != error.getMessage() && error.getMessage().startsWith("java.net.ProtocolException: Too many redirects")){
-                        Log.e(TAG, "Error: "+error.getMessage());
-                        Log.e(TAG, "!!!Failed to sync PMs - You are now LOGGED OUT");
-                        NetworkUtils.clearLoginCookies(getAwfulActivity());
-                        getAwfulActivity().startActivity(new Intent().setClass(getAwfulActivity(), AwfulLoginActivity.class));
-                    }
+                    Timber.w("Failed to sync PMs! Error: %s", error.getMessage());
+                    // TODO: 28/01/2018 might be able to remove this everywhere - it's being set in AwfulFragment#onRequestEnded
                     mSRL.setRefreshing(false);
-                    //The error is already passed to displayAlert by the request framework.
                 }
             }));
     	}
