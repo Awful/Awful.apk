@@ -1,5 +1,6 @@
 package com.ferg.awfulapp
 
+import android.content.Context
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
@@ -8,6 +9,8 @@ import android.support.v4.app.FragmentActivity
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.view.ViewPager
+import android.util.AttributeSet
+import android.view.MotionEvent
 import android.view.ViewGroup
 import com.ferg.awfulapp.Pages.*
 import com.ferg.awfulapp.constants.Constants
@@ -15,7 +18,6 @@ import com.ferg.awfulapp.preferences.AwfulPreferences
 import com.ferg.awfulapp.provider.ColorProvider
 import com.ferg.awfulapp.thread.AwfulURL
 import com.ferg.awfulapp.util.AwfulUtils
-import com.ferg.awfulapp.widget.ToggleViewPager
 import timber.log.Timber
 import kotlin.properties.Delegates
 
@@ -57,7 +59,7 @@ enum class Pages(val width: Float) {
  * @param savedInstanceState the activity's saved state - used to restore the viewpager
  */
 class ForumsPagerController(
-        private val viewPager: ToggleViewPager,
+        private val viewPager: SwipeLockViewPager,
         prefs: AwfulPreferences,
         activity: FragmentActivity,
         private val callbacks: PagerCallbacks,
@@ -82,6 +84,7 @@ class ForumsPagerController(
 
     // Access to the fragments in the adapter - as functions so we can pass them as getters for the 'run when not null' tasks
     fun getForumIndexFragment() = pagerAdapter.fragments[ForumIndex] as ForumsIndexFragment?
+
     fun getForumDisplayFragment() = pagerAdapter.fragments[ForumDisplay] as ForumDisplayFragment?
     fun getThreadDisplayFragment() = pagerAdapter.fragments[ThreadDisplay] as ThreadDisplayFragment?
 
@@ -250,7 +253,9 @@ class ForumsPagerController(
         }
     }
 
-    fun setSwipeEnabled(enabled: Boolean) = viewPager.setSwipeEnabled(enabled)
+    fun setSwipeEnabled(enabled: Boolean) {
+        viewPager.swipeEnabled = enabled
+    }
 }
 
 
@@ -351,5 +356,45 @@ private class ForumPagerAdapter(
         if (page == currentPage) controller.onCurrentPageChanged()
     }
 
+}
 
+/**
+ * ViewPager wrapper that allows swiping to be enabled and disabled, e.g. to allow horizontal swiping
+ * in code blocks in the webview without the pager moving too.
+ */
+class SwipeLockViewPager @JvmOverloads constructor(
+        context: Context, attrs: AttributeSet? = null
+) : ViewPager(context, attrs) {
+
+    /** Enable or disable swiping on this viewpager */
+    var swipeEnabled = true
+
+    /** True if the current page is not the first */
+    fun hasPreviousPage() = currentItem > 0
+
+    /** Move to the page in the previous position, if possible */
+    fun goToPreviousPage() {
+        if (hasPreviousPage()) currentItem -= 1
+    }
+
+    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean =
+            swipeEnabled && preventCrash { super.onInterceptTouchEvent(ev) }
+
+    override fun onTouchEvent(ev: MotionEvent): Boolean =
+            swipeEnabled && preventCrash { super.onTouchEvent(ev) }
+
+
+    /**
+     * Fix to avoid apparent bug in the support library, with infrequent crashing from an IAE.
+     * Runs the code in [block] and returns the result, or false if the crash occurred.
+     * (See [this issue](https://code.google.com/p/android/issues/detail?id=64553))
+     */
+    private inline fun preventCrash(block: () -> Boolean): Boolean {
+        // TODO: When/if this is fixed, remove the internal SwipyRefreshLayout class and refactor the XML layouts to use the external library version again, thanks!
+        return try {
+            block()
+        } catch (e: IllegalArgumentException) {
+            false
+        }
+    }
 }

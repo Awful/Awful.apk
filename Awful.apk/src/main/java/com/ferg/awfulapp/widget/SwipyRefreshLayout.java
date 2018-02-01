@@ -6,14 +6,14 @@ import android.view.MotionEvent;
 
 /**
  * Created by baka kaba on 15/08/2015.
- *
+ * <p>
  * <p>This is a (hopefully) temporary extension of the SwipyRefreshLayout library,
  * to catch and swallow an exception that seems to be caused by an
  * <a href="https://code.google.com/p/android/issues/detail?id=64553">internal bug</a>.</p>
- *
- * <p>When/if this is fixed, remove the same code from {@link ToggleViewPager} too thanks!</p>
+ * <p>
+ * <p>When/if this is fixed, remove the same code from {@link com.ferg.awfulapp.SwipeLockViewPager} too thanks!</p>
  */
-public class SwipyRefreshLayout extends com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout{
+public class SwipyRefreshLayout extends com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout {
 
     public SwipyRefreshLayout(Context context) {
         super(context);
@@ -37,9 +37,10 @@ public class SwipyRefreshLayout extends com.orangegangsters.github.swipyrefreshl
     /**
      * Fix to avoid apparent bug in the support library, with infrequent crashing from an IAE.
      * (See <a href="https://code.google.com/p/android/issues/detail?id=64553">this issue</a>.)
-     * @param ev            Motion event being passed
-     * @param intercepting  Set true when handling onInterceptTouchEvent
-     * @return              False if the exception was thrown, otherwise the result of the superclass call
+     *
+     * @param ev           Motion event being passed
+     * @param intercepting Set true when handling onInterceptTouchEvent
+     * @return False if the exception was thrown, otherwise the result of the superclass call
      */
     private boolean antiCrashEventHandler(MotionEvent ev, boolean intercepting) {
         boolean result = false;

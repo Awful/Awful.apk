@@ -57,7 +57,6 @@ import com.ferg.awfulapp.messages.PmManager;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.Keys;
 import com.ferg.awfulapp.sync.SyncManager;
-import com.ferg.awfulapp.widget.ToggleViewPager;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -87,7 +86,7 @@ public class ForumsIndexActivity extends AwfulActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.forum_index_activity);
 
-        ToggleViewPager viewPager = findViewById(R.id.forum_index_pager);
+        SwipeLockViewPager viewPager = findViewById(R.id.forum_index_pager);
         forumsPager = new ForumsPagerController(viewPager, getMPrefs(), this, this, savedInstanceState);
         mToolbar = findViewById(R.id.awful_toolbar);
         setSupportActionBar(mToolbar);
