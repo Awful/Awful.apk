@@ -145,6 +145,11 @@ section.postcontent .bbc-spoiler * {
 visibility: hidden;
 }
 
+section.postcontent .bbc-spoiler:not(.spoiled) .bbc-block,
+section.postcontent .bbc-spoiler:not(.spoiled) .bbc-list{
+display: inline-block;
+}
+
 section.postcontent .bbc-spoiler.spoiled {
 background: transparent;
 }

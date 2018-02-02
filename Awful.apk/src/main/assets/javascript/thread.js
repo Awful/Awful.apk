@@ -11,7 +11,7 @@ function containerInit() {
 		var target = event.target;
 
 		if (findInPath(event, 'bbc-spoiler') && listener.getPreference('showSpoilers') !== 'true') {
-			target.classList.toggle('spoiled');
+			findInPath(event, 'bbc-spoiler', true).classList.toggle('spoiled');
 			return;
 		}
 		if (findInPath(event, 'toggleread')) {
