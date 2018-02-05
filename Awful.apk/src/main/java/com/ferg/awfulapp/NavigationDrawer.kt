@@ -106,7 +106,7 @@ class NavigationDrawer(val activity: AwfulActivity, toolbar: Toolbar, val prefs:
                 R.id.sidebar_search -> showSearch()
                 R.id.sidebar_pm -> showPrivateMessages()
                 R.id.sidebar_announcements -> showAnnouncements()
-                R.id.sidebar_logout -> Authentication.logOut()
+                R.id.sidebar_logout -> showLogoutDialog()
                 else -> return false //not handled, exit early without closing
             }
             close()
