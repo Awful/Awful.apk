@@ -1,9 +1,11 @@
 package com.ferg.awfulapp
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
+import android.os.SystemClock
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 import android.support.v4.app.FragmentManager
@@ -367,7 +369,16 @@ class SwipeLockViewPager @JvmOverloads constructor(
 ) : ViewPager(context, attrs) {
 
     /** Enable or disable swiping on this viewpager */
-    var swipeEnabled = true
+    var swipeEnabled by Delegates.observable(true, { _, _, enabled -> if (!enabled) cancelSwipe() })
+    private var ignoreMotion = false
+
+    /** Forcibly end the current swipe, and ignore any further motion events (avoids regaining focus during a swipe and seeing it as a large, sudden move) */
+    private fun cancelSwipe() {
+        SystemClock.uptimeMillis()
+                .let { now -> MotionEvent.obtain(now, now, MotionEvent.ACTION_CANCEL, 0f, 0f, 0) }
+                .let { onTouchEvent(it) }
+        ignoreMotion = true
+    }
 
     /** True if the current page is not the first */
     fun hasPreviousPage() = currentItem > 0
@@ -378,8 +389,13 @@ class SwipeLockViewPager @JvmOverloads constructor(
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean =
-            swipeEnabled && preventCrash { super.onInterceptTouchEvent(ev) }
+            swipeEnabled && preventCrash {
+                // if we're ignoring the current motion, this resets it when a new one starts
+                if (ev.actionMasked == MotionEvent.ACTION_DOWN) ignoreMotion = false
+                if (!ignoreMotion) super.onInterceptTouchEvent(ev) else false
+            }
 
+    @SuppressLint("ClickableViewAccessibility") // we're just calling through to the super method anyway
     override fun onTouchEvent(ev: MotionEvent): Boolean =
             swipeEnabled && preventCrash { super.onTouchEvent(ev) }
 
