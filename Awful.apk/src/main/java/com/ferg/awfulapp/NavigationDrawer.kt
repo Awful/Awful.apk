@@ -68,7 +68,13 @@ class NavigationDrawer(val activity: AwfulActivity, toolbar: Toolbar, val prefs:
 
     init {
         navigationMenu.setNavigationItemSelectedListener(::handleItemSelection)
-        drawerToggle = ActionBarDrawerToggle(activity, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close)
+        drawerToggle = ActionBarDrawerToggle(
+            activity,
+            drawerLayout,
+            toolbar,
+            R.string.drawer_open,
+            R.string.drawer_close
+        )
         drawerLayout.setDrawerListener(drawerToggle)
 
         val nav = navigationMenu.getHeaderView(0)
@@ -90,7 +96,8 @@ class NavigationDrawer(val activity: AwfulActivity, toolbar: Toolbar, val prefs:
                 return
             }
 
-            override fun onErrorResponse(error: VolleyError) = avatar.setImageResource(R.drawable.frog_icon)
+            override fun onErrorResponse(error: VolleyError) =
+                avatar.setImageResource(R.drawable.frog_icon)
         })
     }
 
@@ -118,20 +125,31 @@ class NavigationDrawer(val activity: AwfulActivity, toolbar: Toolbar, val prefs:
     private fun refresh() {
         username.text = prefs.username
         prefs.userTitle?.let { customTitle ->
-            if (customTitle.isNotBlank()) loadAvatar(customTitle, avatar) else avatar.setImageResource(R.drawable.frog_icon)
+            if (customTitle.isNotBlank()) loadAvatar(
+                customTitle,
+                avatar
+            ) else avatar.setImageResource(R.drawable.frog_icon)
             avatar.clipToOutline = customTitle.isNotBlank()
         }
 
         // display the current forum title (or not)
-        forumItem.isVisible = currentForumId != NULL_FORUM_ID && currentForumId != Constants.USERCP_ID
+        forumItem.isVisible = currentForumId != NULL_FORUM_ID && currentForumId !=
+                Constants.USERCP_ID
         threadItem.isVisible = currentThreadId != NULL_THREAD_ID
 
         // update the forum and thread titles in the background, to avoid hitting the DB on the UI thread
         // to keep things simple, it also sets the text on anything we just hid, which will be placeholder text if the IDs are invalid
-        HierarchyTextUpdater(currentForumId, currentThreadId, activity, forumItem, threadItem).execute()
+        HierarchyTextUpdater(
+            currentForumId,
+            currentThreadId,
+            activity,
+            forumItem,
+            threadItem
+        ).execute()
         platFeatures.forEach { it.setEnabled(prefs.hasPlatinum).isVisible = prefs.hasPlatinum }
         val unread = AnnouncementsManager.getInstance().unreadCount
-        announcementsItem.title = getString(R.string.announcements) + if (unread == 0) "" else " ($unread)"
+        announcementsItem.title = getString(R.string.announcements) +
+                if (unread == 0) "" else " ($unread)"
     }
 
     fun setCurrentForumAndThread(forumId: Int?, threadId: Int?) {
@@ -162,11 +180,11 @@ class NavigationDrawer(val activity: AwfulActivity, toolbar: Toolbar, val prefs:
  * avoid this completely.
  */
 private class HierarchyTextUpdater(
-        val forumId: Int,
-        val threadId: Int,
-        context: Context,
-        forumItem: MenuItem,
-        threadItem: MenuItem
+    val forumId: Int,
+    val threadId: Int,
+    context: Context,
+    forumItem: MenuItem,
+    threadItem: MenuItem
 ) : AsyncTask<Void, Void, Void>() {
 
     private var forumName: String? = null

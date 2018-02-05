@@ -23,7 +23,10 @@ class LogOutDialog(context: Context) : AlertDialog(context) {
     init {
         setTitle(context.getString(R.string.logout))
         setMessage(context.getString(R.string.logout_message))
-        setButton(BUTTON_POSITIVE, context.getString(R.string.logout)) { _, _ -> ownerActivity?.let { reAuthenticate(it) } ?: logOut() }
+        setButton(
+            BUTTON_POSITIVE,
+            context.getString(R.string.logout)
+        ) { _, _ -> ownerActivity?.let { reAuthenticate(it) } ?: logOut() }
         setButton(BUTTON_NEGATIVE, context.getString(R.string.cancel), { _, _ -> Unit })
     }
 

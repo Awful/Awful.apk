@@ -76,8 +76,8 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
                 if (ignoreFormkey == null || userTitle == null) ProfileRequest(this@AwfulActivity).sendBlind()
                 if (ignoreFormkey == null) FeatureRequest(this@AwfulActivity).sendBlind()
             }
-            // TODO: this interferes with the code in AwfulFragment#reAuthenticate - i.e. it forces "return to this activity" behaviour, but fragments may want to return to the main activity.
-            // And the activity isn't always the authority, e.g. using BasicActivity which is a plain container where all the specific behaviour is handled by its fragment. It's awkward
+        // TODO: this interferes with the code in AwfulFragment#reAuthenticate - i.e. it forces "return to this activity" behaviour, but fragments may want to return to the main activity.
+        // And the activity isn't always the authority, e.g. using BasicActivity which is a plain container where all the specific behaviour is handled by its fragment. It's awkward
             this !is AwfulLoginActivity -> showLogIn(returnToMainActivity = false)
         }
     }
@@ -194,7 +194,7 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
 
     @JvmOverloads
     fun setPreferredFont(view: View?, flags: Int = -1) =
-            view?.let { (application as AwfulApplication).setPreferredFont(view, flags) }
+        view?.let { (application as AwfulApplication).setPreferredFont(view, flags) }
 
     protected fun updateTheme() = setTheme(AwfulTheme.forForum(null).themeResId)
 
@@ -233,15 +233,22 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
         }
     }
 
-    open fun showForumIndex() = startActivity(NavigationEvent.ForumIndex.getIntent(applicationContext))
+    open fun showForumIndex() =
+        startActivity(NavigationEvent.ForumIndex.getIntent(applicationContext))
 
-    open fun showBookmarks() = startActivity(NavigationEvent.Bookmarks.getIntent(applicationContext))
+    open fun showBookmarks() =
+        startActivity(NavigationEvent.Bookmarks.getIntent(applicationContext))
 
     open fun showForum(id: Int, page: Int? = null) =
-            startActivity(NavigationEvent.Forum(id, page).getIntent(applicationContext))
+        startActivity(NavigationEvent.Forum(id, page).getIntent(applicationContext))
 
-    open fun showThread(id: Int, page: Int? = null, postJump: String? = null, forceReload: Boolean) =
-            startActivity(NavigationEvent.Thread(id, page, postJump).getIntent(applicationContext))
+    open fun showThread(
+        id: Int,
+        page: Int? = null,
+        postJump: String? = null,
+        forceReload: Boolean
+    ) =
+        startActivity(NavigationEvent.Thread(id, page, postJump).getIntent(applicationContext))
 
     fun showLogoutDialog() = LogOutDialog(this).show()
 
@@ -255,18 +262,24 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
      */
     fun showPrivateMessages(openMessageUri: Uri? = null) =
             // TODO: rework this so the message ID is parsed from the link, and we just pass that around internally
-            Intent().apply {
-                setClass(this@AwfulActivity, PrivateMessageActivity::class.java)
-                openMessageUri?.let(::setData)
-            }.let(::startActivity)
+        Intent().apply {
+            setClass(this@AwfulActivity, PrivateMessageActivity::class.java)
+            openMessageUri?.let(::setData)
+        }.let(::startActivity)
 
     /** Display the forum search  */
     fun showSearch() =
-            startActivity(BasicActivity.intentFor(SearchFragment::class.java, this, getString(R.string.search_forums_activity_title)))
+        startActivity(
+            BasicActivity.intentFor(
+                SearchFragment::class.java,
+                this,
+                getString(R.string.search_forums_activity_title)
+            )
+        )
 
     /** Display the app settings  */
     fun showSettings() =
-            startActivity(Intent().setClass(this, SettingsActivity::class.java))
+        startActivity(Intent().setClass(this, SettingsActivity::class.java))
 
     /**
      * Display the post/reply/edit composer.
@@ -278,11 +291,12 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
     fun showPostComposer(threadId: Int, postType: Int, sourcePostId: Int) {
         // TODO: this should probably all be refactored into types like the NavigationEvents (maybe even rolled in with them) - discrete Posting events with the specific associated data for each
         startActivityForResult(
-                Intent(this, PostReplyActivity::class.java)
-                        .putExtra(Constants.REPLY_THREAD_ID, threadId)
-                        .putExtra(Constants.EDITING, postType)
-                        .putExtra(Constants.REPLY_POST_ID, sourcePostId),
-                PostReplyFragment.REQUEST_POST)
+            Intent(this, PostReplyActivity::class.java)
+                .putExtra(Constants.REPLY_THREAD_ID, threadId)
+                .putExtra(Constants.EDITING, postType)
+                .putExtra(Constants.REPLY_POST_ID, sourcePostId),
+            PostReplyFragment.REQUEST_POST
+        )
     }
 
 
@@ -299,30 +313,32 @@ sealed class NavigationEvent {
     object ReAuthenticate : NavigationEvent()
     object Bookmarks : NavigationEvent()
     object ForumIndex : NavigationEvent()
-    data class Thread(val id: Int, val page: Int? = null, val postJump: String? = null) : NavigationEvent()
+    data class Thread(val id: Int, val page: Int? = null, val postJump: String? = null) :
+        NavigationEvent()
+
     data class Forum(val id: Int, val page: Int? = null) : NavigationEvent()
     data class Url(val url: AwfulURL) : NavigationEvent()
 
     // TODO: use specific type constants for each intent type - so bookmarks has an extra TYPE = BOOKMARKS, not just a forum ID that matches the bookmarks ID
 
     fun getIntent(context: Context): Intent =
-            Intent().setClass(context, ForumsIndexActivity::class.java)
-                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    .apply {
-                        when (this@NavigationEvent) {
-                            is Thread -> {
-                                putExtra(THREAD_ID, id)
-                                page?.let { putExtra(THREAD_PAGE, page) }
-                                postJump?.let { putExtra(THREAD_FRAGMENT, postJump) }
-                            }
-                            is Forum -> {
-                                putExtra(FORUM_ID, id)
-                                page?.let { putExtra(FORUM_PAGE, page) }
-                            }
-                            is Bookmarks -> putExtra(FORUM_ID, USERCP_ID)
-                            is ReAuthenticate -> putExtra(TYPE_RE_AUTHENTICATE, true)
-                        }
+        Intent().setClass(context, ForumsIndexActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            .apply {
+                when (this@NavigationEvent) {
+                    is Thread -> {
+                        putExtra(THREAD_ID, id)
+                        page?.let { putExtra(THREAD_PAGE, page) }
+                        postJump?.let { putExtra(THREAD_FRAGMENT, postJump) }
                     }
+                    is Forum -> {
+                        putExtra(FORUM_ID, id)
+                        page?.let { putExtra(FORUM_PAGE, page) }
+                    }
+                    Bookmarks -> putExtra(FORUM_ID, USERCP_ID)
+                    ReAuthenticate -> putExtra(TYPE_RE_AUTHENTICATE, true)
+                }
+            }
 
 
     companion object {
@@ -339,16 +355,16 @@ sealed class NavigationEvent {
                     ReAuthenticate
                 hasExtra(THREAD_ID) ->
                     Thread(
-                            id = getIntExtra(THREAD_ID)!!,
-                            page = getIntExtra(THREAD_PAGE),
-                            postJump = getStringExtra(THREAD_FRAGMENT)
+                        id = getIntExtra(THREAD_ID)!!,
+                        page = getIntExtra(THREAD_PAGE),
+                        postJump = getStringExtra(THREAD_FRAGMENT)
                     )
                 getIntExtra(FORUM_ID) == USERCP_ID ->
                     Bookmarks
                 hasExtra(FORUM_ID) ->
                     Forum(
-                            id = getIntExtra(FORUM_ID)!!,
-                            page = getIntExtra(FORUM_PAGE)
+                        id = getIntExtra(FORUM_ID)!!,
+                        page = getIntExtra(FORUM_PAGE)
                     )
                 else -> ForumIndex
             }
@@ -383,6 +399,7 @@ sealed class NavigationEvent {
             }
         }
 
-        private fun Intent.getIntExtra(name: String) = if (hasExtra(name)) getIntExtra(name, -12345) else null
+        private fun Intent.getIntExtra(name: String) =
+            if (hasExtra(name)) getIntExtra(name, -12345) else null
     }
 }

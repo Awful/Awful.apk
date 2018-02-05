@@ -35,6 +35,15 @@
         <AndroidXmlCodeStyleSettings>
           <option name="USE_CUSTOM_SETTINGS" value="true" />
         </AndroidXmlCodeStyleSettings>
+        <JetCodeStyleSettings>
+          <option name="CONTINUATION_INDENT_IN_PARAMETER_LISTS" value="false" />
+          <option name="CONTINUATION_INDENT_IN_ARGUMENT_LISTS" value="false" />
+          <option name="CONTINUATION_INDENT_FOR_EXPRESSION_BODIES" value="false" />
+          <option name="CONTINUATION_INDENT_FOR_CHAINED_CALLS" value="false" />
+          <option name="CONTINUATION_INDENT_IN_SUPERTYPE_LISTS" value="false" />
+          <option name="CONTINUATION_INDENT_IN_IF_CONDITIONS" value="false" />
+          <option name="WRAP_EXPRESSION_BODY_FUNCTIONS" value="1" />
+        </JetCodeStyleSettings>
         <Objective-C-extensions>
           <file>
             <option name="com.jetbrains.cidr.lang.util.OCDeclarationKind" value="Import" />
@@ -219,6 +228,17 @@
               </section>
             </rules>
           </arrangement>
+        </codeStyleSettings>
+        <codeStyleSettings language="kotlin">
+          <option name="CALL_PARAMETERS_WRAP" value="5" />
+          <option name="CALL_PARAMETERS_LPAREN_ON_NEXT_LINE" value="true" />
+          <option name="CALL_PARAMETERS_RPAREN_ON_NEXT_LINE" value="true" />
+          <option name="METHOD_PARAMETERS_WRAP" value="5" />
+          <option name="METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE" value="true" />
+          <option name="METHOD_PARAMETERS_RPAREN_ON_NEXT_LINE" value="true" />
+          <option name="EXTENDS_LIST_WRAP" value="1" />
+          <option name="METHOD_CALL_CHAIN_WRAP" value="1" />
+          <option name="ASSIGNMENT_WRAP" value="1" />
         </codeStyleSettings>
       </value>
     </option>

@@ -57,7 +57,8 @@ import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutD
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection.TOP
 import timber.log.Timber
 
-abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdate, AwfulRequest.ProgressListener<Any>, ForumsPagerPage {
+abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdate,
+    AwfulRequest.ProgressListener<Any>, ForumsPagerPage {
     protected var TAG = "AwfulFragment"
 
     protected val prefs: AwfulPreferences by lazy { AwfulPreferences.getInstance(context!!, this) }
@@ -130,7 +131,12 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
         awfulActivity?.showForumIndex()
     }
 
-    protected fun displayThread(id: Int, page: Int? = null, postJump: String? = null, forceReload: Boolean) {
+    protected fun displayThread(
+        id: Int,
+        page: Int? = null,
+        postJump: String? = null,
+        forceReload: Boolean
+    ) {
         awfulActivity?.showThread(id, page, postJump, forceReload)
     }
 
@@ -139,7 +145,7 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
     }
 
     fun displayPostReplyDialog(threadId: Int, postId: Int, type: Int) {
-        awfulActivity?.apply { runOnUiThread { showPostComposer(threadId, type, postId) }}
+        awfulActivity?.apply { runOnUiThread { showPostComposer(threadId, type, postId) } }
     }
 
     protected fun setProgress(percent: Int) {
@@ -169,7 +175,10 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
 
     // Open the Leper Colony page - call this when the user clicks the probation button
     private fun goToLeperColony() {
-        val openThread = Intent(Intent.ACTION_VIEW, Uri.parse("""${Constants.FUNCTION_BANLIST}?${Constants.PARAM_USER_ID}=${prefs.userId}"""))
+        val openThread = Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse("""${Constants.FUNCTION_BANLIST}?${Constants.PARAM_USER_ID}=${prefs.userId}""")
+        )
         startActivity(openThread)
     }
 
@@ -206,8 +215,8 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
      */
     private fun handleLoggedOutErrors(error: VolleyError?) {
         if (error is AwfulError && error.errorCode == AwfulError.ERROR_LOGGED_OUT ||
-                error?.message?.startsWith("java.net.ProtocolException: Too many redirects") == true
-                ) {
+            error?.message?.startsWith("java.net.ProtocolException: Too many redirects") == true
+        ) {
             Timber.w("--- request error - looks like you're logged out, attempting to log in")
             awfulActivity?.let { reAuthenticate(it) } ?: Authentication.logOut()
         }
@@ -228,7 +237,8 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
 
     override fun onPreferenceChange(prefs: AwfulPreferences, key: String?) {
         swipyLayout?.apply {
-            val dpHeight = with(this@AwfulFragment.resources.displayMetrics) { heightPixels / density }
+            val dpHeight =
+                with(this@AwfulFragment.resources.displayMetrics) { heightPixels / density }
             setDistanceToTriggerSync(Math.round(prefs.p2rDistance * dpHeight))
         }
     }
@@ -291,7 +301,11 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
      */
     protected open fun doScroll(down: Boolean) = false
 
-    protected fun restartLoader(id: Int, data: Bundle?, callback: LoaderManager.LoaderCallbacks<out Any>) {
+    protected fun restartLoader(
+        id: Int,
+        data: Bundle?,
+        callback: LoaderManager.LoaderCallbacks<out Any>
+    ) {
         activity?.let {
             Timber.d("loader id is $id")
             loaderManager.restartLoader(id, data, callback)
@@ -310,17 +324,19 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
      * @param successMessageId  If supplied, a success message popup will be displayed
      * @return                  false if the copy failed
      */
-    protected fun safeCopyToClipboard(label: String,
-                                      clipText: String,
-                                      @StringRes successMessageId: Int?): Boolean {
+    protected fun safeCopyToClipboard(
+        label: String,
+        clipText: String,
+        @StringRes successMessageId: Int?
+    ): Boolean {
 
         val clipboard = activity?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText(label, clipText)
 
         fun handle(e: Exception): Boolean {
             alertView.setTitle("Unable to copy to clipboard!")
-                    .setSubtitle("Another app has locked access, you may need to reboot")
-                    .setIcon(R.drawable.ic_error).show()
+                .setSubtitle("Another app has locked access, you may need to reboot")
+                .setIcon(R.drawable.ic_error).show()
             Timber.e(e, "Clipboard exception")
             return false
         }

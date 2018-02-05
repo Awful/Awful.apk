@@ -61,11 +61,11 @@ enum class Pages(val width: Float) {
  * @param savedInstanceState the activity's saved state - used to restore the viewpager
  */
 class ForumsPagerController(
-        private val viewPager: SwipeLockViewPager,
-        prefs: AwfulPreferences,
-        activity: FragmentActivity,
-        private val callbacks: PagerCallbacks,
-        savedInstanceState: Bundle?
+    private val viewPager: SwipeLockViewPager,
+    prefs: AwfulPreferences,
+    activity: FragmentActivity,
+    private val callbacks: PagerCallbacks,
+    savedInstanceState: Bundle?
 ) {
 
     companion object {
@@ -94,7 +94,9 @@ class ForumsPagerController(
         onPreferenceChange(prefs)
         onConfigurationChange(prefs)
         pagerAdapter = ForumPagerAdapter(this, activity.supportFragmentManager).apply {
-            savedInstanceState?.let { state -> threadViewAdded = state.getBoolean(KEY_THREAD_VIEW_ADDED) }
+            savedInstanceState?.let { state ->
+                threadViewAdded = state.getBoolean(KEY_THREAD_VIEW_ADDED)
+            }
         }
         with(viewPager) {
             offscreenPageLimit = 2
@@ -152,7 +154,12 @@ class ForumsPagerController(
      * Called when the view pager either moves to a different page, or the current page is replaced (e.g. with a new fragment)
      */
     fun onCurrentPageChanged() {
-        getCurrentFragment()?.let { fragment -> callbacks.onPageChanged(currentPagerItem, fragment) }
+        getCurrentFragment()?.let { fragment ->
+            callbacks.onPageChanged(
+                currentPagerItem,
+                fragment
+            )
+        }
     }
 
 
@@ -218,7 +225,7 @@ class ForumsPagerController(
         checking after #onPageScrollStateChanged fires with IDLE doesn't help, nothing seems to reflect the actual displayed state
      */
     private fun isFragmentVisible(frag: AwfulFragment) =
-            frag == getCurrentFragment() //|| (tabletMode && frag.userVisibleHint)
+        frag == getCurrentFragment() //|| (tabletMode && frag.userVisibleHint)
 
     //
     // App events
@@ -227,7 +234,8 @@ class ForumsPagerController(
     /**
      * Call this from the host activity, so we can store the current ViewPager state.
      */
-    fun onSaveInstanceState(bundle: Bundle) = apply { bundle.putBoolean(KEY_THREAD_VIEW_ADDED, pagerAdapter.threadViewAdded) }
+    fun onSaveInstanceState(bundle: Bundle) =
+        apply { bundle.putBoolean(KEY_THREAD_VIEW_ADDED, pagerAdapter.threadViewAdded) }
 
     fun onPreferenceChange(prefs: AwfulPreferences) {
         setSwipeEnabled(!prefs.lockScrolling)
@@ -296,16 +304,16 @@ interface ForumsPagerPage {
  * page until it's explicitly opened, and manages tablet mode.
  */
 private class ForumPagerAdapter(
-        val controller: ForumsPagerController,
-        fm: FragmentManager
+    val controller: ForumsPagerController,
+    fm: FragmentManager
 ) : FragmentPagerAdapter(fm),
-        ViewPager.OnPageChangeListener by ViewPager.SimpleOnPageChangeListener() {
+    ViewPager.OnPageChangeListener by ViewPager.SimpleOnPageChangeListener() {
 
     /** The fragments representing each page in the viewpager (if added) */
     val fragments = mutableMapOf<Pages, AwfulFragment?>(
-            ForumIndex to null,
-            ForumDisplay to null,
-            ThreadDisplay to null
+        ForumIndex to null,
+        ForumDisplay to null,
+        ThreadDisplay to null
     )
     private var currentPage = ForumIndex
     /** Whether the thread view fragment has been added ('unlocking' that page for swiping) */
@@ -316,7 +324,8 @@ private class ForumPagerAdapter(
 
     override fun getCount() = if (threadViewAdded) 3 else 2
 
-    override fun getPageWidth(position: Int) = if (controller.tabletMode) Pages[position].width else super.getPageWidth(position)
+    override fun getPageWidth(position: Int) =
+        if (controller.tabletMode) Pages[position].width else super.getPageWidth(position)
 
     override fun onPageSelected(pageNum: Int) {
         Timber.i("onPageSelected: $pageNum")
@@ -331,20 +340,24 @@ private class ForumPagerAdapter(
         Timber.i("Creating fragment for %s", Pages[position])
         return when (Pages[position]) {
             ForumIndex -> ForumsIndexFragment()
-            ForumDisplay -> ForumDisplayFragment.getInstance(Constants.USERCP_ID, ForumDisplayFragment.FIRST_PAGE, false)
+            ForumDisplay -> ForumDisplayFragment.getInstance(
+                Constants.USERCP_ID,
+                ForumDisplayFragment.FIRST_PAGE,
+                false
+            )
             ThreadDisplay -> ThreadDisplayFragment()
         }
     }
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any =
             // this will either call #getItem OR restore saved fragments from the fragment manager, so we grab our references here
-            super.instantiateItem(container, position).apply {
-                when (this) {
-                    is ForumsIndexFragment -> setAs(ForumIndex)
-                    is ForumDisplayFragment -> setAs(ForumDisplay)
-                    is ThreadDisplayFragment -> setAs(ThreadDisplay)
-                }
+        super.instantiateItem(container, position).apply {
+            when (this) {
+                is ForumsIndexFragment -> setAs(ForumIndex)
+                is ForumDisplayFragment -> setAs(ForumDisplay)
+                is ThreadDisplayFragment -> setAs(ThreadDisplay)
             }
+        }
 
     /**
      * Set as one of the fragment pages in the pager.
@@ -365,7 +378,7 @@ private class ForumPagerAdapter(
  * in code blocks in the webview without the pager moving too.
  */
 class SwipeLockViewPager @JvmOverloads constructor(
-        context: Context, attrs: AttributeSet? = null
+    context: Context, attrs: AttributeSet? = null
 ) : ViewPager(context, attrs) {
 
     /** Enable or disable swiping on this viewpager */
@@ -375,8 +388,8 @@ class SwipeLockViewPager @JvmOverloads constructor(
     /** Forcibly end the current swipe, and ignore any further motion events (avoids regaining focus during a swipe and seeing it as a large, sudden move) */
     private fun cancelSwipe() {
         SystemClock.uptimeMillis()
-                .let { now -> MotionEvent.obtain(now, now, MotionEvent.ACTION_CANCEL, 0f, 0f, 0) }
-                .let { onTouchEvent(it) }
+            .let { now -> MotionEvent.obtain(now, now, MotionEvent.ACTION_CANCEL, 0f, 0f, 0) }
+            .let { onTouchEvent(it) }
         ignoreMotion = true
     }
 
@@ -389,15 +402,15 @@ class SwipeLockViewPager @JvmOverloads constructor(
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean =
-            swipeEnabled && preventCrash {
-                // if we're ignoring the current motion, this resets it when a new one starts
-                if (ev.actionMasked == MotionEvent.ACTION_DOWN) ignoreMotion = false
-                if (!ignoreMotion) super.onInterceptTouchEvent(ev) else false
-            }
+        swipeEnabled && preventCrash {
+            // if we're ignoring the current motion, this resets it when a new one starts
+            if (ev.actionMasked == MotionEvent.ACTION_DOWN) ignoreMotion = false
+            if (!ignoreMotion) super.onInterceptTouchEvent(ev) else false
+        }
 
     @SuppressLint("ClickableViewAccessibility") // we're just calling through to the super method anyway
     override fun onTouchEvent(ev: MotionEvent): Boolean =
-            swipeEnabled && preventCrash { super.onTouchEvent(ev) }
+        swipeEnabled && preventCrash { super.onTouchEvent(ev) }
 
 
     /**

@@ -35,7 +35,8 @@ private val parseTaskExecutor: ExecutorService by lazy { Executors.newFixedThrea
 fun <T> parseSingleThreaded(parseTasks: Collection<Callable<T>>) = parseTasks.map(Callable<T>::call)
 
 @Throws(InterruptedException::class, ExecutionException::class)
-fun <T> parseMultiThreaded(parseTasks: Collection<Callable<T>>) = parseTaskExecutor.invokeAll(parseTasks).map(Future<T>::get)
+fun <T> parseMultiThreaded(parseTasks: Collection<Callable<T>>) =
+    parseTaskExecutor.invokeAll(parseTasks).map(Future<T>::get)
 
 /**
  * Run a set of parse tasks in parallel, retrying on the current thread if there's a failure.
@@ -79,13 +80,13 @@ fun <T> parse(parseTasks: Collection<Callable<T>>): List<T> {
  * @returns the post data represented as a ContentValues (see [AwfulPost])
  */
 class PostParseTask(
-        private val postData: Element,
-        private val updateTime: String,
-        private val index: Int,
-        private val lastReadIndex: Int,
-        private val threadId: Int,
-        private val opId: Int,
-        private val prefs: AwfulPreferences
+    private val postData: Element,
+    private val updateTime: String,
+    private val index: Int,
+    private val lastReadIndex: Int,
+    private val threadId: Int,
+    private val opId: Int,
+    private val prefs: AwfulPreferences
 ) : Callable<ContentValues> {
 
     companion object {
@@ -101,11 +102,14 @@ class PostParseTask(
             put(DatabaseHelper.UPDATED_TIMESTAMP, updateTime)
             put(THREAD_ID, threadId)
 
-                //post id is formatted "post1234567", so we strip out the "post" prefix.
-                put(AwfulPost.ID, postData.id().replace(POST_ID_GARBAGE, "").toInt())
-                //we calculate this beforehand, but now can pull this from the post (thanks cooch!)
-                //wait actually no, FYAD doesn't support this. ~FYAD Privilege~
-                put(POST_INDEX, postData.attr("data-idx").replace(POST_ID_GARBAGE, "").toIntOrNull() ?: index)
+            //post id is formatted "post1234567", so we strip out the "post" prefix.
+            put(AwfulPost.ID, postData.id().replace(POST_ID_GARBAGE, "").toInt())
+            //we calculate this beforehand, but now can pull this from the post (thanks cooch!)
+            //wait actually no, FYAD doesn't support this. ~FYAD Privilege~
+            put(
+                POST_INDEX,
+                postData.attr("data-idx").replace(POST_ID_GARBAGE, "").toIntOrNull() ?: index
+            )
 
             // Check for "class=seenX", or just rely on unread index
             val markedSeen = postData.selectFirst("[class^=seen]") != null
@@ -120,12 +124,12 @@ class PostParseTask(
 
             // grab the custom title, and also the avatar if there is one
             postData.selectFirst(".title")!!
-                    .also { put(AVATAR_TEXT, it.text()) }
-                    .selectFirst("img")
-                    ?.let {
-                        tryConvertToHttps(it)
-                        put(AVATAR, it.attr("src"))
-                    }
+                .also { put(AVATAR_TEXT, it.text()) }
+                .selectFirst("img")
+                ?.let {
+                    tryConvertToHttps(it)
+                    put(AVATAR, it.attr("src"))
+                }
 
             // FYAD has its post contents inside the .complete_shit element, so we just grab that instead of the full .postbody
             val postBody = postData.selectFirst(".postbody")
@@ -143,16 +147,16 @@ class PostParseTask(
 
             // extract and clean up post timestamp
             NetworkUtils.unencodeHtml(textForClass("postdate"))
-                    .replace(POST_TIMESTAMP_GARBAGE, "").trim()
-                    .let { put(DATE, it) }
+                .replace(POST_TIMESTAMP_GARBAGE, "").trim()
+                .let { put(DATE, it) }
 
 
             // parse user ID - fall back to the profile link if necessary
             var userId = postData.getElementsByClass("userinfo")
-                    .flatMap(Element::classNames)
-                    .map { it.substringAfter("userid-", "") }
-                    .firstOrNull(String::isNotEmpty)
-                    ?.toInt()
+                .flatMap(Element::classNames)
+                .map { it.substringAfter("userid-", "") }
+                .firstOrNull(String::isNotEmpty)
+                ?.toInt()
 
             if (userId == null) {
                 postData.selectFirst(".profilelinks [href*='userid=']")?.let {
@@ -173,9 +177,9 @@ class PostParseTask(
             }
 
             postData.getElementsByClass("editedBy")
-                    .mapNotNull { it.children().first() }
-                    .firstOrNull()
-                    ?.let { put(EDITED, "<i>${it.text()}</i>") }
+                .mapNotNull { it.children().first() }
+                .firstOrNull()
+                ?.let { put(EDITED, "<i>${it.text()}</i>") }
 
             put(EDITABLE, postData.getElementsByAttributeValue("alt", "Edit").isNotEmpty().sqlBool)
         }
@@ -185,10 +189,10 @@ class PostParseTask(
         get() = if (this) 1 else 0
 
     private fun textForClass(cssClass: String): String =
-            postData.selectFirst(".$cssClass")?.text() ?: "data missing"
+        postData.selectFirst(".$cssClass")?.text() ?: "data missing"
 
     private fun Element.hasDescendantWithClass(cssClass: String): Boolean =
-            this.selectFirst(".$cssClass") != null
+        this.selectFirst(".$cssClass") != null
 }
 
 
@@ -199,7 +203,8 @@ class PostParseTask(
  * @returns the HTML content of the preview
  */
 class PostPreviewParseTask(private val previewPage: Document) : Callable<String> {
-    override fun call() = previewPage.selectFirst(".standard > .postbody")?.html() ?: "Preview error!"
+    override fun call() =
+        previewPage.selectFirst(".standard > .postbody")?.html() ?: "Preview error!"
 }
 
 
@@ -218,11 +223,11 @@ class PostPreviewParseTask(private val previewPage: Document) : Callable<String>
  * @returns the post data represented as a ContentValues (see [AwfulThread])
  */
 class ForumParseTask(
-        private val threadElement: Element,
-        private val forumId: Int,
-        private val threadIndex: Int,
-        private val username: String,
-        private val parseTimestamp: String
+    private val threadElement: Element,
+    private val forumId: Int,
+    private val threadIndex: Int,
+    private val username: String,
+    private val parseTimestamp: String
 ) : Callable<ContentValues> {
 
     companion object {
@@ -241,9 +246,9 @@ class ForumParseTask(
             threadElement.selectFirst(".author")?.let {
                 author = it.text()
                 it.selectFirst("a[href*='userid']")
-                        ?.attr("href")
-                        ?.let { Uri.parse(it).getQueryParameter("userid") }
-                        ?.let { authorId = it.toInt() }
+                    ?.attr("href")
+                    ?.let { Uri.parse(it).getQueryParameter("userid") }
+                    ?.let { authorId = it.toInt() }
             }
             canOpenClose = author == username
 
@@ -253,7 +258,7 @@ class ForumParseTask(
 
             // optional thread rating
             rating = threadElement.selectFirst(".rating img")
-                    ?.let { AwfulRatings.getId(it.attr("src")) } ?: AwfulRatings.NO_RATING
+                ?.let { AwfulRatings.getId(it.attr("src")) } ?: AwfulRatings.NO_RATING
 
             // main thread tag
             threadElement.selectFirst(".icon img")?.let {
@@ -274,7 +279,7 @@ class ForumParseTask(
 
             // secondary thread tag (e.g. Ask/Tell type)
             tagExtra = threadElement.selectFirst(".icon2 img")
-                    ?.let { ExtraTags.getId(it.attr("src")) } ?: ExtraTags.NO_TAG
+                ?.let { ExtraTags.getId(it.attr("src")) } ?: ExtraTags.NO_TAG
 
 
             // replies / postcount
@@ -321,12 +326,12 @@ class ForumParseTask(
  * @returns new or updated data for this thread, represented as a ContentValues (see [AwfulThread])
  */
 class ThreadPageParseTask(
-        private val resolver: ContentResolver,
-        private val page: Document,
-        private val threadId: Int,
-        private val pageNumber: Int,
-        private val postsPerPage: Int,
-        private val prefs: AwfulPreferences
+    private val resolver: ContentResolver,
+    private val page: Document,
+    private val threadId: Int,
+    private val pageNumber: Int,
+    private val postsPerPage: Int,
+    private val prefs: AwfulPreferences
 ) : Callable<ContentValues> {
 
     companion object {
@@ -349,7 +354,8 @@ class ThreadPageParseTask(
 
             val bookmarkButton = page.selectFirst(".thread_bookmark")
             archived = bookmarkButton == null
-            val bookmarked = bookmarkButton != null && bookmarkButton.attr("src").contains("unbookmark")
+            val bookmarked =
+                bookmarkButton != null && bookmarkButton.attr("src").contains("unbookmark")
             if (!bookmarked) {
                 bookmarkType = 0
             } else if (bookmarkType == 0) {
@@ -359,10 +365,10 @@ class ThreadPageParseTask(
             // The breadcrumbs display the forum hiearchy, from the top level down through forums and subforums to the thread.
             // So the thread's parent forum is the last forum element in that sequence
             forumId = page.selectFirst(".breadcrumbs")
-                    ?.select("[href]")
-                    ?.map { FORUM_ID_REGEX.matcher(it.attr("href")) }
-                    ?.lastOrNull(Matcher::find)
-                    ?.group(1)?.toInt() ?: -1
+                ?.select("[href]")
+                ?.map { FORUM_ID_REGEX.matcher(it.attr("href")) }
+                ?.lastOrNull(Matcher::find)
+                ?.group(1)?.toInt() ?: -1
 
 
             // now calculate some read/unread numbers based on what we can see on the page
@@ -372,7 +378,15 @@ class ThreadPageParseTask(
 
             // hand off the page for post parsing, and get back the number of posts it found
             // TODO: 02/06/2017 sort out the ignored posts issue, the post parser doesn't put them in the DB (if you have 'always hide' on in the settings) and it messes up the numbers
-            val postsOnThisPage = syncPosts(resolver, page, threadId, firstUnreadIndex, authorId, prefs, firstPostOnPageIndex)
+            val postsOnThisPage = syncPosts(
+                resolver,
+                page,
+                threadId,
+                firstUnreadIndex,
+                authorId,
+                prefs,
+                firstPostOnPageIndex
+            )
             val postsOnPreviousPages = (pageNumber - 1) * postsPerPage
             // calculate the read total by counting posts on this + preceding pages - only update the read count if it has grown (e.g. going back to an old page will give a lower count)
             val postsRead = (postsOnPreviousPages + postsOnThisPage).coerceAtLeast(readCount)
@@ -383,7 +397,8 @@ class ThreadPageParseTask(
             } else {
                 // not the last page, so we can't tell how many posts the thread has, we have to estimate it
                 // we can calculate a minimum and maximum posts range by looking at the last page number
-                val minPosts = (lastPageNumber - 1) * postsPerPage + 1   // one post on the last page, any preceding pages are full
+                val minPosts =
+                    (lastPageNumber - 1) * postsPerPage + 1   // one post on the last page, any preceding pages are full
                 val maxPosts = lastPageNumber * postsPerPage             // all pages full
                 // if the old post count is within this range, let's just assume it's more accurate than taking the minimum
                 // if it's outside of that range it's obviously a stale value, use the min as our best guess
@@ -392,8 +407,10 @@ class ThreadPageParseTask(
             // TODO: 16/06/2017 would it be better to store postCount and postsRead in the DB, and calculate the unread count from that?
             unreadCount = postCount - postsRead
 
-            Timber.d("getThreadPosts: Thread ID %d, page %d of %d, %d posts on page%n%d posts total: %d read/%d unread",
-                    id, pageNumber, lastPageNumber, postsOnThisPage, postCount, postsRead, unreadCount)
+            Timber.d(
+                "getThreadPosts: Thread ID %d, page %d of %d, %d posts on page%n%d posts total: %d read/%d unread",
+                id, pageNumber, lastPageNumber, postsOnThisPage, postCount, postsRead, unreadCount
+            )
 
         }
         return thread.toContentValues()
