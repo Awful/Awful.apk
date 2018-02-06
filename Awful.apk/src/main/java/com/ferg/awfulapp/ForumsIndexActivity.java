@@ -31,7 +31,6 @@ package com.ferg.awfulapp;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -102,6 +101,7 @@ public class ForumsIndexActivity extends AwfulActivity
         if (savedInstanceState == null) {
             handleIntent(getIntent());
         }
+        showChangelogIfRequired();
     }
 
     @Override
@@ -369,31 +369,16 @@ public class ForumsIndexActivity extends AwfulActivity
     }
 
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
+    private void showChangelogIfRequired() {
         int versionCode = 0;
         try {
             versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
-
-        // check if this is the first run, and if so show the 'welcome' dialog
-        if (getMPrefs().alertIDShown == 0) {
-            new AlertDialog.Builder(this).
-                    setTitle(getString(R.string.alert_title_1))
-                    .setMessage(getString(R.string.alert_message_1))
-                    .setPositiveButton(getString(R.string.alert_ok), (dialog, which) -> dialog.dismiss())
-                    .setNegativeButton(getString(R.string.alert_settings), (dialog, which) -> {
-                        dialog.dismiss();
-                        showSettings();
-                    })
-                    .show();
-            getMPrefs().setPreference(Keys.ALERT_ID_SHOWN, 1);
-        } else if (getMPrefs().lastVersionSeen != versionCode) {
-            Log.i(TAG, String.format("App version changed from %d to %d - showing changelog", getMPrefs().lastVersionSeen, versionCode));
+        int lastVersionSeen = getMPrefs().lastVersionSeen;
+        if (lastVersionSeen != versionCode) {
+            Timber.i("App version changed from %d to %d - showing changelog", lastVersionSeen, versionCode);
             ChangelogDialog.show(this);
             getMPrefs().setPreference(Keys.LAST_VERSION_SEEN, versionCode);
         }
