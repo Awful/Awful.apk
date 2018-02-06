@@ -436,7 +436,6 @@
     <string name="select_font">Font</string>
 
     <!-- Misc Settings page -->
-    <string name="misc_category_performance">Performance tweaks</string>
     <string name="disable_gifs">Disable GIF animation</string>
     <string name="disable_gifs_summary">Extends battery life significantly</string>
     <string name="misc_category_display">Display</string>
@@ -454,8 +453,8 @@
         <item>Portrait</item>
         <item>Landscape</item>
     </string-array>
-    <string name="immersion_mode">Immersion Mode</string>
-    <string name="immersion_mode_summary">Fullscreen mode for KitKat and above</string>
+    <string name="immersion_mode">Immersive mode</string>
+    <string name="immersion_mode_summary">Use the full screen, swipe the top or bottom for controls</string>
     <string name="misc_category_navigation">Navigation</string>
     <string name="disable_pull_next">Disable pull-for-next</string>
     <string name="disable_pull_next_summary">Disable pull at bottom of thread navigation</string>
