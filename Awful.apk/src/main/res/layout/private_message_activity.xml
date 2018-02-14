@@ -23,8 +23,6 @@
         android:id="@+id/fragment_pane"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="@dimen/material_screen_edge_margin"
-        android:layout_marginRight="@dimen/material_screen_edge_margin"
         />
 
 </LinearLayout>
