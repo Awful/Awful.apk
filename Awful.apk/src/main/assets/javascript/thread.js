@@ -250,6 +250,10 @@ function showInlineImage(url) {
 	var LOADING = 'loading';
 	var FROZEN_GIF = 'playGif';
 
+	if (url.startsWith('https://forums.somethingawful.com/attachment.php?')) {
+		url = url.split('/')[3];
+	}
+
 	/**
 	 * Adds an empty Image Element to the Link if the link is not around a gif
 	 * @param {Element} link Link Element
