@@ -2,6 +2,24 @@
 <resources>
     <string-array name="changelog">
         <item>
+            3.5.0:\n
+            - Emote picker has smarter search and history :wow:\n\n
+            - You wanted a private message send confirmation, you got one\n\n
+            - Timestamps in searches\n\n
+            - Fancy page bar\n\n
+            - GIF animation toggle is now in the Images section of settings\n\n
+            - A bunch of optimizations to enspeeden your forums experience\n\n
+            \n
+              Fixes:\n
+              - Opening the bookmarks widget or an external link to a thread doesn\'t make them \'stick\' anymore\n\n
+              - Crashes and weird behavior when swiping on a code block\n\n
+              - Settings import/export\n\n
+              - Thread view stuff like broken images and spoilers\n\n
+              - The sidebar shows the current thread\'s parent forum\n\n
+              - FYAD sigs\n\n
+              - Hopefully the screen doesn\'t stay on by default for anyone now\n\n
+        </item>
+        <item>
             3.4.1:\n
             - Fix for HTTPS connection failures on older devices. If you still get SSL errors, try updating Google Play Services in the Play Store and restart the app!\n\n
             - Oreo support including adaptive icons that jiggle around or something\n\n
