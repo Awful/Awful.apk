@@ -4,7 +4,7 @@ import android.app.Dialog;
 import android.os.Build;
 import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.SwitchPreference;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
@@ -32,6 +32,13 @@ public class MiscSettings extends SettingsFragment {
         prefClickListeners.put(new P2RDistanceListener(), new int[] {
                 R.string.pref_key_pull_to_refresh_distance
         });
+    }
+
+
+    @NonNull
+    @Override
+    public String getTitle() {
+        return getString(R.string.prefs_misc);
     }
 
 

@@ -3,6 +3,7 @@ package com.ferg.awfulapp.preferences.fragments;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.preference.Preference;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -23,6 +24,13 @@ public class AccountSettings extends SettingsFragment {
         prefClickListeners.put(new FeaturesListener(), new int[] {
                 R.string.pref_key_account_features_menu_item
         });
+    }
+
+
+    @NonNull
+    @Override
+    public String getTitle() {
+        return getString(R.string.prefs_account);
     }
 
     @Override

@@ -30,6 +30,7 @@ import java.util.Map;
  */
 public abstract class ThreadDisplay {
 
+    // TODO: 16/08/2017 generate this automatically from the folder contents
     /**
      * All the scripts from the javascript folder used in generating HTML
      */
@@ -39,11 +40,14 @@ public abstract class ThreadDisplay {
             "zepto/fx.js",
             "zepto/fx_methods.js",
             "zepto/touch.js",
+            "zepto/deferred.js",
+            "zepto/callbacks.js",
             "scrollend.js",
             "inviewport.js",
             "json2.js",
             "twitterwidget.js",
             "salr.js",
+            "embedding.js",
             "thread.js"
     };
 

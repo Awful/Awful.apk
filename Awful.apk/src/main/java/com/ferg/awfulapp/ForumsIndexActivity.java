@@ -121,6 +121,10 @@ public class ForumsIndexActivity extends AwfulActivity
     private static final int NULL_THREAD_ID = 0;
     private static final int NULL_PAGE_ID = -1;
 
+    private static final int FORUM_LIST_FRAGMENT_POSITION = 0;
+    private static final int THREAD_LIST_FRAGMENT_POSITION = 1;
+    private static final int THREAD_VIEW_FRAGMENT_POSITION = 2;
+
     private volatile int mNavForumId    = Constants.USERCP_ID;
     private volatile int mNavThreadId   = NULL_THREAD_ID;
     private volatile int mForumId       = Constants.USERCP_ID;
@@ -307,7 +311,8 @@ public class ForumsIndexActivity extends AwfulActivity
                         startActivity(new Intent().setClass(context, SettingsActivity.class));
                         break;
                     case R.id.sidebar_search:
-                        startActivity(new Intent().setClass(context, SearchActivity.class));
+                        Intent intent = BasicActivity.Companion.intentFor(SearchFragment.class, context, "");
+                        startActivity(intent);
                         break;
                     case R.id.sidebar_pm:
                         startActivity(new Intent().setClass(context, PrivateMessageActivity.class));
@@ -366,14 +371,14 @@ public class ForumsIndexActivity extends AwfulActivity
 
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            avatar.setImageResource(R.mipmap.ic_launcher);
+                            avatar.setImageResource(R.drawable.frog_icon);
                         }
                     });
                     if (AwfulUtils.isLollipop()) {
                         avatar.setClipToOutline(true);
                     }
                 } else {
-                    avatar.setImageResource(R.mipmap.ic_launcher);
+                    avatar.setImageResource(R.drawable.frog_icon);
                     if (AwfulUtils.isLollipop()) {
                         avatar.setClipToOutline(false);
                     }
@@ -730,8 +735,11 @@ public class ForumsIndexActivity extends AwfulActivity
             if (visible != null) {
                 visible.onPageHidden();
             }
-            AwfulFragment apf = (AwfulFragment) getItem(arg0);
-            if (apf != null) {
+            AwfulFragment apf = (AwfulFragment) instantiateItem(mViewPager, arg0);
+            // I don't know if #isAdded is necessary after calling #instantiateItem (instead of #getItem
+            // which just creates a new fragment object), but I'm trying to fix a bug I can't reproduce
+            // where these fragment methods crash because they have no activity yet
+            if (apf != null && apf.isAdded()) {
                 setActionbarTitle(apf.getTitle(), null);
                 apf.onPageVisible();
                 setProgress(apf.getProgressPercent());
@@ -748,23 +756,14 @@ public class ForumsIndexActivity extends AwfulActivity
         }
 
         @Override
-        public Fragment getItem(int ix) {
-            switch (ix) {
-                case 0:
-                    if (mIndexFragment == null) {
-                        mIndexFragment = new ForumsIndexFragment();
-                    }
-                    return mIndexFragment;
-                case 1:
-                    if (mForumFragment == null) {
-                        mForumFragment = ForumDisplayFragment.getInstance(mForumId, mForumPage, skipLoad);
-                    }
-                    return mForumFragment;
-                case 2:
-                    if (mThreadFragment == null) {
-                        mThreadFragment = new ThreadDisplayFragment();
-                    }
-                    return mThreadFragment;
+        public Fragment getItem(int position) {
+            switch (position) {
+                case FORUM_LIST_FRAGMENT_POSITION:
+                    return new ForumsIndexFragment();
+                case THREAD_LIST_FRAGMENT_POSITION:
+                    return ForumDisplayFragment.getInstance(mForumId, mForumPage, skipLoad);
+                case THREAD_VIEW_FRAGMENT_POSITION:
+                    return new ThreadDisplayFragment();
             }
             Log.e(TAG, "ERROR: asked for too many fragments in ForumPagerAdapter.getItem");
             return null;
@@ -773,14 +772,16 @@ public class ForumsIndexActivity extends AwfulActivity
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             Object frag = super.instantiateItem(container, position);
-            if (frag instanceof ForumsIndexFragment) {
-                mIndexFragment = (ForumsIndexFragment) frag;
-            }
-            if (frag instanceof ForumDisplayFragment) {
-                mForumFragment = (ForumDisplayFragment) frag;
-            }
-            if (frag instanceof ThreadDisplayFragment) {
-                mThreadFragment = (ThreadDisplayFragment) frag;
+            switch (position) {
+                case FORUM_LIST_FRAGMENT_POSITION:
+                    mIndexFragment = (ForumsIndexFragment) frag;
+                    break;
+                case THREAD_LIST_FRAGMENT_POSITION:
+                    mForumFragment = (ForumDisplayFragment) frag;
+                    break;
+                case THREAD_VIEW_FRAGMENT_POSITION:
+                    mThreadFragment = (ThreadDisplayFragment) frag;
+                    break;
             }
             return frag;
         }
@@ -796,13 +797,13 @@ public class ForumsIndexActivity extends AwfulActivity
         @Override
         public int getItemPosition(Object object) {
             if (mIndexFragment != null && mIndexFragment.equals(object)) {
-                return 0;
+                return FORUM_LIST_FRAGMENT_POSITION;
             }
             if (mForumFragment != null && mForumFragment.equals(object)) {
-                return 1;
+                return THREAD_LIST_FRAGMENT_POSITION;
             }
             if (mThreadFragment != null && mThreadFragment.equals(object)) {
-                return 2;
+                return THREAD_VIEW_FRAGMENT_POSITION;
             }
             return super.getItemPosition(object);
         }
@@ -811,11 +812,11 @@ public class ForumsIndexActivity extends AwfulActivity
         public float getPageWidth(int position) {
             if (isTablet) {
                 switch (position) {
-                    case 0:
+                    case FORUM_LIST_FRAGMENT_POSITION:
                         return 0.4f;
-                    case 1:
+                    case THREAD_LIST_FRAGMENT_POSITION:
                         return 0.6f;
-                    case 2:
+                    case THREAD_VIEW_FRAGMENT_POSITION:
                         return 1f;
                 }
             }

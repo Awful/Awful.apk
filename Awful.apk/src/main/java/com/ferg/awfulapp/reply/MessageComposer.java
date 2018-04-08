@@ -125,22 +125,27 @@ public class MessageComposer extends Fragment {
                 new EmoteFragment(this).show(getFragmentManager(), "emotes");
                 break;
             case R.id.bbcode_image:
-                insertWith(ImageInserter::insert);
+                insertWith(ImageInserter::smartInsert);
+                break;
+            case R.id.bbcode_imgur:
+                ImgurInserter imgurInserter = new ImgurInserter();
+                imgurInserter.setTargetFragment(this, -1);
+                imgurInserter.show(getFragmentManager(), "imgur uploader");
                 break;
             case R.id.bbcode_video:
-                insertWith(VideoInserter::insert);
+                insertWith(VideoInserter::smartInsert);
                 break;
             case R.id.bbcode_url:
-                insertWith(UrlInserter::insert);
+                insertWith(UrlInserter::smartInsert);
                 break;
             case R.id.bbcode_quote:
-                insertWith(QuoteInserter::insert);
+                insertWith(QuoteInserter::smartInsert);
                 break;
             case R.id.bbcode_list:
-                insertWith(ListInserter::insert);
+                insertWith(ListInserter::smartInsert);
                 break;
             case R.id.bbcode_code:
-                insertWith(CodeInserter::insert);
+                insertWith(CodeInserter::smartInsert);
                 break;
             case R.id.bbcode_pre:
                 insertWith(BbCodeTag.PRE);
@@ -153,12 +158,29 @@ public class MessageComposer extends Fragment {
     }
 
     private void insertWith(Inserter.Untagged inserter) {
-        inserter.insert(messageBox, getActivity());
+        inserter.smartInsert(messageBox, getActivity());
     }
 
     private void insertWith(BbCodeTag bbCodeTag) {
-        BasicTextInserter.insert(messageBox, bbCodeTag, getActivity());
+        BasicTextInserter.smartInsert(messageBox, bbCodeTag, getActivity());
     }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Callbacks
+    ///////////////////////////////////////////////////////////////////////////
+
+
+    public void onImageUploaded(@NonNull String url, boolean useThumbnail) {
+        ImageInserter.insertWithoutDialog(messageBox, url, useThumbnail);
+    }
+
+
+    public void onHtml5VideoUploaded(@NonNull String url) {
+        // embedding doesn't use [video] tags for some reason, needs to be a url with no link text
+        UrlInserter.insertWithoutDialog(messageBox, url, null);
+    }
+
+
 
 
     ///////////////////////////////////////////////////////////////////////////

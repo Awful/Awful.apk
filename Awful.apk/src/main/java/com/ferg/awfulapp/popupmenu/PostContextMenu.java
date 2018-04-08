@@ -175,7 +175,6 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
                 parent.reportUser(postId);
                 break;
         }
-        this.dismiss();
     }
 
 

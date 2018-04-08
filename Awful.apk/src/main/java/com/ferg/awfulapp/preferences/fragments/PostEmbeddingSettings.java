@@ -1,5 +1,7 @@
 package com.ferg.awfulapp.preferences.fragments;
 
+import android.support.annotation.NonNull;
+
 import com.ferg.awfulapp.R;
 
 /**
@@ -14,4 +16,9 @@ public class PostEmbeddingSettings extends SettingsFragment {
     }
 
 
+    @NonNull
+    @Override
+    public String getTitle() {
+        return getString(R.string.embedding_settings_title);
+    }
 }

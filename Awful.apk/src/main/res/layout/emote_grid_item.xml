@@ -13,7 +13,7 @@
         android:minWidth="32dp"
         android:paddingBottom="2dp"
         android:scaleType="fitCenter"
-        android:src="@mipmap/ic_launcher" />
+        android:src="@drawable/frog_icon" />
 
     <TextView
         android:id="@+id/emote_text"

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:app="http://schemas.android.com/apk/res-auto"
-                xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
@@ -19,40 +18,13 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/probation_bar">
 
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            >
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                app:srcCompat="@drawable/frog_silhouette"
-                android:tint="?attr/secondaryPostFontColor"
-                tools:ignore="ContentDescription"/>
-
-            <ProgressBar
-                android:id="@+id/forums_update_progress_bar"
-                style="@style/Base.Widget.AppCompat.ProgressBar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:contentDescription="@string/updating_forums"
-                android:indeterminateOnly="true"/>
-
-            <TextView
-                android:id="@+id/no_forums_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/forums_update_progress_bar"
-                android:layout_centerHorizontal="true"
-                android:text="@string/no_forums_data"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
-        </RelativeLayout>
-
+        <com.ferg.awfulapp.widget.StatusFrog
+            android:id="@+id/status_frog"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            app:status_message="@string/no_forums_data"
+            />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/forum_index_list"

@@ -25,6 +25,7 @@ import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.ThreadDisplay;
 import com.ferg.awfulapp.webview.AwfulWebView;
 import com.ferg.awfulapp.webview.WebViewJsInterface;
+import com.ferg.awfulapp.widget.StatusFrog;
 
 import java.util.List;
 
@@ -38,8 +39,7 @@ import butterknife.ButterKnife;
  * <p>
  * This is basically a butchered thread view since that's kind of what the announcements page is.
  * Most of that happens in the request (not setting certain fields), here we just throw in some
- * meaningless constants in the {@link #getHtml(List}
- * call, and hope it doesn't break. Seems to work! Fix later!
+ * meaningless constants in the {@link ThreadDisplay#getHtml} call, and hope it doesn't break. Seems to work! Fix later!
  * <p>
  * Also this also assumes the announcements page won't ever have more than one page.
  * Whatever it's not even a thread
@@ -49,8 +49,9 @@ public class AnnouncementsFragment extends AwfulFragment {
 
     @BindView(R.id.announcements_webview)
     AwfulWebView webView;
+    @BindView(R.id.status_frog)
+    StatusFrog statusFrog;
 
-    // TODO: 27/01/2017 stick a frog in the background or something while loading
     private String bodyHtml = "";
 
     @NonNull
@@ -133,24 +134,31 @@ public class AnnouncementsFragment extends AwfulFragment {
      */
     private void showAnnouncements() {
         Context context = getContext().getApplicationContext();
-        setProgress(25);
+        statusFrog.setStatusText(R.string.announcements_status_fetching).showSpinner(true);
         queueRequest(
                 new AnnouncementsRequest(context).build(this, new AwfulRequest.AwfulResultCallback<List<AwfulPost>>() {
                     @Override
                     public void success(List<AwfulPost> result) {
                         AnnouncementsManager.getInstance().markAllRead();
-                        // these constants don't mean anything in the context of the announcement page
-                        // we just want it to a) display ok, and b) not let the user click anything bad
-                        bodyHtml = ThreadDisplay.getHtml(result, AwfulPreferences.getInstance(), 1, 1);
-                        if (webView != null) {
-                            webView.refreshPageContents(true);
+                        // update the status frog if there are no announcements, otherwise hide it and display them
+                        if (result.size() < 1) {
+                            statusFrog.setStatusText(R.string.announcements_status_none).showSpinner(false);
+                        } else {
+                            webView.setVisibility(View.VISIBLE);
+                            // these page params don't mean anything in the context of the announcement page
+                            // we just want it to a) display ok, and b) not let the user click anything bad
+                            bodyHtml = ThreadDisplay.getHtml(result, AwfulPreferences.getInstance(), 1, 1);
+                            if (webView != null) {
+                                webView.refreshPageContents(true);
+                            }
+                            statusFrog.setVisibility(View.INVISIBLE);
                         }
                     }
 
                     @Override
                     public void failure(VolleyError error) {
+                        statusFrog.setStatusText(R.string.announcements_status_failed).showSpinner(false);
                         Log.w(TAG, "Announcement get failed!\n" + error.getMessage());
-                        setProgress(100);
                     }
                 })
         );
