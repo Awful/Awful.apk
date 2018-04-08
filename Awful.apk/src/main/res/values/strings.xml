@@ -282,20 +282,21 @@
     <string-array name="about_contributors_array">
         <item>Ferg</item>
         <item>1997</item>
-        <item>brosmike</item>
+        <item>baka kaba</item>
         <item>big mean giraffe</item>
-        <item>foghorn</item>
+        <item>brosmike</item>
         <item>BullChicken</item>
-        <item>wmbest2</item>
-        <item>Glimm</item>
-        <item>Geekner</item>
         <item>crazysim</item>
+        <item>Diabolik900</item>
+        <item>foghorn</item>
+        <item>Geekner</item>
+        <item>Glimm</item>
+        <item>JingleBells</item>
+        <item>Literal Hamster</item>
         <item>Sereri</item>
         <item>spanky the dolphin</item>
-        <item>JingleBells</item>
-        <item>baka kaba</item>
         <item>The Dave</item>
-        <item>Diabolik900</item>
+        <item>wmbest2</item>
     </string-array>
     <string name="about_libraries_title">Libraries:</string>
     <string-array name="about_libraries_array">
