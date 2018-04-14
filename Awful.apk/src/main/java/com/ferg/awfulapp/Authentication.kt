@@ -1,9 +1,11 @@
 package com.ferg.awfulapp
 
 import android.app.Activity
-import android.app.AlertDialog
-import android.content.Context
+import android.app.Dialog
 import android.content.Intent
+import android.os.Bundle
+import android.support.v4.app.DialogFragment
+import android.support.v7.app.AlertDialog
 import com.ferg.awfulapp.Authentication.logOut
 import com.ferg.awfulapp.Authentication.reAuthenticate
 import com.ferg.awfulapp.constants.Constants
@@ -18,17 +20,17 @@ import com.ferg.awfulapp.preferences.AwfulPreferences
 /**
  * A dialog that allows the user to log out and [reAuthenticate]
  */
-class LogOutDialog(context: Context) : AlertDialog(context) {
+class LogOutDialog : DialogFragment() {
 
-    init {
-        setTitle(context.getString(R.string.logout))
-        setMessage(context.getString(R.string.logout_message))
-        setButton(
-            BUTTON_POSITIVE,
-            context.getString(R.string.logout)
-        ) { _, _ -> ownerActivity?.let { reAuthenticate(it) } ?: logOut() }
-        setButton(BUTTON_NEGATIVE, context.getString(R.string.cancel), { _, _ -> Unit })
-    }
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
+            AlertDialog.Builder(activity!!)
+                    .setTitle(R.string.logout)
+                    .setMessage(R.string.logout_message)
+                    .setPositiveButton(R.string.logout, { _, _ ->
+                        activity?.let(::reAuthenticate) ?: logOut()
+                    })
+                    .setNegativeButton(R.string.cancel, { _, _ -> Unit })
+                    .create()
 
 }
 

@@ -2,7 +2,7 @@
 <resources>
     <string-array name="changelog">
         <item>
-            3.5.0:\n
+            3.5.1:\n
             - Emote picker has smarter search and history :wow:\n\n
             - You wanted a private message send confirmation, you got one\n\n
             - Timestamps in searches\n\n
@@ -11,6 +11,7 @@
             - A bunch of optimizations to enspeeden your forums experience\n\n
             \n
               Fixes:\n
+              - A logout bug where it didn\'t show the login screen\n\n
               - Opening the bookmarks widget or an external link to a thread doesn\'t make them \'stick\' anymore\n\n
               - Crashes and weird behavior when swiping on a code block\n\n
               - Settings import/export\n\n

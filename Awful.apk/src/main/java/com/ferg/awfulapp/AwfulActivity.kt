@@ -250,7 +250,7 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
     ) =
         startActivity(NavigationEvent.Thread(id, page, postJump).getIntent(applicationContext))
 
-    fun showLogoutDialog() = LogOutDialog(this).show()
+    fun showLogoutDialog() = LogOutDialog().show(supportFragmentManager, "logout dialog")
 
     /** Display the announcements  */
     fun showAnnouncements() = AnnouncementsManager.getInstance().showAnnouncements(this)
