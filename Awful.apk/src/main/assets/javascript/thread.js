@@ -119,6 +119,12 @@ function pageInit() {
 	document.querySelectorAll('head script.JSONP').forEach(function removeScripts(script) {
 		script.remove();
 	});
+	// fix postimg.org images to account for change in domain
+	var postImgs = document.querySelectorAll("img[src*='postimg.org']");
+	postImgs.forEach(function each(postImg){
+		postImg.src = postImg.src.replace(".org/",".cc/");
+	});
+
 	var spoilers = document.querySelectorAll('.bbc-spoiler');
 	spoilers.forEach(function each(spoiler) {
 		spoiler.removeAttribute('onmouseover');
