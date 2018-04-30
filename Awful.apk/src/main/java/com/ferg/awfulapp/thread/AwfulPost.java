@@ -504,6 +504,10 @@ public class AwfulPost {
         boolean isTimg = img.hasClass("timg");
         String originalUrl = img.attr("src");
 
+	// Fix postimg.org images
+	if (originalUrl.Contains("postimg.org")) {
+		originalUrl = originalUrl.Replace(".org/",".cc/");
+	}
         // check whether images can be converted to / wrapped in a link
         boolean alreadyLinked = img.parent() != null && img.parent().tagName().equalsIgnoreCase("a");
         boolean linkOk = !alreadyLinked && !img.hasClass("nolink");
