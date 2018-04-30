@@ -505,7 +505,7 @@ public class AwfulPost {
         String originalUrl = img.attr("src");
 
 	// Fix postimg.org images
-	if(originalUrl.Contains("postimg.org")){
+	if (originalUrl.Contains("postimg.org")) {
 		originalUrl = originalUrl.Replace(".org/",".cc/");
 	}
         // check whether images can be converted to / wrapped in a link
