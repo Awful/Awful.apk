@@ -128,20 +128,19 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
     }
 
     protected fun displayForumIndex() {
-        awfulActivity?.showForumIndex()
+        awfulActivity?.navigate(NavigationEvent.ForumIndex)
     }
 
     protected fun displayThread(
         id: Int,
         page: Int? = null,
-        postJump: String? = null,
-        forceReload: Boolean
+        postJump: String? = null
     ) {
-        awfulActivity?.showThread(id, page, postJump, forceReload)
+        awfulActivity?.navigate(NavigationEvent.Thread(id, page, postJump))
     }
 
     protected fun displayForum(forumId: Int, page: Int? = null) {
-        awfulActivity?.showForum(forumId, page)
+        awfulActivity?.navigate(NavigationEvent.Forum(forumId, page))
     }
 
     fun displayPostReplyDialog(threadId: Int, postId: Int, type: Int) {

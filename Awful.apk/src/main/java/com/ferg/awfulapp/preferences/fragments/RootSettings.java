@@ -9,6 +9,7 @@ import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
 
 import com.ferg.awfulapp.AwfulActivity;
+import com.ferg.awfulapp.NavigationEvent;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.ChangelogDialog;
@@ -88,7 +89,7 @@ public class RootSettings extends SettingsFragment {
         public boolean onPreferenceClick(Preference preference) {
             AwfulActivity activity = (AwfulActivity) getActivity();
             activity.finish();
-            activity.showThread(Constants.AWFUL_THREAD_ID, null, null, false);
+            activity.navigate(new NavigationEvent.Thread(Constants.AWFUL_THREAD_ID, null, null));
             return true;
         }
     }

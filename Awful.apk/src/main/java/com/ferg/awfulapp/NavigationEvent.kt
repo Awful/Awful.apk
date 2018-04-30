@@ -3,6 +3,7 @@ package com.ferg.awfulapp
 import android.content.Context
 import android.content.Intent
 import com.ferg.awfulapp.constants.Constants
+import com.ferg.awfulapp.preferences.SettingsActivity
 import com.ferg.awfulapp.thread.AwfulURL
 import timber.log.Timber
 
@@ -12,12 +13,16 @@ import timber.log.Timber
  * This class is intended to keep all of the Intent-handling code in one place, so the rest of the
  * app can handle fully formed NavigationEvent objects instead.
  */
+
 sealed class NavigationEvent {
 
     object ReAuthenticate : NavigationEvent()
     object MainActivity : NavigationEvent()
     object Bookmarks : NavigationEvent()
     object ForumIndex : NavigationEvent()
+    object Settings : NavigationEvent()
+    object SearchForums : NavigationEvent()
+
     data class Thread(val id: Int, val page: Int? = null, val postJump: String? = null) :
             NavigationEvent()
 
@@ -33,35 +38,51 @@ sealed class NavigationEvent {
      * to another, you should use this.
      */
     fun getIntent(context: Context): Intent =
+            activityIntent(context).apply {
+                when (this@NavigationEvent) {
+                    is Thread -> {
+                        putExtra(EVENT, TYPE_THREAD)
+                        putExtra(Constants.THREAD_ID, id)
+                        page?.let { putExtra(Constants.THREAD_PAGE, page) }
+                        postJump?.let { putExtra(Constants.THREAD_FRAGMENT, postJump) }
+                    }
+                    is Forum -> {
+                        putExtra(EVENT, TYPE_FORUM)
+                        putExtra(Constants.FORUM_ID, id)
+                        page?.let { putExtra(Constants.FORUM_PAGE, page) }
+                    }
+                    Bookmarks -> {
+                        putExtra(EVENT, TYPE_BOOKMARKS)
+                        putExtra(Constants.FORUM_ID, Constants.USERCP_ID)
+                    }
+                    ForumIndex -> {
+                        putExtra(EVENT, TYPE_FORUM_INDEX)
+                    }
+                    ReAuthenticate -> {
+                        putExtra(EVENT, TYPE_RE_AUTHENTICATE)
+                        putExtra(TYPE_RE_AUTHENTICATE, true)
+                    }
+                    MainActivity -> putExtra(EVENT, TYPE_MAIN_ACTIVITY)
+                    Settings -> putExtra(EVENT, TYPE_SETTINGS)
+                    SearchForums -> putExtra(EVENT, TYPE_SEARCH_FORUMS)
+                }
+            }
+
+
+    private fun activityIntent(context: Context): Intent = when (this) {
+        MainActivity, Bookmarks, ForumIndex, is Thread, is Forum, is Url ->
             Intent().setClass(context, ForumsIndexActivity::class.java)
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    .apply {
-                        when (this@NavigationEvent) {
-                            is Thread -> {
-                                putExtra(EVENT, TYPE_THREAD)
-                                putExtra(Constants.THREAD_ID, id)
-                                page?.let { putExtra(Constants.THREAD_PAGE, page) }
-                                postJump?.let { putExtra(Constants.THREAD_FRAGMENT, postJump) }
-                            }
-                            is Forum -> {
-                                putExtra(EVENT, TYPE_FORUM)
-                                putExtra(Constants.FORUM_ID, id)
-                                page?.let { putExtra(Constants.FORUM_PAGE, page) }
-                            }
-                            Bookmarks -> {
-                                putExtra(EVENT, TYPE_BOOKMARKS)
-                                putExtra(Constants.FORUM_ID, Constants.USERCP_ID)
-                            }
-                            ForumIndex -> {
-                                putExtra(EVENT, TYPE_FORUM_INDEX)
-                            }
-                            ReAuthenticate -> {
-                                putExtra(EVENT, TYPE_RE_AUTHENTICATE)
-                                putExtra(TYPE_RE_AUTHENTICATE, true)
-                            }
-                            MainActivity -> putExtra(EVENT, TYPE_MAIN_ACTIVITY)
-                        }
-                    }
+        Settings ->
+            Intent().setClass(context, SettingsActivity::class.java)
+        SearchForums ->
+            BasicActivity.intentFor(
+                    SearchFragment::class.java,
+                    context,
+                    context.getString(R.string.search_forums_activity_title)
+            )
+        else -> throw RuntimeException("No activity defined for event: $this")
+    }
 
 
     companion object {
@@ -74,6 +95,8 @@ sealed class NavigationEvent {
         private const val TYPE_THREAD = "nav_thread"
         private const val TYPE_FORUM = "nav_forum"
         private const val TYPE_URL = "nav_url"
+        private const val TYPE_SETTINGS = "nav_settings"
+        private const val TYPE_SEARCH_FORUMS = "nav_search_forums"
 
 
         /**
@@ -82,7 +105,7 @@ sealed class NavigationEvent {
         fun Intent.parse(): NavigationEvent {
             parseUrl()?.let { return it }
             return when (getStringExtra(EVENT)) {
-                //TODO: handle behaviour for missing data, e.g. can't navigate to a thread with no thread ID
+            //TODO: handle behaviour for missing data, e.g. can't navigate to a thread with no thread ID
                 TYPE_RE_AUTHENTICATE -> ReAuthenticate
                 TYPE_MAIN_ACTIVITY -> MainActivity
                 TYPE_FORUM_INDEX -> ForumIndex

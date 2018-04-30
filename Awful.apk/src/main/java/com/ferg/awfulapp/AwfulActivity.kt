@@ -18,7 +18,6 @@ import com.ferg.awfulapp.constants.Constants
 import com.ferg.awfulapp.constants.Constants.LOGIN_ACTIVITY_REQUEST
 import com.ferg.awfulapp.network.NetworkUtils
 import com.ferg.awfulapp.preferences.AwfulPreferences
-import com.ferg.awfulapp.preferences.SettingsActivity
 import com.ferg.awfulapp.provider.AwfulTheme
 import com.ferg.awfulapp.provider.ColorProvider
 import com.ferg.awfulapp.task.AwfulRequest
@@ -192,7 +191,7 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
 
     @JvmOverloads
     fun setPreferredFont(view: View?, flags: Int = -1) =
-        view?.let { (application as AwfulApplication).setPreferredFont(view, flags) }
+            view?.let { (application as AwfulApplication).setPreferredFont(view, flags) }
 
     protected fun updateTheme() = setTheme(AwfulTheme.forForum(null).themeResId)
 
@@ -214,6 +213,8 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
     // App navigation
     //
 
+    open fun navigate(event: NavigationEvent) = startActivity(event.getIntent(applicationContext))
+
     /**
      * Log out, and show the login activity.
      *
@@ -231,23 +232,6 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
         }
     }
 
-    open fun showForumIndex() =
-        startActivity(NavigationEvent.ForumIndex.getIntent(applicationContext))
-
-    open fun showBookmarks() =
-        startActivity(NavigationEvent.Bookmarks.getIntent(applicationContext))
-
-    open fun showForum(id: Int, page: Int? = null) =
-        startActivity(NavigationEvent.Forum(id, page).getIntent(applicationContext))
-
-    open fun showThread(
-        id: Int,
-        page: Int? = null,
-        postJump: String? = null,
-        forceReload: Boolean
-    ) =
-        startActivity(NavigationEvent.Thread(id, page, postJump).getIntent(applicationContext))
-
     fun showLogoutDialog() = LogOutDialog().show(supportFragmentManager, "logout dialog")
 
     /** Display the announcements  */
@@ -259,25 +243,11 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
      * @param openMessageUri a Uri to a private message you want to open, parsed from a new PM link on the site
      */
     fun showPrivateMessages(openMessageUri: Uri? = null) =
-            // TODO: rework this so the message ID is parsed from the link, and we just pass that around internally
-        Intent().apply {
-            setClass(this@AwfulActivity, PrivateMessageActivity::class.java)
-            openMessageUri?.let(::setData)
-        }.let(::startActivity)
-
-    /** Display the forum search  */
-    fun showSearch() =
-        startActivity(
-            BasicActivity.intentFor(
-                SearchFragment::class.java,
-                this,
-                getString(R.string.search_forums_activity_title)
-            )
-        )
-
-    /** Display the app settings  */
-    fun showSettings() =
-        startActivity(Intent().setClass(this, SettingsActivity::class.java))
+    // TODO: rework this so the message ID is parsed from the link, and we just pass that around internally
+            Intent().apply {
+                setClass(this@AwfulActivity, PrivateMessageActivity::class.java)
+                openMessageUri?.let(::setData)
+            }.let(::startActivity)
 
     /**
      * Display the post/reply/edit composer.
@@ -289,11 +259,11 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
     fun showPostComposer(threadId: Int, postType: Int, sourcePostId: Int) {
         // TODO: this should probably all be refactored into types like the NavigationEvents (maybe even rolled in with them) - discrete Posting events with the specific associated data for each
         startActivityForResult(
-            Intent(this, PostReplyActivity::class.java)
-                .putExtra(Constants.REPLY_THREAD_ID, threadId)
-                .putExtra(Constants.EDITING, postType)
-                .putExtra(Constants.REPLY_POST_ID, sourcePostId),
-            PostReplyFragment.REQUEST_POST
+                Intent(this, PostReplyActivity::class.java)
+                        .putExtra(Constants.REPLY_THREAD_ID, threadId)
+                        .putExtra(Constants.EDITING, postType)
+                        .putExtra(Constants.REPLY_POST_ID, sourcePostId),
+                PostReplyFragment.REQUEST_POST
         )
     }
 

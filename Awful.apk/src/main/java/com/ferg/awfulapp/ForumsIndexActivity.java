@@ -123,11 +123,12 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @Override
     public void onAnnouncementsUpdated(int newCount, int oldUnread, int oldRead, boolean isFirstUpdate) {
-        if (isFirstUpdate || newCount > 0) {
+        // only show one of 'new announcements' or 'unread announcements', ignoring read ones
+        // (only notify about unread for the first update after opening the app, to remind the user)
+        boolean areNewAnnouncements = newCount > 0;
+        if (isFirstUpdate || areNewAnnouncements) {
             Resources res = getResources();
-            // only show one of 'new announcements' or 'unread announcements', ignoring read ones
-            // (only notify about unread for the first update after opening the app, to remind the user)
-            if (newCount > 0) {
+            if (areNewAnnouncements) {
                 showAnnouncementSnackbar(res.getQuantityString(R.plurals.numberOfNewAnnouncements, newCount, newCount));
             } else if (oldUnread > 0) {
                 showAnnouncementSnackbar(res.getQuantityString(R.plurals.numberOfOldUnreadAnnouncements, oldUnread, oldUnread));
@@ -195,7 +196,7 @@ public class ForumsIndexActivity extends AwfulActivity
                 int threadId = threadFragment.getThreadId();
                 int parentForumId = threadFragment.getParentForumId();
                 navigationDrawer.setCurrentForumAndThread(parentForumId, threadId);
-            } else if (forumFragment != null){
+            } else if (forumFragment != null) {
                 int forumId = forumFragment.getForumId();
                 navigationDrawer.setCurrentForumAndThread(forumId, null);
             }
@@ -220,7 +221,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
     /**
      * Notify the activity that something about a pager fragment has changed, so it can update appropriately.
-     *
+     * <p>
      * This could be extended by passing the fragment in if necessary, or adding methods for each
      * page (onThreadChanged etc) - but right now this is all we need.
      */
@@ -235,14 +236,12 @@ public class ForumsIndexActivity extends AwfulActivity
     ///////////////////////////////////////////////////////////////////////////
 
 
-    @Override
     public void showForum(int id, @Nullable Integer page) {
         Timber.d("displayForum %s", id);
         forumsPager.openForum(id, page);
     }
 
 
-    @Override
     public void showThread(int id, @Nullable Integer page, @Nullable String postJump, boolean forceReload) {
         Timber.d("displayThread %s", id);
         if (forumsPager != null) {
@@ -253,22 +252,9 @@ public class ForumsIndexActivity extends AwfulActivity
     }
 
 
-    @Override
-    public void showBookmarks() {
-        showForum(Constants.USERCP_ID, null);
-    }
-
-
-    @Override
-    public void showForumIndex() {
-        forumsPager.setCurrentPagerItem(Pages.ForumIndex);
-    }
-
-
     ///////////////////////////////////////////////////////////////////////////
     //
     ///////////////////////////////////////////////////////////////////////////
-
 
 
     @Override
@@ -295,6 +281,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
     /**
      * Hide the system UI.
+     *
      * @param delayMillis - delay in milliseconds before hiding.
      */
     public void delayedHide(int delayMillis) {
@@ -349,22 +336,33 @@ public class ForumsIndexActivity extends AwfulActivity
     private void handleIntent(@NonNull Intent intent) {
         NavigationEvent parsed = NavigationEvent.Companion.parse(intent);
         Timber.i("Parsed intent as %s", parsed.toString());
+        navigate(parsed);
+    }
 
-        if (parsed instanceof NavigationEvent.ForumIndex) {
-            showForumIndex();
-        } else if (parsed instanceof NavigationEvent.Bookmarks) {
-            showBookmarks();
-        } else if (parsed instanceof NavigationEvent.Forum) {
-            NavigationEvent.Forum forum = (NavigationEvent.Forum) parsed;
+
+    @Override
+    public void navigate(@NonNull NavigationEvent event) {
+        if (event instanceof NavigationEvent.MainActivity) {
+            // we're here, nothing to do
+        } else if (event instanceof NavigationEvent.ForumIndex) {
+            forumsPager.setCurrentPagerItem(Pages.ForumIndex);
+        } else if (event instanceof NavigationEvent.Bookmarks) {
+            showForum(Constants.USERCP_ID, null);
+        } else if (event instanceof NavigationEvent.Forum) {
+            NavigationEvent.Forum forum = (NavigationEvent.Forum) event;
             showForum(forum.getId(), forum.getPage());
-        } else if (parsed instanceof NavigationEvent.Thread) {
-            NavigationEvent.Thread thread = (NavigationEvent.Thread) parsed;
+        } else if (event instanceof NavigationEvent.Thread) {
+            NavigationEvent.Thread thread = (NavigationEvent.Thread) event;
+            // TODO: intent handling sets forceReload to true - set that as the default in the NavigationEvent, find out if anywhere else sets it as false, and remove it if it's not being used?
             showThread(thread.getId(), thread.getPage(), thread.getPostJump(), true);
-        } else if (parsed instanceof NavigationEvent.Url) {
-            NavigationEvent.Url url = (NavigationEvent.Url) parsed;
+        } else if (event instanceof NavigationEvent.Url) {
+            NavigationEvent.Url url = (NavigationEvent.Url) event;
             forumsPager.openThread(url.getUrl());
-        } else if (parsed instanceof NavigationEvent.ReAuthenticate) {
+        } else if (event instanceof NavigationEvent.ReAuthenticate) {
             Authentication.INSTANCE.reAuthenticate(this);
+        } else {
+            Timber.i("Unhandled navigation event (" + event + ") - passing to AwfulActivity");
+            super.navigate(event);
         }
     }
 
@@ -390,7 +388,6 @@ public class ForumsIndexActivity extends AwfulActivity
         super.onSaveInstanceState(outState);
         forumsPager.onSaveInstanceState(outState);
     }
-
 
 
     @Override
@@ -448,7 +445,7 @@ public class ForumsIndexActivity extends AwfulActivity
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        Log.e(TAG,"onConfigurationChanged()");
+        Log.e(TAG, "onConfigurationChanged()");
         forumsPager.onConfigurationChange(getMPrefs());
         AwfulFragment currentFragment = forumsPager.getCurrentFragment();
         if (currentFragment != null) {

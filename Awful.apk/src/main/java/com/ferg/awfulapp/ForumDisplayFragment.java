@@ -327,7 +327,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
     }
 
     private void viewThread(int id, int page){
-    	displayThread(id, page, null, true);
+    	displayThread(id, page, null);
     }
 
     private void copyUrl(int id) {

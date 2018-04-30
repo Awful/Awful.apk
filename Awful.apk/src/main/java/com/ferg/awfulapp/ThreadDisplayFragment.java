@@ -949,7 +949,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
                         pushThread(threadId, threadPage, postJump);
                     }
                 } else if (result.getType() == TYPE.INDEX) {
-                    activity.showForumIndex();
+                    activity.navigate(NavigationEvent.ForumIndex.INSTANCE);
                 }
                 redirect = null;
                 bypassBackStack = false;
