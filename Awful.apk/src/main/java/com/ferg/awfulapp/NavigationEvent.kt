@@ -2,6 +2,7 @@ package com.ferg.awfulapp
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import com.ferg.awfulapp.constants.Constants
 import com.ferg.awfulapp.preferences.SettingsActivity
 import com.ferg.awfulapp.thread.AwfulURL
@@ -29,6 +30,12 @@ sealed class NavigationEvent {
     data class Forum(val id: Int, val page: Int? = null) : NavigationEvent()
     data class Url(val url: AwfulURL) : NavigationEvent()
 
+    // TODO: the activity just wants to parse an int anyway (a long is probably better), parse/validate here?
+    /**
+     * Show the user's private messages, with an optional URL for a message to open
+     */
+    data class PrivateMessages(val messageUri: Uri? = null) : NavigationEvent()
+
 
     /**
      * Build an Intent for this NavigationEvent.
@@ -37,36 +44,39 @@ sealed class NavigationEvent {
      * expected launch modes and flags. If you need to use Intents to e.g. navigate from one Activity
      * to another, you should use this.
      */
-    fun getIntent(context: Context): Intent =
-            activityIntent(context).apply {
-                when (this@NavigationEvent) {
-                    is Thread -> {
-                        putExtra(EVENT, TYPE_THREAD)
-                        putExtra(Constants.THREAD_ID, id)
-                        page?.let { putExtra(Constants.THREAD_PAGE, page) }
-                        postJump?.let { putExtra(Constants.THREAD_FRAGMENT, postJump) }
-                    }
-                    is Forum -> {
-                        putExtra(EVENT, TYPE_FORUM)
-                        putExtra(Constants.FORUM_ID, id)
-                        page?.let { putExtra(Constants.FORUM_PAGE, page) }
-                    }
-                    Bookmarks -> {
-                        putExtra(EVENT, TYPE_BOOKMARKS)
-                        putExtra(Constants.FORUM_ID, Constants.USERCP_ID)
-                    }
-                    ForumIndex -> {
-                        putExtra(EVENT, TYPE_FORUM_INDEX)
-                    }
-                    ReAuthenticate -> {
-                        putExtra(EVENT, TYPE_RE_AUTHENTICATE)
-                        putExtra(TYPE_RE_AUTHENTICATE, true)
-                    }
-                    MainActivity -> putExtra(EVENT, TYPE_MAIN_ACTIVITY)
-                    Settings -> putExtra(EVENT, TYPE_SETTINGS)
-                    SearchForums -> putExtra(EVENT, TYPE_SEARCH_FORUMS)
-                }
+    fun getIntent(context: Context): Intent = activityIntent(context).apply {
+        when (this@NavigationEvent) {
+            is Thread -> {
+                putExtra(EVENT, TYPE_THREAD)
+                putExtra(Constants.THREAD_ID, id)
+                page?.let { putExtra(Constants.THREAD_PAGE, page) }
+                postJump?.let { putExtra(Constants.THREAD_FRAGMENT, postJump) }
             }
+            is Forum -> {
+                putExtra(EVENT, TYPE_FORUM)
+                putExtra(Constants.FORUM_ID, id)
+                page?.let { putExtra(Constants.FORUM_PAGE, page) }
+            }
+            is PrivateMessages -> {
+                putExtra(EVENT, TYPE_PRIVATE_MESSAGES)
+                messageUri?.let(::setData)
+            }
+            Bookmarks -> {
+                putExtra(EVENT, TYPE_BOOKMARKS)
+                putExtra(Constants.FORUM_ID, Constants.USERCP_ID)
+            }
+            ForumIndex -> {
+                putExtra(EVENT, TYPE_FORUM_INDEX)
+            }
+            ReAuthenticate -> {
+                putExtra(EVENT, TYPE_RE_AUTHENTICATE)
+                putExtra(TYPE_RE_AUTHENTICATE, true)
+            }
+            MainActivity -> putExtra(EVENT, TYPE_MAIN_ACTIVITY)
+            Settings -> putExtra(EVENT, TYPE_SETTINGS)
+            SearchForums -> putExtra(EVENT, TYPE_SEARCH_FORUMS)
+        }
+    }
 
 
     private fun activityIntent(context: Context): Intent = when (this) {
@@ -76,11 +86,9 @@ sealed class NavigationEvent {
         Settings ->
             Intent().setClass(context, SettingsActivity::class.java)
         SearchForums ->
-            BasicActivity.intentFor(
-                    SearchFragment::class.java,
-                    context,
-                    context.getString(R.string.search_forums_activity_title)
-            )
+            BasicActivity.intentFor(SearchFragment::class.java, context, context.getString(R.string.search_forums_activity_title))
+        is PrivateMessages ->
+            Intent().setClass(context, PrivateMessageActivity::class.java)
         else -> throw RuntimeException("No activity defined for event: $this")
     }
 
@@ -97,6 +105,7 @@ sealed class NavigationEvent {
         private const val TYPE_URL = "nav_url"
         private const val TYPE_SETTINGS = "nav_settings"
         private const val TYPE_SEARCH_FORUMS = "nav_search_forums"
+        private const val TYPE_PRIVATE_MESSAGES = "nav_private_messages"
 
 
         /**

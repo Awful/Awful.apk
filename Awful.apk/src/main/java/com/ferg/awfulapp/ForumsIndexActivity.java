@@ -106,17 +106,12 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @Override
     public void onNewPm(@NonNull String messageUrl, @NonNull final String sender, final int unreadCount) {
-        // TODO: 16/08/2016 probably best to put this in a method that the menu option calls too
-        final Intent pmIntent = new Intent().setClass(this, PrivateMessageActivity.class);
-        Uri uri = Uri.parse(messageUrl);
-        if (uri != null) {
-            pmIntent.setData(uri);
-        }
+        NavigationEvent showPmEvent = new NavigationEvent.PrivateMessages(Uri.parse(messageUrl));
         runOnUiThread(() -> {
             String message = "Private message from %s\n(%d unread)";
             Snackbar.make(mToolbar, String.format(Locale.getDefault(), message, sender, unreadCount), Snackbar.LENGTH_LONG)
                     .setDuration(3000)
-                    .setAction("View", view -> startActivity(pmIntent))
+                    .setAction("View", view -> navigate(showPmEvent))
                     .show();
         });
     }

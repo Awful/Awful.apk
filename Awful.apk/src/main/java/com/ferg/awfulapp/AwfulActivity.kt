@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.ActivityInfo.*
 import android.graphics.Typeface
-import android.net.Uri
 import android.net.http.HttpResponseCache
 import android.os.Bundle
 import android.support.annotation.CallSuper
@@ -236,18 +235,6 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
 
     /** Display the announcements  */
     fun showAnnouncements() = AnnouncementsManager.getInstance().showAnnouncements(this)
-
-    /**
-     * Display the user's PMs
-     *
-     * @param openMessageUri a Uri to a private message you want to open, parsed from a new PM link on the site
-     */
-    fun showPrivateMessages(openMessageUri: Uri? = null) =
-    // TODO: rework this so the message ID is parsed from the link, and we just pass that around internally
-            Intent().apply {
-                setClass(this@AwfulActivity, PrivateMessageActivity::class.java)
-                openMessageUri?.let(::setData)
-            }.let(::startActivity)
 
     /**
      * Display the post/reply/edit composer.
