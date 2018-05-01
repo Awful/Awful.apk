@@ -1,5 +1,6 @@
 package com.ferg.awfulapp
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -18,27 +19,88 @@ import timber.log.Timber
 
 sealed class NavigationEvent(private val extraTypeId: String) {
 
+    /**
+     * Get the base intent for this navigation event, with the activity it opens and any special flags or configuration.
+     *
+     * Defaults to opening the main activity, override this for events handled by other activities.
+     */
+    protected open fun activityIntent(context: Context): Intent =
+            context.intentFor(ForumsIndexActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+
+    /**
+     * Code to run when converting this event to an Intent.
+     *
+     * Override this when you need to include data, e.g. a thread ID, so it can be retrieved when the Intent is parsed.
+     */
+    protected open val addDataToIntent: Intent.() -> Unit = {}
+
+
     object ReAuthenticate : NavigationEvent(TYPE_RE_AUTHENTICATE)
+
     object MainActivity : NavigationEvent(TYPE_MAIN_ACTIVITY)
+
     object Bookmarks : NavigationEvent(TYPE_BOOKMARKS)
+
     object ForumIndex : NavigationEvent(TYPE_FORUM_INDEX)
-    object Settings : NavigationEvent(TYPE_SETTINGS)
-    object SearchForums : NavigationEvent(TYPE_SEARCH_FORUMS)
-    object Announcements : NavigationEvent(TYPE_ANNOUNCEMENTS)
+
+    object Settings : NavigationEvent(TYPE_SETTINGS) {
+
+        override fun activityIntent(context: Context) = context.intentFor(SettingsActivity::class.java)
+    }
+
+    object SearchForums : NavigationEvent(TYPE_SEARCH_FORUMS) {
+
+        override fun activityIntent(context: Context) =
+                BasicActivity.intentFor(SearchFragment::class.java, context, context.getString(R.string.search_forums_activity_title))
+    }
+
+    object Announcements : NavigationEvent(TYPE_ANNOUNCEMENTS) {
+
+        override fun activityIntent(context: Context) =
+                BasicActivity.intentFor(AnnouncementsFragment::class.java, context, context.getString(R.string.announcements))
+    }
 
     data class Thread(val id: Int, val page: Int? = null, val postJump: String? = null) :
-            NavigationEvent(TYPE_THREAD)
+            NavigationEvent(TYPE_THREAD) {
 
-    data class Forum(val id: Int, val page: Int? = null) : NavigationEvent(TYPE_FORUM)
+        override val addDataToIntent: Intent.() -> Unit = {
+            putExtra(Constants.THREAD_ID, id)
+            page?.let { putExtra(Constants.THREAD_PAGE, page) }
+            postJump?.let { putExtra(Constants.THREAD_FRAGMENT, postJump) }
+        }
+    }
+
+    data class Forum(val id: Int, val page: Int? = null) : NavigationEvent(TYPE_FORUM) {
+
+        override val addDataToIntent: Intent.() -> Unit = {
+            putExtra(Constants.FORUM_ID, id)
+            page?.let { putExtra(Constants.FORUM_PAGE, page) }
+        }
+    }
+
     data class Url(val url: AwfulURL) : NavigationEvent(TYPE_URL)
 
-    // TODO: the activity just wants to parse an int anyway (a long is probably better), parse/validate here?
     /**
      * Show the user's private messages, with an optional URL for a message to open
      */
-    data class ShowPrivateMessages(val messageUri: Uri? = null) : NavigationEvent(TYPE_SHOW_PRIVATE_MESSAGES)
+    data class ShowPrivateMessages(val messageUri: Uri? = null) : NavigationEvent(TYPE_SHOW_PRIVATE_MESSAGES) {
+        // TODO: the activity just wants to parse an int anyway (a long is probably better), parse/validate here?
 
-    data class ComposePrivateMessage(val recipient: String? = null) : NavigationEvent(TYPE_COMPOSE_PRIVATE_MESSAGE)
+        override fun activityIntent(context: Context) = context.intentFor(PrivateMessageActivity::class.java)
+
+        override val addDataToIntent: Intent.() -> Unit = {
+            messageUri?.let(::setData)
+        }
+    }
+
+    data class ComposePrivateMessage(val recipient: String? = null) : NavigationEvent(TYPE_COMPOSE_PRIVATE_MESSAGE) {
+
+        override fun activityIntent(context: Context) = context.intentFor(MessageDisplayActivity::class.java)
+
+        override val addDataToIntent: Intent.() -> Unit = {
+            recipient?.let { putExtra(Constants.PARAM_USERNAME, recipient) }
+        }
+    }
 
 
     /**
@@ -48,46 +110,7 @@ sealed class NavigationEvent(private val extraTypeId: String) {
      * expected launch modes and flags. If you need to use Intents to e.g. navigate from one Activity
      * to another, you should use this instead of constructing one in another class.
      */
-    fun getIntent(context: Context): Intent = activityIntent(context).putExtra(EVENT_EXTRA_KEY, extraTypeId).apply {
-        // we've created the base intent and added its type data - any other data is added here
-        when (this@NavigationEvent) {
-            is Thread -> {
-                putExtra(Constants.THREAD_ID, id)
-                page?.let { putExtra(Constants.THREAD_PAGE, page) }
-                postJump?.let { putExtra(Constants.THREAD_FRAGMENT, postJump) }
-            }
-            is Forum -> {
-                putExtra(Constants.FORUM_ID, id)
-                page?.let { putExtra(Constants.FORUM_PAGE, page) }
-            }
-            is ShowPrivateMessages -> messageUri?.let(::setData)
-            is ComposePrivateMessage -> recipient?.let { putExtra(Constants.PARAM_USERNAME, recipient) }
-        }
-    }
-
-
-    /**
-     * Get the base intent for this navigation event, with the activity it opens and any special flags or configuration.
-     *
-     * Every event needs an entry here! This defines its destination, the activity that should open
-     * and handle any other data it contains.
-     */
-    private fun activityIntent(context: Context): Intent = when (this) {
-        MainActivity, Bookmarks, ForumIndex, is Thread, is Forum, is Url ->
-            Intent().setClass(context, ForumsIndexActivity::class.java)
-                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        Settings ->
-            Intent().setClass(context, SettingsActivity::class.java)
-        SearchForums ->
-            BasicActivity.intentFor(SearchFragment::class.java, context, context.getString(R.string.search_forums_activity_title))
-        Announcements ->
-            BasicActivity.intentFor(AnnouncementsFragment::class.java, context, context.getString(R.string.announcements))
-        is ShowPrivateMessages ->
-            Intent().setClass(context, PrivateMessageActivity::class.java)
-        is ComposePrivateMessage ->
-            Intent().setClass(context, MessageDisplayActivity::class.java)
-        else -> throw RuntimeException("No activity defined for event: $this")
-    }
+    fun getIntent(context: Context): Intent = activityIntent(context).putExtra(EVENT_EXTRA_KEY, extraTypeId).apply(addDataToIntent)
 
 
     companion object {
@@ -109,6 +132,7 @@ sealed class NavigationEvent(private val extraTypeId: String) {
         private const val TYPE_COMPOSE_PRIVATE_MESSAGE = "nav_compose_private_message"
         private const val TYPE_ANNOUNCEMENTS = "nav_announcements"
 
+        private fun Context.intentFor(clazz: Class<out Activity>): Intent = Intent().setClass(this, clazz)
 
         /**
          * Parse an intent as one of the navigation events we handle. Defaults to [MainActivity]
@@ -117,7 +141,7 @@ sealed class NavigationEvent(private val extraTypeId: String) {
             parseUrl()?.let { return it }
             return when (getStringExtra(EVENT_EXTRA_KEY)) {
             //TODO: handle behaviour for missing data, e.g. can't navigate to a thread with no thread ID
-                // TODO: might be better to default to null? And let the caller decide what to do when parsing fails - can use the elvis ?: to supply a default event
+            // TODO: might be better to default to null? And let the caller decide what to do when parsing fails - can use the elvis ?: to supply a default event
                 TYPE_RE_AUTHENTICATE -> ReAuthenticate
                 TYPE_SETTINGS -> Settings
                 TYPE_SEARCH_FORUMS -> SearchForums
