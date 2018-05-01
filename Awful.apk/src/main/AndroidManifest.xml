@@ -90,11 +90,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity 
-            android:name="com.ferg.awfulapp.UserCPActivity" 
-            android:exported="true"
-            android:clearTaskOnLaunch="true" 
-            />
         <activity android:name="com.ferg.awfulapp.MessageDisplayActivity"
                   android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity android:name="com.ferg.awfulapp.PrivateMessageActivity"
