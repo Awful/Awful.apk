@@ -106,7 +106,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @Override
     public void onNewPm(@NonNull String messageUrl, @NonNull final String sender, final int unreadCount) {
-        NavigationEvent showPmEvent = new NavigationEvent.PrivateMessages(Uri.parse(messageUrl));
+        NavigationEvent showPmEvent = new NavigationEvent.ShowPrivateMessages(Uri.parse(messageUrl));
         runOnUiThread(() -> {
             String message = "Private message from %s\n(%d unread)";
             Snackbar.make(mToolbar, String.format(Locale.getDefault(), message, sender, unreadCount), Snackbar.LENGTH_LONG)

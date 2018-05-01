@@ -1,15 +1,14 @@
 package com.ferg.awfulapp.popupmenu;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.ferg.awfulapp.MessageDisplayActivity;
+import com.ferg.awfulapp.AwfulActivity;
+import com.ferg.awfulapp.NavigationEvent;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.ThreadDisplayFragment;
-import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.thread.AwfulMessage;
 
@@ -146,7 +145,10 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
         }
         switch (action) {
             case SEND_PM:
-                startActivity(new Intent(getActivity(), MessageDisplayActivity.class).putExtra(Constants.PARAM_USERNAME, posterUsername));
+                AwfulActivity activity = (AwfulActivity) getActivity();
+                if (activity != null) {
+                    activity.navigate(new NavigationEvent.ComposePrivateMessage(posterUsername));
+                }
                 break;
             case QUOTE:
                 parent.displayPostReplyDialog(threadId, postId, AwfulMessage.TYPE_QUOTE);

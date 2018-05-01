@@ -36,7 +36,9 @@ sealed class NavigationEvent(private val extraTypeId: String) {
     /**
      * Show the user's private messages, with an optional URL for a message to open
      */
-    data class PrivateMessages(val messageUri: Uri? = null) : NavigationEvent(TYPE_PRIVATE_MESSAGES)
+    data class ShowPrivateMessages(val messageUri: Uri? = null) : NavigationEvent(TYPE_SHOW_PRIVATE_MESSAGES)
+
+    data class ComposePrivateMessage(val recipient: String? = null) : NavigationEvent(TYPE_COMPOSE_PRIVATE_MESSAGE)
 
 
     /**
@@ -58,7 +60,8 @@ sealed class NavigationEvent(private val extraTypeId: String) {
                 putExtra(Constants.FORUM_ID, id)
                 page?.let { putExtra(Constants.FORUM_PAGE, page) }
             }
-            is PrivateMessages -> messageUri?.let(::setData)
+            is ShowPrivateMessages -> messageUri?.let(::setData)
+            is ComposePrivateMessage -> recipient?.let { putExtra(Constants.PARAM_USERNAME, recipient) }
         }
     }
 
@@ -79,8 +82,10 @@ sealed class NavigationEvent(private val extraTypeId: String) {
             BasicActivity.intentFor(SearchFragment::class.java, context, context.getString(R.string.search_forums_activity_title))
         Announcements ->
             BasicActivity.intentFor(AnnouncementsFragment::class.java, context, context.getString(R.string.announcements))
-        is PrivateMessages ->
+        is ShowPrivateMessages ->
             Intent().setClass(context, PrivateMessageActivity::class.java)
+        is ComposePrivateMessage ->
+            Intent().setClass(context, MessageDisplayActivity::class.java)
         else -> throw RuntimeException("No activity defined for event: $this")
     }
 
@@ -100,7 +105,8 @@ sealed class NavigationEvent(private val extraTypeId: String) {
         private const val TYPE_URL = "nav_url"
         private const val TYPE_SETTINGS = "nav_settings"
         private const val TYPE_SEARCH_FORUMS = "nav_search_forums"
-        private const val TYPE_PRIVATE_MESSAGES = "nav_private_messages"
+        private const val TYPE_SHOW_PRIVATE_MESSAGES = "nav_show_private_messages"
+        private const val TYPE_COMPOSE_PRIVATE_MESSAGE = "nav_compose_private_message"
         private const val TYPE_ANNOUNCEMENTS = "nav_announcements"
 
 
@@ -111,7 +117,17 @@ sealed class NavigationEvent(private val extraTypeId: String) {
             parseUrl()?.let { return it }
             return when (getStringExtra(EVENT_EXTRA_KEY)) {
             //TODO: handle behaviour for missing data, e.g. can't navigate to a thread with no thread ID
+                // TODO: might be better to default to null? And let the caller decide what to do when parsing fails - can use the elvis ?: to supply a default event
                 TYPE_RE_AUTHENTICATE -> ReAuthenticate
+                TYPE_SETTINGS -> Settings
+                TYPE_SEARCH_FORUMS -> SearchForums
+                TYPE_SHOW_PRIVATE_MESSAGES -> ShowPrivateMessages(
+                        messageUri = data
+                )
+                TYPE_COMPOSE_PRIVATE_MESSAGE -> ComposePrivateMessage(
+                        recipient = getStringExtra(Constants.PARAM_USERNAME)
+                )
+                TYPE_ANNOUNCEMENTS -> Announcements
                 TYPE_MAIN_ACTIVITY -> MainActivity
                 TYPE_FORUM_INDEX -> ForumIndex
                 TYPE_BOOKMARKS -> Bookmarks
@@ -124,7 +140,10 @@ sealed class NavigationEvent(private val extraTypeId: String) {
                         page = getIntExtra(Constants.THREAD_PAGE),
                         postJump = getStringExtra(Constants.THREAD_FRAGMENT)
                 )
-                else -> MainActivity
+                else -> {
+                    Timber.w("Couldn't parse Intent as NavigationEvent - event key: ${getStringExtra(EVENT_EXTRA_KEY)}")
+                    MainActivity
+                }
             }
         }
 
