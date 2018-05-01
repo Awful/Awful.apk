@@ -3,6 +3,7 @@ package com.ferg.awfulapp
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import com.ferg.awfulapp.announcements.AnnouncementsFragment
 import com.ferg.awfulapp.constants.Constants
 import com.ferg.awfulapp.preferences.SettingsActivity
 import com.ferg.awfulapp.thread.AwfulURL
@@ -23,6 +24,7 @@ sealed class NavigationEvent {
     object ForumIndex : NavigationEvent()
     object Settings : NavigationEvent()
     object SearchForums : NavigationEvent()
+    object Announcements : NavigationEvent()
 
     data class Thread(val id: Int, val page: Int? = null, val postJump: String? = null) :
             NavigationEvent()
@@ -75,6 +77,7 @@ sealed class NavigationEvent {
             MainActivity -> putExtra(EVENT, TYPE_MAIN_ACTIVITY)
             Settings -> putExtra(EVENT, TYPE_SETTINGS)
             SearchForums -> putExtra(EVENT, TYPE_SEARCH_FORUMS)
+            Announcements -> putExtra(EVENT, TYPE_ANNOUNCEMENTS)
         }
     }
 
@@ -87,6 +90,8 @@ sealed class NavigationEvent {
             Intent().setClass(context, SettingsActivity::class.java)
         SearchForums ->
             BasicActivity.intentFor(SearchFragment::class.java, context, context.getString(R.string.search_forums_activity_title))
+        Announcements ->
+            BasicActivity.intentFor(AnnouncementsFragment::class.java, context, context.getString(R.string.announcements))
         is PrivateMessages ->
             Intent().setClass(context, PrivateMessageActivity::class.java)
         else -> throw RuntimeException("No activity defined for event: $this")
@@ -106,6 +111,7 @@ sealed class NavigationEvent {
         private const val TYPE_SETTINGS = "nav_settings"
         private const val TYPE_SEARCH_FORUMS = "nav_search_forums"
         private const val TYPE_PRIVATE_MESSAGES = "nav_private_messages"
+        private const val TYPE_ANNOUNCEMENTS = "nav_announcements"
 
 
         /**

@@ -12,7 +12,6 @@ import android.support.v7.app.AppCompatActivity
 import android.text.method.ScrollingMovementMethod
 import android.view.View
 import android.widget.TextView
-import com.ferg.awfulapp.announcements.AnnouncementsManager
 import com.ferg.awfulapp.constants.Constants
 import com.ferg.awfulapp.constants.Constants.LOGIN_ACTIVITY_REQUEST
 import com.ferg.awfulapp.network.NetworkUtils
@@ -232,9 +231,6 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
     }
 
     fun showLogoutDialog() = LogOutDialog().show(supportFragmentManager, "logout dialog")
-
-    /** Display the announcements  */
-    fun showAnnouncements() = AnnouncementsManager.getInstance().showAnnouncements(this)
 
     /**
      * Display the post/reply/edit composer.

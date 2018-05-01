@@ -134,7 +134,7 @@ public class ForumsIndexActivity extends AwfulActivity
     private void showAnnouncementSnackbar(String message) {
         Snackbar.make(mToolbar, message, Snackbar.LENGTH_LONG)
                 .setDuration(3000)
-                .setAction("View", click -> AnnouncementsManager.getInstance().showAnnouncements(this))
+                .setAction("View", click -> navigate(NavigationEvent.Announcements.INSTANCE))
                 .show();
     }
 
