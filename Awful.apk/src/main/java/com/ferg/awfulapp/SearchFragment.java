@@ -29,9 +29,7 @@
 
 package com.ferg.awfulapp;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -137,17 +135,14 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
                         if (!isCancelled()) {
                             if (url != null) {
                                 AwfulURL result = AwfulURL.parse(url);
-                                Activity activity = getActivity();
-                                Intent openThread = new Intent().setClass(activity, ForumsIndexActivity.class)
-                                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                                        .putExtra(Constants.THREAD_ID, (int) result.getId())
-                                        .putExtra(Constants.THREAD_PAGE, (int) result.getPage())
-                                        .putExtra(Constants.FORUM_ID, forumId)
-                                        .putExtra(Constants.FORUM_PAGE, 1)
-                                        .putExtra(Constants.THREAD_FRAGMENT, result.getFragment().substring(4));
+                                NavigationEvent showThread = new NavigationEvent.Thread(
+                                        (int) result.getId(), (int) result.getPage(), result.getFragment().substring(4)
+                                );
+
+                                AwfulActivity activity = getAwfulActivity();
                                 redirectDialog.dismiss();
                                 activity.finish();
-                                startActivity(openThread);
+                                activity.navigate(showThread);
                             } else {
                                 getAlertView().show(new AwfulError());
                             }

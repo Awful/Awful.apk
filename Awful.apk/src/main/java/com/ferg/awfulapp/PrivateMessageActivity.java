@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2012, Matthew Shepard
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of the software nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY SCOTT FERGUSON ''AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -42,26 +42,25 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 
 public class PrivateMessageActivity extends AwfulActivity implements MessageFragment.PrivateMessageCallbacks {
 
-	private static final String MESSAGE_FRAGMENT_TAG = "message fragment";
+    private static final String MESSAGE_FRAGMENT_TAG = "message fragment";
 
-	private View pane_two;
+    private View pane_two;
     private String pmIntentID;
-    private Toolbar mToolbar;
 
-	@Override
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.private_message_activity);
         setMPrefs(AwfulPreferences.getInstance(this, this));
 
-		mToolbar = (Toolbar) findViewById(R.id.toolbar);
-		setSupportActionBar(mToolbar);
-		setUpActionBar();
+        Toolbar mToolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+        setUpActionBar();
 
-		Uri data = getIntent().getData();
-		if (data != null) {
-        	pmIntentID = data.getQueryParameter(Constants.PARAM_PRIVATE_MESSAGE_ID);
+        Uri data = getIntent().getData();
+        if (data != null) {
+            pmIntentID = data.getQueryParameter(Constants.PARAM_PRIVATE_MESSAGE_ID);
         }
 
         pane_two = findViewById(R.id.fragment_pane_two);
@@ -69,57 +68,59 @@ public class PrivateMessageActivity extends AwfulActivity implements MessageFrag
     }
 
     public void setContentPane() {
-    	if (getSupportFragmentManager().findFragmentById(R.id.fragment_pane) == null) {
-	        PrivateMessageListFragment fragment = new PrivateMessageListFragment();
-	
-	        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-	        transaction.replace(R.id.fragment_pane, fragment);
-	        int pmid = 0;
-	        if(pmIntentID != null && pmIntentID.matches("\\d+")){
-        		pmid = Integer.parseInt(pmIntentID);
-        	}
-	        if (pane_two == null) {
-	        	if(pmid > 0){//this should only trigger if we intercept 'private.php?pmid=XXXXX' and we are not on a tablet.
-	        		startActivity(new Intent().setClass(this, MessageDisplayActivity.class).putExtra(Constants.PARAM_PRIVATE_MESSAGE_ID, pmid));
-	        	}
-	        }
+        if (getSupportFragmentManager().findFragmentById(R.id.fragment_pane) == null) {
+            PrivateMessageListFragment fragment = new PrivateMessageListFragment();
 
-	        transaction.commit();
-    	}
-    }
-    
-    public void showMessage(String name, int id){
-    	if(pane_two != null){
-    		FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-	        transaction.replace(R.id.fragment_pane_two, new MessageFragment(name,id), MESSAGE_FRAGMENT_TAG);
-    		transaction.commit();
-    	}else{
-    		if(name != null){
-                startActivity(new Intent().setClass(this, MessageDisplayActivity.class).putExtra(Constants.PARAM_USERNAME, name));
-    		}else{
-                startActivity(new Intent().setClass(this, MessageDisplayActivity.class).putExtra(Constants.PARAM_PRIVATE_MESSAGE_ID, id));
-    		}
-    	}
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_pane, fragment);
+            int pmid = 0;
+            if (pmIntentID != null && pmIntentID.matches("\\d+")) {
+                pmid = Integer.parseInt(pmIntentID);
+            }
+            if (pane_two == null) {
+                if (pmid > 0) {//this should only trigger if we intercept 'private.php?pmid=XXXXX' and we are not on a tablet.
+                    startActivity(new Intent().setClass(this, MessageDisplayActivity.class).putExtra(Constants.PARAM_PRIVATE_MESSAGE_ID, pmid));
+                }
+            }
+
+            transaction.commit();
+        }
     }
 
+    public void showMessage(String name, int id) {
+        if (pane_two != null) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_pane_two, new MessageFragment(name, id), MESSAGE_FRAGMENT_TAG)
+                    .commit();
+        } else {
+            Intent intent = new Intent().setClass(this, MessageDisplayActivity.class);
+            if (name != null) {
+                intent.putExtra(Constants.PARAM_USERNAME, name);
+            } else {
+                intent.putExtra(Constants.PARAM_PRIVATE_MESSAGE_ID, id);
+            }
+            startActivity(intent);
+        }
+    }
 
-	@Override
-	public void onMessageClosed() {
-		// remove the message fragment, if it exists
-		FragmentManager fragmentManager = getSupportFragmentManager();
-		Fragment messageFragment = fragmentManager.findFragmentByTag(MESSAGE_FRAGMENT_TAG);
-		if (messageFragment != null) {
-			fragmentManager.beginTransaction().remove(messageFragment).commit();
-		}
-	}
+
+    @Override
+    public void onMessageClosed() {
+        // remove the message fragment, if it exists
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        Fragment messageFragment = fragmentManager.findFragmentByTag(MESSAGE_FRAGMENT_TAG);
+        if (messageFragment != null) {
+            fragmentManager.beginTransaction().remove(messageFragment).commit();
+        }
+    }
 
 
-	@Override
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 returnHome();
-				return true;
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -127,8 +128,6 @@ public class PrivateMessageActivity extends AwfulActivity implements MessageFrag
 
     public void returnHome() {
         finish();
-        Intent i = new Intent(this, ForumsIndexActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(i);
+        navigate(NavigationEvent.MainActivity.INSTANCE);
     }
 }
