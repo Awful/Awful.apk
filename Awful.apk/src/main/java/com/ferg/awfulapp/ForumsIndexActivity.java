@@ -240,7 +240,7 @@ public class ForumsIndexActivity extends AwfulActivity
     public void showThread(int id, @Nullable Integer page, @Nullable String postJump, boolean forceReload) {
         Timber.d("displayThread %s", id);
         if (forumsPager != null) {
-            forumsPager.openThread(id, page, "", forceReload);
+            forumsPager.openThread(id, page, (postJump == null) ? "" : postJump, forceReload);
         } else {
             Timber.w("!!! no forums pager - can't open thread");
         }
@@ -337,6 +337,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @Override
     public void navigate(@NonNull NavigationEvent event) {
+        // TODO: when this is all Kotlins, add an optional private "from intent" param that defaults to false - set it true when we're handling an event that opened this activity, and throw when it isn't handled, or we'll just keep reopening the activity
         if (event instanceof NavigationEvent.MainActivity) {
             // we're here, nothing to do
         } else if (event instanceof NavigationEvent.ForumIndex) {
