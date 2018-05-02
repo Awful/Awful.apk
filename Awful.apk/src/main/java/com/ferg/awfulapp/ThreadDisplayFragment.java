@@ -944,7 +944,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 					int threadPage = (int) result.getPage(getPrefs().postPerPage);
 					String postJump = result.getFragment().replaceAll("\\D", "");
 					if (bypassBackStack) {
-                        openThread(threadId, threadPage, postJump, true);
+                        openThread(threadId, threadPage, postJump);
                     } else {
                         pushThread(threadId, threadPage, postJump);
                     }
@@ -1571,18 +1571,19 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
 	/**
 	 * Open a thread, jumping to a specific page and post if required.
-	 *
-	 * @param id        The thread's ID
+	 *  @param id        The thread's ID
 	 * @param page        An optional page to display, otherwise it defaults to the first page
 	 * @param postJump    An optional URL fragment representing the post ID to jump to
-	 * @param forceReload if this thread view is already being displayed, nothing will happen - set true to force a reload
 	 */
-	public void openThread(int id, @Nullable Integer page, @Nullable String postJump, boolean forceReload){
-		if (!forceReload && id == currentThreadId && (page == null || page == currentPage)) {
-			// do nothing if there's no change
-			// TODO: 15/01/2018 handle a change in postJump though? Right now this reflects the old logic from ForumsIndexActivity
-			return;
-		}
+	private void openThread(int id, @Nullable Integer page, @Nullable String postJump){
+		Timber.i("Opening thread (old/new) ID:%d/%d, PAGE:%i/%s, JUMP:%s/%s",
+				getThreadId(), id, getPageNumber(), page, getPostJump(), postJump);
+		// removed because it included (if !forceReload) and that param was always set to true
+//		if (id == currentThreadId && (page == null || page == currentPage)) {
+//			// do nothing if there's no change
+//			// TODO: 15/01/2018 handle a change in postJump though? Right now this reflects the old logic from ForumsIndexActivity
+//			return;
+//		}
 		// TODO: 15/01/2018 a call to display a thread may come before the fragment has been properly created - if so, store the request details and perform it when ready. Handle that here or in #loadThread? 
 		clearBackStack();
 		int threadPage = (page == null) ? FIRST_PAGE : page;
@@ -1590,10 +1591,18 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	}
 
 
+	public void openThread(@NonNull NavigationEvent.Thread thread) {
+		openThread(thread.getId(), thread.getPage(), thread.getPostJump());
+	}
+
+	public void openThread(@NonNull NavigationEvent.Url url) {
+		openThread(url.getUrl());
+	}
+
 	/**
 	 * Open a specific thread represented in an AwfulURL
      */
-	public void openThread(AwfulURL url) {
+	private void openThread(AwfulURL url) {
 		// TODO: fix this prefs stuff, get it initialised somewhere consistent in the lifecycle, preferably in AwfulFragment
 		// TODO: validate the AwfulURL, e.g. make sure it's the correct type
 		if(url == null){

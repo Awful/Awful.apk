@@ -40,7 +40,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -227,27 +226,6 @@ public class ForumsIndexActivity extends AwfulActivity
 
 
     ///////////////////////////////////////////////////////////////////////////
-    // Navigation events
-    ///////////////////////////////////////////////////////////////////////////
-
-
-    public void showForum(int id, @Nullable Integer page) {
-        Timber.d("displayForum %s", id);
-        forumsPager.openForum(id, page);
-    }
-
-
-    public void showThread(int id, @Nullable Integer page, @Nullable String postJump, boolean forceReload) {
-        Timber.d("displayThread %s", id);
-        if (forumsPager != null) {
-            forumsPager.openThread(id, page, (postJump == null) ? "" : postJump, forceReload);
-        } else {
-            Timber.w("!!! no forums pager - can't open thread");
-        }
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
     //
     ///////////////////////////////////////////////////////////////////////////
 
@@ -342,18 +320,8 @@ public class ForumsIndexActivity extends AwfulActivity
             // we're here, nothing to do
         } else if (event instanceof NavigationEvent.ForumIndex) {
             forumsPager.setCurrentPagerItem(Pages.ForumIndex);
-        } else if (event instanceof NavigationEvent.Bookmarks) {
-            showForum(Constants.USERCP_ID, null);
-        } else if (event instanceof NavigationEvent.Forum) {
-            NavigationEvent.Forum forum = (NavigationEvent.Forum) event;
-            showForum(forum.getId(), forum.getPage());
-        } else if (event instanceof NavigationEvent.Thread) {
-            NavigationEvent.Thread thread = (NavigationEvent.Thread) event;
-            // TODO: intent handling sets forceReload to true - set that as the default in the NavigationEvent, find out if anywhere else sets it as false, and remove it if it's not being used?
-            showThread(thread.getId(), thread.getPage(), thread.getPostJump(), true);
-        } else if (event instanceof NavigationEvent.Url) {
-            NavigationEvent.Url url = (NavigationEvent.Url) event;
-            forumsPager.openThread(url.getUrl());
+        } else if (event instanceof NavigationEvent.Bookmarks || event instanceof NavigationEvent.Forum || event instanceof NavigationEvent.Thread || event instanceof NavigationEvent.Url) {
+            forumsPager.navigate(event);
         } else if (event instanceof NavigationEvent.ReAuthenticate) {
             Authentication.INSTANCE.reAuthenticate(this);
         } else {

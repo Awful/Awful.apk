@@ -18,7 +18,6 @@ import com.ferg.awfulapp.Pages.*
 import com.ferg.awfulapp.constants.Constants
 import com.ferg.awfulapp.preferences.AwfulPreferences
 import com.ferg.awfulapp.provider.ColorProvider
-import com.ferg.awfulapp.thread.AwfulURL
 import com.ferg.awfulapp.util.AwfulUtils
 import timber.log.Timber
 import kotlin.properties.Delegates
@@ -61,11 +60,11 @@ enum class Pages(val width: Float) {
  * @param savedInstanceState the activity's saved state - used to restore the viewpager
  */
 class ForumsPagerController(
-    private val viewPager: SwipeLockViewPager,
-    prefs: AwfulPreferences,
-    activity: FragmentActivity,
-    private val callbacks: PagerCallbacks,
-    savedInstanceState: Bundle?
+        private val viewPager: SwipeLockViewPager,
+        prefs: AwfulPreferences,
+        activity: FragmentActivity,
+        private val callbacks: PagerCallbacks,
+        savedInstanceState: Bundle?
 ) {
 
     companion object {
@@ -119,35 +118,26 @@ class ForumsPagerController(
     //
 
     /**
-     * Open and display a given forum, at a certain page if required.
+     * Handle a [NavigationEvent] by paging to the appropriate fragment and passing the event to it.
      */
-    fun openForum(forumId: Int, pageNum: Int? = null) {
-        currentPagerItem = ForumDisplay
-        ::getForumDisplayFragment.runWhenNotNull { openForum(forumId, pageNum) }
-    }
-
-
-    /**
-     * Open and display a given thread, optionally at a specific page or jumping to a post anchor.
-     *
-     * @param forceReload set true to always reload the page, even if it's currently showing what
-     * you've requested, otherwise we just page over to it
-     */
-    fun openThread(id: Int, page: Int? = null, jump: String? = null, forceReload: Boolean = true) {
-        currentPagerItem = ThreadDisplay
-        ::getThreadDisplayFragment.runWhenNotNull {
-            Timber.i("Opening thread (old/new) ID:$threadId/$id, PAGE:$pageNumber/$page, JUMP:$postJump/$jump - force=$forceReload")
-            openThread(id, page, jump, forceReload)
+    fun navigate(event: NavigationEvent) = when (event) {
+        is NavigationEvent.Forum -> {
+            currentPagerItem = ForumDisplay
+            ::getForumDisplayFragment.runWhenNotNull { openForum(event) }
         }
-    }
-
-
-    /**
-     * Open and display a thread given by an AwfulURL - you need to ensure this is a valid thread one
-     */
-    fun openThread(url: AwfulURL) {
-        currentPagerItem = ThreadDisplay
-        ::getThreadDisplayFragment.runWhenNotNull { openThread(url) }
+        is NavigationEvent.Bookmarks -> {
+            currentPagerItem = ForumDisplay
+            ::getForumDisplayFragment.runWhenNotNull { openForum(event) }
+        }
+        is NavigationEvent.Thread -> {
+            currentPagerItem = ThreadDisplay
+            ::getThreadDisplayFragment.runWhenNotNull { openThread(event) }
+        }
+        is NavigationEvent.Url -> {
+            currentPagerItem = ThreadDisplay
+            ::getThreadDisplayFragment.runWhenNotNull { openThread(event) }
+        }
+        else -> throw RuntimeException("Pager doesn't handle event type: $event")
     }
 
     /**
@@ -155,10 +145,7 @@ class ForumsPagerController(
      */
     fun onCurrentPageChanged() {
         getCurrentFragment()?.let { fragment ->
-            callbacks.onPageChanged(
-                currentPagerItem,
-                fragment
-            )
+            callbacks.onPageChanged(currentPagerItem, fragment)
         }
     }
 
@@ -225,7 +212,7 @@ class ForumsPagerController(
         checking after #onPageScrollStateChanged fires with IDLE doesn't help, nothing seems to reflect the actual displayed state
      */
     private fun isFragmentVisible(frag: AwfulFragment) =
-        frag == getCurrentFragment() //|| (tabletMode && frag.userVisibleHint)
+            frag == getCurrentFragment() //|| (tabletMode && frag.userVisibleHint)
 
     //
     // App events
@@ -235,7 +222,7 @@ class ForumsPagerController(
      * Call this from the host activity, so we can store the current ViewPager state.
      */
     fun onSaveInstanceState(bundle: Bundle) =
-        apply { bundle.putBoolean(KEY_THREAD_VIEW_ADDED, pagerAdapter.threadViewAdded) }
+            apply { bundle.putBoolean(KEY_THREAD_VIEW_ADDED, pagerAdapter.threadViewAdded) }
 
     fun onPreferenceChange(prefs: AwfulPreferences) {
         setSwipeEnabled(!prefs.lockScrolling)
@@ -304,16 +291,16 @@ interface ForumsPagerPage {
  * page until it's explicitly opened, and manages tablet mode.
  */
 private class ForumPagerAdapter(
-    val controller: ForumsPagerController,
-    fm: FragmentManager
+        val controller: ForumsPagerController,
+        fm: FragmentManager
 ) : FragmentPagerAdapter(fm),
-    ViewPager.OnPageChangeListener by ViewPager.SimpleOnPageChangeListener() {
+        ViewPager.OnPageChangeListener by ViewPager.SimpleOnPageChangeListener() {
 
     /** The fragments representing each page in the viewpager (if added) */
     val fragments = mutableMapOf<Pages, AwfulFragment?>(
-        ForumIndex to null,
-        ForumDisplay to null,
-        ThreadDisplay to null
+            ForumIndex to null,
+            ForumDisplay to null,
+            ThreadDisplay to null
     )
     private var currentPage = ForumIndex
     /** Whether the thread view fragment has been added ('unlocking' that page for swiping) */
@@ -325,7 +312,7 @@ private class ForumPagerAdapter(
     override fun getCount() = if (threadViewAdded) 3 else 2
 
     override fun getPageWidth(position: Int) =
-        if (controller.tabletMode) Pages[position].width else super.getPageWidth(position)
+            if (controller.tabletMode) Pages[position].width else super.getPageWidth(position)
 
     override fun onPageSelected(pageNum: Int) {
         Timber.i("onPageSelected: $pageNum")
@@ -341,23 +328,23 @@ private class ForumPagerAdapter(
         return when (Pages[position]) {
             ForumIndex -> ForumsIndexFragment()
             ForumDisplay -> ForumDisplayFragment.getInstance(
-                Constants.USERCP_ID,
-                ForumDisplayFragment.FIRST_PAGE,
-                false
+                    Constants.USERCP_ID,
+                    ForumDisplayFragment.FIRST_PAGE,
+                    false
             )
             ThreadDisplay -> ThreadDisplayFragment()
         }
     }
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any =
-            // this will either call #getItem OR restore saved fragments from the fragment manager, so we grab our references here
-        super.instantiateItem(container, position).apply {
-            when (this) {
-                is ForumsIndexFragment -> setAs(ForumIndex)
-                is ForumDisplayFragment -> setAs(ForumDisplay)
-                is ThreadDisplayFragment -> setAs(ThreadDisplay)
+    // this will either call #getItem OR restore saved fragments from the fragment manager, so we grab our references here
+            super.instantiateItem(container, position).apply {
+                when (this) {
+                    is ForumsIndexFragment -> setAs(ForumIndex)
+                    is ForumDisplayFragment -> setAs(ForumDisplay)
+                    is ThreadDisplayFragment -> setAs(ThreadDisplay)
+                }
             }
-        }
 
     /**
      * Set as one of the fragment pages in the pager.
@@ -378,7 +365,7 @@ private class ForumPagerAdapter(
  * in code blocks in the webview without the pager moving too.
  */
 class SwipeLockViewPager @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null
+        context: Context, attrs: AttributeSet? = null
 ) : ViewPager(context, attrs) {
 
     /** Enable or disable swiping on this viewpager */
@@ -388,8 +375,8 @@ class SwipeLockViewPager @JvmOverloads constructor(
     /** Forcibly end the current swipe, and ignore any further motion events (avoids regaining focus during a swipe and seeing it as a large, sudden move) */
     private fun cancelSwipe() {
         SystemClock.uptimeMillis()
-            .let { now -> MotionEvent.obtain(now, now, MotionEvent.ACTION_CANCEL, 0f, 0f, 0) }
-            .let { onTouchEvent(it) }
+                .let { now -> MotionEvent.obtain(now, now, MotionEvent.ACTION_CANCEL, 0f, 0f, 0) }
+                .let { onTouchEvent(it) }
         ignoreMotion = true
     }
 
@@ -402,15 +389,15 @@ class SwipeLockViewPager @JvmOverloads constructor(
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean =
-        swipeEnabled && preventCrash {
-            // if we're ignoring the current motion, this resets it when a new one starts
-            if (ev.actionMasked == MotionEvent.ACTION_DOWN) ignoreMotion = false
-            if (!ignoreMotion) super.onInterceptTouchEvent(ev) else false
-        }
+            swipeEnabled && preventCrash {
+                // if we're ignoring the current motion, this resets it when a new one starts
+                if (ev.actionMasked == MotionEvent.ACTION_DOWN) ignoreMotion = false
+                if (!ignoreMotion) super.onInterceptTouchEvent(ev) else false
+            }
 
     @SuppressLint("ClickableViewAccessibility") // we're just calling through to the super method anyway
     override fun onTouchEvent(ev: MotionEvent): Boolean =
-        swipeEnabled && preventCrash { super.onTouchEvent(ev) }
+            swipeEnabled && preventCrash { super.onTouchEvent(ev) }
 
 
     /**

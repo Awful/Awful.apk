@@ -412,7 +412,15 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
         currentForumId = (forumId < 1) ? USERCP_ID : forumId;
 	}
 
-    public void openForum(int id, @Nullable Integer page){
+	public void openForum(@NonNull NavigationEvent.Bookmarks forum) {
+        openForum(Constants.USERCP_ID, null);
+    }
+
+	public void openForum(@NonNull NavigationEvent.Forum forum) {
+        openForum(forum.getId(), forum.getPage());
+    }
+
+    private void openForum(int id, @Nullable Integer page){
         // do nothing if we're already looking at this page (or if no page specified)
         if (id == currentForumId && (page == null || page == currentPage)) {
             return;
