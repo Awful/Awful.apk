@@ -118,6 +118,7 @@ import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -135,7 +136,7 @@ import timber.log.Timber;
  *
  *  Can also handle an HTTP intent that refers to an SA showthread.php? url.
  */
-public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefreshLayout.OnRefreshListener {
+public class ThreadDisplayFragment extends AwfulFragment implements NavigationEventHandler, SwipyRefreshLayout.OnRefreshListener {
 
 	private static final String THREAD_ID_KEY = "thread_id";
 	private static final String THREAD_PAGE_KEY = "thread_page";
@@ -1569,6 +1570,19 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	}
 
 
+	@Override
+	public void navigate(@NotNull NavigationEvent event) {
+		if (event instanceof NavigationEvent.Thread) {
+			NavigationEvent.Thread thread = (NavigationEvent.Thread) event;
+			openThread(thread.getId(), thread.getPage(), thread.getPostJump());
+		} else if (event instanceof NavigationEvent.Url) {
+			NavigationEvent.Url url = (NavigationEvent.Url) event;
+			openThread(url.getUrl());
+		} else {
+			AwfulUtils.failSilently(new Exception("NavigationEvent not handled: " + event));
+		}
+	}
+
 	/**
 	 * Open a thread, jumping to a specific page and post if required.
 	 *  @param id        The thread's ID
@@ -1584,20 +1598,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 //			// TODO: 15/01/2018 handle a change in postJump though? Right now this reflects the old logic from ForumsIndexActivity
 //			return;
 //		}
-		// TODO: 15/01/2018 a call to display a thread may come before the fragment has been properly created - if so, store the request details and perform it when ready. Handle that here or in #loadThread? 
+		// TODO: 15/01/2018 a call to display a thread may come before the fragment has been properly created - if so, store the request details and perform it when ready. Handle that here or in #loadThread?
 		clearBackStack();
 		int threadPage = (page == null) ? FIRST_PAGE : page;
     	loadThread(id, threadPage, postJump, true);
 	}
 
-
-	public void openThread(@NonNull NavigationEvent.Thread thread) {
-		openThread(thread.getId(), thread.getPage(), thread.getPostJump());
-	}
-
-	public void openThread(@NonNull NavigationEvent.Url url) {
-		openThread(url.getUrl());
-	}
 
 	/**
 	 * Open a specific thread represented in an AwfulURL

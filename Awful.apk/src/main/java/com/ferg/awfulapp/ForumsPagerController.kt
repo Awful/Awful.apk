@@ -65,7 +65,7 @@ class ForumsPagerController(
         activity: FragmentActivity,
         private val callbacks: PagerCallbacks,
         savedInstanceState: Bundle?
-) {
+) : NavigationEventHandler {
 
     companion object {
         private const val KEY_THREAD_VIEW_ADDED = "thread view added"
@@ -120,24 +120,16 @@ class ForumsPagerController(
     /**
      * Handle a [NavigationEvent] by paging to the appropriate fragment and passing the event to it.
      */
-    fun navigate(event: NavigationEvent) = when (event) {
-        is NavigationEvent.Forum -> {
+    override fun navigate(event: NavigationEvent) = when (event) {
+        is NavigationEvent.Forum, is NavigationEvent.Bookmarks -> {
             currentPagerItem = ForumDisplay
-            ::getForumDisplayFragment.runWhenNotNull { openForum(event) }
+            ::getForumDisplayFragment.runWhenNotNull { navigate(event) }
         }
-        is NavigationEvent.Bookmarks -> {
-            currentPagerItem = ForumDisplay
-            ::getForumDisplayFragment.runWhenNotNull { openForum(event) }
-        }
-        is NavigationEvent.Thread -> {
+        is NavigationEvent.Thread, is NavigationEvent.Url -> {
             currentPagerItem = ThreadDisplay
-            ::getThreadDisplayFragment.runWhenNotNull { openThread(event) }
+            ::getThreadDisplayFragment.runWhenNotNull { navigate(event) }
         }
-        is NavigationEvent.Url -> {
-            currentPagerItem = ThreadDisplay
-            ::getThreadDisplayFragment.runWhenNotNull { openThread(event) }
-        }
-        else -> throw RuntimeException("Pager doesn't handle event type: $event")
+        else -> AwfulUtils.failSilently(Exception("Pager doesn't handle event type: $event"))
     }
 
     /**

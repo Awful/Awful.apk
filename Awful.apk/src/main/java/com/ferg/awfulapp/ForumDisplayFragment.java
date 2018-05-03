@@ -67,11 +67,14 @@ import com.ferg.awfulapp.task.ThreadListRequest;
 import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulPagedItem;
 import com.ferg.awfulapp.thread.AwfulThread;
+import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.widget.MinMaxNumberPicker;
 import com.ferg.awfulapp.widget.PageBar;
 import com.ferg.awfulapp.widget.PagePicker;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -88,7 +91,7 @@ import static com.ferg.awfulapp.constants.Constants.USERCP_ID;
  *
  *  Can also handle an HTTP intent that refers to an SA forumdisplay.php? url.
  */
-public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshLayout.OnRefreshListener {
+public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshLayout.OnRefreshListener, NavigationEventHandler {
 
     public static final String KEY_FORUM_ID = "forum ID";
     public static final String KEY_PAGE_NUMBER = "page number";
@@ -412,12 +415,18 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
         currentForumId = (forumId < 1) ? USERCP_ID : forumId;
 	}
 
-	public void openForum(@NonNull NavigationEvent.Bookmarks forum) {
-        openForum(Constants.USERCP_ID, null);
-    }
 
-	public void openForum(@NonNull NavigationEvent.Forum forum) {
-        openForum(forum.getId(), forum.getPage());
+
+    @Override
+    public void navigate(@NotNull NavigationEvent event) {
+        if (event instanceof NavigationEvent.Bookmarks) {
+            openForum(Constants.USERCP_ID, null);
+        } else if (event instanceof NavigationEvent.Forum) {
+            NavigationEvent.Forum forum = (NavigationEvent.Forum) event;
+            openForum(forum.getId(), forum.getPage());
+        } else {
+            AwfulUtils.failSilently(new Exception("NavigationEvent not handled: " + event));
+        }
     }
 
     private void openForum(int id, @Nullable Integer page){

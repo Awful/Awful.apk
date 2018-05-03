@@ -213,3 +213,11 @@ sealed class NavigationEvent(private val extraTypeId: String) {
                 }
     }
 }
+
+interface NavigationEventHandler {
+
+    /**
+     * Handle a [NavigationEvent], either in this class or by passing it to another [NavigationEventHandler]
+     */
+    fun navigate(event: NavigationEvent)
+}

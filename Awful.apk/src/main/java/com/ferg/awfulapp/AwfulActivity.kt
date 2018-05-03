@@ -36,7 +36,7 @@ import java.io.File
  * access to app navigation. Call [setUpActionBar] after setting up your Toolbar to apply the standard
  * app style and behaviour.
  */
-abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPreferenceUpdate {
+abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPreferenceUpdate, NavigationEventHandler {
     private var customActivityTitle: TextView? = null
     // TODO: this is a var but honestly why does any activity need to replace it with their own copy? It's a singleton - if they're doing it for the callbacks, just use the register method
     var mPrefs: AwfulPreferences = AwfulPreferences.getInstance()
@@ -211,7 +211,7 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
     // App navigation
     //
 
-    open fun navigate(event: NavigationEvent) = startActivity(event.getIntent(applicationContext))
+    override fun navigate(event: NavigationEvent) = startActivity(event.getIntent(applicationContext))
 
     /**
      * Log out, and show the login activity.
