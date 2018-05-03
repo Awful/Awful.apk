@@ -51,7 +51,7 @@ import android.view.View;
 
 import com.ferg.awfulapp.announcements.AnnouncementsManager;
 import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.dialog.ChangelogDialog;
+import com.ferg.awfulapp.dialog.Changelog;
 import com.ferg.awfulapp.messages.PmManager;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.Keys;
@@ -379,7 +379,7 @@ public class ForumsIndexActivity extends AwfulActivity
         int lastVersionSeen = getMPrefs().lastVersionSeen;
         if (lastVersionSeen != versionCode) {
             Timber.i("App version changed from %d to %d - showing changelog", lastVersionSeen, versionCode);
-            ChangelogDialog.show(this);
+            Changelog.showDialog(this, 1);
             getMPrefs().setPreference(Keys.LAST_VERSION_SEEN, versionCode);
         }
     }

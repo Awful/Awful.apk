@@ -11,7 +11,7 @@ import android.widget.Toast;
 import com.ferg.awfulapp.AwfulActivity;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.dialog.ChangelogDialog;
+import com.ferg.awfulapp.dialog.Changelog;
 import com.ferg.awfulapp.preferences.SettingsActivity;
 import com.ferg.awfulapp.util.AwfulUtils;
 
@@ -74,7 +74,7 @@ public class RootSettings extends SettingsFragment {
 
         @Override
         public boolean onPreferenceClick(Preference preference) {
-            ChangelogDialog.show(getActivity());
+            Changelog.showDialog(getActivity(), null);
             return true;
         }
     }
