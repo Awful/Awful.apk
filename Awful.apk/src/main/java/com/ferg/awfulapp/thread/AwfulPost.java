@@ -32,13 +32,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.support.annotation.NonNull;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.util.AwfulUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
@@ -505,8 +503,8 @@ public class AwfulPost {
         String originalUrl = img.attr("src");
 
 	// Fix postimg.org images
-	if (originalUrl.Contains("postimg.org")) {
-		originalUrl = originalUrl.Replace(".org/",".cc/");
+	if (originalUrl.contains("postimg.org")) {
+		originalUrl = originalUrl.replace(".org/",".cc/");
 	}
         // check whether images can be converted to / wrapped in a link
         boolean alreadyLinked = img.parent() != null && img.parent().tagName().equalsIgnoreCase("a");
