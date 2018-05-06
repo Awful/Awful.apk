@@ -249,7 +249,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 						startPostRedirect(url.getURL(getPrefs().postPerPage));
 						break;
 					case INDEX:
-						displayForumIndex();
+						navigate(NavigationEvent.ForumIndex.INSTANCE);
 						break;
 				}
 			}
@@ -375,7 +375,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 			AwfulURL aLink = AwfulURL.parse(aUrl);
 			switch (aLink.getType()) {
 				case FORUM:
-					displayForum((int) aLink.getId(), (int) aLink.getPage());
+					navigate(new NavigationEvent.Forum((int) aLink.getId(), (int) aLink.getPage()));
 					break;
 				case THREAD:
 					if (aLink.isRedirect()) {
@@ -395,7 +395,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 					}
 					break;
 				case INDEX:
-					displayForumIndex();
+					navigate(NavigationEvent.ForumIndex.INSTANCE);
 					break;
 			}
 			return true;
@@ -1592,7 +1592,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	 * @param postJump    An optional URL fragment representing the post ID to jump to
 	 */
 	private void openThread(int id, @Nullable Integer page, @Nullable String postJump){
-		Timber.i("Opening thread (old/new) ID:%d/%d, PAGE:%i/%s, JUMP:%s/%s",
+		Timber.i("Opening thread (old/new) ID:%d/%d, PAGE:%s/%s, JUMP:%s/%s",
 				getThreadId(), id, getPageNumber(), page, getPostJump(), postJump);
 		// removed because it included (if !forceReload) and that param was always set to true
 //		if (id == currentThreadId && (page == null || page == currentPage)) {

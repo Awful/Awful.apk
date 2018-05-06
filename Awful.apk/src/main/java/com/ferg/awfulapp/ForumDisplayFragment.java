@@ -329,7 +329,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
     }
 
     private void viewThread(int id, int page){
-    	displayThread(id, page, null);
+    	navigate(new NavigationEvent.Thread(id, page, null));
     }
 
     private void copyUrl(int id) {
@@ -351,7 +351,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
                     												row.getInt(row.getColumnIndex(AwfulThread.HAS_VIEWED_THREAD)));
                     viewThread((int) aId, unreadPage);
             }else if(row != null && row.getColumnIndex(AwfulForum.PARENT_ID)>-1){
-                    displayForum((int) aId, null);
+                navigate(new NavigationEvent.Forum((int) aId, null));
             }
         }
     };

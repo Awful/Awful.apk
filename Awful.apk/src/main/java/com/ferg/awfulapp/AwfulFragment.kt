@@ -127,26 +127,13 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
         handler.removeCallbacksAndMessages(null)
     }
 
+
+    //
     // Navigation
+    //
 
     override fun defaultRoute(event: NavigationEvent) {
         awfulActivity?.navigate(event)
-    }
-
-    protected fun displayForumIndex() {
-        awfulActivity?.navigate(NavigationEvent.ForumIndex)
-    }
-
-    protected fun displayThread(
-        id: Int,
-        page: Int? = null,
-        postJump: String? = null
-    ) {
-        awfulActivity?.navigate(NavigationEvent.Thread(id, page, postJump))
-    }
-
-    protected fun displayForum(forumId: Int, page: Int? = null) {
-        awfulActivity?.navigate(NavigationEvent.Forum(forumId, page))
     }
 
     fun displayPostReplyDialog(threadId: Int, postId: Int, type: Int) {
