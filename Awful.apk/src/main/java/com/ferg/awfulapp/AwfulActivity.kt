@@ -211,7 +211,7 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
     // App navigation
     //
 
-    override fun navigate(event: NavigationEvent) = startActivity(event.getIntent(applicationContext))
+    override fun defaultRoute(event: NavigationEvent) = startActivity(event.getIntent(applicationContext))
 
     /**
      * Log out, and show the login activity.

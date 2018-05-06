@@ -314,20 +314,22 @@ public class ForumsIndexActivity extends AwfulActivity
 
 
     @Override
-    public void navigate(@NonNull NavigationEvent event) {
+    public boolean handleNavigation(@NonNull NavigationEvent event) {
         // TODO: when this is all Kotlins, add an optional private "from intent" param that defaults to false - set it true when we're handling an event that opened this activity, and throw when it isn't handled, or we'll just keep reopening the activity
         if (event instanceof NavigationEvent.MainActivity) {
             // we're here, nothing to do
+            return true;
         } else if (event instanceof NavigationEvent.ForumIndex) {
             forumsPager.setCurrentPagerItem(Pages.ForumIndex);
+            return true;
         } else if (event instanceof NavigationEvent.Bookmarks || event instanceof NavigationEvent.Forum || event instanceof NavigationEvent.Thread || event instanceof NavigationEvent.Url) {
             forumsPager.navigate(event);
+            return true;
         } else if (event instanceof NavigationEvent.ReAuthenticate) {
             Authentication.INSTANCE.reAuthenticate(this);
-        } else {
-            Timber.i("Unhandled navigation event (" + event + ") - passing to AwfulActivity");
-            super.navigate(event);
+            return true;
         }
+        return false;
     }
 
 

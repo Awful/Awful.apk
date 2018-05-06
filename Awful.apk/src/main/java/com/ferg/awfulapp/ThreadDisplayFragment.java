@@ -1571,17 +1571,19 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 
 
 	@Override
-	public void navigate(@NotNull NavigationEvent event) {
+	public boolean handleNavigation(@NotNull NavigationEvent event) {
 		if (event instanceof NavigationEvent.Thread) {
 			NavigationEvent.Thread thread = (NavigationEvent.Thread) event;
 			openThread(thread.getId(), thread.getPage(), thread.getPostJump());
+			return true;
 		} else if (event instanceof NavigationEvent.Url) {
 			NavigationEvent.Url url = (NavigationEvent.Url) event;
 			openThread(url.getUrl());
-		} else {
-			AwfulUtils.failSilently(new Exception("NavigationEvent not handled: " + event));
+			return true;
 		}
+		return false;
 	}
+
 
 	/**
 	 * Open a thread, jumping to a specific page and post if required.

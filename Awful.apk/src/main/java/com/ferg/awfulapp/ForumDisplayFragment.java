@@ -67,7 +67,6 @@ import com.ferg.awfulapp.task.ThreadListRequest;
 import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulPagedItem;
 import com.ferg.awfulapp.thread.AwfulThread;
-import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.widget.MinMaxNumberPicker;
 import com.ferg.awfulapp.widget.PageBar;
 import com.ferg.awfulapp.widget.PagePicker;
@@ -418,16 +417,18 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 
 
     @Override
-    public void navigate(@NotNull NavigationEvent event) {
+    public boolean handleNavigation(@NotNull NavigationEvent event) {
         if (event instanceof NavigationEvent.Bookmarks) {
             openForum(Constants.USERCP_ID, null);
+            return true;
         } else if (event instanceof NavigationEvent.Forum) {
             NavigationEvent.Forum forum = (NavigationEvent.Forum) event;
             openForum(forum.getId(), forum.getPage());
-        } else {
-            AwfulUtils.failSilently(new Exception("NavigationEvent not handled: " + event));
+            return true;
         }
+        return false;
     }
+
 
     private void openForum(int id, @Nullable Integer page){
         // do nothing if we're already looking at this page (or if no page specified)

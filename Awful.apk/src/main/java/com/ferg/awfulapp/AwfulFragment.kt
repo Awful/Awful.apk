@@ -58,7 +58,7 @@ import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutD
 import timber.log.Timber
 
 abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdate,
-    AwfulRequest.ProgressListener<Any>, ForumsPagerPage {
+    AwfulRequest.ProgressListener<Any>, ForumsPagerPage, NavigationEventHandler {
     protected var TAG = "AwfulFragment"
 
     protected val prefs: AwfulPreferences by lazy { AwfulPreferences.getInstance(context!!, this) }
@@ -125,6 +125,12 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
         super.onDetach()
         this.cancelNetworkRequests()
         handler.removeCallbacksAndMessages(null)
+    }
+
+    // Navigation
+
+    override fun defaultRoute(event: NavigationEvent) {
+        awfulActivity?.navigate(event)
     }
 
     protected fun displayForumIndex() {

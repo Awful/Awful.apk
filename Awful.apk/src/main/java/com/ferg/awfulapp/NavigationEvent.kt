@@ -8,6 +8,7 @@ import com.ferg.awfulapp.announcements.AnnouncementsFragment
 import com.ferg.awfulapp.constants.Constants
 import com.ferg.awfulapp.preferences.SettingsActivity
 import com.ferg.awfulapp.thread.AwfulURL
+import com.ferg.awfulapp.util.AwfulUtils
 import timber.log.Timber
 
 /**
@@ -214,10 +215,42 @@ sealed class NavigationEvent(private val extraTypeId: String) {
     }
 }
 
+
+/**
+ * Interface for all components that handle [NavigationEvent]s, specifying what to do with
+ * specific events and where to route the rest.
+ */
 interface NavigationEventHandler {
+
+    /**
+     * This is the general handler for any NavigationEvents that are not specifically consumed by [handleNavigation].
+     *
+     * This code should route the [event] to the next handler up the hierarchy, usually an [Activity].
+     * Activities should call [NavigationEvent.getIntent] with [Activity.startActivity] to make the
+     * app navigate to the appropriate activity, which can recreate the event with
+     * [NavigationEvent.parse] and direct it to the appropriate component in [handleNavigation]
+     */
+    fun defaultRoute(event: NavigationEvent) {
+        AwfulUtils.failSilently(Exception("Default navigation route expected but none specified! This event will be dropped\nEvent: $event"))
+    }
+
+    /**
+     * Handle all the specific [NavigationEvent]s this handler knows about.
+     *
+     * This function is meant to define a set of events the handler either handles itself, or
+     * routes to another specific component (e.g. an activity could pass a certain event to one of
+     * its fragments). When an event is consumed like this, the function needs to return true, or it
+     * will be passed to [defaultRoute]
+     */
+    fun handleNavigation(event: NavigationEvent): Boolean {
+        Timber.i("No navigation event handler function - passing $event to default handler")
+        return false
+    }
 
     /**
      * Handle a [NavigationEvent], either in this class or by passing it to another [NavigationEventHandler]
      */
-    fun navigate(event: NavigationEvent)
+    fun navigate(event: NavigationEvent) {
+        if (!handleNavigation(event)) defaultRoute(event)
+    }
 }

@@ -120,17 +120,20 @@ class ForumsPagerController(
     /**
      * Handle a [NavigationEvent] by paging to the appropriate fragment and passing the event to it.
      */
-    override fun navigate(event: NavigationEvent) = when (event) {
+    override fun handleNavigation(event: NavigationEvent): Boolean = when (event) {
         is NavigationEvent.Forum, is NavigationEvent.Bookmarks -> {
             currentPagerItem = ForumDisplay
             ::getForumDisplayFragment.runWhenNotNull { navigate(event) }
+            true
         }
         is NavigationEvent.Thread, is NavigationEvent.Url -> {
             currentPagerItem = ThreadDisplay
             ::getThreadDisplayFragment.runWhenNotNull { navigate(event) }
+            true
         }
-        else -> AwfulUtils.failSilently(Exception("Pager doesn't handle event type: $event"))
+        else -> false
     }
+
 
     /**
      * Called when the view pager either moves to a different page, or the current page is replaced (e.g. with a new fragment)
