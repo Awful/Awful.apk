@@ -8,7 +8,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
 
-import com.ferg.awfulapp.AwfulActivity;
 import com.ferg.awfulapp.NavigationEvent;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
@@ -87,9 +86,7 @@ public class RootSettings extends SettingsFragment {
     private class ThreadListener implements Preference.OnPreferenceClickListener {
         @Override
         public boolean onPreferenceClick(Preference preference) {
-            AwfulActivity activity = (AwfulActivity) getActivity();
-            activity.finish();
-            activity.navigate(new NavigationEvent.Thread(Constants.AWFUL_THREAD_ID, null, null));
+            navigate(new NavigationEvent.Thread(Constants.AWFUL_THREAD_ID, null, null));
             return true;
         }
     }
