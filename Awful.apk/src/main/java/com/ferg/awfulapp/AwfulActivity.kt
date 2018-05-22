@@ -311,6 +311,7 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
 sealed class NavigationEvent {
 
     object ReAuthenticate : NavigationEvent()
+    object MainActivity: NavigationEvent()
     object Bookmarks : NavigationEvent()
     object ForumIndex : NavigationEvent()
     data class Thread(val id: Int, val page: Int? = null, val postJump: String? = null) :
@@ -346,7 +347,7 @@ sealed class NavigationEvent {
         private const val TYPE_RE_AUTHENTICATE = "re-auth"
 
         /**
-         * Parse an intent as one of the navigation events we handle. Defaults to [ForumIndex]
+         * Parse an intent as one of the navigation events we handle. Defaults to [MainActivity]
          */
         fun Intent.parse(): NavigationEvent {
             parseUrl()?.let { return it }
@@ -366,7 +367,7 @@ sealed class NavigationEvent {
                         id = getIntExtra(FORUM_ID)!!,
                         page = getIntExtra(FORUM_PAGE)
                     )
-                else -> ForumIndex
+                else -> MainActivity
             }
         }
 
