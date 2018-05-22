@@ -230,29 +230,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 			// TODO: 04/05/2017 saved scroll position doesn't seem to actually get used to set the position?
 			savedScrollPosition = savedInstanceState.getInt(SCROLL_POSITION_KEY, 0);
 			loadFromCache = true;
-		} else {
-			Timber.i("No saved fragment state - initialising by parsing Intent");
-			Intent data = getActivity().getIntent();
-			if (data.getData() != null && data.getScheme().equals("http")) {
-				AwfulURL url = AwfulURL.parse(data.getDataString());
-				setPostJump(url.getFragment().replaceAll("\\D", ""));
-				switch (url.getType()) {
-					case THREAD:
-						if (url.isRedirect()) {
-							startPostRedirect(url.getURL(getPrefs().postPerPage));
-						} else {
-							setThreadId((int) url.getId());
-							setPageNumber((int) url.getPage(getPrefs().postPerPage));
-						}
-						break;
-					case POST:
-						startPostRedirect(url.getURL(getPrefs().postPerPage));
-						break;
-					case INDEX:
-						navigate(NavigationEvent.ForumIndex.INSTANCE);
-						break;
-				}
-			}
 		}
 		// no valid thread ID means do nothing I guess? If the intent that created the activity+fragments didn't request a thread
         if (getThreadId() <= 0) {
