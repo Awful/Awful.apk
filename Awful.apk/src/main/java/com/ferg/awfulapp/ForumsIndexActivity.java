@@ -40,7 +40,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -106,28 +105,24 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @Override
     public void onNewPm(@NonNull String messageUrl, @NonNull final String sender, final int unreadCount) {
-        // TODO: 16/08/2016 probably best to put this in a method that the menu option calls too
-        final Intent pmIntent = new Intent().setClass(this, PrivateMessageActivity.class);
-        Uri uri = Uri.parse(messageUrl);
-        if (uri != null) {
-            pmIntent.setData(uri);
-        }
+        NavigationEvent showPmEvent = new NavigationEvent.ShowPrivateMessages(Uri.parse(messageUrl));
         runOnUiThread(() -> {
             String message = "Private message from %s\n(%d unread)";
             Snackbar.make(mToolbar, String.format(Locale.getDefault(), message, sender, unreadCount), Snackbar.LENGTH_LONG)
                     .setDuration(3000)
-                    .setAction("View", view -> startActivity(pmIntent))
+                    .setAction("View", view -> navigate(showPmEvent))
                     .show();
         });
     }
 
     @Override
     public void onAnnouncementsUpdated(int newCount, int oldUnread, int oldRead, boolean isFirstUpdate) {
-        if (isFirstUpdate || newCount > 0) {
+        // only show one of 'new announcements' or 'unread announcements', ignoring read ones
+        // (only notify about unread for the first update after opening the app, to remind the user)
+        boolean areNewAnnouncements = newCount > 0;
+        if (isFirstUpdate || areNewAnnouncements) {
             Resources res = getResources();
-            // only show one of 'new announcements' or 'unread announcements', ignoring read ones
-            // (only notify about unread for the first update after opening the app, to remind the user)
-            if (newCount > 0) {
+            if (areNewAnnouncements) {
                 showAnnouncementSnackbar(res.getQuantityString(R.plurals.numberOfNewAnnouncements, newCount, newCount));
             } else if (oldUnread > 0) {
                 showAnnouncementSnackbar(res.getQuantityString(R.plurals.numberOfOldUnreadAnnouncements, oldUnread, oldUnread));
@@ -138,7 +133,7 @@ public class ForumsIndexActivity extends AwfulActivity
     private void showAnnouncementSnackbar(String message) {
         Snackbar.make(mToolbar, message, Snackbar.LENGTH_LONG)
                 .setDuration(3000)
-                .setAction("View", click -> AnnouncementsManager.getInstance().showAnnouncements(this))
+                .setAction("View", click -> navigate(NavigationEvent.Announcements.INSTANCE))
                 .show();
     }
 
@@ -195,7 +190,7 @@ public class ForumsIndexActivity extends AwfulActivity
                 int threadId = threadFragment.getThreadId();
                 int parentForumId = threadFragment.getParentForumId();
                 navigationDrawer.setCurrentForumAndThread(parentForumId, threadId);
-            } else if (forumFragment != null){
+            } else if (forumFragment != null) {
                 int forumId = forumFragment.getForumId();
                 navigationDrawer.setCurrentForumAndThread(forumId, null);
             }
@@ -220,7 +215,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
     /**
      * Notify the activity that something about a pager fragment has changed, so it can update appropriately.
-     *
+     * <p>
      * This could be extended by passing the fragment in if necessary, or adding methods for each
      * page (onThreadChanged etc) - but right now this is all we need.
      */
@@ -231,44 +226,8 @@ public class ForumsIndexActivity extends AwfulActivity
 
 
     ///////////////////////////////////////////////////////////////////////////
-    // Navigation events
-    ///////////////////////////////////////////////////////////////////////////
-
-
-    @Override
-    public void showForum(int id, @Nullable Integer page) {
-        Timber.d("displayForum %s", id);
-        forumsPager.openForum(id, page);
-    }
-
-
-    @Override
-    public void showThread(int id, @Nullable Integer page, @Nullable String postJump, boolean forceReload) {
-        Timber.d("displayThread %s", id);
-        if (forumsPager != null) {
-            forumsPager.openThread(id, page, "", forceReload);
-        } else {
-            Timber.w("!!! no forums pager - can't open thread");
-        }
-    }
-
-
-    @Override
-    public void showBookmarks() {
-        showForum(Constants.USERCP_ID, null);
-    }
-
-
-    @Override
-    public void showForumIndex() {
-        forumsPager.setCurrentPagerItem(Pages.ForumIndex);
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
     //
     ///////////////////////////////////////////////////////////////////////////
-
 
 
     @Override
@@ -295,6 +254,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
     /**
      * Hide the system UI.
+     *
      * @param delayMillis - delay in milliseconds before hiding.
      */
     public void delayedHide(int delayMillis) {
@@ -349,23 +309,27 @@ public class ForumsIndexActivity extends AwfulActivity
     private void handleIntent(@NonNull Intent intent) {
         NavigationEvent parsed = NavigationEvent.Companion.parse(intent);
         Timber.i("Parsed intent as %s", parsed.toString());
+        navigate(parsed);
+    }
 
-        if (parsed instanceof NavigationEvent.ForumIndex) {
-            showForumIndex();
-        } else if (parsed instanceof NavigationEvent.Bookmarks) {
-            showBookmarks();
-        } else if (parsed instanceof NavigationEvent.Forum) {
-            NavigationEvent.Forum forum = (NavigationEvent.Forum) parsed;
-            showForum(forum.getId(), forum.getPage());
-        } else if (parsed instanceof NavigationEvent.Thread) {
-            NavigationEvent.Thread thread = (NavigationEvent.Thread) parsed;
-            showThread(thread.getId(), thread.getPage(), thread.getPostJump(), true);
-        } else if (parsed instanceof NavigationEvent.Url) {
-            NavigationEvent.Url url = (NavigationEvent.Url) parsed;
-            forumsPager.openThread(url.getUrl());
-        } else if (parsed instanceof NavigationEvent.ReAuthenticate) {
+
+    @Override
+    public boolean handleNavigation(@NonNull NavigationEvent event) {
+        // TODO: when this is all Kotlins, add an optional private "from intent" param that defaults to false - set it true when we're handling an event that opened this activity, and throw when it isn't handled, or we'll just keep reopening the activity
+        if (event instanceof NavigationEvent.MainActivity) {
+            // we're here, nothing to do
+            return true;
+        } else if (event instanceof NavigationEvent.ForumIndex) {
+            forumsPager.setCurrentPagerItem(Pages.ForumIndex);
+            return true;
+        } else if (event instanceof NavigationEvent.Bookmarks || event instanceof NavigationEvent.Forum || event instanceof NavigationEvent.Thread || event instanceof NavigationEvent.Url) {
+            forumsPager.navigate(event);
+            return true;
+        } else if (event instanceof NavigationEvent.ReAuthenticate) {
             Authentication.INSTANCE.reAuthenticate(this);
+            return true;
         }
+        return false;
     }
 
 
@@ -390,7 +354,6 @@ public class ForumsIndexActivity extends AwfulActivity
         super.onSaveInstanceState(outState);
         forumsPager.onSaveInstanceState(outState);
     }
-
 
 
     @Override
@@ -448,7 +411,7 @@ public class ForumsIndexActivity extends AwfulActivity
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        Log.e(TAG,"onConfigurationChanged()");
+        Log.e(TAG, "onConfigurationChanged()");
         forumsPager.onConfigurationChange(getMPrefs());
         AwfulFragment currentFragment = forumsPager.getCurrentFragment();
         if (currentFragment != null) {

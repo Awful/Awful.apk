@@ -73,6 +73,8 @@ import com.ferg.awfulapp.widget.PagePicker;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Arrays;
 import java.util.Locale;
 
@@ -88,7 +90,7 @@ import static com.ferg.awfulapp.constants.Constants.USERCP_ID;
  *
  *  Can also handle an HTTP intent that refers to an SA forumdisplay.php? url.
  */
-public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshLayout.OnRefreshListener {
+public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshLayout.OnRefreshListener, NavigationEventHandler {
 
     public static final String KEY_FORUM_ID = "forum ID";
     public static final String KEY_PAGE_NUMBER = "page number";
@@ -327,7 +329,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
     }
 
     private void viewThread(int id, int page){
-    	displayThread(id, page, null, true);
+    	navigate(new NavigationEvent.Thread(id, page, null));
     }
 
     private void copyUrl(int id) {
@@ -349,7 +351,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
                     												row.getInt(row.getColumnIndex(AwfulThread.HAS_VIEWED_THREAD)));
                     viewThread((int) aId, unreadPage);
             }else if(row != null && row.getColumnIndex(AwfulForum.PARENT_ID)>-1){
-                    displayForum((int) aId, null);
+                navigate(new NavigationEvent.Forum((int) aId, null));
             }
         }
     };
@@ -412,7 +414,23 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
         currentForumId = (forumId < 1) ? USERCP_ID : forumId;
 	}
 
-    public void openForum(int id, @Nullable Integer page){
+
+
+    @Override
+    public boolean handleNavigation(@NotNull NavigationEvent event) {
+        if (event instanceof NavigationEvent.Bookmarks) {
+            openForum(Constants.USERCP_ID, null);
+            return true;
+        } else if (event instanceof NavigationEvent.Forum) {
+            NavigationEvent.Forum forum = (NavigationEvent.Forum) event;
+            openForum(forum.getId(), forum.getPage());
+            return true;
+        }
+        return false;
+    }
+
+
+    private void openForum(int id, @Nullable Integer page){
         // do nothing if we're already looking at this page (or if no page specified)
         if (id == currentForumId && (page == null || page == currentPage)) {
             return;

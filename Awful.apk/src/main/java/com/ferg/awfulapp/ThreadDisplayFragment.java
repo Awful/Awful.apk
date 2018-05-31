@@ -118,6 +118,7 @@ import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -135,7 +136,7 @@ import timber.log.Timber;
  *
  *  Can also handle an HTTP intent that refers to an SA showthread.php? url.
  */
-public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefreshLayout.OnRefreshListener {
+public class ThreadDisplayFragment extends AwfulFragment implements NavigationEventHandler, SwipyRefreshLayout.OnRefreshListener {
 
 	private static final String THREAD_ID_KEY = "thread_id";
 	private static final String THREAD_PAGE_KEY = "thread_page";
@@ -229,29 +230,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			// TODO: 04/05/2017 saved scroll position doesn't seem to actually get used to set the position?
 			savedScrollPosition = savedInstanceState.getInt(SCROLL_POSITION_KEY, 0);
 			loadFromCache = true;
-		} else {
-			Timber.i("No saved fragment state - initialising by parsing Intent");
-			Intent data = getActivity().getIntent();
-			if (data.getData() != null && data.getScheme().equals("http")) {
-				AwfulURL url = AwfulURL.parse(data.getDataString());
-				setPostJump(url.getFragment().replaceAll("\\D", ""));
-				switch (url.getType()) {
-					case THREAD:
-						if (url.isRedirect()) {
-							startPostRedirect(url.getURL(getPrefs().postPerPage));
-						} else {
-							setThreadId((int) url.getId());
-							setPageNumber((int) url.getPage(getPrefs().postPerPage));
-						}
-						break;
-					case POST:
-						startPostRedirect(url.getURL(getPrefs().postPerPage));
-						break;
-					case INDEX:
-						displayForumIndex();
-						break;
-				}
-			}
 		}
 		// no valid thread ID means do nothing I guess? If the intent that created the activity+fragments didn't request a thread
         if (getThreadId() <= 0) {
@@ -374,7 +352,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			AwfulURL aLink = AwfulURL.parse(aUrl);
 			switch (aLink.getType()) {
 				case FORUM:
-					displayForum((int) aLink.getId(), (int) aLink.getPage());
+					navigate(new NavigationEvent.Forum((int) aLink.getId(), (int) aLink.getPage()));
 					break;
 				case THREAD:
 					if (aLink.isRedirect()) {
@@ -394,7 +372,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 					}
 					break;
 				case INDEX:
-					displayForumIndex();
+					navigate(NavigationEvent.ForumIndex.INSTANCE);
 					break;
 			}
 			return true;
@@ -944,12 +922,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 					int threadPage = (int) result.getPage(getPrefs().postPerPage);
 					String postJump = result.getFragment().replaceAll("\\D", "");
 					if (bypassBackStack) {
-                        openThread(threadId, threadPage, postJump, true);
+                        openThread(threadId, threadPage, postJump);
                     } else {
                         pushThread(threadId, threadPage, postJump);
                     }
                 } else if (result.getType() == TYPE.INDEX) {
-                    activity.showForumIndex();
+                    activity.navigate(NavigationEvent.ForumIndex.INSTANCE);
                 }
                 redirect = null;
                 bypassBackStack = false;
@@ -1569,21 +1547,37 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	}
 
 
+	@Override
+	public boolean handleNavigation(@NotNull NavigationEvent event) {
+		if (event instanceof NavigationEvent.Thread) {
+			NavigationEvent.Thread thread = (NavigationEvent.Thread) event;
+			openThread(thread.getId(), thread.getPage(), thread.getPostJump());
+			return true;
+		} else if (event instanceof NavigationEvent.Url) {
+			NavigationEvent.Url url = (NavigationEvent.Url) event;
+			openThread(url.getUrl());
+			return true;
+		}
+		return false;
+	}
+
+
 	/**
 	 * Open a thread, jumping to a specific page and post if required.
-	 *
-	 * @param id        The thread's ID
+	 *  @param id        The thread's ID
 	 * @param page        An optional page to display, otherwise it defaults to the first page
 	 * @param postJump    An optional URL fragment representing the post ID to jump to
-	 * @param forceReload if this thread view is already being displayed, nothing will happen - set true to force a reload
 	 */
-	public void openThread(int id, @Nullable Integer page, @Nullable String postJump, boolean forceReload){
-		if (!forceReload && id == currentThreadId && (page == null || page == currentPage)) {
-			// do nothing if there's no change
-			// TODO: 15/01/2018 handle a change in postJump though? Right now this reflects the old logic from ForumsIndexActivity
-			return;
-		}
-		// TODO: 15/01/2018 a call to display a thread may come before the fragment has been properly created - if so, store the request details and perform it when ready. Handle that here or in #loadThread? 
+	private void openThread(int id, @Nullable Integer page, @Nullable String postJump){
+		Timber.i("Opening thread (old/new) ID:%d/%d, PAGE:%s/%s, JUMP:%s/%s",
+				getThreadId(), id, getPageNumber(), page, getPostJump(), postJump);
+		// removed because it included (if !forceReload) and that param was always set to true
+//		if (id == currentThreadId && (page == null || page == currentPage)) {
+//			// do nothing if there's no change
+//			// TODO: 15/01/2018 handle a change in postJump though? Right now this reflects the old logic from ForumsIndexActivity
+//			return;
+//		}
+		// TODO: 15/01/2018 a call to display a thread may come before the fragment has been properly created - if so, store the request details and perform it when ready. Handle that here or in #loadThread?
 		clearBackStack();
 		int threadPage = (page == null) ? FIRST_PAGE : page;
     	loadThread(id, threadPage, postJump, true);
@@ -1593,7 +1587,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	/**
 	 * Open a specific thread represented in an AwfulURL
      */
-	public void openThread(AwfulURL url) {
+	private void openThread(AwfulURL url) {
 		// TODO: fix this prefs stuff, get it initialised somewhere consistent in the lifecycle, preferably in AwfulFragment
 		// TODO: validate the AwfulURL, e.g. make sure it's the correct type
 		if(url == null){
