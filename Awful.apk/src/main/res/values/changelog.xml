@@ -2,6 +2,11 @@
 <resources>
     <string-array name="changelog">
         <item>
+            3.5.2:\n
+            - Fixed app icon behavior when the app is already open\n\n
+            - Fixed postimg URLs\n\n
+        </item>
+        <item>
             3.5.1:\n
             - Emote picker has smarter search and history :wow:\n\n
             - You wanted a private message send confirmation, you got one\n\n
