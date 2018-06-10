@@ -240,20 +240,6 @@ class ForumsPagerController(
 }
 
 
-interface PagerCallbacks {
-    /**
-     * Called when the current page in the forums pager has changed.
-     *
-     * This could be a change of focus (i.e. a different page), or the current page has updated
-     * (e.g. its view has been added to the pager).
-     *
-     * @param page which page is now focused in the pager
-     * @param pageFragment the fragment for this page
-     */
-    fun onPageChanged(page: Pages, pageFragment: AwfulFragment)
-}
-
-
 /**
  * Represents a page in the forums view pager.
  */
