@@ -39,6 +39,7 @@ import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.widget.Toolbar
 import android.view.KeyEvent
+import android.view.View
 
 import com.ferg.awfulapp.announcements.AnnouncementsManager
 import com.ferg.awfulapp.constants.Constants
@@ -54,7 +55,7 @@ import timber.log.Timber
 
 
 class ForumsIndexActivity :
-        AwfulImmersionActivity(),
+        AwfulActivity(),
         PmManager.Listener,
         AnnouncementsManager.AnnouncementListener {
 
@@ -73,6 +74,8 @@ class ForumsIndexActivity :
         toolbar = findViewById(R.id.awful_toolbar)
         setSupportActionBar(toolbar)
         setUpActionBar()
+
+        setupImmersion()
 
         navigationDrawer = NavigationDrawer(this, toolbar, mPrefs)
         updateNavDrawer()
@@ -240,6 +243,7 @@ class ForumsIndexActivity :
     override fun onPreferenceChange(prefs: AwfulPreferences, key: String?) {
         super.onPreferenceChange(prefs, key)
         forumsPager.onPreferenceChange(prefs)
+        setupImmersion()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -255,5 +259,18 @@ class ForumsIndexActivity :
 
     fun allowSwipe() {
         runOnUiThread { forumsPager.setSwipeEnabled(true) }
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        setupImmersion()
+    }
+
+    private fun setupImmersion() {
+        if (mPrefs.immersionMode) {
+            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
+        }
     }
 }
