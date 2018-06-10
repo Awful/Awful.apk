@@ -134,6 +134,7 @@ class ForumsIndexActivity :
      *  Shows the thread, parent forum, and forums root
      */
     private fun updateNavDrawer() {
+        if(!activityInitialized) return
         val threadFragment = forumsPager.getThreadDisplayFragment()
         val forumFragment = forumsPager.getForumDisplayFragment()
 
@@ -145,6 +146,7 @@ class ForumsIndexActivity :
 
 
     private fun updateTitle() {
+        if(!activityInitialized) return
         super.setActionbarTitle(forumsPager.getVisibleFragmentTitle())
     }
 
