@@ -138,41 +138,38 @@ sealed class NavigationEvent(private val extraTypeId: String) {
         /**
          * Parse an intent as one of the navigation events we handle. Defaults to [MainActivity]
          */
-        fun parse(intent: Intent): NavigationEvent {
-            intent.apply {
-                parseUrl()?.let { return it }
-                return when (getStringExtra(EVENT_EXTRA_KEY)) {
-                //TODO: handle behaviour for missing data, e.g. can't navigate to a thread with no thread ID
-                // TODO: might be better to default to null? And let the caller decide what to do when parsing fails - can use the elvis ?: to supply a default event
-                    TYPE_RE_AUTHENTICATE -> ReAuthenticate
-                    TYPE_SETTINGS -> Settings
-                    TYPE_SEARCH_FORUMS -> SearchForums
-                    TYPE_SHOW_PRIVATE_MESSAGES -> ShowPrivateMessages(
-                            messageUri = data
-                    )
-                    TYPE_COMPOSE_PRIVATE_MESSAGE -> ComposePrivateMessage(
-                            recipient = getStringExtra(Constants.PARAM_USERNAME)
-                    )
-                    TYPE_ANNOUNCEMENTS -> Announcements
-                    TYPE_MAIN_ACTIVITY -> MainActivity
-                    TYPE_FORUM_INDEX -> ForumIndex
-                    TYPE_BOOKMARKS -> Bookmarks
-                    TYPE_FORUM -> Forum(
-                            id = getIntExtra(Constants.FORUM_ID)!!,
-                            page = getIntExtra(Constants.FORUM_PAGE)
-                    )
-                    TYPE_THREAD -> Thread(
-                            id = getIntExtra(Constants.THREAD_ID)!!,
-                            page = getIntExtra(Constants.THREAD_PAGE),
-                            postJump = getStringExtra(Constants.THREAD_FRAGMENT)
-                    )
-                    else -> {
-                        Timber.w("Couldn't parse Intent as NavigationEvent - event key: ${getStringExtra(EVENT_EXTRA_KEY)}")
-                        MainActivity
-                    }
+        fun Intent.parse(): NavigationEvent {
+            parseUrl()?.let { return it }
+            return when (getStringExtra(EVENT_EXTRA_KEY)) {
+            //TODO: handle behaviour for missing data, e.g. can't navigate to a thread with no thread ID
+            // TODO: might be better to default to null? And let the caller decide what to do when parsing fails - can use the elvis ?: to supply a default event
+                TYPE_RE_AUTHENTICATE -> ReAuthenticate
+                TYPE_SETTINGS -> Settings
+                TYPE_SEARCH_FORUMS -> SearchForums
+                TYPE_SHOW_PRIVATE_MESSAGES -> ShowPrivateMessages(
+                        messageUri = data
+                )
+                TYPE_COMPOSE_PRIVATE_MESSAGE -> ComposePrivateMessage(
+                        recipient = getStringExtra(Constants.PARAM_USERNAME)
+                )
+                TYPE_ANNOUNCEMENTS -> Announcements
+                TYPE_MAIN_ACTIVITY -> MainActivity
+                TYPE_FORUM_INDEX -> ForumIndex
+                TYPE_BOOKMARKS -> Bookmarks
+                TYPE_FORUM -> Forum(
+                        id = getIntExtra(Constants.FORUM_ID)!!,
+                        page = getIntExtra(Constants.FORUM_PAGE)
+                )
+                TYPE_THREAD -> Thread(
+                        id = getIntExtra(Constants.THREAD_ID)!!,
+                        page = getIntExtra(Constants.THREAD_PAGE),
+                        postJump = getStringExtra(Constants.THREAD_FRAGMENT)
+                )
+                else -> {
+                    Timber.w("Couldn't parse Intent as NavigationEvent - event key: ${getStringExtra(EVENT_EXTRA_KEY)}")
+                    MainActivity
                 }
             }
-            return MainActivity
         }
 
 

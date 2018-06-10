@@ -48,6 +48,7 @@ import com.ferg.awfulapp.messages.PmManager
 import com.ferg.awfulapp.preferences.AwfulPreferences
 import com.ferg.awfulapp.preferences.Keys
 import com.ferg.awfulapp.sync.SyncManager
+import com.ferg.awfulapp.NavigationEvent.Companion.parse
 
 import java.util.Locale
 
@@ -104,14 +105,16 @@ class ForumsIndexActivity :
         val hasNewAnnouncements = newCount > 0
         if (isFirstUpdate || hasNewAnnouncements) {
             if (hasNewAnnouncements) {
-                makeSnackbar(resources.getQuantityString(R.plurals.numberOfNewAnnouncements, newCount, newCount))
+                val message = resources.getQuantityString(R.plurals.numberOfNewAnnouncements, newCount, newCount)
+                makeSnackbar(message, NavigationEvent.Announcements)
             } else if (oldUnread > 0) {
-                makeSnackbar(resources.getQuantityString(R.plurals.numberOfOldUnreadAnnouncements, oldUnread, oldUnread))
+                val message = resources.getQuantityString(R.plurals.numberOfOldUnreadAnnouncements, oldUnread, oldUnread)
+                makeSnackbar(message, NavigationEvent.Announcements)
             }
         }
     }
 
-    private fun makeSnackbar(message: String, event: NavigationEvent = NavigationEvent.Announcements) {
+    private fun makeSnackbar(message: String, event: NavigationEvent = NavigationEvent.MainActivity) {
         Snackbar.make(toolbar, message, Snackbar.LENGTH_LONG)
                 .setDuration(3000)
                 .setAction("View") { navigate(event) }
@@ -174,7 +177,7 @@ class ForumsIndexActivity :
      * Parse and process an intent, e.g. to handle a navigation event.
      */
     private fun handleIntent(intent: Intent) {
-        val parsed = NavigationEvent.parse(intent)
+        val parsed = intent.parse()
         Timber.i("Parsed intent as %s", parsed.toString())
         navigate(parsed)
     }
