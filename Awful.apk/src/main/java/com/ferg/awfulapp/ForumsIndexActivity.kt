@@ -98,13 +98,12 @@ class ForumsIndexActivity :
     override fun onAnnouncementsUpdated(newCount: Int, oldUnread: Int, oldRead: Int, isFirstUpdate: Boolean) {
         // only show one of 'new announcements' or 'unread announcements', ignoring read ones
         // (only notify about unread for the first update after opening the app, to remind the user)
-        val areNewAnnouncements = newCount > 0
-        if (isFirstUpdate || areNewAnnouncements) {
-            val res = resources
-            if (areNewAnnouncements) {
-                makeSnackbar(res.getQuantityString(R.plurals.numberOfNewAnnouncements, newCount, newCount))
+        val hasNewAnnouncements = newCount > 0
+        if (isFirstUpdate || hasNewAnnouncements) {
+            if (hasNewAnnouncements) {
+                makeSnackbar(resources.getQuantityString(R.plurals.numberOfNewAnnouncements, newCount, newCount))
             } else if (oldUnread > 0) {
-                makeSnackbar(res.getQuantityString(R.plurals.numberOfOldUnreadAnnouncements, oldUnread, oldUnread))
+                makeSnackbar(resources.getQuantityString(R.plurals.numberOfOldUnreadAnnouncements, oldUnread, oldUnread))
             }
         }
     }
@@ -153,7 +152,6 @@ class ForumsIndexActivity :
     /**
      * Notify the activity that something about a pager fragment has changed, so it can update appropriately.
      *
-     *
      * This could be extended by passing the fragment in if necessary, or adding methods for each
      * page (onThreadChanged etc) - but right now this is all we need.
      */
@@ -161,14 +159,6 @@ class ForumsIndexActivity :
         updateNavDrawer()
         updateTitle()
     }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    //
-    ///////////////////////////////////////////////////////////////////////////
-
-
-
 
 
     override fun onNewIntent(intent: Intent) {
@@ -254,10 +244,8 @@ class ForumsIndexActivity :
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        Timber.e("onConfigurationChanged()")
         forumsPager.onConfigurationChange(mPrefs)
-        val currentFragment = forumsPager.getCurrentFragment()
-        currentFragment?.onConfigurationChanged(newConfig)
+        forumsPager.getCurrentFragment()?.onConfigurationChanged(newConfig)
         navigationDrawer.drawerToggle.onConfigurationChanged(newConfig)
     }
 
