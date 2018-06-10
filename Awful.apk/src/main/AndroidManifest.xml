@@ -104,8 +104,9 @@
                 <data android:pathPrefix="/private.php" />
         	</intent-filter>
         </activity>
+        <activity android:name=".AwfulImmersionActivity" />
 
-		<provider android:name="com.ferg.awfulapp.provider.AwfulProvider" android:authorities="${applicationId}.provider" />
+        <provider android:name="com.ferg.awfulapp.provider.AwfulProvider" android:authorities="${applicationId}.provider" />
         <meta-data android:name="com.google.android.backup.api_key"
 		    android:value="AEdPqrEAAAAIs68d9wLw6rnLPrSwTf193dR5QGZMSB3jsMhfBg" />
         <provider android:label="@string/awful_web_provider" android:name="com.ferg.awfulapp.provider.AwfulWebProvider" android:authorities="${applicationId}.webprovider" />
