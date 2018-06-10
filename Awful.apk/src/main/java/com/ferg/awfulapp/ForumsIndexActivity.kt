@@ -58,7 +58,8 @@ import timber.log.Timber
 class ForumsIndexActivity :
         AwfulActivity(),
         PmManager.Listener,
-        AnnouncementsManager.AnnouncementListener {
+        AnnouncementsManager.AnnouncementListener,
+        PagerCallbacks {
 
     private lateinit var forumsPager: ForumsPagerController
     private lateinit var toolbar: Toolbar
@@ -70,7 +71,7 @@ class ForumsIndexActivity :
         setContentView(R.layout.forum_index_activity)
 
         val viewPager: SwipeLockViewPager = findViewById(R.id.forum_index_pager)
-        forumsPager = ForumsPagerController(viewPager, mPrefs, this, savedInstanceState)
+        forumsPager = ForumsPagerController(viewPager, mPrefs, this, this, savedInstanceState)
 
         toolbar = findViewById(R.id.awful_toolbar)
         setSupportActionBar(toolbar)
@@ -220,6 +221,19 @@ class ForumsIndexActivity :
         super.onSaveInstanceState(outState)
         forumsPager.onSaveInstanceState(outState)
     }
+
+
+    override fun onPageChanged(page: Pages, pageFragment: AwfulFragment) {
+        // I don't know if #isAdded is necessary after calling #instantiateItem (instead of #getItem
+        // which just creates a new fragment object), but I'm trying to fix a bug I can't reproduce
+        // where these fragment methods crash because they have no activity yet
+        Timber.i("onPageChanged: page %s fragment %s", page, pageFragment)
+        updateTitle()
+        if (pageFragment.isAdded) {
+            setProgress(pageFragment.progressPercent)
+        }
+    }
+
 
     override fun onBackPressed() {
         // in order of precedence: close the nav drawer, tell the current fragment to go back, tell the pager to go back
