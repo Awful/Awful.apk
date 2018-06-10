@@ -63,7 +63,6 @@ class ForumsPagerController(
         private val viewPager: SwipeLockViewPager,
         prefs: AwfulPreferences,
         activity: FragmentActivity,
-        private val callbacks: PagerCallbacks,
         savedInstanceState: Bundle?
 ) : NavigationEventHandler {
 
@@ -132,16 +131,6 @@ class ForumsPagerController(
             true
         }
         else -> false
-    }
-
-
-    /**
-     * Called when the view pager either moves to a different page, or the current page is replaced (e.g. with a new fragment)
-     */
-    fun onCurrentPageChanged() {
-        getCurrentFragment()?.let { fragment ->
-            callbacks.onPageChanged(currentPagerItem, fragment)
-        }
     }
 
 
@@ -315,7 +304,6 @@ private class ForumPagerAdapter(
         fragments[currentPage]?.setAsBackgroundPage()
         currentPage = Pages[pageNum]
         fragments[currentPage]?.setAsFocusedPage()
-        controller.onCurrentPageChanged()
     }
 
     override fun getItem(position: Int): Fragment {
@@ -350,7 +338,6 @@ private class ForumPagerAdapter(
         controller.onPageAdded()
         // #onPageSelected fires before the page's fragments are created/restored, so this callback
         // ensures we update listeners when we actually *get* a new fragment for the current page
-        if (page == currentPage) controller.onCurrentPageChanged()
     }
 
 }

@@ -33,7 +33,6 @@ package com.ferg.awfulapp
 
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
@@ -57,8 +56,7 @@ import timber.log.Timber
 class ForumsIndexActivity :
         AwfulImmersionActivity(),
         PmManager.Listener,
-        AnnouncementsManager.AnnouncementListener,
-        PagerCallbacks {
+        AnnouncementsManager.AnnouncementListener {
 
     private lateinit var forumsPager: ForumsPagerController
     private lateinit var toolbar: Toolbar
@@ -70,14 +68,14 @@ class ForumsIndexActivity :
         setContentView(R.layout.forum_index_activity)
 
         val viewPager: SwipeLockViewPager = findViewById(R.id.forum_index_pager)
-        forumsPager = ForumsPagerController(viewPager, mPrefs, this, this, savedInstanceState)
+        forumsPager = ForumsPagerController(viewPager, mPrefs, this, savedInstanceState)
 
         toolbar = findViewById(R.id.awful_toolbar)
         setSupportActionBar(toolbar)
         setUpActionBar()
 
         navigationDrawer = NavigationDrawer(this, toolbar, mPrefs)
-        updateNavigationDrawer()
+        updateNavDrawer()
 
         PmManager.registerListener(this)
         AnnouncementsManager.getInstance().registerListener(this)
@@ -124,19 +122,19 @@ class ForumsIndexActivity :
     }
 
 
-    private fun updateNavigationDrawer() {
-        // TODO: 17/01/2018 what is this actually meant to display? The current thread and the forum (including Bookmarks) that it's in? Or the current state of each page?
-        // display details for the currently open thread - if there isn't one, show the current forum instead
+    /**
+     *  Display details about the current thread and forum in the nav bar
+     *
+     *  Shows the thread, parent forum, and forums root
+     */
+    private fun updateNavDrawer() {
         val threadFragment = forumsPager.getThreadDisplayFragment()
         val forumFragment = forumsPager.getForumDisplayFragment()
-        if (threadFragment != null) {
-            val threadId = threadFragment.threadId
-            val parentForumId = threadFragment.parentForumId
-            navigationDrawer.setCurrentForumAndThread(parentForumId, threadId)
-        } else if (forumFragment != null) {
-            val forumId = forumFragment.forumId
-            navigationDrawer.setCurrentForumAndThread(forumId, null)
-        }
+
+        val forumId = threadFragment?.parentForumId ?: forumFragment?.forumId
+        val threadId = threadFragment?.threadId
+
+        navigationDrawer.setCurrentForumAndThread(forumId, threadId)
     }
 
 
@@ -160,7 +158,7 @@ class ForumsIndexActivity :
      * page (onThreadChanged etc) - but right now this is all we need.
      */
     fun onPageContentChanged() {
-        updateNavigationDrawer()
+        updateNavDrawer()
         updateTitle()
     }
 
@@ -226,19 +224,6 @@ class ForumsIndexActivity :
         super.onSaveInstanceState(outState)
         forumsPager.onSaveInstanceState(outState)
     }
-
-
-    override fun onPageChanged(page: Pages, pageFragment: AwfulFragment) {
-        // I don't know if #isAdded is necessary after calling #instantiateItem (instead of #getItem
-        // which just creates a new fragment object), but I'm trying to fix a bug I can't reproduce
-        // where these fragment methods crash because they have no activity yet
-        Timber.i("onPageChanged: page %s fragment %s", page, pageFragment)
-        updateTitle()
-        if (pageFragment.isAdded) {
-            setProgress(pageFragment.progressPercent)
-        }
-    }
-
 
     override fun onBackPressed() {
         // in order of precedence: close the nav drawer, tell the current fragment to go back, tell the pager to go back
