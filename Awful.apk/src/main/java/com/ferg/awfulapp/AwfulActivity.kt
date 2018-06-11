@@ -40,13 +40,10 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
     private var customActivityTitle: TextView? = null
     // TODO: this is a var but honestly why does any activity need to replace it with their own copy? It's a singleton - if they're doing it for the callbacks, just use the register method
     var mPrefs: AwfulPreferences = AwfulPreferences.getInstance()
-    var activityInitialized = false
-
 
     //
     // Lifecycle
     //
-
 
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,7 +51,6 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
         mPrefs.registerCallback(this)
         updateTheme()
         super.onCreate(savedInstanceState)
-        activityInitialized = true
     }
 
     @CallSuper

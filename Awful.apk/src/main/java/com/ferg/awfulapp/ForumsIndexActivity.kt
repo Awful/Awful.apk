@@ -50,6 +50,13 @@ import com.ferg.awfulapp.preferences.Keys
 import com.ferg.awfulapp.sync.SyncManager
 import com.ferg.awfulapp.NavigationEvent.Companion.parse
 
+import com.ferg.awfulapp.NavigationEvent.Bookmarks
+import com.ferg.awfulapp.NavigationEvent.Thread
+import com.ferg.awfulapp.NavigationEvent.ForumIndex
+import com.ferg.awfulapp.NavigationEvent.MainActivity
+import com.ferg.awfulapp.NavigationEvent.Url
+import com.ferg.awfulapp.NavigationEvent.ReAuthenticate
+
 import java.util.Locale
 
 import timber.log.Timber
@@ -64,6 +71,8 @@ class ForumsIndexActivity :
     private lateinit var forumsPager: ForumsPagerController
     private lateinit var toolbar: Toolbar
     private lateinit var navigationDrawer: NavigationDrawer
+
+    private var activityInitialized = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,6 +89,7 @@ class ForumsIndexActivity :
         setupImmersion()
 
         navigationDrawer = NavigationDrawer(this, toolbar, mPrefs)
+        activityInitialized = true
         updateNavDrawer()
 
         PmManager.registerListener(this)
@@ -187,21 +197,15 @@ class ForumsIndexActivity :
 
 
     override fun handleNavigation(event: NavigationEvent): Boolean {
-        // TODO: when this is all Kotlins, add an optional private "from intent" param that defaults to false - set it true when we're handling an event that opened this activity, and throw when it isn't handled, or we'll just keep reopening the activity
         return when(event) {
-            is NavigationEvent.MainActivity -> true
-            is NavigationEvent.ForumIndex -> {
-                forumsPager.currentPagerItem = Pages.ForumIndex
+            is MainActivity ->
                 true
-            }
-            is NavigationEvent.Bookmarks, is NavigationEvent.Forum, is NavigationEvent.Thread, is NavigationEvent.Url -> {
-                forumsPager.navigate(event)
-                true
-            }
-            is NavigationEvent.ReAuthenticate -> {
-                Authentication.reAuthenticate(this)
-                true
-            }
+            is ForumIndex ->
+                true.also { forumsPager.currentPagerItem = Pages.ForumIndex }
+            is Bookmarks, is NavigationEvent.Forum, is Thread, is Url ->
+                true.also { forumsPager.navigate(event) }
+            is ReAuthenticate ->
+                true.also { Authentication.reAuthenticate(this) }
             else -> false
         }
     }
