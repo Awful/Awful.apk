@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-package com.ferg.awfulapp;
+package com.ferg.awfulapp.search;
 
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -40,6 +40,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.android.volley.VolleyError;
+import com.ferg.awfulapp.AwfulDialogFragment;
+import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.SearchForumsRequest;
@@ -98,9 +100,9 @@ public class SearchForumsFragment extends AwfulDialogFragment {
                     forum.setChecked(cb.isChecked());
                     searchForum.setChecked(cb.isChecked());
                     if(cb.isChecked()){
-                        parent.searchForums.add(forum.getForumId());
+                        parent.getSearchForums().add(forum.getForumId());
                     }else{
-                        parent.searchForums.remove(forum.getForumId());
+                        parent.getSearchForums().remove(forum.getForumId());
                     }
                     if(searchForum.getDepth() <3 ){
                         for (AwfulSearchForum childSearchForum: forums){
@@ -108,9 +110,9 @@ public class SearchForumsFragment extends AwfulDialogFragment {
                                 if(childSearchForum.getParents().contains("parent"+searchForum.getForumId()) || searchForum.getForumId() == -1){
                                     childSearchForum.setChecked(searchForum.isChecked());
                                     if(searchForum.isChecked()){
-                                        parent.searchForums.add(childSearchForum.getForumId());
+                                        parent.getSearchForums().add(childSearchForum.getForumId());
                                     }else{
-                                        parent.searchForums.remove(childSearchForum.getForumId());
+                                        parent.getSearchForums().remove(childSearchForum.getForumId());
                                     }
                                 }
                             }
@@ -153,7 +155,7 @@ public class SearchForumsFragment extends AwfulDialogFragment {
 			public void success(ArrayList<AwfulSearchForum> result) {
 				forums = result;
 				for(AwfulSearchForum searchForum: forums){
-						searchForum.setChecked(parent.searchForums.contains(searchForum.getForumId()));
+						searchForum.setChecked(parent.getSearchForums().contains(searchForum.getForumId()));
 				}
 				mProgress.setVisibility(View.GONE);
 				mSearchForums.setVisibility(View.VISIBLE);

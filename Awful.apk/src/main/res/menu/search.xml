@@ -13,21 +13,7 @@
         app:showAsAction="ifRoom"
         android:title="@string/search_forums_special_terms">
         <menu>
-            <item
-                android:id="@+id/search_threadid"
-                android:title="@string/search_forums_special_terms_by_thread_id"/>
-            <item
-                android:id="@+id/search_intitle"
-                android:title="@string/search_forums_special_terms_by_intitle"/>
-            <item
-                android:id="@+id/search_userid"
-                android:title="@string/search_forums_special_terms_by_userid"/>
-            <item
-                android:id="@+id/search_username"
-                android:title="@string/search_forums_special_terms_by_username"/>
-            <item
-                android:id="@+id/search_quoting"
-                android:title="@string/search_forums_special_terms_by_quoting"/>
+            <!-- empty submenu to add filter options to -->
         </menu>
     </item>
 

@@ -117,6 +117,7 @@
     <string name="toggle_bookmark_color">Toggle bookmark color</string>
     <string name="mark_unread">Mark thread unread</string>
     <string name="mark_unread_success">Thread Marked Unread</string>
+    <string name="search_thread">Search this thread</string>
 
     <!-- Reply view -->
     <string name="filter_emote_hint">Search terms</string>

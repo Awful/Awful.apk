@@ -56,6 +56,7 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.provider.DatabaseHelper;
+import com.ferg.awfulapp.search.SearchFilter;
 import com.ferg.awfulapp.service.ThreadCursorAdapter;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.BookmarkColorRequest;
@@ -262,29 +263,34 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
     @Override
     public boolean onContextItemSelected(android.view.MenuItem aItem) {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) aItem.getMenuInfo();
+        int threadId = (int) info.id;
         switch (aItem.getItemId()) {
             case R.id.first_page:
-            	viewThread((int) info.id,1);
+            	viewThread(threadId,1);
                 return true;
             case R.id.last_page:
-                int lastPage = AwfulPagedItem.indexToPage(mCursorAdapter.getInt(info.id, AwfulThread.POSTCOUNT), getPrefs().postPerPage);
-                viewThread((int) info.id,lastPage);
+                int lastPage = AwfulPagedItem.indexToPage(mCursorAdapter.getInt(threadId, AwfulThread.POSTCOUNT), getPrefs().postPerPage);
+                viewThread(threadId,lastPage);
                 return true;
             case R.id.go_to_page:
-                int maxPage = AwfulPagedItem.indexToPage(mCursorAdapter.getInt(info.id, AwfulThread.POSTCOUNT), getPrefs().postPerPage);
-                selectThreadPage((int) info.id, maxPage);
+                int maxPage = AwfulPagedItem.indexToPage(mCursorAdapter.getInt(threadId, AwfulThread.POSTCOUNT), getPrefs().postPerPage);
+                selectThreadPage(threadId, maxPage);
                 return true;
             case R.id.mark_thread_unread:
-            	markUnread((int) info.id);
+            	markUnread(threadId);
                 return true;
             case R.id.thread_bookmark:
-            	toggleThreadBookmark((int)info.id, (mCursorAdapter.getInt(info.id, AwfulThread.BOOKMARKED)+1)%2>0);
+            	toggleThreadBookmark(threadId, (mCursorAdapter.getInt(threadId, AwfulThread.BOOKMARKED)+1)%2>0);
                 return true;
             case R.id.thread_bookmark_color:
-            	toggleBookmarkColor((int)info.id, (mCursorAdapter.getInt(info.id, AwfulThread.BOOKMARKED)));
+            	toggleBookmarkColor(threadId, (mCursorAdapter.getInt(threadId, AwfulThread.BOOKMARKED)));
+                return true;
+            case R.id.search_thread:
+                SearchFilter threadFilter = new SearchFilter(SearchFilter.FilterType.ThreadId, Integer.toString(threadId));
+                navigate(new NavigationEvent.SearchForums(threadFilter));
                 return true;
             case R.id.copy_url_thread:
-            	copyUrl((int) info.id);
+            	copyUrl(threadId);
                 return true;
         }
 
