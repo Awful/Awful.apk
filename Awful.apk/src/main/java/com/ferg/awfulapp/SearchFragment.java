@@ -39,7 +39,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -70,6 +69,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import timber.log.Timber;
+
 public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.OnRefreshListener{
     private static final String TAG = "SearchFragment";
 
@@ -89,7 +90,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (DEBUG) Log.e(TAG, "onCreate");
+        Timber.v("onCreate");
         setHasOptionsMenu(true);
         setRetainInstance(false);
     }
@@ -97,18 +98,18 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
-        if (DEBUG) Log.e(TAG, "onCreateView");
+        Timber.v("onCreateView");
 
         View result = inflateView(R.layout.search, aContainer, aInflater);
-        mSearchQuery = (EditText) result.findViewById(R.id.search_query);
+        mSearchQuery = result.findViewById(R.id.search_query);
 
-        mSRL = (SwipyRefreshLayout) result.findViewById(R.id.search_srl);
+        mSRL = result.findViewById(R.id.search_srl);
         mSRL.setOnRefreshListener(this);
         mSRL.setColorSchemeResources(ColorProvider.getSRLProgressColors(null));
         mSRL.setProgressBackgroundColor(ColorProvider.getSRLBackgroundColor(null));
         mSRL.setEnabled(false);
 
-        mSearchResultList = (RecyclerView) result.findViewById(R.id.search_results);
+        mSearchResultList = result.findViewById(R.id.search_results);
         mSearchResultList.setAdapter(new RecyclerView.Adapter<SearchResultHolder>() {
             @Override
             public SearchResultHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -124,6 +125,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
                 holder.hitInfo.setText(Html.fromHtml("<b>" + search.getUsername()+"</b> in <b>" + search.getForumTitle()+"</b>"));
                 holder.blurb.setText(Html.fromHtml(search.getBlurb()));
                 holder.threadName.setText(search.getThreadTitle());
+                holder.timestamp.setText(search.getPostDate());
 
 
                 final String threadlink = search.getThreadLink();
@@ -147,29 +149,26 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
                                 activity.finish();
                                 startActivity(openThread);
                             } else {
-                                new AlertBuilder().fromError(new AwfulError()).show();
+                                getAlertView().show(new AwfulError());
                             }
                         }
                     }
                 };
-                holder.self.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
+                holder.self.setOnClickListener(v -> {
 
 
-                        if (getActivity() != null) {
-                            if(redirect.getStatus() == AsyncTask.Status.PENDING){
-                                redirect.execute();
-                                redirectDialog.setMessage("Just a second");
-                                redirectDialog.setTitle("Loading");
-                                redirectDialog.setIndeterminate(true);
-                                redirectDialog.setCancelable(false);
-                                redirectDialog.show();
-                            }
+                    if (getActivity() != null) {
+                        if(redirect.getStatus() == AsyncTask.Status.PENDING){
+                            redirect.execute();
+                            redirectDialog.setMessage("Just a second");
+                            redirectDialog.setTitle("Loading");
+                            redirectDialog.setIndeterminate(true);
+                            redirectDialog.setCancelable(false);
+                            redirectDialog.show();
                         }
-
-
                     }
+
+
                 });
             }
 
@@ -188,8 +187,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
     @Override
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
-        if (DEBUG) Log.e(TAG, "onActivityCreated");
-
+        Timber.v("onActivityCreated");
     }
 
 
@@ -208,7 +206,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
 
 
     private void search() {
-        mDialog = ProgressDialog.show(getActivity(), "Loading", "Searching...", true, false);
+        mDialog = ProgressDialog.show(getActivity(), getString(R.string.search_forums_active_dialog_title), getString(R.string.search_forums_active_dialog_message), true, false);
         Integer[] searchforums = new Integer[]{};
         int[] searchforumsprimitive = ArrayUtils.toPrimitive(searchForums.toArray(searchforums));
         NetworkUtils.queueRequest(new SearchRequest(this.getContext(), mSearchQuery.getText().toString().toLowerCase(), searchforumsprimitive).build(null, new AwfulRequest.AwfulResultCallback<AwfulSearchResult>() {
@@ -229,7 +227,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
                         mSRL.setEnabled(true);
                     }
                 }
-                Log.e(TAG,"mQueryPages: "+mQueryPages+ " mQueryId: "+mQueryId);
+                Timber.e("mQueryPages: %s\nmQueryId: %s", mQueryPages, mQueryId);
             }
 
             @Override
@@ -238,14 +236,8 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
                     mDialog.dismiss();
                     mDialog = null;
                 }
-                Snackbar.make(getView(), "Searching failed.", Snackbar.LENGTH_LONG)
-                        .setAction("Retry", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                search();
-                            }
-
-                        }).show();
+                Snackbar.make(getView(), R.string.search_forums_failure_message, Snackbar.LENGTH_LONG)
+                        .setAction("Retry", v -> search()).show();
             }
         }));
     }
@@ -258,13 +250,13 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (DEBUG) Log.e(TAG, "onOptionsItemSelected");
+        Timber.v("onOptionsItemSelected");
         switch (item.getItemId()) {
 
             case R.id.search_submit:
                 search();
                 break;
-            case R.id.search_forums:
+            case R.id.select_forums:
                 SearchForumsFragment frag = new SearchForumsFragment(this);
                 frag.setStyle(DialogFragment.STYLE_NO_TITLE,0);
                 frag.show(getFragmentManager(), "searchforums");
@@ -319,7 +311,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
 
     @Override
     public void onRefresh(SwipyRefreshLayoutDirection direction) {
-        Log.e(TAG,"onRefresh: "+ mMaxPageQueried+ " ");
+        Timber.i("onRefresh: %s", mMaxPageQueried);
         final int preItemCount = mSearchResultList.getAdapter().getItemCount();
         NetworkUtils.queueRequest(new SearchResultRequest(this.getContext(), mQueryId, (mMaxPageQueried+1)).build(null, new AwfulRequest.AwfulResultCallback<ArrayList<AwfulSearch>>() {
 
@@ -346,13 +338,15 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
         final TextView threadName;
         final TextView hitInfo;
         final TextView blurb;
+        final TextView timestamp;
         final View self;
-        public SearchResultHolder(View view) {
+        SearchResultHolder(View view) {
             super(view);
             self = view;
-            threadName = (TextView) itemView.findViewById(R.id.search_result_threadname);
-            hitInfo = (TextView) itemView.findViewById(R.id.search_result_hit_info);
-            blurb = (TextView) itemView.findViewById(R.id.search_result_blurb);
+            threadName = itemView.findViewById(R.id.search_result_threadname);
+            hitInfo = itemView.findViewById(R.id.search_result_hit_info);
+            blurb = itemView.findViewById(R.id.search_result_blurb);
+            timestamp = itemView.findViewById(R.id.search_result_timestamp);
         }
     }
 

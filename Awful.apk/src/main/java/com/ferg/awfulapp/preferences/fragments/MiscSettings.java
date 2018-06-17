@@ -1,7 +1,6 @@
 package com.ferg.awfulapp.preferences.fragments;
 
 import android.app.Dialog;
-import android.os.Build;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.support.annotation.NonNull;
@@ -24,11 +23,6 @@ public class MiscSettings extends SettingsFragment {
         VALUE_SUMMARY_PREF_KEYS = new int[] {
                 R.string.pref_key_orientation
         };
-        VERSION_DEPENDENT_SUMMARY_PREF_KEYS = new int[] {
-                R.string.pref_key_disable_gifs,
-                R.string.pref_key_immersion_mode,
-                R.string.pref_key_transformer
-        };
         prefClickListeners.put(new P2RDistanceListener(), new int[] {
                 R.string.pref_key_pull_to_refresh_distance
         });
@@ -45,16 +39,9 @@ public class MiscSettings extends SettingsFragment {
     @Override
     protected void initialiseSettings() {
         super.initialiseSettings();
-
-        findPrefById(R.string.pref_key_disable_gifs).setEnabled(true);
-        findPrefById(R.string.pref_key_immersion_mode).setEnabled(AwfulUtils.isKitKat());
         boolean tab = AwfulUtils.isTablet(getActivity(), true);
-        boolean jellybeanMr1 = AwfulUtils.isAtLeast(Build.VERSION_CODES.JELLY_BEAN_MR1);
         findPrefById(R.string.pref_key_page_layout).setEnabled(tab);
-        findPrefById(R.string.pref_key_transformer).setEnabled(jellybeanMr1 && !tab);
-//        if(!tab){
-//            findPreference("page_layout").setSummary(getString(R.string.page_layout_summary_disabled));
-//        }
+        findPrefById(R.string.pref_key_transformer).setEnabled(!tab);
     }
 
 

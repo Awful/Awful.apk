@@ -96,4 +96,7 @@
         <item>@color/byob_default_post_font</item>
     </integer-array>
 
+    <!-- page bar -->
+<color name="page_bar_divider">#424242</color>
+
 </resources>

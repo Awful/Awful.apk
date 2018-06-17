@@ -35,18 +35,10 @@ public abstract class ThreadDisplay {
      * All the scripts from the javascript folder used in generating HTML
      */
     static final String[] JS_FILES = {
-            "zepto/zepto.min.js",
-            "zepto/selector.js",
-            "zepto/fx.js",
-            "zepto/fx_methods.js",
-            "zepto/touch.js",
-            "zepto/deferred.js",
-            "zepto/callbacks.js",
-            "scrollend.js",
-            "inviewport.js",
-            "json2.js",
+            "polyfills.js",
             "twitterwidget.js",
-            "salr.js",
+            "longtap.js",
+            "jsonp.js",
             "embedding.js",
             "thread.js"
     };
@@ -87,7 +79,7 @@ public abstract class ThreadDisplay {
 
         buffer.append("</head><body><div id='container' class='container' ")
                 .append((!aPrefs.noFAB ? "style='padding-bottom:75px'" : ""))
-                .append("></div></body></html>");
+                .append("></div><script type='text/javascript'>containerInit();</script></body></html>");
         return buffer.toString();
     }
 

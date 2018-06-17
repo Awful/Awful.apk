@@ -1,16 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-        <PreferenceCategory android:title="@string/misc_category_performance">
-            <com.ferg.awfulapp.preferences.CustomSwitchPreference
-                android:key="@string/pref_key_disable_gifs"
-                android:title="@string/disable_gifs"
-                android:summary="@string/disable_gifs_summary"
-                android:defaultValue="true"
-                android:enabled="false"
-                />
-        </PreferenceCategory>
-
         <PreferenceCategory android:title="@string/misc_category_display">
             <ListPreference
                 android:key="@string/pref_key_page_layout"
@@ -38,7 +28,6 @@
                 android:title="@string/immersion_mode"
                 android:summary="@string/immersion_mode_summary"
                 android:defaultValue="false"
-                android:enabled="false"
                 />
             <ListPreference
                 android:key="@string/pref_key_transformer"

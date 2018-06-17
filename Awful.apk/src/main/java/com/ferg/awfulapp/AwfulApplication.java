@@ -6,7 +6,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.os.StrictMode;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -26,9 +25,9 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import io.fabric.sdk.android.Fabric;
+import timber.log.Timber;
 
-public class AwfulApplication extends Application implements AwfulPreferences.AwfulPreferenceUpdate{
-	private static final String TAG = "AwfulApplication";
+public class AwfulApplication extends Application implements AwfulPreferences.AwfulPreferenceUpdate {
 	private static final String APP_STATE_PREFERENCES = "app_state_prefs";
 	/**
 	 * Used for storing misc app data, separate from user preferences, so onPreferenceChange callbacks aren't triggered
@@ -61,19 +60,22 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 		} catch (PackageManager.NameNotFoundException e) {
 			e.printStackTrace();
 		}
-		Log.i(TAG, String.format("App installed %d hours ago", hoursSinceInstall));
+		Timber.i("App installed %d hours ago", hoursSinceInstall);
 
 		// enable Crashlytics on non-debug builds, or debug builds that have been installed for a while
-		crashlyticsEnabled = !Constants.DEBUG || hoursSinceInstall > 4;
+		crashlyticsEnabled = !BuildConfig.DEBUG || hoursSinceInstall > 4;
         if (crashlyticsEnabled) {
 			Fabric.with(this, new Crashlytics());
-			if(mPref.sendUsernameInReport){
+			Timber.plant(new CrashlyticsReportingTree());
+			if (mPref.sendUsernameInReport) {
 				Crashlytics.setUserName(mPref.username);
 			}
+		} else {
+			Timber.plant(new Timber.DebugTree());
 		}
 
 		if (Constants.DEBUG) {
-			Log.d("DEBUG!", "*\n*\n*Debug active\n*\n*");
+			Timber.d("*\n*\n*Debug active\n*\n*");
 			/*
 			This checks destroyed cursors aren't left open, and crashes (with a log) if it finds one
 			Really this is here to avoid introducing any more leaks, since there are some issues with
@@ -164,7 +166,7 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs, String key) {
 		currentFont = fonts.get(mPref.preferredFont);
-		Log.e(TAG,"FONT SELECTED: "+mPref.preferredFont);
+		Timber.i("FONT SELECTED: "+mPref.preferredFont);
 	}
 
 	public String[] getFontList() {
@@ -173,7 +175,7 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 		}
 		Set<String> keys = fonts.keySet();
 		for(String key : keys){
-			Log.e(TAG,"Font: "+key);
+			Timber.i("Font: "+key);
 		}
 		return keys.toArray(new String[keys.size()]);
 	}
@@ -186,7 +188,7 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 			for(String file : files){
 				String fileName = "fonts/"+file;
 				fonts.put(fileName, Typeface.createFromAsset(getAssets(), fileName));
-				Log.i(TAG, "Processed Font: "+fileName);
+				Timber.i("Processed Font: "+fileName);
 			}
 		} catch (IOException | RuntimeException e) {
 			e.printStackTrace();
@@ -196,7 +198,7 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 
 	@Override
 	public File getCacheDir() {
-		Log.e(TAG, "getCacheDir(): " + super.getCacheDir());
+		Timber.i("getCacheDir(): " + super.getCacheDir());
 		return super.getCacheDir();
 	}
 

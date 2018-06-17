@@ -25,8 +25,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static com.ferg.awfulapp.util.AwfulUtils.isKitKat;
-
 /**
  * Created by baka kaba on 03/01/2017.
  * <p>
@@ -243,8 +241,7 @@ public enum AwfulTheme {
         Context context = prefs.getContext();
         @SuppressLint("InlinedApi")
         int permission = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE);
-        // external storage permission was introduced in API 16 but not enforced until 19
-        if (permission == PackageManager.PERMISSION_GRANTED || !isKitKat()) {
+        if (permission == PackageManager.PERMISSION_GRANTED) {
             File cssFile = new File(CUSTOM_THEME_PATH, prefs.theme);
             if (cssFile.isFile() && cssFile.canRead()) {
                 return "file:///" + cssFile.getPath();

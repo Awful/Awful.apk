@@ -32,15 +32,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.provider.DatabaseHelper;
-import com.ferg.awfulapp.util.AwfulUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
@@ -55,8 +51,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import timber.log.Timber;
 
 public class AwfulPost {
     private static final String TAG = "AwfulPost";
@@ -284,7 +283,7 @@ public class AwfulPost {
                 result.add(current);
             } while (aCursor.moveToNext());
         }else{
-        	Log.i(TAG,"No posts to convert.");
+            Timber.i("No posts to convert.");
         }
         return result;
     }
@@ -314,20 +313,7 @@ public class AwfulPost {
                     String link = "http://www.youtube.com/watch?v=" + videoId;
                     String image = "http://img.youtube.com/vi/" + videoId + "/0.jpg";
 
-                    if (AwfulUtils.isKitKatOnly() && !Build.VERSION.RELEASE.equals("4.4.4")) {
-                        Element youtubeContainer = new Element(Tag.valueOf("div"), "");
-                        youtubeContainer.attr("style", "position: relative;text-align: center;background-color: transparent;");
-                        Element youtubeLink = new Element(Tag.valueOf("a"), "");
-                        youtubeLink.attr("href", link);
-                        youtubeLink.attr("style", "position: absolute; background:url('file:///android_res/drawable/ic_menu_video.png') no-repeat center center;    top: 0; right: 0; bottom: 0; left: 0;");
-                        Element img = new Element(Tag.valueOf("img"), "");
-                        img.attr("class", "nolink videoPlayButton");
-                        img.attr("src", image);
-                        img.attr("style", "max-width: 100%;");
-                        youtubeContainer.appendChild(img);
-                        youtubeContainer.appendChild(youtubeLink);
-                        youTube.replaceWith(youtubeContainer);
-                    } else if (!inlineYouTubes) {
+                    if (!inlineYouTubes) {
                         Element youtubeLink = new Element(Tag.valueOf("a"), "");
                         youtubeLink.text(link);
                         youtubeLink.attr("href", link);
@@ -347,7 +333,7 @@ public class AwfulPost {
                 }
 
             } catch (Exception e) {
-                Log.e(TAG, "Failed youtube convertion:", e);
+                Timber.e(e, "Failed youtube conversion:");
                 continue; //if we fail to convert the video tag, we can still display the rest.
             }
         }
@@ -369,7 +355,6 @@ public class AwfulPost {
                 }
                 if (src != null && height != 0 && width != 0) {
                     String link = null, image = null;
-                    Matcher youtube = youtubeId_regex.matcher(src);
                     Matcher vimeo = vimeoId_regex.matcher(src);
                     if (vimeo.find()) {
                         String videoId = vimeo.group(1);
@@ -395,31 +380,15 @@ public class AwfulPost {
                         node.replaceWith(ln);
                         continue;
                     }
-
-                    if (inlineYouTubes && (AwfulUtils.isKitKatOnly() && !Build.VERSION.RELEASE.equals("4.4.4"))) {
-                        Element nodeContainer = new Element(Tag.valueOf("div"), "");
-                        nodeContainer.attr("style", "position: relative;text-align: center;background-color: transparent;");
-                        Element nodeLink = new Element(Tag.valueOf("a"), "");
-                        nodeLink.attr("href", link);
-                        nodeLink.attr("style", "position: absolute; background:url('file:///android_res/drawable/ic_menu_video.png') no-repeat center center;    top: 0; right: 0; bottom: 0; left: 0;");
-                        Element img = new Element(Tag.valueOf("img"), "");
-                        img.attr("class", "nolink videoPlayButton");
-                        img.attr("src", image);
-                        img.attr("style", "max-width: 100%;");
-                        nodeContainer.appendChild(img);
-                        nodeContainer.appendChild(nodeLink);
-                        node.replaceWith(nodeContainer);
-                    } else {
-                        node.empty();
-                        Element ln = new Element(Tag.valueOf("a"), "");
-                        ln.attr("href", link);
-                        ln.text(link);
-                        node.replaceWith(ln);
-                    }
+                    node.empty();
+                    Element ln = new Element(Tag.valueOf("a"), "");
+                    ln.attr("href", link);
+                    ln.text(link);
+                    node.replaceWith(ln);
                 }
 
             } catch (Exception e) {
-                Log.e(TAG, "Failed video convertion:", e);
+                Timber.e(e, "Failed video conversion:");
                 continue;//if we fail to convert the video tag, we can still display the rest.
             }
         }
@@ -467,6 +436,7 @@ public class AwfulPost {
 	}
 
 
+
     /**
      * Parse a thread page to grab its post data.
      *
@@ -480,145 +450,36 @@ public class AwfulPost {
      * @return the number of posts found on the page
      */
     public static int syncPosts(ContentResolver content, Document aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex){
-        ArrayList<ContentValues> result = AwfulPost.parsePosts(aThread, aThreadId, unreadIndex, opId, prefs, startIndex, false);
+        List<ContentValues> result = AwfulPost.parsePosts(aThread, aThreadId, unreadIndex, opId, prefs, startIndex);
         // TODO: 02/06/2017 see below, ignored posts are NOT stored!
         int resultCount = content.bulkInsert(CONTENT_URI, result.toArray(new ContentValues[result.size()]));
-        Log.i(TAG, "Inserted "+resultCount+" posts into DB, threadId:"+aThreadId+" unreadIndex: "+unreadIndex);
+        Timber.i("Inserted " + resultCount + " posts into DB, threadId:" + aThreadId + " unreadIndex: " + unreadIndex);
         return resultCount;
     }
 
-    public static ArrayList<ContentValues> parsePosts(Document aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex, boolean preview){
-    	ArrayList<ContentValues> result = new ArrayList<>();
-    	boolean foundUnreadPost = false;
-		int index = startIndex;
-        String update_time = new Timestamp(System.currentTimeMillis()).toString();
 
-        Elements posts = aThread.getElementsByClass(preview ? "standard" : "post");
+    public static List<ContentValues> parsePosts(Document aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex){
+		int index = startIndex;
+        String updateTime = new Timestamp(System.currentTimeMillis()).toString();
+
+        Elements posts = aThread.getElementsByClass("post");
+        List<Callable<ContentValues>> parseTasks = new ArrayList<>(posts.size());
         for(Element postData : posts){
             // TODO: 02/06/2017 this drops ignored posts completely - fine for a view, bad for actually getting all the posts on a page! Letting them store might break ignore??
             if (postData.hasClass("ignored") && prefs.hideIgnoredPosts) {
                 continue;
             }
-
-            ContentValues post = new ContentValues();
-            //timestamp for DB trimming after a week
-            post.put(DatabaseHelper.UPDATED_TIMESTAMP, update_time);
-        	post.put(THREAD_ID, aThreadId);
-
-        	if(!preview) {
-                //post id is formatted "post1234567", so we strip out the "post" prefix.
-                post.put(ID, Integer.parseInt(postData.id().replaceAll("\\D", "")));
-                //we calculate this beforehand, but now can pull this from the post (thanks cooch!)
-                //wait actually no, FYAD doesn't support this. ~FYAD Privilege~
-                try {
-                    post.put(POST_INDEX, Integer.parseInt(postData.attr("data-idx").replaceAll("\\D", "")));
-                } catch (NumberFormatException nfe) {
-                    post.put(POST_INDEX, index);
-                }
-            }
-
-            // Check for "class=seenX", or just rely on unread index
-            boolean markedSeen = false;
-            for (String aClass : postData.classNames()) {
-                if (aClass.toLowerCase().startsWith("seen")) {
-                    markedSeen = true;
-                    break;
-                }
-            }
-            if(!markedSeen && index > unreadIndex){
-            	post.put(PREVIOUSLY_READ, 0);
-            	foundUnreadPost = true;
-            }else{
-            	post.put(PREVIOUSLY_READ, 1);
-            }
+            parseTasks.add(new PostParseTask(postData, updateTime, index, unreadIndex, aThreadId, opId, prefs));
             index++;
-
-            //set these to 0 now, update them if needed, probably should have used a default value in the SQL table
-			post.put(IS_MOD, 0);
-            post.put(IS_ADMIN, 0);
-            post.put(IS_PLAT, 0);
-
-            //rather than repeatedly query for specific classes, we are just going to grab them all and run through them all
-            Elements postClasses = postData.getElementsByAttribute("class");
-            for(Element entry: postClasses){
-            	String type = entry.attr("class");
-
-                if (type.contains("author")) {
-                    post.put(USERNAME, entry.text());
-                }
-            	if (type.contains("registered")) {
-					post.put(REGDATE, entry.text());
-				}
-                if (type.contains("platinum")) {
-                    post.put(IS_PLAT, 1);
-                }
-				if (type.contains("role-mod")) {
-					post.put(IS_MOD, 1);
-				}
-				if (type.contains("role-admin")) {
-                    post.put(IS_ADMIN, 1);
-				}
-
-				if (type.equalsIgnoreCase("title") && entry.children().size() > 0) {
-					Elements avatar = entry.getElementsByTag("img");
-					if (avatar.size() > 0) {
-                        tryConvertToHttps(avatar.get(0));
-						post.put(AVATAR, avatar.get(0).attr("src"));
-					}
-					post.put(AVATAR_TEXT, entry.text());
-				}
-
-                if(type.equalsIgnoreCase("inner postbody")){
-                    entry.removeClass("inner");
-                    type = entry.attr("class");
-                }
-
-				if (type.equalsIgnoreCase("postbody") && !(entry.getElementsByClass("complete_shit").size() > 0) || type.contains("complete_shit")) {
-                    convertVideos(entry, prefs.inlineYoutube);
-                    for(Element img : entry.getElementsByTag("img")) {
-                        processPostImage(img, !foundUnreadPost, prefs);
-                    }
-                    for (Element link : entry.getElementsByTag("a")) {
-                        tryConvertToHttps(link);
-                    }
-                    post.put(CONTENT, entry.html());
-                }
-
-                if (type.equalsIgnoreCase("postdate")) {
-					post.put(DATE, NetworkUtils.unencodeHtml(entry.text()).replaceAll("[^\\w\\s:,]", "").trim());
-				}
-
-				if (type.startsWith("userinfo userid-")) {
-                    int userId = Integer.parseInt(type.substring(16));
-                    post.put(USER_ID, userId);
-                    post.put(IS_OP, (opId == userId ? 1 : 0));
-                }
-                if (type.equalsIgnoreCase("editedby") && entry.children().size() > 0) {
-					post.put(EDITED, "<i>" + entry.children().get(0).text() + "</i>");
-                }
-                if (type.equalsIgnoreCase("profilelinks") && !post.containsKey(USER_ID)) {
-                    Elements userlink = entry.getElementsByAttributeValueContaining("href", "userid=");
-
-                    if (userlink.size() > 0) {
-                        Matcher userid = userid_regex.matcher(userlink.get(0).attr("href"));
-                        if(userid.find()){
-                            int uid = Integer.parseInt(userid.group(1));
-                            post.put(USER_ID, uid);
-                            post.put(IS_OP, (opId == uid ? 1 : 0));
-                        }else{
-                            Log.e(TAG, "Failed to parse UID!");
-                        }
-                    }else{
-                        Log.e(TAG, "Failed to parse UID!");
-                    }
-                }
-
-            }
-            post.put(EDITABLE, postData.getElementsByAttributeValue("alt", "Edit").size());
-            result.add(post);
         }
-        Log.i(TAG, Integer.toString(posts.size()) + " posts found, " + result.size() + " posts parsed.");
-    	return result;
+
+        long startTime = System.currentTimeMillis();
+        // parse posts using multithreading if possible - some of the Jsoup calls (#html in particular) are very slow
+        // (#html should be a lot faster when jsoup updates to handle Windows-1252 encoding user their fast path for Entities#canEncode)
+        List<ContentValues> result = ForumParsingKt.parse(parseTasks);
+        float averageParseTime = (System.currentTimeMillis() - startTime) / (float) parseTasks.size();
+        Timber.i("%d posts found, %d posts parsed\nAverage parse time: %.3fms", posts.size(), result.size(), averageParseTime);
+        return result;
     }
 
 
@@ -641,6 +502,10 @@ public class AwfulPost {
         boolean isTimg = img.hasClass("timg");
         String originalUrl = img.attr("src");
 
+	// Fix postimg.org images
+	if (originalUrl.contains("postimg.org")) {
+		originalUrl = originalUrl.replace(".org/",".cc/");
+	}
         // check whether images can be converted to / wrapped in a link
         boolean alreadyLinked = img.parent() != null && img.parent().tagName().equalsIgnoreCase("a");
         boolean linkOk = !alreadyLinked && !img.hasClass("nolink");
@@ -697,7 +562,7 @@ public class AwfulPost {
                 thumbUrl = thumbUrl.replace("giant.gfycat.com", "thumbs.gfycat.com");
                 thumbUrl = thumbUrl.replace(".gif", "-poster.jpg");
             } else {
-                thumbUrl = "file:///android_res/drawable/gif.png";
+                thumbUrl = "file:///android_asset/images/gif.png";
                 img.attr("width", "200px");
             }
 

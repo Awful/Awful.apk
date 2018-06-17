@@ -134,15 +134,7 @@ public class AwfulMessage extends AwfulPagedItem {
 			}else{
 				unreadPM.setImageResource(imageID);
 				overlay.setImageResource(iconResource);
-				if(AwfulUtils.isLollipop()){
-					overlay.setBackgroundResource(R.drawable.overlay_background);
-				}else{
-					// FTGE
-					GradientDrawable background = (GradientDrawable) current.getResources().getDrawable(R.drawable.overlay_background);
-					background.mutate();
-					background.setColor(ColorProvider.BACKGROUND.getColor());
-					overlay.setBackgroundDrawable(background);
-				}
+				overlay.setBackgroundResource(R.drawable.overlay_background);
 				overlay.setVisibility(View.VISIBLE);
 			}
 		}else{

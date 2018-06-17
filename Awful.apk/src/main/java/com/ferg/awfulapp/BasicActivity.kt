@@ -20,38 +20,45 @@ import com.ferg.awfulapp.BasicActivity.Companion.intentFor
  */
 
 
-class BasicActivity: AwfulActivity() {
+class BasicActivity : AwfulActivity() {
 
     companion object {
         private const val FRAGMENT_CLASS: String = "fragment class"
         private const val TITLE: String = "action bar title"
 
-        fun intentFor(fragmentClass: Class<out Fragment>, context: Context, title: String = ""): Intent =
-                Intent(context, BasicActivity::class.java)
-                        .putExtra(FRAGMENT_CLASS, fragmentClass.name)
-                        .putExtra(TITLE, title)
+        fun intentFor(
+            fragmentClass: Class<out Fragment>,
+            context: Context,
+            title: String = ""
+        ): Intent =
+            Intent(context, BasicActivity::class.java)
+                .putExtra(FRAGMENT_CLASS, fragmentClass.name)
+                .putExtra(TITLE, title)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.basic_activity)
 
-        val fragmentName = intent.extras.getString(FRAGMENT_CLASS) ?: throw RuntimeException("No content fragment specified!")
+        val fragmentName = intent.extras.getString(FRAGMENT_CLASS)
+                ?: throw RuntimeException("No content fragment specified!")
         val fragment = Class.forName(fragmentName).newInstance() as Fragment
         supportFragmentManager
-                .beginTransaction()
-                .add(R.id.content_frame, fragment, fragmentName)
-                .commit()
+            .beginTransaction()
+            .add(R.id.content_frame, fragment, fragmentName)
+            .commit()
 
         setSupportActionBar(findViewById<View>(R.id.toolbar) as Toolbar)
-        setActionBar()
-        setActionbarTitle(intent.extras.getString(TITLE, "No title"), null)
+        setUpActionBar()
+        setActionbarTitle(intent.extras.getString(TITLE, "No title"))
     }
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            android.R.id.home -> { finish(); return true }
+            android.R.id.home -> {
+                finish(); return true
+            }
         }
         return super.onOptionsItemSelected(item)
     }

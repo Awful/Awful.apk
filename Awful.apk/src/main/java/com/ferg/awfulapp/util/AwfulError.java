@@ -1,15 +1,11 @@
 package com.ferg.awfulapp.util;
 
-import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.animation.Animation;
 
 import com.android.volley.VolleyError;
-import com.ferg.awfulapp.AwfulLoginActivity;
 import com.ferg.awfulapp.R;
-import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.Keys;
 
@@ -19,12 +15,12 @@ import org.jsoup.nodes.Element;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import timber.log.Timber;
 
 /**
  * AwfulError
@@ -64,7 +60,7 @@ public class AwfulError extends VolleyError {
     public AwfulError(int code, @Nullable String message) {
         errorCode = code;
         errorMessage = message;
-        Log.e(TAG, "Error: " + code + " - " + getMessage());
+        Timber.e("Error: " + code + " - " + getMessage());
     }
 
     /**
@@ -142,26 +138,8 @@ public class AwfulError extends VolleyError {
     public static AwfulError checkPageErrors(Document page, AwfulPreferences prefs) {
         // not logged in
         if (null != page.getElementById("notregistered")) {
-            Log.e(TAG, "!!!Page says not registered - You are now LOGGED OUT");
-            Log.w(TAG, "NetworkUtils Cookie Headers dump:");
-            Map<String, String> headerMap = new HashMap<>();
-            NetworkUtils.setCookieHeaders(headerMap);
-            for (Map.Entry header : headerMap.entrySet()) {
-                Log.w(TAG, "Header key: " + header.getKey() + " value: " + header.getValue());
-            }
-
-            Log.w(TAG, "HttpClient CookieStore dump:");
-            NetworkUtils.logCookies();
-
-            // TODO fix the actual problem, probably repeated network requests in a short space of time
-            if (!NetworkUtils.dodgeLogoutBullet()) {
-                NetworkUtils.clearLoginCookies(prefs.getContext());
-                prefs.getContext().startActivity(new Intent().setClass(prefs.getContext(), AwfulLoginActivity.class));
-                Log.e(TAG, "ERROR_LOGGED_OUT");
-            }
+            Timber.w("!!!Page says not registered - You are now LOGGED OUT");
             return new AwfulError(ERROR_LOGGED_OUT);
-        } else {
-            NetworkUtils.resetDodges();
         }
 
         // closed forums
@@ -172,8 +150,8 @@ public class AwfulError extends VolleyError {
         }
 
         // Some generic error - shows up for (at least) post rate limiting and whatever #PostRequest was seeing in responses
-        if (page.getElementsByTag("body").hasClass("standarderror")) {
-            Element standard = page.getElementsByClass("standard").first();
+        if (page.selectFirst("body").hasClass("standarderror")) {
+            Element standard = page.selectFirst(".standard");
             if (standard != null && standard.hasText()) {
                 return new AwfulError(AwfulError.ERROR_ACCESS_DENIED, standard.text().replace("Special Message From Senor Lowtax", ""));
             }
@@ -204,10 +182,10 @@ public class AwfulError extends VolleyError {
                     //TODO this might have timezone issues?
                     probTimestamp = probationFormat.parse(date).getTime();
                 } catch (ParseException e) {
-                    Log.w(TAG, "checkPageErrors: couldn't parse probation date text: " + date, e);
+                    Timber.tag(TAG).w(e, "checkPageErrors: couldn't parse probation date text: %s", date);
                 }
             } else {
-                Log.w(TAG, "checkPageErrors: couldn't find expected probation date text!\nFull text: " + probation.text());
+                Timber.tag(TAG).w("checkPageErrors: couldn't find expected probation date text!\nFull text: %s", probation.text());
             }
 
             prefs.setPreference(Keys.PROBATION_TIME, probTimestamp);

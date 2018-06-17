@@ -119,7 +119,7 @@
     <string name="mark_unread_success">Thread Marked Unread</string>
 
     <!-- Reply view -->
-    <string name="filter_emote_hint">Filter emotes…</string>
+    <string name="filter_emote_hint">Search terms</string>
     <string name="bbcode">BBCode</string>
     <string name="submit">Submit</string>
     <string name="preview">Preview</string>
@@ -226,13 +226,19 @@
     <string name="max_button_text">max</string>
 
     <!-- search -->
+    <string name="search_forums_activity_title">Search</string>
+    <string name="search_forums_active_dialog_title">Searching</string>
+    <string name="search_forums_active_dialog_message">Getting results…</string>
+    <string name="search_forums_failure_message">Searching failed</string>
+    <string name="search_forums_query_text_hint">Enter some search terms</string>
 
-    <string name="Search_terms">Search terms</string>
-    <string name="search_by_userid">User id</string>
-    <string name="search_by_username">Username</string>
-    <string name="search_by_intitle">In title</string>
-    <string name="search_by_threadid">Thread id</string>
-    <string name="search_by_quoting">Quoting user</string>
+    <string name="search_forums_select_forums">Select forums</string>
+    <string name="search_forums_special_terms">Search terms</string>
+    <string name="search_forums_special_terms_by_userid">User id</string>
+    <string name="search_forums_special_terms_by_username">Username</string>
+    <string name="search_forums_special_terms_by_intitle">In title</string>
+    <string name="search_forums_special_terms_by_thread_id">Thread id</string>
+    <string name="search_forums_special_terms_by_quoting">Quoting user</string>
 
 
     <!-- Imgur uploader -->
@@ -290,7 +296,9 @@
         <item>Diabolik900</item>
         <item>foghorn</item>
         <item>Geekner</item>
+        <item>gibb3h</item>
         <item>Glimm</item>
+        <item>Guavanaut</item>
         <item>JingleBells</item>
         <item>Literal Hamster</item>
         <item>Sereri</item>
@@ -324,6 +332,7 @@
     <string name="export_settings_summary">Save a backup of your Awful choices</string>
     <string name="import_settings">Import settings</string>
     <string name="import_settings_summary">Restore your backed up settings</string>
+    <string name="import_settings_chooser_title">Select settings file</string>
 
     <!-- Forum Index Settings page -->
     <string name="forum_index_show_subtitles">Include subtitles</string>
@@ -430,7 +439,6 @@
     <string name="select_font">Font</string>
 
     <!-- Misc Settings page -->
-    <string name="misc_category_performance">Performance tweaks</string>
     <string name="disable_gifs">Disable GIF animation</string>
     <string name="disable_gifs_summary">Extends battery life significantly</string>
     <string name="misc_category_display">Display</string>
@@ -448,8 +456,8 @@
         <item>Portrait</item>
         <item>Landscape</item>
     </string-array>
-    <string name="immersion_mode">Immersion Mode</string>
-    <string name="immersion_mode_summary">Fullscreen mode for KitKat and above</string>
+    <string name="immersion_mode">Immersive mode</string>
+    <string name="immersion_mode_summary">Use the full screen, swipe the top or bottom for controls</string>
     <string name="misc_category_navigation">Navigation</string>
     <string name="disable_pull_next">Disable pull-for-next</string>
     <string name="disable_pull_next_summary">Disable pull at bottom of thread navigation</string>

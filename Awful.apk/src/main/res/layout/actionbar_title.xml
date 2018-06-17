@@ -9,7 +9,6 @@
     android:singleLine="true"
     android:paddingTop="2dp"
     android:paddingBottom="2dp"
-    android:paddingLeft="10dp"
     android:paddingRight="10dp"
     android:focusableInTouchMode="true"
     android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"

@@ -78,7 +78,7 @@ public class PreviewFragment extends AwfulDialogFragment {
     }
 
     private String getBlankPage() {
-        return ThreadDisplay.getContainerHtml(mPrefs, 0);
+        return ThreadDisplay.getContainerHtml(prefs, 0);
     }
 
 

@@ -67,7 +67,7 @@ public class PageBar extends FrameLayout {
 
 
     private void init() {
-        View pageBar = LayoutInflater.from(getContext()).inflate(R.layout.pagebar, this, true);
+        View pageBar = LayoutInflater.from(getContext()).inflate(R.layout.page_bar, this, true);
         ButterKnife.bind(pageBar);
         updatePagePosition(FIRST_PAGE, FIRST_PAGE);
     }
@@ -86,30 +86,55 @@ public class PageBar extends FrameLayout {
      * @param lastPage    the number of last page in the page range
      */
     public void updatePagePosition(int currentPage, int lastPage) {
-            /*
-                Possible states and their button layouts (left side / right side):
-                    single page -         refresh /
-                    first of many -       refresh / next
-                    middle of many - prev refresh / next
-                    last of many -   prev         / refresh2
+        PageType type;
+        if (currentPage == FIRST_PAGE) {
+            type = (currentPage == lastPage) ? PageType.SINGLE : PageType.FIRST_OF_MANY;
+        } else if (currentPage == lastPage) {
+            type = PageType.LAST_OF_MANY;
+        } else {
+            type = PageType.ONE_OF_MANY;
+        }
+        // if currentPage is greater than lastPage, then lastPage isn't a meaningful page count (-1 is passed in when we don't have that data anyway)
+        boolean hasPageCount = lastPage >= currentPage;
+        updateDisplay(currentPage, lastPage, type, hasPageCount);
+    }
 
-             */
-        String text = String.format(Locale.getDefault(), "Page %d%s", currentPage, lastPage >= FIRST_PAGE ? "/" + lastPage : "");
-//        String text = String.format(Locale.getDefault(), getResources().getString(R.string.page_bar_text), currentPage, lastPage >= FIRST_PAGE ? "/" + lastPage : "");
-        mPageCountText.setText(text);
-        boolean isFirstPage = currentPage == FIRST_PAGE;
-        boolean isLastPage = currentPage == lastPage;
 
-        int prevPageVisibility = isFirstPage ? GONE : VISIBLE;
-        int nextPageVisibility = isLastPage ? GONE : VISIBLE;
-        prevPageButton.setVisibility(prevPageVisibility);
-        nextPageButton.setVisibility(nextPageVisibility);
-
-        // move (show the other) refresh icon if the next page button is missing,
-        // and the prev page button is present (basically filling the space)
-        boolean showAltRefresh = nextPageVisibility != VISIBLE && prevPageVisibility == VISIBLE;
-        refreshButton.setVisibility(showAltRefresh ? GONE : VISIBLE);
-        altRefreshButton.setVisibility(showAltRefresh ? VISIBLE : GONE);
+    private void updateDisplay(int currentPage, int lastPage, @NonNull PageType pageType, boolean hasPageCount) {
+        String template = hasPageCount ? "%d / %d" : "%d";
+        mPageCountText.setText(String.format(Locale.getDefault(), template, currentPage, lastPage));
+        /*
+            hide and show the appropriate icons for each state:
+            - don't show the prev/next arrow on the first/last page
+            - show the refresh icon on the side without an arrow
+            - if both sides have an arrow (or neither does), show on the left side
+            doing all the hiding before the showing should ensure clean transition animations, otherwise you can get stuff appearing on top of its replacement etc
+        */
+        switch (pageType) {
+            case SINGLE:
+                prevPageButton.setVisibility(GONE);
+                nextPageButton.setVisibility(GONE);
+                altRefreshButton.setVisibility(GONE);
+                refreshButton.setVisibility(VISIBLE);
+                break;
+            case FIRST_OF_MANY:
+                prevPageButton.setVisibility(GONE);
+                altRefreshButton.setVisibility(GONE);
+                refreshButton.setVisibility(VISIBLE);
+                nextPageButton.setVisibility(VISIBLE);
+                break;
+            case ONE_OF_MANY:
+                altRefreshButton.setVisibility(GONE);
+                prevPageButton.setVisibility(VISIBLE);
+                refreshButton.setVisibility(VISIBLE);
+                nextPageButton.setVisibility(VISIBLE);
+                break;
+            case LAST_OF_MANY:
+                nextPageButton.setVisibility(GONE);
+                refreshButton.setVisibility(GONE);
+                prevPageButton.setVisibility(VISIBLE);
+                altRefreshButton.setVisibility(VISIBLE);
+        }
     }
 
 
@@ -155,6 +180,8 @@ public class PageBar extends FrameLayout {
     public void setTextColour(@ColorInt int textColour) {
         mPageCountText.setTextColor(textColour);
     }
+
+    private enum PageType {SINGLE, FIRST_OF_MANY, LAST_OF_MANY, ONE_OF_MANY}
 
     public interface PageBarCallbacks {
         /**

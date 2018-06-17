@@ -20,6 +20,12 @@
             android:defaultValue="false"
             />
         <com.ferg.awfulapp.preferences.CustomSwitchPreference
+            android:key="@string/pref_key_disable_gifs"
+            android:title="@string/disable_gifs"
+            android:summary="@string/disable_gifs_summary"
+            android:defaultValue="true"
+            />
+        <com.ferg.awfulapp.preferences.CustomSwitchPreference
             android:key="@string/pref_key_avatars_enabled"
             android:title="@string/load_avatars"
             android:defaultValue="true"

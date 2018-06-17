@@ -11,17 +11,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -35,7 +32,7 @@ import com.ferg.awfulapp.util.AwfulUtils;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
+import timber.log.Timber;
 
 /**
  * Created by baka kaba on 04/05/2015.
@@ -103,7 +100,7 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
     protected void onCreate(Bundle savedInstanceState) {
         prefs = AwfulPreferences.getInstance(this, this);
         currentThemeName = prefs.theme;
-        setCurrentTheme();
+        updateTheme();
         // theme needs to be set BEFORE the super call, or it'll be inconsistent
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
@@ -176,7 +173,7 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
             boolean fromRootMenu = sourceFragment instanceof RootSettings;
             displayFragment(fragment, fromRootMenu);
         } catch (IllegalAccessException | ClassNotFoundException | InstantiationException e) {
-            Log.e(TAG, "Unable to create fragment (" + submenuFragmentName + ")\n", e);
+            Timber.e(e, "Unable to create fragment (%s)", submenuFragmentName);
         }
     }
 
@@ -259,9 +256,9 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
             }
         }
 
-        if (!mPrefs.theme.equals(this.currentThemeName)) {
-            this.currentThemeName = mPrefs.theme;
-            setCurrentTheme();
+        if (!getMPrefs().theme.equals(this.currentThemeName)) {
+            this.currentThemeName = getMPrefs().theme;
+            updateTheme();
             recreate();
         }
     }
@@ -293,33 +290,12 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
     }
 
     protected void importFile(Intent data) {
-        Toast.makeText(this, "importing settings", Toast.LENGTH_SHORT).show();
-        Uri selectedSetting = data.getData();
-        String path = getFilePath(selectedSetting);
-        if (path != null) {
-            File settingsfile = new File(path);
-            AwfulPreferences.getInstance(this).importSettings(settingsfile);
+        Uri settingsUri = data.getData();
+        if (settingsUri != null && AwfulPreferences.getInstance(this).importSettings(settingsUri)) {
+            Toast.makeText(this, "Import success!", Toast.LENGTH_SHORT).show();
             this.finish();
-        }
-    }
-
-
-    public String getFilePath(Uri uri) {
-        Cursor cursor = null;
-        try {
-            String[] projection = {MediaStore.Images.Media.DATA};
-            cursor = this.getContentResolver().query(uri, projection, null, null, null);
-            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            cursor.moveToFirst();
-            return cursor.getString(column_index);
-        } catch (NullPointerException e) {
-            Toast.makeText(this, "Your file explorer sent incompatible data, please try a different way", Toast.LENGTH_LONG).show();
-            e.printStackTrace();
-            return null;
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
+        } else {
+            Toast.makeText(this, "Unable to import settings file", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -355,7 +331,7 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case Constants.AWFUL_PERMISSION_READ_EXTERNAL_STORAGE: {
                 // If request is cancelled, the result arrays are empty.

@@ -77,7 +77,7 @@ public class MarkLastReadRequest extends AwfulRequest<Void> {
     }
 
     @Override
-    protected VolleyError customizeAlert(VolleyError error) {
+    protected VolleyError customizeProgressListenerError(VolleyError error) {
         return new AwfulError("Failed to mark post!");
     }
 }

@@ -54,6 +54,8 @@ import static com.ferg.awfulapp.forums.ForumStructure.TWO_LEVEL;
 public class ForumsIndexFragment extends AwfulFragment
         implements ForumRepository.ForumsUpdateListener, ForumListAdapter.EventListener {
 
+    private static final String KEY_SHOW_FAVOURITES = "show_favourites";
+
     @BindView(R.id.forum_index_list)
     RecyclerView forumRecyclerView;
     @BindView(R.id.view_switcher)
@@ -82,6 +84,9 @@ public class ForumsIndexFragment extends AwfulFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            showFavourites = savedInstanceState.getBoolean(KEY_SHOW_FAVOURITES);
+        }
         setHasOptionsMenu(true);
         setRetainInstance(false);
     }
@@ -104,13 +109,9 @@ public class ForumsIndexFragment extends AwfulFragment
         Context context = getActivity();
         forumRepo = ForumRepository.getInstance(context);
 
-        forumListAdapter = ForumListAdapter.getInstance(context, new ArrayList<>(), this, mPrefs);
+        forumListAdapter = ForumListAdapter.getInstance(context, new ArrayList<>(), this, getPrefs());
         forumRecyclerView.setAdapter(forumListAdapter);
         forumRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-
-        // this fixes the issue where the activity is first created with this fragment visible, but
-        // doesn't set the actual titlebar text (leaves the xml default) until the viewpager triggers it
-        setTitle(getTitle());
     }
 
 
@@ -133,6 +134,11 @@ public class ForumsIndexFragment extends AwfulFragment
         super.onPause();
     }
 
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(KEY_SHOW_FAVOURITES, showFavourites);
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     // Menus
@@ -155,8 +161,8 @@ public class ForumsIndexFragment extends AwfulFragment
                 // flip the view mode and refresh everything that needs to update
                 showFavourites = !showFavourites;
                 invalidateOptionsMenu();
-                setTitle(getTitle());
                 refreshForumList();
+                ((ForumsIndexActivity) getActivity()).onPageContentChanged();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -204,8 +210,8 @@ public class ForumsIndexFragment extends AwfulFragment
     private List<Forum> getAllForums() {
         return forumRepo.getAllForums()
                 .getAsList()
-                .includeSections(mPrefs.forumIndexShowSections)
-                .formatAs(mPrefs.forumIndexHideSubforums ? TWO_LEVEL : FLAT)
+                .includeSections(getPrefs().forumIndexShowSections)
+                .formatAs(getPrefs().forumIndexHideSubforums ? TWO_LEVEL : FLAT)
                 .build();
     }
 
@@ -225,7 +231,7 @@ public class ForumsIndexFragment extends AwfulFragment
 
     @Override
     public void onForumClicked(@NonNull Forum forum) {
-        displayForum(forum.id, 1);
+        displayForum(forum.id, null);
     }
 
     @Override
@@ -294,7 +300,10 @@ public class ForumsIndexFragment extends AwfulFragment
 
     @Override
     public String getTitle() {
-        return getString(showFavourites ? R.string.favourite_forums_title : R.string.forums_title);
+        if (isAdded()) {
+            return getString(showFavourites ? R.string.favourite_forums_title : R.string.forums_title);
+        }
+        return "";
     }
 
 

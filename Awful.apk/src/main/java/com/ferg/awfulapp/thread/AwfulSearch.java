@@ -1,7 +1,5 @@
 package com.ferg.awfulapp.thread;
 
-import android.util.Log;
-
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -44,7 +42,7 @@ public class AwfulSearch {
             search.setUsername(hitInfo.getElementsByClass("username").first().text());
             search.setForumTitle(hitInfo.getElementsByClass("forumtitle").first().text());
             search.setForumId(AwfulForum.getForumId(hitInfo.getElementsByClass("forumtitle").first().attr("href")));
-            search.setPostDate(hitInfo.childNode(4).toString().substring(3));
+            search.setPostDate(hitInfo.childNode(4).toString().substring(3).trim());
 
 
             result.add(search);

@@ -1,13 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical">
+    android:paddingTop="8dp"
+    android:paddingBottom="@dimen/material_screen_edge_margin"
+    android:orientation="vertical"
+    >
 
     <android.support.design.widget.TextInputLayout
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/material_screen_edge_margin"
+        android:paddingRight="@dimen/material_screen_edge_margin"
+        >
 
         <EditText
             android:id="@+id/search_query"
@@ -15,13 +23,13 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="top"
-            android:hint="Search the forums"
+            android:hint="@string/search_forums_query_text_hint"
             android:imeOptions="flagNoExtractUi"
             android:inputType="text"
             android:isScrollContainer="true"
             android:scrollbars="vertical"
             android:textColor="@color/default_post_font"
-            android:textCursorDrawable="@null" />
+            android:textCursorDrawable="@null"/>
     </android.support.design.widget.TextInputLayout>
 
     <com.ferg.awfulapp.widget.SwipyRefreshLayout
@@ -34,7 +42,13 @@
             android:id="@+id/search_results"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_gravity="center_horizontal" />
+            android:layout_gravity="center_horizontal"
+            android:paddingLeft="@dimen/material_screen_edge_margin"
+            android:paddingRight="@dimen/material_screen_edge_margin"
+            android:paddingTop="8dp"
+            android:dividerHeight="1dp"
+            tools:listitem="@layout/search_result_item"
+            />
     </com.ferg.awfulapp.widget.SwipyRefreshLayout>
 
 </LinearLayout>

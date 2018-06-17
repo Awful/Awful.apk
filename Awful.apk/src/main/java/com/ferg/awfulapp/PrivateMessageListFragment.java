@@ -52,9 +52,7 @@ import android.widget.ListView;
 
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.preferences.SettingsActivity;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulCursorAdapter;
@@ -64,6 +62,8 @@ import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.util.AwfulUtils;
 
+import timber.log.Timber;
+
 public class PrivateMessageListFragment extends AwfulFragment implements SwipeRefreshLayout.OnRefreshListener {
 	
 
@@ -72,7 +72,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
     private ListView mPMList;
 
 	private AwfulCursorAdapter mCursorAdapter;
-    private PMIndexCallback mPMDataCallback = new PMIndexCallback(mHandler);
+    private PMIndexCallback mPMDataCallback = new PMIndexCallback(getHandler());
 
     private SwipeRefreshLayout mSRL;
 
@@ -101,11 +101,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
 
-        mPrefs = AwfulPreferences.getInstance(this.getActivity());
-        
         View result = aInflater.inflate(R.layout.private_message_list_fragment, aContainer, false);
-
-
 
 //        mToolbar = (Toolbar) result.findViewById(R.id.awful_toolbar_pm);
 //        this.getAwfulActivity().setSupportActionBar(mToolbar);
@@ -116,7 +112,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
 
         mFAB  = (FloatingActionButton) result.findViewById(R.id.just_pm);
         mFAB.setOnClickListener(onButtonClick);
-        mFAB.setVisibility((mPrefs.noFAB ? View.GONE : View.VISIBLE));
+        mFAB.setVisibility((getPrefs().noFAB ? View.GONE : View.VISIBLE));
 
         return result;
     }
@@ -148,7 +144,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
 		restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, mPMDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mPMDataCallback);
         syncPMs();
-        setTitle(getTitle());
+        setActionBarTitle(getTitle());
     }
     
     private void syncPMs() {
@@ -164,14 +160,9 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
 
                 @Override
                 public void failure(VolleyError error) {
-                    if(null != error.getMessage() && error.getMessage().startsWith("java.net.ProtocolException: Too many redirects")){
-                        Log.e(TAG, "Error: "+error.getMessage());
-                        Log.e(TAG, "!!!Failed to sync PMs - You are now LOGGED OUT");
-                        NetworkUtils.clearLoginCookies(getAwfulActivity());
-                        getAwfulActivity().startActivity(new Intent().setClass(getAwfulActivity(), AwfulLoginActivity.class));
-                    }
+                    Timber.w("Failed to sync PMs! Error: %s", error.getMessage());
+                    // TODO: 28/01/2018 might be able to remove this everywhere - it's being set in AwfulFragment#onRequestEnded
                     mSRL.setRefreshing(false);
-                    //The error is already passed to displayAlert by the request framework.
                 }
             }));
     	}
@@ -202,7 +193,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
 
         MenuItem newPM = menu.findItem(R.id.new_pm);
         if(null != newPM){
-            newPM.setVisible(mPrefs.noFAB);
+            newPM.setVisible(getPrefs().noFAB);
         }
         MenuItem sendPM = menu.findItem(R.id.send_pm);
         if(null != sendPM){
@@ -223,12 +214,12 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
         	break;
         case R.id.toggle_folder:
         	currentFolder = (currentFolder==FOLDER_INBOX) ? FOLDER_SENT : FOLDER_INBOX;
-            setTitle(getTitle());
+            setActionBarTitle(getTitle());
             changeIcon(item);
         	syncPMs();
         	break;
         case R.id.settings:
-        	startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
+            getAwfulActivity().showSettings();
         	break;
             default:
                 return super.onOptionsItemSelected(item);

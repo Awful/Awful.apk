@@ -39,7 +39,7 @@ public class VoteRequest extends AwfulRequest<Void> {
     }
 
     @Override
-    protected VolleyError customizeAlert(VolleyError error) {
+    protected VolleyError customizeProgressListenerError(VolleyError error) {
         return new AwfulError(getContext().getString(R.string.vote_failed));
     }
 }

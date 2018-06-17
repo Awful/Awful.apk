@@ -2,17 +2,14 @@ package com.ferg.awfulapp.webview;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.util.AwfulUtils;
 
 import static com.ferg.awfulapp.constants.Constants.DEBUG;
 
@@ -31,7 +28,7 @@ import static com.ferg.awfulapp.constants.Constants.DEBUG;
  * JavaScript on the page. By default this uses a {@link LoggingWebChromeClient} to add
  * some debug logging, and the default {@link android.webkit.WebViewClient}. You should
  * call {@link #onPause()} and {@link #onResume()} to handle those lifecycle events.
- *
+ * <p>
  * You can run arbitrary JavaScript code with the {@link #runJavascript(String)} method, or invoke
  * the thread JavaScript's own loadPageHtml function with {@link #refreshPageContents(boolean)}.
  */
@@ -39,7 +36,9 @@ import static com.ferg.awfulapp.constants.Constants.DEBUG;
 public class AwfulWebView extends WebView {
 
     public static final String TAG = "AwfulWebView";
-    /** thread.js uses this identifier to communicate with any handler we add */
+    /**
+     * thread.js uses this identifier to communicate with any handler we add
+     */
     private static final String HANDLER_NAME_IN_JAVASCRIPT = "listener";
 
     public AwfulWebView(Context context) {
@@ -57,7 +56,6 @@ public class AwfulWebView extends WebView {
         init();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public AwfulWebView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init();
@@ -71,6 +69,7 @@ public class AwfulWebView extends WebView {
         AwfulPreferences prefs = AwfulPreferences.getInstance();
         WebSettings webSettings = getSettings();
         setWebChromeClient(new LoggingWebChromeClient());
+        setKeepScreenOn(false); // explicitly setting this since some people are complaining the screen stays on until they toggle it on and off
 
         setBackgroundColor(Color.TRANSPARENT);
         setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
@@ -78,24 +77,17 @@ public class AwfulWebView extends WebView {
         webSettings.setDefaultFontSize(prefs.postFontSizeSp);
         webSettings.setDefaultFixedFontSize(prefs.postFixedFontSizeSp);
         webSettings.setDomStorageEnabled(true);
+        webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
 
-        if (AwfulUtils.isLollipop()) {
-            //noinspection AndroidLintNewApi, AndroidLintInlinedApi
-            webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
-        }
-
-        if (DEBUG && AwfulUtils.isKitKat()) {
-            //noinspection AndroidLintNewApi
+        if (DEBUG) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
 
-        if (AwfulUtils.isAtLeast(Build.VERSION_CODES.JELLY_BEAN_MR1) && (prefs.inlineWebm || prefs.inlineVines)) {
-            //noinspection AndroidLintNewApi
+        if (prefs.inlineWebm || prefs.inlineVines) {
             webSettings.setMediaPlaybackRequiresUserGesture(false);
         }
 
-        if (prefs.inlineTweets && AwfulUtils.isJellybean()) {
-            //noinspection AndroidLintNewApi
+        if (prefs.inlineTweets) {
             webSettings.setAllowUniversalAccessFromFileURLs(true);
             webSettings.setAllowFileAccess(true);
             webSettings.setAllowContentAccess(true);
@@ -149,6 +141,7 @@ public class AwfulWebView extends WebView {
 
     /**
      * Helper function to execute some jabbascript in the webview.
+     *
      * @param javascript the code to run
      */
     public void runJavascript(@NonNull String javascript) {
@@ -158,7 +151,7 @@ public class AwfulWebView extends WebView {
 
     /**
      * Calls the javascript function that updates some page content from its source.
-     *
+     * <p>
      * This calls the #loadPageHtml function in <i>thread.js</i>, which in turn calls #getBodyHtml
      * on the handler passed to {@link #setJavascriptHandler(WebViewJsInterface)}, and inserts the
      * results into a container on the page.
