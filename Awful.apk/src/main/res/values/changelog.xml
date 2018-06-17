@@ -2,6 +2,27 @@
 <resources>
     <string-array name="changelog">
         <item>
+            3.5.2:\n
+            - App now requires Lollipop and up!\n\n
+            - Emote picker has smarter search and history :wow:\n\n
+            - You wanted a private message send confirmation, you got one\n\n
+            - Timestamps in searches\n\n
+            - Fancy page bar\n\n
+            - GIF animation toggle is now in the Images section of settings\n\n
+            - A bunch of optimizations to enspeeden your forums experience\n\n
+            \n
+            Fixes:\n
+            - A logout bug where it didn\'t show the login screen\n\n
+            - Opening the bookmarks widget or an external link to a thread doesn\'t make them \'stick\' anymore\n\n
+            - Crashes and weird behavior when swiping on a code block\n\n
+            - Settings import/export\n\n
+            - Thread view stuff like broken images and spoilers\n\n
+            - The sidebar shows the current thread\'s parent forum\n\n
+            - FYAD sigs\n\n
+            - Hopefully the screen doesn\'t stay on by default for anyone now\n\n
+            - Fix for old postimg URLs
+        </item>
+        <item>
             3.4.1:\n
             - Oreo support including adaptive icons that jiggle around or something\n\n
             - Imgur uploading - limited uploads per day for now\n\n
