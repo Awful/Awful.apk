@@ -31,10 +31,10 @@ object Changelog {
             "Couldn't read changelog!"
         }
 
-        // Build a basic dialog with the changelog html
+        // Build a basic dialog with the changelog html - tag handler required pre-Nougat
         AlertDialog.Builder(context)
                 .setTitle(context.getString(R.string.changelog_dialog_title))
-                .setMessage(Html.fromHtml(changelogText))
+                .setMessage(Html.fromHtml(changelogText, null, listTagHandler))
                 .setPositiveButton(context.getString(R.string.alert_ok)) { dialog, _ -> dialog.dismiss() }.show()
 
     }
@@ -54,6 +54,14 @@ object Changelog {
         */
         val maxIndex = (maxCount - 1).coerceAtLeast(0)
         select("main > :gt($maxIndex)").remove()
+    }
+
+    /** Handles <li> tags pre-Nougat because apparently they were too cutting edge before that */
+    private val listTagHandler = Html.TagHandler { opening, tag, output, _ ->
+        when {
+            tag == "li" && opening -> output?.append("\n\t\u25CF\t")
+            tag == "li" -> output?.append("\n")
+        }
     }
 
 }
