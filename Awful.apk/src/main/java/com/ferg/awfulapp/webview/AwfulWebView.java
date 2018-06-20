@@ -68,7 +68,7 @@ public class AwfulWebView extends WebView {
     private void init() {
         AwfulPreferences prefs = AwfulPreferences.getInstance();
         WebSettings webSettings = getSettings();
-        setWebChromeClient(new LoggingWebChromeClient());
+        setWebChromeClient(new LoggingWebChromeClient(this));
         setKeepScreenOn(false); // explicitly setting this since some people are complaining the screen stays on until they toggle it on and off
 
         setBackgroundColor(Color.TRANSPARENT);
