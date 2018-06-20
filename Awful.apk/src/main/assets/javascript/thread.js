@@ -34,15 +34,15 @@ function containerInit() {
 			handleQuoteLink(target, event);
 			return;
 		}
-		if (target.tagName.toLowerCase() === 'a' && target.href.indexOf('showthread.php?action=showpost') !== -1) {
+		if (target.tagName === 'A' && target.href.indexOf('showthread.php?action=showpost') !== -1) {
 			loadIgnoredPost(target, event);
 			return;
 		}
-		if (target.tagName.toLowerCase() === 'img' && target.hasAttribute('title') && target.src.endsWith('.gif')) {
+		if (target.tagName === 'IMG' && target.hasAttribute('title') && target.src.endsWith('.gif')) {
 			freezeGif(target);
 			return;
 		}
-		if (target.tagName.toLowerCase() === 'canvas' && target.hasAttribute('title') && target.getAttribute('src').endsWith('.gif')) {
+		if (target.tagName === 'CANVAS' && target.hasAttribute('title') && target.getAttribute('src').endsWith('.gif')) {
 			target.outerHTML = '<img src="' + target.getAttribute('src') + '" title="' + target.getAttribute('title') + '" />';
 		}
 	});
@@ -51,9 +51,15 @@ function containerInit() {
 	container.addEventListener('touchstart', function touchStartHandler(event) {
 		var target = event.target;
 		// title popup on long-press
-		if ((target.tagName.toLowerCase() === 'img' || target.tagName.toLowerCase() === 'canvas') && target.hasAttribute('title')) {
+		if ((target.tagName === 'IMG' || target.tagName === 'CANVAS') && target.hasAttribute('title')) {
 			Longtap(function longtap() {
 				listener.popupText(target.getAttribute('title'));
+			})(event);
+			return;
+		}
+		if (target.tagName === 'VIDEO' ) {
+			Longtap(function longtap() {
+				listener.openUrlMenu(target.firstElementChild.getAttribute('src'));
 			})(event);
 			return;
 		}
@@ -167,7 +173,7 @@ function pageInit() {
  */
 function pauseVideosOutOfView() {
 	document.querySelectorAll('video').forEach(function eachVideo(video) {
-		if (isElementInViewport(video) && video.parentElement.tagName.toLowerCase() !== 'blockquote' && video.firstElementChild.src.indexOf('webm') === -1) {
+		if (isElementInViewport(video) && video.parentElement.tagName !== 'BLOCKQUOTE' && video.firstElementChild.src.indexOf('webm') === -1) {
 			video.play();
 		} else {
 			video.pause();
@@ -456,7 +462,7 @@ function insertIgnoredPost(id) {
  */
 function enlargeTimg(tImg) {
 	tImg.classList.remove('timg');
-	if (tImg.parentElement.tagName.toLowerCase() !== 'a') {
+	if (tImg.parentElement.tagName !== 'A') {
 		var link = document.createElement('a');
 		link.href = tImg.src;
 		tImg.parentNode.insertBefore(link, tImg);

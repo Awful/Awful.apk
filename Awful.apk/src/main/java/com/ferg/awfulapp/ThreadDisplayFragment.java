@@ -1140,6 +1140,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 			Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT).show();
 		}
 
+		@JavascriptInterface
+		public void openUrlMenu(String url) {
+			showUrlMenu(url);
+		}
     }
 
 	
