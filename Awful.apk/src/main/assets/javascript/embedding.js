@@ -31,13 +31,13 @@ function processThreadEmbeds(post) {
 	 * Replaces all instagram links with instagram embeds
 	 */
 	function embedInstagram() {
-        if (!document.getElementById('instagramScript')) {
-            // add the embed script, and run it after all the HTML widgets have been added
-            var instagramEmbedScript = document.createElement('script');
-            instagramEmbedScript.setAttribute('src', 'https://platform.instagram.com/en_US/embeds.js');
-            instagramEmbedScript.id = 'instagramScript';
-            document.getElementsByTagName('body')[0].appendChild(instagramEmbedScript);
-        }
+		if (!document.getElementById('instagramScript')) {
+			// add the embed script, and run it after all the HTML widgets have been added
+			var instagramEmbedScript = document.createElement('script');
+			instagramEmbedScript.setAttribute('src', 'https://platform.instagram.com/en_US/embeds.js');
+			instagramEmbedScript.id = 'instagramScript';
+			document.getElementsByTagName('body')[0].appendChild(instagramEmbedScript);
+		}
 		var instagrams = replacementArea.querySelectorAll('.postcontent a[href*="instagr.am/p"],.postcontent a[href*="instagram.com/p"]');
 		if (instagrams.length > 0) {
 			instagrams.forEach(function eachInstagramLink(instagramLink) {
@@ -46,7 +46,7 @@ function processThreadEmbeds(post) {
 
 				JSONP.get(apiCall, {}, function getInstagrams(data) {
 					instagramLink.outerHTML = data.html;
-                    window.requestAnimationFrame(window.instgrm.Embeds.process);
+					window.requestAnimationFrame(window.instgrm.Embeds.process);
 				});
 			});
 		}
