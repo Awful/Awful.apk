@@ -1,5 +1,5 @@
 'use strict';
-var missedEmbeds = [];
+window.missedEmbeds = [];
 /*eslint-disable*/
 window.twttr = (function(d, s, id) {
   var js, fjs = d.getElementsByTagName(s)[0],
@@ -8,7 +8,7 @@ window.twttr = (function(d, s, id) {
   js = d.createElement(s);
   js.id = id;
   js.addEventListener('load', function(){
-	missedEmbeds.forEach(function(embed){
+    window.missedEmbeds.forEach(function(embed){
 		window.twttr.widgets.load(embed);
 	});
   });

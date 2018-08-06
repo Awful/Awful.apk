@@ -1,209 +1,87 @@
 .passive {
-color:#5e5e5e;
+    color: #5e5e5e;
 }
 
 a {
-color:#00c0f4;
+    color: #00c0f4;
 }
 
 body {
-margin: 8px 0;
+    margin: 8px 0;
 }
 
-div.avatar {
-position:relative;
-display: table-cell;
-vertical-align: middle;
-text-align: center;
-max-width:50px;
-max-height:50px;
+.post {
+    background-color: #000;
+    color: #e7e7e7;
 }
 
-div.avatar img, div.avatar canvas{
-max-height:50px;
-max-width:50px;
+.read {
+    background-color: #06080e;
 }
 
-div.avatar-cell {
-max-width:50px;
-max-height:50px;
-float:left;
-margin-right:10px;
-position:relative;
+.op {
+    background-color: #201000;
 }
 
-div.avatar.extended {
-max-width:100px;
-max-height:100px;
+.marked {
+    background-color: #252500;
 }
 
-div.avatar.extended img, div.avatar.extended canvas{
-max-height:100px;
-max-width:100px;
+.self {
+    background-color: #003000;
 }
 
-div.avatar-cell.extended {
-max-width:100px;
-max-height:100px;
+.toggleread {
+    background-color: #111111;
 }
 
-article {
-background-color:#000;
-color:#e7e7e7;
-padding:15px;
+.postcontent .bbc-block {
+    border-left: 1px solid #e7e7e7;
 }
 
-article.read {
-background-color:#06080e;
+.postcontent .self {
+    background-color: #303000;
 }
 
-article.op {
-background-color:#201000;
+.postcontent .usernameHighlight {
+    color: #e7e7e7;
 }
 
-article.marked {
-background-color:#252500;
+.postcontent .bbc-block h4 {
+    margin: 1px 0 5px;
 }
 
-article.self {
-background-color:#003000;
+.postcontent .timg {
+    border-color: #e7e7e7;
 }
 
-article.toggleread, article#taptorefresh {
-text-align: center;
-padding:5px;
-background-color:#111111;
+.postcontent .editedby {
+    font-style: italic;
+    font-size: 0.7em;
 }
 
-section.postcontent {
-word-wrap: break-word;
+.postcontent .bbc-spoiler {
+    background-color: black;
+    color: transparent;
+    box-shadow: 0px 0px 9px rgb(255, 50, 50);
 }
 
-section.postcontent .bbc-block {
-border-left:1px solid #e7e7e7;
-margin:5px 0;
-padding:5px 10px 5px 20px;
+.postcontent .bbc-spoiler.spoiled {
+    color: #e7e7e7;
+    box-shadow: none;
 }
 
-section.postcontent .self {
-background-color: #303000;
+.postcontent .signature {
+    border-top: 1px solid #e7e7e7;
 }
 
-section.postcontent .usernameHighlight {
-color: #e7e7e7;
+.postheader {
+    vertical-align: top;
+    clear: left;
+    overflow: hidden;
+    border: 0;
+    border-bottom: 1px solid #e7e7e7;
+    border-top: 1px solid #e7e7e7;
+    margin: 0 0 10px;
+    padding: 10px 0 10px;
 }
-
-section.postcontent .bbc-block h4 {
-font-style:italic;
-margin:1px 0 5px;
-}
-
-section.postcontent blockquote {
-margin:0;
-}
-
-section.postcontent .bbc-block.code, section.postcontent pre{
-overflow: auto;
-word-wrap: normal;
-}
-
-section.postcontent img, section.postcontent iframe{
-max-width: 100% !important;
-}
-
-section.postcontent img.timg{
-border: 2px solid #e7e7e7;
-width: 20%;
-}
-
-section.postcontent .editedby {
-font-style:italic;
-font-size: 0.7em;
-}
-
-section.postcontent .bbc-spoiler{
-background-color: black;
-color: transparent;
-box-shadow: 0px 0px 9px rgb(255, 50, 50);
-}
-
-section.postcontent .bbc-spoiler * {
-visibility: hidden;
-}
-
-section.postcontent .bbc-spoiler:not(.spoiled) .bbc-block,
-section.postcontent .bbc-spoiler:not(.spoiled) .bbc-list{
-display: inline-block;
-}
-
-section.postcontent .bbc-spoiler.spoiled {
-background-color: transparent;
-color: #e7e7e7;
-box-shadow: none;
-}
-
-section.postcontent .bbc-spoiler.spoiled * {
-visibility: visible;
-}
-
-section.postcontent .signature {
-border-top: 1px solid #e7e7e7;
-padding-top: 10px;
-}
-
-header {
-vertical-align: top;
-clear: left;
-overflow: hidden;
-border: 0;
-border-bottom: 1px solid #e7e7e7;
-border-top: 1px solid #e7e7e7;
-margin: 0 0 10px;
-padding: 10px 0 10px;
-}
-
-section.postinfo {
-font-size:1.1em;
-float:left;
-width:90%;
-overflow:hidden;
-display:inline-block;
-}
-
-aside.postinfo-poster img {
-height: 1em;
-}
-
-time.postinfo-postdate,time.postinfo-regdate,aside.postinfo-title {
-font-size:0.85em;
-}
-
-time.postinfo-postdate,time.postinfo-regdate {
-font-style: italic;
-}
-time.postinfo-regdate,aside.postinfo-title {
-display:none;
-}
-
-time.postinfo-regdate.extended,aside.postinfo-title.extended {
-display:block;
-}
-
-nav.postmenu {
-float:right;
-font-weight:bolder;
-font-size:1.5em;
-width:10px;
-height:30px;
-padding:0 5px 0 0;
-}
-
-nav.postmenu:after {
-    font-family: 'icons' !important;
-    content: "\e902";
-    -webkit-font-smoothing: antialiased;
-    display: inline-block;
-    -webkit-user-select: none;
-    user-select: none;
-}
-

@@ -1,219 +1,86 @@
 .passive {
-color:#eae9ea;
+    color: #eae9ea;
 }
 
 a {
-color:#00c0f4;
+    color: #00c0f4;
 }
 
 body {
-background-color:#FFF;
-font-family:Roboto, userselected, Verdana, Arial, sans-serif;
-padding:0;
-margin:0;
+    background-color: #FFF;
+    font-family: Roboto, userselected, Verdana, Arial, sans-serif;
+    padding: 0;
+    margin: 0;
 }
 
-div.avatar {
-position:relative;
-display: table-cell;
-vertical-align: middle;
-text-align: center;
-max-width:50px;
-max-height:50px;
+.post {
+    background-color: #FFF;
+    color: #666;
+    margin: 0;
+    padding: 0;
 }
 
-div.avatar img, div.avatar canvas{
-max-height:50px;
-max-width:50px;
+.read {
+    background-color: #ddeeff;
 }
 
-div.avatar-cell {
-max-width:50px;
-max-height:50px;
-float:left;
-margin-right:10px;
-position:relative;
+.op .postheader {
+    background-color: #199ed7;
 }
 
-div.avatar.extended {
-max-width:100px;
-max-height:100px;
+.marked .postheader {
+    background-color: #D71919;
 }
 
-div.avatar.extended img, div.avatar.extended canvas{
-max-height:100px;
-max-width:100px;
+.self .postheader {
+    background-color: #5BA611;
 }
 
-div.avatar-cell.extended {
-max-width:100px;
-max-height:100px;
+.postcontent {
+    padding: 5px;
+    margin: 5px 15px 0;
+    border: none;
 }
 
-article {
-background-color:#FFF;
-color:#666;
-margin:0;
-padding:0;
+.postcontent .bbc-block {
+    border-left: 2px solid #eae9ea;
+    margin: 5px 0 5px 5px;
+    padding: 5px 10px 5px 15px;
 }
 
-article.read {
-background-color:#ddeeff;
+.postcontent .self {
+    background-color: #5BA611;
 }
 
-article.op header {
-background-color:#199ed7;
+.postcontent .usernameHighlight {
+    color: #00c0f4;
 }
 
-article.op ul.postoptions {
-background-color:#199ed7;
+.postcontent .timg {
+    border-color: #00c0f4;
 }
 
-article.marked header {
-background-color:#D71919;
+.postcontent .editedby {
+    font-style: italic;
+    font-size: 0.7em;
 }
 
-article.marked ul.postoptions {
-background-color:#D71919;
+.postcontent .bbc-spoiler {
+    background: #666;
 }
 
-article.self header {
-background-color:#5BA611;
+.postcontent .signature {
+    border-top: 2px solid #eae9ea;
 }
 
-article.self ul.postoptions {
-background-color:#5BA611;
+.postheader {
+    padding: 10px 0 5px 10px;
+    margin: 0;
+    background-color: #006699;
+    color: #FFF;
+    border: none;
 }
 
-article.toggleread, article#taptorefresh {
-text-align: center;
-padding:5px;
-}
-
-section.postcontent {
-word-wrap: break-word;
-padding: 5px;
-}
-
-section.postcontent .bbc-block {
-border-left:2px solid #eae9ea;
-margin:5px 0 5px 5px;
-padding:5px 10px 5px 15px;
-}
-
-section.postcontent .self {
-background-color: #5BA611;
-}
-
-section.postcontent .usernameHighlight {
-color: #00c0f4;
-}
-
-section.postcontent .bbc-block h4 {
-font-style:italic;
-margin:2px 0 5px;
-}
-
-section.postcontent blockquote {
-margin:0;
-}
-
-section.postcontent .bbc-block.code, div.postcontent pre{
-overflow: auto;
-word-wrap: normal;
-}
-
-section.postcontent img, section.postcontent iframe{
-max-width: 100% !important;
-}
-
-section.postcontent img.timg{
-border: 2px solid #00c0f4;
-width: 20%;
-}
-
-section.postcontent .editedby {
-font-style:italic;
-font-size: 0.7em;
-}
-
-section.postcontent .bbc-spoiler{
-background: #666;
-}
-
-section.postcontent .bbc-spoiler * {
-visibility: hidden;
-}
-
-section.postcontent .bbc-spoiler:not(.spoiled) .bbc-block,
-section.postcontent .bbc-spoiler:not(.spoiled) .bbc-list{
-display: inline-block;
-}
-
-section.postcontent .bbc-spoiler.spoiled {
-background: transparent;
-}
-
-section.postcontent .bbc-spoiler.spoiled * {
-visibility: visible;
-}
-
-section.postcontent .signature {
-border-top: 2px solid #eae9ea;
-padding-top: 10px;
-}
-
-header {
-vertical-align:top;
-clear:left;
-overflow:hidden;
-border:0;
-background-color:#006699;
-color:#FFF;
-}
-
-section.postinfo {
-font-size:1.1em;
-float:left;
-width:90%;
-overflow:hidden;
-display:inline-block;
-}
-
-aside.postinfo-poster img {
-height: 1em;
-}
-
-time.postinfo-postdate,time.postinfo-regdate,aside.postinfo-title {
-font-size:0.85em;
-}
-
-time.postinfo-postdate,time.postinfo-regdate {
-font-style: italic;
-}
-time.postinfo-regdate,aside.postinfo-title {
-display:none;
-}
-
-time.postinfo-regdate.extended,aside.postinfo-title.extended {
-display:block;
-}
-
-nav.postmenu {
-float: right;
-font-weight: bolder;
-font-size: 1.7em;
-width: 10px;
-height: 30px;
-padding: 10px 20px 0 0;
-}
-
-nav.postmenu:after {
-    font-family: 'icons' !important;
+.postmenu:after {
     content: "\e901";
-    font-weight: normal;
-    -webkit-font-smoothing: antialiased;
-    display: inline-block;
-    -webkit-user-select: none;
-    user-select: none;
 }
