@@ -480,6 +480,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
         	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, NetworkUtils.getCookieString(Constants.COOKIE_NAME_SESSIONHASH));
         	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, NetworkUtils.getCookieString(Constants.COOKIE_NAME_USERID));
         	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, NetworkUtils.getCookieString(Constants.COOKIE_NAME_PASSWORD));
+        	cookieMonster.setAcceptThirdPartyCookies(mThreadView, true);
         	CookieSyncManager.getInstance().sync();
         }
     }
@@ -1139,6 +1140,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 			Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT).show();
 		}
 
+		@JavascriptInterface
+		public void openUrlMenu(String url) {
+			showUrlMenu(url);
+		}
     }
 
 	

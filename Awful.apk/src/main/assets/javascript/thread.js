@@ -63,6 +63,12 @@ function containerInit() {
 			})(event);
 			return;
 		}
+		if (target.tagName === 'VIDEO' ) {
+			Longtap(function longtap() {
+				listener.openUrlMenu(target.firstElementChild.getAttribute('src'));
+			})(event);
+			return;
+		}
 		var bbcBlock = findInPath(event, 'bbc-block', true);
 		if (bbcBlock && (bbcBlock.classList.contains('pre') || bbcBlock.classList.contains('code') || bbcBlock.classList.contains('php'))) {
 			listener.haltSwipe();
