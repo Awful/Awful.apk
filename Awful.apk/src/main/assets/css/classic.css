@@ -83,4 +83,5 @@ body {
 
 .postmenu:after {
     content: "\e901";
+    padding-right: 2px;
 }
