@@ -66,11 +66,6 @@ public class AnnouncementsFragment extends AwfulFragment {
 
     private void initialiseWebView() {
         webView.setJavascriptHandler(new WebViewJsInterface() {
-            // TODO: 27/01/2017 work out which of these we can drop, or maybe make special announcements HTML instead of reusing the thread one
-            @JavascriptInterface
-            public String getBodyHtml() {
-                return bodyHtml;
-            }
 
             @JavascriptInterface
             public String getCSS() {
@@ -104,7 +99,7 @@ public class AnnouncementsFragment extends AwfulFragment {
             @Override
             public void onPageFinished(WebView view, String url) {
                 if (webView != null && !bodyHtml.isEmpty()) {
-                    webView.refreshPageContents(true);
+                    webView.setBodyHtml(bodyHtml);
                 }
             }
 
@@ -149,7 +144,7 @@ public class AnnouncementsFragment extends AwfulFragment {
                             // we just want it to a) display ok, and b) not let the user click anything bad
                             bodyHtml = ThreadDisplay.getHtml(result, AwfulPreferences.getInstance(), 1, 1);
                             if (webView != null) {
-                                webView.refreshPageContents(true);
+                                webView.setBodyHtml(bodyHtml);
                             }
                             statusFrog.setVisibility(View.INVISIBLE);
                         }

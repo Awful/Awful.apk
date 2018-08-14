@@ -99,7 +99,9 @@ function findInPath(event, cssClass, returnElement) {
  * Loads the thread html into the container
  * @param {Boolean} checkFirst If true checks whether the webview has actually already been initialized
  */
-function loadPageHtml(checkFirst) {
+function loadPageHtml(html, checkFirst) {
+// TODO: what is this even for? only load if the webview hasn't been set up with its container html? why?
+// in what situation would you want to show a page if it's currently blank, but not bother updating whatever's currently there?
 	if (checkFirst !== undefined && document.getElementById('container').innerHTML != '') {
 		return;
 	}

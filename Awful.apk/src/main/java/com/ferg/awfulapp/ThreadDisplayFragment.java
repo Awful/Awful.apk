@@ -342,7 +342,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 		public void onPageFinished(WebView view, String url) {
 			setProgress(100);
 			if (mThreadView != null && bodyHtml != null && !bodyHtml.isEmpty()) {
-				mThreadView.refreshPageContents(true);
+				mThreadView.setBodyHtml(bodyHtml);
 			}
 		}
 
@@ -424,7 +424,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
         super.onResume();
 		if(mThreadView != null){
 			mThreadView.onResume();
-			mThreadView.refreshPageContents(false);
+			mThreadView.setBodyHtml(bodyHtml);
 		}
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
         refreshInfo();
@@ -1038,7 +1038,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
             String html = ThreadDisplay.getHtml(aPosts, AwfulPreferences.getInstance(getActivity()), getPageNumber(), mLastPage);
             refreshSessionCookie();
             bodyHtml = html;
-			mThreadView.refreshPageContents(true);
+			mThreadView.setBodyHtml(html);
             setProgress(100);
         } catch (Exception e) {
             // If we've already left the activity the webview may still be working to populate,
@@ -1083,11 +1083,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 			// TODO: 23/01/2017 add methods so you can't mess with the map directly
 			preferences.put("postjumpid", postJump);
 			preferences.put("scrollPosition", Integer.toString(savedScrollPosition));
-		}
-
-		@JavascriptInterface
-		public String getBodyHtml(){
-			return bodyHtml;
 		}
 
 		@JavascriptInterface
@@ -1407,7 +1402,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	private void showBlankPage() {
 		bodyHtml = "";
 		if(mThreadView != null){
-			mThreadView.refreshPageContents(true);
+			mThreadView.setBodyHtml(bodyHtml);
 		}
 	}
 

@@ -11,6 +11,8 @@ import android.webkit.WebView;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 
+import timber.log.Timber;
+
 import static com.ferg.awfulapp.constants.Constants.DEBUG;
 
 /**
@@ -40,6 +42,9 @@ public class AwfulWebView extends WebView {
      * thread.js uses this identifier to communicate with any handler we add
      */
     private static final String HANDLER_NAME_IN_JAVASCRIPT = "listener";
+
+    @Nullable
+    private WebViewJsInterface jsInterface = null;
 
     public AwfulWebView(Context context) {
         super(context);
@@ -117,6 +122,7 @@ public class AwfulWebView extends WebView {
      * @param handler an object containing JavaScriptInterface methods to handle JS function calls
      */
     public void setJavascriptHandler(@NonNull WebViewJsInterface handler) {
+        jsInterface = handler;
         addJavascriptInterface(handler, HANDLER_NAME_IN_JAVASCRIPT);
     }
 
@@ -160,6 +166,18 @@ public class AwfulWebView extends WebView {
      */
     public void refreshPageContents(boolean force) {
         runJavascript(String.format("loadPageHtml(%s)", force ? "" : "true"));
+    }
+
+    public void setBodyHtml(@Nullable String html) {
+        // TODO: content comparison etc
+        // TODO: clean up bodyHtml state in calling classes (should be set and forget)
+        // TODO: update docstring in this class (call this not refresh)
+        if (jsInterface != null) {
+            jsInterface.setBodyHtml(html);
+            refreshPageContents(true);
+        } else {
+            Timber.w("Attempted to set html with no JS interface handler added");
+        }
     }
 
 }
