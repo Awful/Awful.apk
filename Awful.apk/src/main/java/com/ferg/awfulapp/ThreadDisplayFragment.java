@@ -386,7 +386,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 			return;
 		}
 		mThreadView.setWebViewClient(threadWebViewClient);
-		mThreadView.setWebChromeClient(new LoggingWebChromeClient() {
+		mThreadView.setWebChromeClient(new LoggingWebChromeClient(mThreadView) {
                 @Override
                 public void onProgressChanged(WebView view, int newProgress) {
                     super.onProgressChanged(view, newProgress);

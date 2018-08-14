@@ -36,11 +36,13 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.support.design.widget.Snackbar
 import android.support.v7.widget.Toolbar
 import android.view.KeyEvent
-import android.view.View
-
+import android.view.View.*
+import com.ferg.awfulapp.NavigationEvent.*
+import com.ferg.awfulapp.NavigationEvent.Companion.parse
 import com.ferg.awfulapp.announcements.AnnouncementsManager
 import com.ferg.awfulapp.constants.Constants
 import com.ferg.awfulapp.dialog.Changelog
@@ -48,18 +50,8 @@ import com.ferg.awfulapp.messages.PmManager
 import com.ferg.awfulapp.preferences.AwfulPreferences
 import com.ferg.awfulapp.preferences.Keys
 import com.ferg.awfulapp.sync.SyncManager
-import com.ferg.awfulapp.NavigationEvent.Companion.parse
-
-import com.ferg.awfulapp.NavigationEvent.Bookmarks
-import com.ferg.awfulapp.NavigationEvent.Thread
-import com.ferg.awfulapp.NavigationEvent.ForumIndex
-import com.ferg.awfulapp.NavigationEvent.MainActivity
-import com.ferg.awfulapp.NavigationEvent.Url
-import com.ferg.awfulapp.NavigationEvent.ReAuthenticate
-
-import java.util.Locale
-
 import timber.log.Timber
+import java.util.*
 
 
 class ForumsIndexActivity :
@@ -73,6 +65,8 @@ class ForumsIndexActivity :
     private lateinit var navigationDrawer: NavigationDrawer
 
     private var activityInitialized = false
+
+    private val handler by lazy { Handler() }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -285,15 +279,25 @@ class ForumsIndexActivity :
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
+        Timber.d("Activity focus changed (has focus: $hasFocus)")
         super.onWindowFocusChanged(hasFocus)
-        setupImmersion()
+        if (hasFocus) setupImmersion()
     }
 
+
+    /**
+     * Set the Activity's UI flags according to the current immersive mode preferences.
+     * This will also act as a reset if these flags have been changed, e.g. for a temporary fullscreen mode.
+     */
     private fun setupImmersion() {
-        if (mPrefs.immersionMode) {
-            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_FULLSCREEN
-                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
+        val immersionFlags = SYSTEM_UI_FLAG_FULLSCREEN or SYSTEM_UI_FLAG_HIDE_NAVIGATION or SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        window.decorView.systemUiVisibility = if (mPrefs.immersionMode) immersionFlags else {
+            // show the UI after a delay - without this the nav/status bars remain invisible after returning from
+            // immersion mode (e.g. fullscreen video) and the flag does nothing if you just set it here.
+            // The setting code seems to fire at some random time though, SOMEHOW, instead of when the runnable is executed
+            handler.postDelayed( { Timber.d("Showing nav and status bars"); window.decorView.systemUiVisibility = SYSTEM_UI_FLAG_VISIBLE }, 3000)
+            // default to LAYOUT STABLE to avoid layout movement after returning from e.g. fullscreen videos
+            SYSTEM_UI_FLAG_LAYOUT_STABLE
         }
     }
 }
