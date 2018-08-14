@@ -169,15 +169,18 @@ public class AwfulWebView extends WebView {
     }
 
     public void setBodyHtml(@Nullable String html) {
-        // TODO: content comparison etc
         // TODO: clean up bodyHtml state in calling classes (should be set and forget)
         // TODO: update docstring in this class (call this not refresh)
-        if (jsInterface != null) {
-            jsInterface.setBodyHtml(html);
-            refreshPageContents(true);
-        } else {
+        if (jsInterface == null) {
             Timber.w("Attempted to set html with no JS interface handler added");
+            return;
         }
+        if (html != null && html.hashCode() == jsInterface.getBodyHtml().hashCode()) {
+            Timber.d("New HTML appears to match the current HTML, not updating");
+            return;
+        }
+        jsInterface.setBodyHtml(html);
+        refreshPageContents(true);
     }
 
 }
