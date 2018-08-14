@@ -167,17 +167,16 @@ public class AwfulWebView extends WebView {
      * {@link #setBodyHtml(String)}. Calling this with unchanged HTML acts as a refresh, resetting
      * the displayed state of that page.
      *
-     * @param force if false the page will only update if it's currently blank.
      */
-    public void refreshPageContents(boolean force) {
-        runJavascript(String.format("loadPageHtml(%s)", force ? "" : "true"));
+    public void refreshPageContents() {
+        runJavascript("loadPageHtml()");
     }
 
 
     /**
      * Set and display the current HTML for the container body.
      * <p>
-     * Call this to update the WebView with new HTML content, calling {@link #refreshPageContents(boolean)}
+     * Call this to update the WebView with new HTML content, calling {@link #refreshPageContents()}
      * to display it. Does nothing if the passed HTML is unchanged from the currently added HTML,
      * or if {@link #setJavascriptHandler(WebViewJsInterface)} hasn't been called yet.
      */
@@ -191,7 +190,7 @@ public class AwfulWebView extends WebView {
             return;
         }
         jsInterface.setBodyHtml(html);
-        refreshPageContents(true);
+        refreshPageContents();
     }
 
 }
