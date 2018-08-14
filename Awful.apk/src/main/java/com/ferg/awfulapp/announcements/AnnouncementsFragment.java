@@ -52,11 +52,9 @@ public class AnnouncementsFragment extends AwfulFragment {
     @BindView(R.id.status_frog)
     StatusFrog statusFrog;
 
-    private String bodyHtml = "";
-
     @NonNull
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflateView(R.layout.announcements_fragment, container, inflater);
         ButterKnife.bind(this, view);
 
@@ -96,13 +94,6 @@ public class AnnouncementsFragment extends AwfulFragment {
 
         });
         webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                if (webView != null && !bodyHtml.isEmpty()) {
-                    webView.setBodyHtml(bodyHtml);
-                }
-            }
-
             // this lets links open back in the main activity if we handle them (e.g. 'look at this thread'),
             // and opens them in a browser or whatever if we don't (e.g. 'click here to buy a thing on the site')
             @Override
@@ -142,7 +133,7 @@ public class AnnouncementsFragment extends AwfulFragment {
                             webView.setVisibility(View.VISIBLE);
                             // these page params don't mean anything in the context of the announcement page
                             // we just want it to a) display ok, and b) not let the user click anything bad
-                            bodyHtml = ThreadDisplay.getHtml(result, AwfulPreferences.getInstance(), 1, 1);
+                            String bodyHtml = ThreadDisplay.getHtml(result, AwfulPreferences.getInstance(), 1, 1);
                             if (webView != null) {
                                 webView.setBodyHtml(bodyHtml);
                             }

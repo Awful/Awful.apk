@@ -47,7 +47,6 @@ public class PreviewFragment extends AwfulDialogFragment {
 
     private AwfulWebView postPreView;
     private ProgressBar progressBar;
-    protected String nicefiedContent = "";
 
     HashMap<String, String> preferences;
     WebViewJsInterface jsInterface = new WebViewJsInterface();
@@ -78,10 +77,10 @@ public class PreviewFragment extends AwfulDialogFragment {
     protected void setContent(String content) {
         jsInterface.updatePreferences();
 
-        nicefiedContent = "<style>iframe{height: auto !important;} </style><article><section class='postcontent'>" + content + "</section></article>";
+        String wrappedContent = "<style>iframe{height: auto !important;} </style><article><section class='postcontent'>" + content + "</section></article>";
         progressBar.setVisibility(View.GONE);
         postPreView.setVisibility(View.VISIBLE);
-        postPreView.setBodyHtml(nicefiedContent);
+        postPreView.setBodyHtml(wrappedContent);
     }
 
     @Override

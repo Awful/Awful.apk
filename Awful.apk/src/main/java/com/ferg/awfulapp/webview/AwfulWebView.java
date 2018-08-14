@@ -31,8 +31,13 @@ import static com.ferg.awfulapp.constants.Constants.DEBUG;
  * some debug logging, and the default {@link android.webkit.WebViewClient}. You should
  * call {@link #onPause()} and {@link #onResume()} to handle those lifecycle events.
  * <p>
- * You can run arbitrary JavaScript code with the {@link #runJavascript(String)} method, or invoke
- * the thread JavaScript's own loadPageHtml function with {@link #refreshPageContents(boolean)}.
+ * Most of the time you'll want to use {@link #setContent(String)} to add the template from
+ * {@link com.ferg.awfulapp.thread.ThreadDisplay#getContainerHtml(AwfulPreferences, int)}, which
+ * loads the HTML, CSS and JS for displaying thread content, and then use {@link #setBodyHtml(String)}
+ * to add and display that content. {@link #setJavascriptHandler(WebViewJsInterface)} needs to be
+ * called, since the thread JS relies on it.
+ * <p>
+ * You can also run arbitrary JavaScript code with the {@link #runJavascript(String)} method.
  */
 
 public class AwfulWebView extends WebView {
@@ -156,11 +161,11 @@ public class AwfulWebView extends WebView {
 
 
     /**
-     * Calls the javascript function that updates some page content from its source.
+     * Calls the javascript function that displays the current body HTML
      * <p>
-     * This calls the #loadPageHtml function in <i>thread.js</i>, which in turn calls #getBodyHtml
-     * on the handler passed to {@link #setJavascriptHandler(WebViewJsInterface)}, and inserts the
-     * results into a container on the page.
+     * This calls the #loadPageHtml function in <i>thread.js</i>, which displays the HTML passed to
+     * {@link #setBodyHtml(String)}. Calling this with unchanged HTML acts as a refresh, resetting
+     * the displayed state of that page.
      *
      * @param force if false the page will only update if it's currently blank.
      */
@@ -168,9 +173,15 @@ public class AwfulWebView extends WebView {
         runJavascript(String.format("loadPageHtml(%s)", force ? "" : "true"));
     }
 
+
+    /**
+     * Set and display the current HTML for the container body.
+     * <p>
+     * Call this to update the WebView with new HTML content, calling {@link #refreshPageContents(boolean)}
+     * to display it. Does nothing if the passed HTML is unchanged from the currently added HTML,
+     * or if {@link #setJavascriptHandler(WebViewJsInterface)} hasn't been called yet.
+     */
     public void setBodyHtml(@Nullable String html) {
-        // TODO: clean up bodyHtml state in calling classes (should be set and forget)
-        // TODO: update docstring in this class (call this not refresh)
         if (jsInterface == null) {
             Timber.w("Attempted to set html with no JS interface handler added");
             return;
