@@ -35,6 +35,10 @@ body {
     background-color: #111111;
 }
 
+.postcontent {
+    border-top: none;
+}
+
 .postcontent .bbc-block {
     border-left: 1px solid #e7e7e7;
 }
