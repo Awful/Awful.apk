@@ -525,7 +525,20 @@ public class AwfulPost {
                 // switch out for a link with the url
                 img.replaceWith(new Element(Tag.valueOf("a"), "").attr("href", originalUrl).text(originalUrl));
             } else {
-                img.replaceWith(new Element(Tag.valueOf("p"), "").text(originalUrl));
+                if (alreadyLinked) {
+                    Element parent = img.parent();
+
+                    parent.appendText(img.parent().attr("href"));
+                    parent.attr("class", "a-link");
+
+                    parent.wrap("<div class='converted-to-link'></div>");
+
+                    img.appendTo(parent.parent());
+                    img.replaceWith(new Element(Tag.valueOf("a"), "").attr("href", originalUrl).text(originalUrl)
+                            .attr("class", "img-link"));
+                } else {
+                    img.replaceWith(new Element(Tag.valueOf("p"), "").text(originalUrl));
+                }
             }
             return;
         }
