@@ -528,7 +528,7 @@ public class AwfulPost {
                 if (alreadyLinked) {
                     Element parent = img.parent();
 
-                    parent.appendText(img.parent().attr("href"));
+                    parent.appendText(parent.attr("href"));
                     parent.attr("class", "a-link");
 
                     parent.wrap("<div class='converted-to-link'></div>");
