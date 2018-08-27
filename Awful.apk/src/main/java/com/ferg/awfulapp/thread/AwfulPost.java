@@ -532,8 +532,7 @@ public class AwfulPost {
                     parent.attr("class", "a-link");
 
                     parent.wrap("<div class='converted-to-link'></div>");
-
-                    img.appendTo(parent.parent());
+                    parent.parent().insertChildren(0, img);  // set the image as the first child of the div
                     img.replaceWith(new Element(Tag.valueOf("a"), "").attr("href", originalUrl).text(originalUrl)
                             .attr("class", "img-link"));
                 } else {
