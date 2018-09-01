@@ -198,7 +198,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 
 
 
-    private volatile String bodyHtml = "";
 	private final HashMap<String,String> ignorePostsHtml = new HashMap<>();
     private AsyncTask<Void, Void, String> redirect = null;
 	private Uri downloadLink;
@@ -338,14 +337,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 
 
 	private WebViewClient threadWebViewClient = new WebViewClient() {
-		@Override
-		public void onPageFinished(WebView view, String url) {
-			setProgress(100);
-			if (mThreadView != null && bodyHtml != null && !bodyHtml.isEmpty()) {
-				mThreadView.refreshPageContents(true);
-			}
-		}
-
 
 		@Override
 		public boolean shouldOverrideUrlLoading(WebView aView, String aUrl) {
@@ -424,7 +415,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
         super.onResume();
 		if(mThreadView != null){
 			mThreadView.onResume();
-			mThreadView.refreshPageContents(false);
 		}
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
         refreshInfo();
@@ -793,7 +783,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 			Timber.i("Syncing - reloading from site (thread %d, page %d) to update DB", getThreadId(), getPageNumber());
 			// cancel pending post loading requests
 			NetworkUtils.cancelRequests(PostRequest.REQUEST_TAG);
-        	bodyHtml = "";
 			// call this with cancelOnDestroy=false to retain the request's specific type tag
 			final int pageNumber = getPageNumber();
 			int userId = postFilterUserId == null ? BLANK_USER_ID : postFilterUserId;
@@ -1037,8 +1026,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
             Timber.d("populateThreadView: displaying %d posts", aPosts.size());
             String html = ThreadDisplay.getHtml(aPosts, AwfulPreferences.getInstance(getActivity()), getPageNumber(), mLastPage);
             refreshSessionCookie();
-            bodyHtml = html;
-			mThreadView.refreshPageContents(true);
+			mThreadView.setBodyHtml(html);
             setProgress(100);
         } catch (Exception e) {
             // If we've already left the activity the webview may still be working to populate,
@@ -1083,11 +1071,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 			// TODO: 23/01/2017 add methods so you can't mess with the map directly
 			preferences.put("postjumpid", postJump);
 			preferences.put("scrollPosition", Integer.toString(savedScrollPosition));
-		}
-
-		@JavascriptInterface
-		public String getBodyHtml(){
-			return bodyHtml;
 		}
 
 		@JavascriptInterface
@@ -1405,9 +1388,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	 * Clear the thread display, e.g. to show a blank page before loading new content
 	 */
 	private void showBlankPage() {
-		bodyHtml = "";
 		if(mThreadView != null){
-			mThreadView.refreshPageContents(true);
+			mThreadView.setBodyHtml(null);
 		}
 	}
 

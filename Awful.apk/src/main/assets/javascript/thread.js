@@ -96,13 +96,9 @@ function findInPath(event, cssClass, returnElement) {
 }
 
 /**
- * Loads the thread html into the container
- * @param {Boolean} checkFirst If true checks whether the webview has actually already been initialized
+ * Loads the current thread html into the body container
  */
-function loadPageHtml(checkFirst) {
-	if (checkFirst !== undefined && document.getElementById('container').innerHTML != '') {
-		return;
-	}
+function loadPageHtml() {
 	if (window.topScrollID) {
 		window.clearTimeout(window.topScrollID);
 	}

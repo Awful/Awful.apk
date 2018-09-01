@@ -32,7 +32,6 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -45,19 +44,12 @@ import com.ferg.awfulapp.webview.WebViewJsInterface;
 import java.util.HashMap;
 
 public class PreviewFragment extends AwfulDialogFragment {
-    private final static String TAG = "PreviewFragment";
 
     private AwfulWebView postPreView;
     private ProgressBar progressBar;
-    protected String nicefiedContent = "";
 
     HashMap<String, String> preferences;
-    WebViewJsInterface jsInterface = new WebViewJsInterface() {
-        @JavascriptInterface
-        public String getBodyHtml() {
-            return nicefiedContent;
-        }
-    };
+    WebViewJsInterface jsInterface = new WebViewJsInterface();
 
     @Override
     public void onActivityCreated(Bundle aSavedState) {
@@ -67,8 +59,8 @@ public class PreviewFragment extends AwfulDialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View dialogView = inflateView(R.layout.post_preview, container, inflater);
-        progressBar = (ProgressBar) dialogView.findViewById(R.id.preview_progress);
-        postPreView = (AwfulWebView) dialogView.findViewById(R.id.post_pre_view);
+        progressBar = dialogView.findViewById(R.id.preview_progress);
+        postPreView = dialogView.findViewById(R.id.post_pre_view);
         configureWebView();
 
         getDialog().setCanceledOnTouchOutside(true);
@@ -85,10 +77,10 @@ public class PreviewFragment extends AwfulDialogFragment {
     protected void setContent(String content) {
         jsInterface.updatePreferences();
 
-        nicefiedContent = "<style>iframe{height: auto !important;} </style><article><section class='postcontent'>" + content + "</section></article>";
+        String wrappedContent = "<style>iframe{height: auto !important;} </style><article><section class='postcontent'>" + content + "</section></article>";
         progressBar.setVisibility(View.GONE);
         postPreView.setVisibility(View.VISIBLE);
-        postPreView.refreshPageContents(true);
+        postPreView.setBodyHtml(wrappedContent);
     }
 
     @Override
