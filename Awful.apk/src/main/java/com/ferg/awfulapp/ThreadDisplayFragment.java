@@ -530,7 +530,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
 			case R.id.close:
-				toggleCloseThread();
+				showThreadOpenCloseDialog();
 				break;
 			case R.id.reply:
 				displayPostReplyDialog();
@@ -1001,6 +1001,23 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
     private void displayPostReplyDialog() {
         displayPostReplyDialog(getThreadId(), -1, AwfulMessage.TYPE_NEW_REPLY);
     }
+
+
+	/**
+	 * Show a dialog that allows the user to lock or unlock the current thread, as appropriate.
+	 */
+	private void showThreadOpenCloseDialog() {
+    	new AlertDialog.Builder(getActivity())
+				.setTitle((threadClosed ? "Reopen" : "Close") + " this thread?")
+				.setPositiveButton(R.string.alert_ok, (dialogInterface, i) -> toggleCloseThread())
+				.setNegativeButton(R.string.cancel, null)
+				.show();
+	}
+
+
+	/**
+	 * Trigger a request to toggle the current thread's locked/unlocked state.
+	 */
 	private void toggleCloseThread(){
 		queueRequest(new CloseOpenRequest(getActivity(), getThreadId()).build(mSelf, new AwfulRequest.AwfulResultCallback<Void>() {
 			@Override
