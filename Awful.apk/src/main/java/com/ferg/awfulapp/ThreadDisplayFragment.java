@@ -90,7 +90,6 @@ import com.ferg.awfulapp.provider.AwfulTheme;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.BookmarkRequest;
-import com.ferg.awfulapp.task.CloseOpenRequest;
 import com.ferg.awfulapp.task.IgnoreRequest;
 import com.ferg.awfulapp.task.ImageSizeRequest;
 import com.ferg.awfulapp.task.MarkLastReadRequest;
@@ -99,6 +98,7 @@ import com.ferg.awfulapp.task.ProfileRequest;
 import com.ferg.awfulapp.task.RedirectTask;
 import com.ferg.awfulapp.task.ReportRequest;
 import com.ferg.awfulapp.task.SinglePostRequest;
+import com.ferg.awfulapp.task.ThreadLockUnlockRequest;
 import com.ferg.awfulapp.task.VoteRequest;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPagedItem;
@@ -175,10 +175,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	/** Current thread's last page */
 	private int mLastPage = 0;
 	private int mParentForumId = 0;
-	private boolean threadClosed = false;
+	private boolean threadLocked = false;
 	private boolean threadBookmarked = false;
     private boolean threadArchived = false;
-	private boolean threadOpenClose = false;
+	private boolean threadLockableUnlockable = false;
 
     private boolean keepScreenOn = false;
 	//oh god i'm replicating core android functionality, this is a bad sign.
@@ -494,10 +494,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
         if(menu == null || getActivity() == null){
             return;
         }
-		MenuItem openClose = menu.findItem(R.id.close);
-		if(openClose != null){
-			openClose.setVisible(threadOpenClose);
-			openClose.setTitle((threadClosed?getString(R.string.thread_open):getString(R.string.thread_close)));
+		MenuItem lockUnlock = menu.findItem(R.id.lock_unlock);
+		if(lockUnlock != null){
+			lockUnlock.setVisible(threadLockableUnlockable);
+			lockUnlock.setTitle((threadLocked ?getString(R.string.thread_unlock):getString(R.string.thread_lock)));
 		}
 		MenuItem find = menu.findItem(R.id.find);
 		if(find != null){
@@ -529,8 +529,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
-			case R.id.close:
-				showThreadOpenCloseDialog();
+			case R.id.lock_unlock:
+				showThreadLockUnlockDialog();
 				break;
 			case R.id.reply:
 				displayPostReplyDialog();
@@ -1006,10 +1006,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	/**
 	 * Show a dialog that allows the user to lock or unlock the current thread, as appropriate.
 	 */
-	private void showThreadOpenCloseDialog() {
+	private void showThreadLockUnlockDialog() {
     	new AlertDialog.Builder(getActivity())
-				.setTitle((threadClosed ? "Reopen" : "Close") + " this thread?")
-				.setPositiveButton(R.string.alert_ok, (dialogInterface, i) -> toggleCloseThread())
+				.setTitle(getString(threadLocked ? R.string.thread_unlock : R.string.thread_lock) + "?")
+				.setPositiveButton(R.string.alert_ok, (dialogInterface, i) -> toggleThreadLock())
 				.setNegativeButton(R.string.cancel, null)
 				.show();
 	}
@@ -1018,16 +1018,17 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	/**
 	 * Trigger a request to toggle the current thread's locked/unlocked state.
 	 */
-	private void toggleCloseThread(){
-		queueRequest(new CloseOpenRequest(getActivity(), getThreadId()).build(mSelf, new AwfulRequest.AwfulResultCallback<Void>() {
+	private void toggleThreadLock(){
+		queueRequest(new ThreadLockUnlockRequest(getActivity(), getThreadId()).build(mSelf, new AwfulRequest.AwfulResultCallback<Void>() {
 			@Override
 			public void success(Void result) {
-				threadClosed = !threadClosed;
+			    // TODO: maybe this should trigger a thread data refresh instead, update everything from the source
+				threadLocked = !threadLocked;
 			}
 
 			@Override
 			public void failure(VolleyError error) {
-				Timber.e((threadClosed?"Thread closing":"Thread reopening") + " failed");
+				Timber.e(String.format("Couldn\'t %s this thread", threadLocked ? "unlock" : "lock"));
 			}
 		}));
 	}
@@ -1455,8 +1456,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
         	Timber.i("Loaded thread metadata, updating fragment state and UI");
         	if(aData.getCount() >0 && aData.moveToFirst()){
         		mLastPage = AwfulPagedItem.indexToPage(aData.getInt(aData.getColumnIndex(AwfulThread.POSTCOUNT)), getPrefs().postPerPage);
-				threadClosed = aData.getInt(aData.getColumnIndex(AwfulThread.LOCKED))>0;
-				threadOpenClose = aData.getInt(aData.getColumnIndex(AwfulThread.CAN_OPEN_CLOSE))>0;
+				threadLocked = aData.getInt(aData.getColumnIndex(AwfulThread.LOCKED))>0;
+				threadLockableUnlockable = aData.getInt(aData.getColumnIndex(AwfulThread.CAN_OPEN_CLOSE))>0;
         		threadBookmarked = aData.getInt(aData.getColumnIndex(AwfulThread.BOOKMARKED))>0;
 				threadArchived = aData.getInt(aData.getColumnIndex(AwfulThread.ARCHIVED))>0;
 				mTitle = aData.getString(aData.getColumnIndex(AwfulThread.TITLE));
@@ -1483,7 +1484,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
         		}
                 invalidateOptionsMenu();
 				if (mFAB != null) {
-					mFAB.setVisibility((getPrefs().noFAB || threadClosed || threadArchived)?View.GONE:View.VISIBLE);
+					mFAB.setVisibility((getPrefs().noFAB || threadLocked || threadArchived)?View.GONE:View.VISIBLE);
 				}
         	}
         }

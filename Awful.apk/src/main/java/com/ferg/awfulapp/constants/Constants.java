@@ -65,7 +65,7 @@ public class Constants {
     public static final String ACTION_ADDLIST 			  = "addlist";
     public static final String ACTION_QUERY 			  = "query";
     public static final String ACTION_RESULTS 			  = "results";
-    public static final String ACTION_OPEN_CLOSE_THREAD   = "openclosethread";
+    public static final String ACTION_TOGGLE_THREAD_LOCKED = "openclosethread";
     
     public static final String PARAM_USER_ID   = "userid";
     public static final String PARAM_USERNAME  = "username";
