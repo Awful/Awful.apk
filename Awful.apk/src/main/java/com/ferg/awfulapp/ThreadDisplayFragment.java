@@ -910,7 +910,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
                 if (result.getType() == TYPE.THREAD) {
 					int threadId = (int) result.getId();
 					int threadPage = (int) result.getPage(getPrefs().postPerPage);
-					String postJump = result.getFragment().replaceAll("\\D", "");
+					String postJump = result.getFragment();
 					if (bypassBackStack) {
                         openThread(threadId, threadPage, postJump);
                     } else {
@@ -1069,8 +1069,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 		return postJump;
 	}
 
-	private void setPostJump(String postJump) {
-		this.postJump = postJump;
+	private void setPostJump(@NonNull String postJump) {
+		// TODO: this strips out any prefix (so it handles prefixed fragments AND bare IDs) and adds the required prefix to all. Might be better to handle this in AwfulURL?
+		this.postJump = "post" + postJump.replaceAll("\\D", "");
 	}
 
 	private class ClickInterface extends WebViewJsInterface {
