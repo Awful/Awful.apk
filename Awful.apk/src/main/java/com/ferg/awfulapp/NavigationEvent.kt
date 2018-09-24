@@ -207,9 +207,8 @@ sealed class NavigationEvent(private val extraTypeId: String) {
                 // TODO: can we spot null pages here? OR at least default ones?
                     isForum ->
                         Forum(id.toInt(), page.toInt())
-                // TODO: can we get the fragment?
                     isThread ->
-                        Thread(id.toInt(), page.toInt())
+                        Thread(id.toInt(), page.toInt(), fragment)
                     isForumIndex ->
                         ForumIndex
                     else -> null

@@ -8,9 +8,9 @@ import com.ferg.awfulapp.util.AwfulError;
 
 import org.jsoup.nodes.Document;
 
-public class CloseOpenRequest extends AwfulRequest<Void> {
+public class ThreadLockUnlockRequest extends AwfulRequest<Void> {
     private int threadId;
-    public CloseOpenRequest(Context context, int threadId) {
+    public ThreadLockUnlockRequest(Context context, int threadId) {
         super(context, Constants.FUNCTION_POSTINGS);
         this.threadId = threadId;
     }
@@ -19,7 +19,7 @@ public class CloseOpenRequest extends AwfulRequest<Void> {
     protected String generateUrl(Uri.Builder urlBuilder) {
         addPostParam(Constants.PARAM_THREAD_ID, Integer.toString(threadId));
 
-        urlBuilder.appendQueryParameter(Constants.PARAM_ACTION, Constants.ACTION_OPEN_CLOSE_THREAD);
+        urlBuilder.appendQueryParameter(Constants.PARAM_ACTION, Constants.ACTION_TOGGLE_THREAD_LOCKED);
         return urlBuilder.build().toString();
     }
 

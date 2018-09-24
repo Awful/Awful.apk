@@ -184,7 +184,7 @@ function scrollPost() {
 	var postjump = listener.getPostJump();
 	if (postjump !== '') {
 		try {
-			window.topScrollItem = document.getElementById('post' + postjump);
+			window.topScrollItem = document.getElementById(postjump);
 			window.topScrollPos = window.topScrollItem.getBoundingClientRect().top + document.body.scrollTop;
 			window.scrollTo(0, window.topScrollPos);
 			window.topScrollCount = 200;
