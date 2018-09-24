@@ -10,10 +10,6 @@ function containerInit() {
 	container.addEventListener('click', function containerClick(event) {
 		var target = event.target;
 
-		if (findInPath(event, 'bbc-spoiler') && listener.getPreference('showSpoilers') !== 'true') {
-			findInPath(event, 'bbc-spoiler', true).classList.toggle('spoiled');
-			return;
-		}
 		if (findInPath(event, 'toggleread')) {
 			showReadPosts();
 			return;
@@ -44,6 +40,10 @@ function containerInit() {
 		}
 		if (target.tagName === 'CANVAS' && target.hasAttribute('title') && target.getAttribute('src').endsWith('.gif')) {
 			target.outerHTML = '<img src="' + target.getAttribute('src') + '" title="' + target.getAttribute('title') + '" />';
+			return;
+		}
+		if (findInPath(event, 'bbc-spoiler') && listener.getPreference('showSpoilers') !== 'true') {
+			findInPath(event, 'bbc-spoiler', true).classList.toggle('spoiled');
 		}
 	});
 
