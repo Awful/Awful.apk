@@ -508,7 +508,7 @@ public class AwfulPost {
 	}
         // check whether images can be converted to / wrapped in a link
         boolean alreadyLinked = img.parent() != null && img.parent().tagName().equalsIgnoreCase("a");
-        boolean linkOk = !alreadyLinked && !img.hasClass("nolink");
+        boolean linkOk = !img.hasClass("nolink");
 
         // image is a smiley - if required, replace it with its :code: (held in the 'title' attr)
         if (img.hasAttr("title")) {
@@ -520,18 +520,29 @@ public class AwfulPost {
         }
 
         // image shouldn't be displayed - convert to link / plaintext url
+        // if image is wrapped in an <a>, make a link to image and the <a>
         if (isOldImage && prefs.hideOldImages || !prefs.canLoadImages()) {
-            if (linkOk) {
+            if (!linkOk) {
+                img.replaceWith(new Element(Tag.valueOf("p"), "").text(originalUrl));
+            } else if (alreadyLinked) {
+                Element parent = img.parent();
+
+                parent.appendText(parent.attr("href"));
+                parent.attr("class", "a-link");
+
+                parent.wrap("<div class='converted-to-link'></div>");
+                parent.parent().insertChildren(0, img);  // set the image as the first child of the div
+                img.replaceWith(new Element(Tag.valueOf("a"), "").attr("href", originalUrl).text(originalUrl)
+                        .attr("class", "img-link"));
+            } else {
                 // switch out for a link with the url
                 img.replaceWith(new Element(Tag.valueOf("a"), "").attr("href", originalUrl).text(originalUrl));
-            } else {
-                img.replaceWith(new Element(Tag.valueOf("p"), "").text(originalUrl));
             }
             return;
         }
 
         // normal image - if we can't link it (e.g. to turn into an expandable thumbnail) there's nothing else to do
-        if (!linkOk) {
+        if (!linkOk || alreadyLinked) {
             return;
         }
 
