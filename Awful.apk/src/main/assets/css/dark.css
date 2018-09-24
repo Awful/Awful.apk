@@ -16,6 +16,8 @@ body {
     color: #aeaeae;
     box-shadow: 0px 1px 2px 0px rgb(27, 27, 27);
     margin: 10px 0;
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0) !important;
 }
 
 .read {

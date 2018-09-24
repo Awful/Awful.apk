@@ -19,8 +19,6 @@
 }
 
 .post {
-    transform: none;
-    -webkit-transform: translate3d(0, 0, 0) !important;
     backface-visibility: hidden;
     perspective: 1000;
 }
@@ -181,7 +179,7 @@
 
 .postcontent .bbc-block {
     margin: 5px 0;
-    padding: 5px 10px 5px 20px;
+    padding: 5px 10px 5px 15px;
 }
 
 .postcontent .bbc-block h4 {
