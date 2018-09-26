@@ -260,11 +260,11 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         highlightUsername        = getPreference(Keys.HIGHLIGHT_USERNAME, true);
         highlightSelf			 = getPreference(Keys.HIGHLIGHT_SELF, true);
         highlightOP				 = getPreference(Keys.HIGHLIGHT_OP, true);
-		inlineYoutube            = getPreference(Keys.INLINE_YOUTUBE, false);
-		inlineTweets             = getPreference(Keys.INLINE_TWEETS, false);
+		inlineYoutube            = getPreference(Keys.INLINE_YOUTUBE, true);
+		inlineTweets             = getPreference(Keys.INLINE_TWEETS, true);
 		inlineVines            	 = getPreference(Keys.INLINE_VINES, false);
-		inlineWebm            	 = getPreference(Keys.INLINE_WEBM, false);
-		autostartWebm            = getPreference(Keys.AUTOSTART_WEBM, true);
+		inlineWebm            	 = getPreference(Keys.INLINE_WEBM, true);
+		autostartWebm            = getPreference(Keys.AUTOSTART_WEBM, false);
         showAllSpoilers			 = getPreference(Keys.SHOW_ALL_SPOILERS, false);
         threadInfo_Rating		 = getPreference(Keys.THREAD_INFO_RATING, true);
         threadInfo_Tag		 	 = getPreference(Keys.THREAD_INFO_TAG, true);
@@ -274,7 +274,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         preferredFont			 = getPreference(Keys.PREFERRED_FONT, "default");
         upperNextArrow		     = getPreference(Keys.UPPER_NEXT_ARROW, false);
         sendUsernameInReport	 = getPreference(Keys.SEND_USERNAME_IN_REPORT, true);
-        disableGifs	 			 = getPreference(Keys.DISABLE_GIFS, true);
+        disableGifs	 			 = getPreference(Keys.DISABLE_GIFS, false);
         hideOldPosts	 	 	 = getPreference(Keys.HIDE_OLD_POSTS, true);
         alwaysOpenUrls	 	 	 = getPreference(Keys.ALWAYS_OPEN_URLS, false);
         lockScrolling			 = getPreference(Keys.LOCK_SCROLLING, false);
