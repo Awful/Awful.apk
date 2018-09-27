@@ -274,7 +274,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         preferredFont			 = getPreference(Keys.PREFERRED_FONT, "default");
         upperNextArrow		     = getPreference(Keys.UPPER_NEXT_ARROW, false);
         sendUsernameInReport	 = getPreference(Keys.SEND_USERNAME_IN_REPORT, true);
-        disableGifs	 			 = getPreference(Keys.DISABLE_GIFS, false);
+        disableGifs	 			 = getPreference(Keys.DISABLE_GIFS, true);
         hideOldPosts	 	 	 = getPreference(Keys.HIDE_OLD_POSTS, true);
         alwaysOpenUrls	 	 	 = getPreference(Keys.ALWAYS_OPEN_URLS, false);
         lockScrolling			 = getPreference(Keys.LOCK_SCROLLING, false);
