@@ -105,7 +105,7 @@ function processThreadEmbeds(post) {
 				if (window.twttr) {
 					window.twttr.widgets.load(div);
 				} else {
-					missedEmbeds.push(div);
+					window.missedEmbeds.push(div);
 				}
 			});
 		});
