@@ -134,8 +134,8 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
 
     private fun search() {
         mDialog = ProgressDialog.show(activity, getString(R.string.search_forums_active_dialog_title), getString(R.string.search_forums_active_dialog_message), true, false)
-        val searchforumsprimitive = ArrayUtils.toPrimitive(searchForums.toTypedArray())
-        NetworkUtils.queueRequest(SearchRequest(this.context, mSearchQuery.text.toString().toLowerCase(), searchforumsprimitive)
+        val searchForumsPrimitive = ArrayUtils.toPrimitive(searchForums.toTypedArray())
+        NetworkUtils.queueRequest(SearchRequest(this.context, mSearchQuery.text.toString().toLowerCase(), searchForumsPrimitive)
                 .build(null, object : AwfulRequest.AwfulResultCallback<AwfulSearchResult> {
                     override fun success(result: AwfulSearchResult) {
                         removeDialog()
@@ -144,7 +144,7 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
                                 mSearchResults = resultList
                                 mQueryPages = pages
                                 mQueryId = queryId
-                                mSearchResultList.adapter.notifyDataSetChanged()
+                                mSearchResultList.adapter?.notifyDataSetChanged()
 
                                 mMaxPageQueried = 1
                                 if (mMaxPageQueried < pages) mSRL.isEnabled = true
@@ -211,7 +211,7 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
 
     override fun onRefresh(direction: SwipyRefreshLayoutDirection) {
         Timber.i("onRefresh: %s", mMaxPageQueried)
-        val preItemCount = mSearchResultList.adapter.itemCount
+        val preItemCount = mSearchResultList.adapter?.itemCount ?: 0
         NetworkUtils.queueRequest(SearchResultRequest(this.context, mQueryId, mMaxPageQueried + 1).build(null, object : AwfulRequest.AwfulResultCallback<ArrayList<AwfulSearch>> {
 
             // TODO: combine this with #search since they share functionality - maybe a SearchQuery object for the current query that holds this state we're changing
@@ -221,7 +221,7 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
                 if (mMaxPageQueried >= mQueryPages) {
                     mSRL.isEnabled = false
                 }
-                mSearchResultList.adapter.notifyDataSetChanged()
+                mSearchResultList.adapter?.notifyDataSetChanged()
                 mSRL.isRefreshing = false
                 mSearchResultList.smoothScrollToPosition(preItemCount + 1)
             }
