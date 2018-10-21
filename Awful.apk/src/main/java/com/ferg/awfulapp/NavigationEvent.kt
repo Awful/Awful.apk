@@ -7,6 +7,8 @@ import android.net.Uri
 import com.ferg.awfulapp.announcements.AnnouncementsFragment
 import com.ferg.awfulapp.constants.Constants
 import com.ferg.awfulapp.preferences.SettingsActivity
+import com.ferg.awfulapp.search.SearchFilter
+import com.ferg.awfulapp.search.SearchFragment
 import com.ferg.awfulapp.thread.AwfulURL
 import com.ferg.awfulapp.util.AwfulUtils
 import timber.log.Timber
@@ -49,10 +51,14 @@ sealed class NavigationEvent(private val extraTypeId: String) {
         override fun activityIntent(context: Context) = context.intentFor(SettingsActivity::class.java)
     }
 
-    object SearchForums : NavigationEvent(TYPE_SEARCH_FORUMS) {
+    class SearchForums(vararg val filters: SearchFilter) : NavigationEvent(TYPE_SEARCH_FORUMS) {
 
         override fun activityIntent(context: Context) =
                 BasicActivity.intentFor(SearchFragment::class.java, context, context.getString(R.string.search_forums_activity_title))
+
+        override val addDataToIntent: Intent.() -> Unit = {
+            putParcelableArrayListExtra(KEY_SEARCH_FILTERS, filters.toCollection(ArrayList()))
+        }
     }
 
     object Announcements : NavigationEvent(TYPE_ANNOUNCEMENTS) {
@@ -79,7 +85,12 @@ sealed class NavigationEvent(private val extraTypeId: String) {
         }
     }
 
-    data class Url(val url: AwfulURL) : NavigationEvent(TYPE_URL)
+    data class Url(val url: AwfulURL) : NavigationEvent(TYPE_URL) {
+
+        override val addDataToIntent: Intent.() -> Unit = {
+            data = Uri.parse(url.url)
+        }
+    }
 
     /**
      * Show the user's private messages, with an optional URL for a message to open
@@ -133,6 +144,8 @@ sealed class NavigationEvent(private val extraTypeId: String) {
         private const val TYPE_COMPOSE_PRIVATE_MESSAGE = "nav_compose_private_message"
         private const val TYPE_ANNOUNCEMENTS = "nav_announcements"
 
+        private const val KEY_SEARCH_FILTERS = "key_search_filters"
+
         private fun Context.intentFor(clazz: Class<out Activity>): Intent = Intent().setClass(this, clazz)
 
         /**
@@ -145,7 +158,9 @@ sealed class NavigationEvent(private val extraTypeId: String) {
             // TODO: might be better to default to null? And let the caller decide what to do when parsing fails - can use the elvis ?: to supply a default event
                 TYPE_RE_AUTHENTICATE -> ReAuthenticate
                 TYPE_SETTINGS -> Settings
-                TYPE_SEARCH_FORUMS -> SearchForums
+                TYPE_SEARCH_FORUMS -> SearchForums(
+                        *getParcelableArrayListExtra<SearchFilter>(KEY_SEARCH_FILTERS).toTypedArray()
+                )
                 TYPE_SHOW_PRIVATE_MESSAGES -> ShowPrivateMessages(
                         messageUri = data
                 )
@@ -192,9 +207,8 @@ sealed class NavigationEvent(private val extraTypeId: String) {
                 // TODO: can we spot null pages here? OR at least default ones?
                     isForum ->
                         Forum(id.toInt(), page.toInt())
-                // TODO: can we get the fragment?
                     isThread ->
-                        Thread(id.toInt(), page.toInt())
+                        Thread(id.toInt(), page.toInt(), fragment)
                     isForumIndex ->
                         ForumIndex
                     else -> null

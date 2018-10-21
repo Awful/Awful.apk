@@ -19,6 +19,9 @@
         android:id="@+id/mark_thread_unread"
         android:title="@string/mark_unread" />
     <item
+        android:id="@+id/search_thread"
+        android:title="@string/search_thread" />
+    <item
         android:id="@+id/copy_url_thread"
         android:title="@string/copy_url" />
 

@@ -2,8 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/close"
-        android:title="@string/thread_close"
+        android:id="@+id/lock_unlock"
+        android:title="@string/thread_lock"
         android:icon="@drawable/ic_https_dark"
         app:showAsAction="never"
         />

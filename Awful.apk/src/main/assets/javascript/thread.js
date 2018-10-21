@@ -10,16 +10,12 @@ function containerInit() {
 	container.addEventListener('click', function containerClick(event) {
 		var target = event.target;
 
-		if (findInPath(event, 'bbc-spoiler') && listener.getPreference('showSpoilers') !== 'true') {
-			findInPath(event, 'bbc-spoiler', true).classList.toggle('spoiled');
-			return;
-		}
 		if (findInPath(event, 'toggleread')) {
 			showReadPosts();
 			return;
 		}
-		if (findInPath(event, 'postinfo')) {
-			toggleInfo(findInPath(event, 'postinfo', true));
+		if (findInPath(event, 'posterinfo')) {
+			toggleInfo(findInPath(event, 'posterinfo', true));
 			return;
 		}
 		if (findInPath(event, 'postmenu')) {
@@ -34,16 +30,20 @@ function containerInit() {
 			handleQuoteLink(target, event);
 			return;
 		}
-		if (target.tagName.toLowerCase() === 'a' && target.href.indexOf('showthread.php?action=showpost') !== -1) {
+		if (target.tagName === 'A' && target.href.indexOf('showthread.php?action=showpost') !== -1) {
 			loadIgnoredPost(target, event);
 			return;
 		}
-		if (target.tagName.toLowerCase() === 'img' && target.hasAttribute('title') && target.src.endsWith('.gif')) {
+		if (target.tagName === 'IMG' && target.hasAttribute('title') && target.src.endsWith('.gif')) {
 			freezeGif(target);
 			return;
 		}
-		if (target.tagName.toLowerCase() === 'canvas' && target.hasAttribute('title') && target.getAttribute('src').endsWith('.gif')) {
+		if (target.tagName === 'CANVAS' && target.hasAttribute('title') && target.getAttribute('src').endsWith('.gif')) {
 			target.outerHTML = '<img src="' + target.getAttribute('src') + '" title="' + target.getAttribute('title') + '" />';
+			return;
+		}
+		if (findInPath(event, 'bbc-spoiler') && listener.getPreference('showSpoilers') !== 'true') {
+			findInPath(event, 'bbc-spoiler', true).classList.toggle('spoiled');
 		}
 	});
 
@@ -51,9 +51,21 @@ function containerInit() {
 	container.addEventListener('touchstart', function touchStartHandler(event) {
 		var target = event.target;
 		// title popup on long-press
-		if ((target.tagName.toLowerCase() === 'img' || target.tagName.toLowerCase() === 'canvas') && target.hasAttribute('title')) {
+		if ((target.tagName === 'IMG' || target.tagName === 'CANVAS') && target.hasAttribute('title')) {
 			Longtap(function longtap() {
 				listener.popupText(target.getAttribute('title'));
+			})(event);
+			return;
+		}
+		if (target.tagName === 'VIDEO') {
+			Longtap(function longtap() {
+				listener.openUrlMenu(target.firstElementChild.getAttribute('src'));
+			})(event);
+			return;
+		}
+		if (target.tagName === 'VIDEO' ) {
+			Longtap(function longtap() {
+				listener.openUrlMenu(target.firstElementChild.getAttribute('src'));
 			})(event);
 			return;
 		}
@@ -73,6 +85,10 @@ function containerInit() {
 			debouncedVideosScrollListener();
 		});
 	}
+
+	window.addEventListener('awful-scroll-post', function scrollToPost() {
+		window.topScrollID = window.requestAnimationFrame(scrollPost);
+	});
 }
 
 /**
@@ -84,29 +100,29 @@ function containerInit() {
  */
 function findInPath(event, cssClass, returnElement) {
 	var search = Array.prototype.filter.call(event.path, function filter(node) {
-        return node.classList && node.classList.contains(cssClass);
-    });
+		return node.classList && node.classList.contains(cssClass);
+	});
 	return returnElement ? search[0] : search.length > 0;
 }
 
 /**
- * Loads the thread html into the container
- * @param {Boolean} checkFirst If true checks whether the webview has actually already been initialized
+ * Loads the current thread html into the body container
  */
-function loadPageHtml(checkFirst) {
-	if (checkFirst !== undefined && document.getElementById('container').innerHTML != '') {
-		return;
+function loadPageHtml() {
+	if (window.topScrollTimeout) {
+		window.clearTimeout(window.topScrollTimeout);
+		window.cancelAnimationFrame(window.topScrollID);
 	}
-	if (window.topScrollID) {
-		window.clearTimeout(window.topScrollID);
-	}
+
 	window.topScrollItem = null;
 	window.topScrollPos = 0;
 	window.topScrollCount = 0;
 	var html = listener.getBodyHtml();
 	document.getElementById('container').innerHTML = html;
 	pageInit();
-	window.topScrollID = window.setTimeout(scrollPost, 1000);
+	window.topScrollTimeout = window.setTimeout(function hello() {
+		window.dispatchEvent(new Event('awful-scroll-post'));
+	}, 1000);
 	document.addEventListener('DOMContentLoaded', function updateCssForPage() {
 		changeCSS(listener.getCSS());
 	});
@@ -134,7 +150,7 @@ function pageInit() {
 		});
 	}
 	if (listener.getPreference('hideSignatures') === 'true') {
-		document.querySelectorAll('section.postcontent .signature').forEach(function each(signature) {
+		document.querySelectorAll('.postcontent .signature').forEach(function each(signature) {
 			signature.remove();
 		});
 	}
@@ -167,7 +183,7 @@ function pageInit() {
  */
 function pauseVideosOutOfView() {
 	document.querySelectorAll('video').forEach(function eachVideo(video) {
-		if (isElementInViewport(video) && video.parentElement.tagName.toLowerCase() !== 'blockquote' && video.firstElementChild.src.indexOf('webm') === -1) {
+		if (isElementInViewport(video) && video.parentElement.tagName !== 'BLOCKQUOTE' && video.firstElementChild.src.indexOf('webm') === -1) {
 			video.play();
 		} else {
 			video.pause();
@@ -176,23 +192,33 @@ function pauseVideosOutOfView() {
 }
 
 /**
- * Scrolls the webview to a certain post or the first unread post
+ * Sets up the scrollUpdate function parameters
+ * @param {number} count How many times to try to scroll to the element
+ * @param {Element} element The element to scroll to
  */
-function scrollPost() {
-	var postjump = listener.getPostJump();
+function setTopScroll(count, element) {
+	window.topScrollCount = count;
+	window.topScrollItem = element;
+	window.topScrollPos = window.topScrollItem.getBoundingClientRect().top + window.scrollY;
+	window.scrollTo(0, window.topScrollPos);
+	window.topScrollID = requestAnimationFrame(scrollUpdate);
+}
+
+/**
+ * Scrolls the webview to a certain post or the first unread post
+ * @param {String} [postNumber] number of the post to just to
+ */
+function scrollPost(postNumber) {
+	var postjump = postNumber || listener.getPostJump();
 	if (postjump !== '') {
 		try {
-			window.topScrollItem = document.getElementById('post' + postjump);
-			window.topScrollPos = window.topScrollItem.getBoundingClientRect().top + document.body.scrollTop;
-			window.scrollTo(0, window.topScrollPos);
-			window.topScrollCount = 200;
-			window.topScrollID = window.setTimeout(scrollUpdate, 500);
+			setTopScroll(200, document.getElementById(postjump));
 		} catch (error) {
 			scrollLastRead();
 		}
-	} else {
-		scrollLastRead();
+		return;
 	}
+	scrollLastRead();
 }
 
 /**
@@ -200,11 +226,7 @@ function scrollPost() {
  */
 function scrollLastRead() {
 	try {
-		window.topScrollItem = document.querySelector('.unread');
-		window.topScrollPos = window.topScrollItem.getBoundingClientRect().top + document.body.scrollTop;
-		window.topScrollCount = 100;
-		window.scrollTo(0, window.topScrollPos);
-		window.topScrollID = window.setTimeout(scrollUpdate, 500);
+		setTopScroll(100, document.querySelector('.unread'));
 	} catch (error) {
 		window.topScrollCount = 0;
 		window.topScrollItem = null;
@@ -217,13 +239,13 @@ function scrollLastRead() {
 function scrollUpdate() {
 	try {
 		if (window.topScrollCount > 0 && window.topScrollItem) {
-			var newPosition = window.topScrollItem.getBoundingClientRect().top + document.body.scrollTop;
+			var newPosition = window.topScrollItem.getBoundingClientRect().top + window.scrollY;
 			if (newPosition - window.topScrollPos > 0) {
 				window.scrollBy(0, newPosition - window.topScrollPos);
 			}
 			window.topScrollPos = newPosition;
 			window.topScrollCount--;
-			window.topScrollID = window.setTimeout(scrollUpdate, 200);
+			window.topScrollID = requestAnimationFrame(scrollUpdate);
 		}
 	} catch (error) {
 		window.topScrollCount = 0;
@@ -239,7 +261,7 @@ function showReadPosts() {
 		post.style.display = '';
 	});
 	document.querySelector('.toggleread').remove();
-	window.setTimeout(scrollLastRead, 200);
+	window.requestAnimationFrame(scrollLastRead);
 }
 
 /**
@@ -304,10 +326,10 @@ function changeFontFace(font) {
 		fontFace.remove();
 	}
 	if (font !== 'default') {
-	    var styleElement = document.createElement('style');
-	    styleElement.id = 'font-face';
-	    styleElement.setAttribute('type','text/css');
-	    styleElement.innerHTML = '@font-face { font-family: userselected; src: url(\'content://com.ferg.awfulapp.webprovider/' + font + '\'); }';
+		var styleElement = document.createElement('style');
+		styleElement.id = 'font-face';
+		styleElement.setAttribute('type', 'text/css');
+		styleElement.innerHTML = '@font-face { font-family: userselected; src: url(\'content://com.ferg.awfulapp.webprovider/' + font + '\'); }';
 		document.getElementsByTagName('head')[0].appendChild(styleElement);
 	}
 }
@@ -347,6 +369,18 @@ function updateMarkedUsers(users) {
 }
 
 /**
+ * wait for redraw
+ * @param {String} id the id of the post
+ */
+function waitForRedraw(id) {
+	if (document.getElementById(id).style.display === 'none') {
+		window.requestAnimationFrame(waitForRedraw.bind(null, id));
+		return;
+	}
+	window.setTimeout(scrollPost.bind(null, id), 500);
+}
+
+/**
  * Handles a quote link click event depending on the URL of the link. Moves the webview if the post is on the same page
  * @param {Element} link The HTMLElement of the link
  * @param {Event} event The click-event triggered by the user
@@ -363,12 +397,17 @@ function handleQuoteLink(link, event) {
 			var readPosts = document.querySelectorAll('.read');
 			document.querySelector('.toggleread').remove();
 			readPosts.forEach(function eachPost(readPost) {
-				readPost.style.display = '';
+				window.requestAnimationFrame(function wait() {
+					readPost.style.display = '';
+				});
 			});
+			readPosts[0].offsetHeight;
+			window.requestAnimationFrame(waitForRedraw.bind(null, id));
+			return;
 		}
-		window.setTimeout(function wait() {
-			window.scrollTo(0, postOfID.getBoundingClientRect().top + document.body.scrollTop);
-		}, 100);
+
+		scrollPost(id);
+
 	} catch (error) {
 		window.console.log(error);
 	}
@@ -380,24 +419,28 @@ function handleQuoteLink(link, event) {
  */
 function toggleInfo(info) {
 	if (info.querySelector('.postinfo-title').classList.contains('extended')) {
-		if (info.querySelector('.avatar-cell') !== null) {
-			info.querySelector('.avatar-cell').classList.remove('extended');
-			info.querySelector('.avatar-cell .avatar').classList.remove('extended');
-			if (listener.getPreference('disableGifs') === 'true' && info.querySelector('.avatar img').src.endsWith('.gif')) {
-				freezeGif(info.querySelector('.avatar img'));
+		if (info.querySelector('.avatar') !== null) {
+			if (listener.getPreference('disableGifs') === 'true' && info.querySelector('.avatar').src.endsWith('.gif')) {
+				freezeGif(info.querySelector('.avatar'));
+				info.querySelector('canvas').classList.add('avatar');
 			}
+			window.requestAnimationFrame(function shrinkAvatar() {
+				info.querySelector('.avatar').classList.remove('extended');
+			});
 		}
 		info.querySelector('.postinfo-title').classList.remove('extended');
 		info.querySelector('.postinfo-regdate').classList.remove('extended');
 	} else {
-		if (info.querySelector('.avatar-cell') !== null) {
-			info.querySelector('.avatar-cell').classList.add('extended');
-			info.querySelector('.avatar-cell .avatar').classList.add('extended');
+		if (info.querySelector('.avatar') !== null) {
 			if (info.querySelector('canvas') !== null) {
 				var avatar = document.createElement('img');
 				avatar.src = info.querySelector('canvas').getAttribute('src');
+				avatar.classList.add('avatar');
 				info.querySelector('canvas').replaceWith(avatar);
 			}
+			window.requestAnimationFrame(function enlargeAvatar() {
+				info.querySelector('.avatar').classList.add('extended');
+			});
 		}
 		info.querySelector('.postinfo-title').classList.add('extended');
 		info.querySelector('.postinfo-regdate').classList.add('extended');
@@ -425,7 +468,7 @@ function showPostMenu(postMenu) {
  * @param {String} file Name of the CSS to be used
  */
 function changeCSS(file) {
-	document.getElementsByTagName('head')[0].querySelector('link').setAttribute('href', file);
+	document.getElementById('theme-css').setAttribute('href', file);
 }
 
 /**
@@ -456,7 +499,7 @@ function insertIgnoredPost(id) {
  */
 function enlargeTimg(tImg) {
 	tImg.classList.remove('timg');
-	if (tImg.parentElement.tagName.toLowerCase() !== 'a') {
+	if (tImg.parentElement.tagName !== 'A') {
 		var link = document.createElement('a');
 		link.href = tImg.src;
 		tImg.parentNode.insertBefore(link, tImg);

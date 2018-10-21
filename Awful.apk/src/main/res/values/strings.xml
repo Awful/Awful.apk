@@ -94,8 +94,8 @@
     <string name="find">Find on page</string>
     <string name="keep_screen_on">Keep screen on</string>
     <string name="yospos">YOSPOS</string>
-    <string name="thread_close">Close Thread</string>
-    <string name="thread_open">Reopen Thread</string>
+    <string name="thread_lock">Lock thread</string>
+    <string name="thread_unlock">Unlock thread</string>
 
     <string name="next_page">Next page</string>
     <string name="mark_last_read_progress">Marking Last-Read</string>
@@ -117,6 +117,7 @@
     <string name="toggle_bookmark_color">Toggle bookmark color</string>
     <string name="mark_unread">Mark thread unread</string>
     <string name="mark_unread_success">Thread Marked Unread</string>
+    <string name="search_thread">Search this thread</string>
 
     <!-- Reply view -->
     <string name="filter_emote_hint">Search terms</string>

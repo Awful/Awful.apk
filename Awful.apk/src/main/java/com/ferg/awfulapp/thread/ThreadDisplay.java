@@ -64,8 +64,8 @@ public abstract class ThreadDisplay {
         // build the theme css tag, using the appropriate css path
         // the dark-theme attribute can be used to e.g. embed a dark or light widget
         AwfulTheme theme = AwfulTheme.forForum(forumId);
-        buffer.append(String.format("<link id='theme-css' rel='stylesheet' data-dark-theme='%b' href='%s'>\n", theme.isDark(), theme.getCssPath()));
         buffer.append("<link rel='stylesheet' href='file:///android_asset/css/general.css' />");
+        buffer.append(String.format("<link id='theme-css' rel='stylesheet' data-dark-theme='%b' href='%s'>\n", theme.isDark(), theme.getCssPath()));
 
 
         if (!aPrefs.preferredFont.contains("default")) {
@@ -109,7 +109,7 @@ public abstract class ThreadDisplay {
                 }
             }
             if (unreadCount < aPosts.size() && unreadCount > 0) {
-                buffer.append("    <article class='toggleread'>");
+                buffer.append("    <article class='toggleread post'>");
                 buffer.append("      <a>\n");
                 final int prevPosts = aPosts.size() - unreadCount;
                 buffer.append("        <h3>Show ")

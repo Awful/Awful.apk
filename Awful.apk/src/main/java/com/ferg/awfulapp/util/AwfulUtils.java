@@ -24,7 +24,7 @@ import com.ToxicBakery.viewpager.transforms.StackTransformer;
 import com.ToxicBakery.viewpager.transforms.TabletTransformer;
 import com.ToxicBakery.viewpager.transforms.ZoomInTransformer;
 import com.ToxicBakery.viewpager.transforms.ZoomOutSlideTransformer;
-import com.ToxicBakery.viewpager.transforms.ZoomOutTranformer;
+import com.ToxicBakery.viewpager.transforms.ZoomOutTransformer;
 import com.crashlytics.android.Crashlytics;
 import com.ferg.awfulapp.AwfulApplication;
 import com.ferg.awfulapp.constants.Constants;
@@ -133,7 +133,7 @@ public class AwfulUtils {
         transformerMap.put("Tablet", new TabletTransformer());
         transformerMap.put("ZoomIn", new ZoomInTransformer());
         transformerMap.put("ZoomOutSlide", new ZoomOutSlideTransformer());
-        transformerMap.put("ZoomOut", new ZoomOutTranformer());
+        transformerMap.put("ZoomOut", new ZoomOutTransformer());
 
 
         return transformerMap.get(AwfulPreferences.getInstance().transformer);

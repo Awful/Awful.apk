@@ -11,6 +11,8 @@ import android.webkit.WebView;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 
+import timber.log.Timber;
+
 import static com.ferg.awfulapp.constants.Constants.DEBUG;
 
 /**
@@ -29,8 +31,13 @@ import static com.ferg.awfulapp.constants.Constants.DEBUG;
  * some debug logging, and the default {@link android.webkit.WebViewClient}. You should
  * call {@link #onPause()} and {@link #onResume()} to handle those lifecycle events.
  * <p>
- * You can run arbitrary JavaScript code with the {@link #runJavascript(String)} method, or invoke
- * the thread JavaScript's own loadPageHtml function with {@link #refreshPageContents(boolean)}.
+ * Most of the time you'll want to use {@link #setContent(String)} to add the template from
+ * {@link com.ferg.awfulapp.thread.ThreadDisplay#getContainerHtml(AwfulPreferences, int)}, which
+ * loads the HTML, CSS and JS for displaying thread content, and then use {@link #setBodyHtml(String)}
+ * to add and display that content. {@link #setJavascriptHandler(WebViewJsInterface)} needs to be
+ * called, since the thread JS relies on it.
+ * <p>
+ * You can also run arbitrary JavaScript code with the {@link #runJavascript(String)} method.
  */
 
 public class AwfulWebView extends WebView {
@@ -40,6 +47,9 @@ public class AwfulWebView extends WebView {
      * thread.js uses this identifier to communicate with any handler we add
      */
     private static final String HANDLER_NAME_IN_JAVASCRIPT = "listener";
+
+    @Nullable
+    private WebViewJsInterface jsInterface = null;
 
     public AwfulWebView(Context context) {
         super(context);
@@ -68,7 +78,7 @@ public class AwfulWebView extends WebView {
     private void init() {
         AwfulPreferences prefs = AwfulPreferences.getInstance();
         WebSettings webSettings = getSettings();
-        setWebChromeClient(new LoggingWebChromeClient());
+        setWebChromeClient(new LoggingWebChromeClient(this));
         setKeepScreenOn(false); // explicitly setting this since some people are complaining the screen stays on until they toggle it on and off
 
         setBackgroundColor(Color.TRANSPARENT);
@@ -117,6 +127,7 @@ public class AwfulWebView extends WebView {
      * @param handler an object containing JavaScriptInterface methods to handle JS function calls
      */
     public void setJavascriptHandler(@NonNull WebViewJsInterface handler) {
+        jsInterface = handler;
         addJavascriptInterface(handler, HANDLER_NAME_IN_JAVASCRIPT);
     }
 
@@ -150,16 +161,36 @@ public class AwfulWebView extends WebView {
 
 
     /**
-     * Calls the javascript function that updates some page content from its source.
+     * Calls the javascript function that displays the current body HTML
      * <p>
-     * This calls the #loadPageHtml function in <i>thread.js</i>, which in turn calls #getBodyHtml
-     * on the handler passed to {@link #setJavascriptHandler(WebViewJsInterface)}, and inserts the
-     * results into a container on the page.
+     * This calls the #loadPageHtml function in <i>thread.js</i>, which displays the HTML passed to
+     * {@link #setBodyHtml(String)}. Calling this with unchanged HTML acts as a refresh, resetting
+     * the displayed state of that page.
      *
-     * @param force if false the page will only update if it's currently blank.
      */
-    public void refreshPageContents(boolean force) {
-        runJavascript(String.format("loadPageHtml(%s)", force ? "" : "true"));
+    public void refreshPageContents() {
+        runJavascript("loadPageHtml()");
+    }
+
+
+    /**
+     * Set and display the current HTML for the container body.
+     * <p>
+     * Call this to update the WebView with new HTML content, calling {@link #refreshPageContents()}
+     * to display it. Does nothing if the passed HTML is unchanged from the currently added HTML,
+     * or if {@link #setJavascriptHandler(WebViewJsInterface)} hasn't been called yet.
+     */
+    public void setBodyHtml(@Nullable String html) {
+        if (jsInterface == null) {
+            Timber.w("Attempted to set html with no JS interface handler added");
+            return;
+        }
+        if (html != null && html.hashCode() == jsInterface.getBodyHtml().hashCode()) {
+            Timber.d("New HTML appears to match the current HTML, not updating");
+            return;
+        }
+        jsInterface.setBodyHtml(html);
+        refreshPageContents();
     }
 
 }

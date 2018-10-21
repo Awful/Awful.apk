@@ -90,7 +90,6 @@ import com.ferg.awfulapp.provider.AwfulTheme;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.BookmarkRequest;
-import com.ferg.awfulapp.task.CloseOpenRequest;
 import com.ferg.awfulapp.task.IgnoreRequest;
 import com.ferg.awfulapp.task.ImageSizeRequest;
 import com.ferg.awfulapp.task.MarkLastReadRequest;
@@ -99,6 +98,7 @@ import com.ferg.awfulapp.task.ProfileRequest;
 import com.ferg.awfulapp.task.RedirectTask;
 import com.ferg.awfulapp.task.ReportRequest;
 import com.ferg.awfulapp.task.SinglePostRequest;
+import com.ferg.awfulapp.task.ThreadLockUnlockRequest;
 import com.ferg.awfulapp.task.VoteRequest;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPagedItem;
@@ -175,10 +175,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	/** Current thread's last page */
 	private int mLastPage = 0;
 	private int mParentForumId = 0;
-	private boolean threadClosed = false;
+	private boolean threadLocked = false;
 	private boolean threadBookmarked = false;
     private boolean threadArchived = false;
-	private boolean threadOpenClose = false;
+	private boolean threadLockableUnlockable = false;
 
     private boolean keepScreenOn = false;
 	//oh god i'm replicating core android functionality, this is a bad sign.
@@ -198,7 +198,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 
 
 
-    private volatile String bodyHtml = "";
 	private final HashMap<String,String> ignorePostsHtml = new HashMap<>();
     private AsyncTask<Void, Void, String> redirect = null;
 	private Uri downloadLink;
@@ -338,14 +337,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 
 
 	private WebViewClient threadWebViewClient = new WebViewClient() {
-		@Override
-		public void onPageFinished(WebView view, String url) {
-			setProgress(100);
-			if (mThreadView != null && bodyHtml != null && !bodyHtml.isEmpty()) {
-				mThreadView.refreshPageContents(true);
-			}
-		}
-
 
 		@Override
 		public boolean shouldOverrideUrlLoading(WebView aView, String aUrl) {
@@ -386,7 +377,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 			return;
 		}
 		mThreadView.setWebViewClient(threadWebViewClient);
-		mThreadView.setWebChromeClient(new LoggingWebChromeClient() {
+		mThreadView.setWebChromeClient(new LoggingWebChromeClient(mThreadView) {
                 @Override
                 public void onProgressChanged(WebView view, int newProgress) {
                     super.onProgressChanged(view, newProgress);
@@ -424,7 +415,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
         super.onResume();
 		if(mThreadView != null){
 			mThreadView.onResume();
-			mThreadView.refreshPageContents(false);
 		}
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
         refreshInfo();
@@ -480,6 +470,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
         	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, NetworkUtils.getCookieString(Constants.COOKIE_NAME_SESSIONHASH));
         	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, NetworkUtils.getCookieString(Constants.COOKIE_NAME_USERID));
         	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, NetworkUtils.getCookieString(Constants.COOKIE_NAME_PASSWORD));
+        	cookieMonster.setAcceptThirdPartyCookies(mThreadView, true);
         	CookieSyncManager.getInstance().sync();
         }
     }
@@ -503,10 +494,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
         if(menu == null || getActivity() == null){
             return;
         }
-		MenuItem openClose = menu.findItem(R.id.close);
-		if(openClose != null){
-			openClose.setVisible(threadOpenClose);
-			openClose.setTitle((threadClosed?getString(R.string.thread_open):getString(R.string.thread_close)));
+		MenuItem lockUnlock = menu.findItem(R.id.lock_unlock);
+		if(lockUnlock != null){
+			lockUnlock.setVisible(threadLockableUnlockable);
+			lockUnlock.setTitle((threadLocked ?getString(R.string.thread_unlock):getString(R.string.thread_lock)));
 		}
 		MenuItem find = menu.findItem(R.id.find);
 		if(find != null){
@@ -538,8 +529,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
-			case R.id.close:
-				toggleCloseThread();
+			case R.id.lock_unlock:
+				showThreadLockUnlockDialog();
 				break;
 			case R.id.reply:
 				displayPostReplyDialog();
@@ -792,7 +783,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 			Timber.i("Syncing - reloading from site (thread %d, page %d) to update DB", getThreadId(), getPageNumber());
 			// cancel pending post loading requests
 			NetworkUtils.cancelRequests(PostRequest.REQUEST_TAG);
-        	bodyHtml = "";
 			// call this with cancelOnDestroy=false to retain the request's specific type tag
 			final int pageNumber = getPageNumber();
 			int userId = postFilterUserId == null ? BLANK_USER_ID : postFilterUserId;
@@ -920,7 +910,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
                 if (result.getType() == TYPE.THREAD) {
 					int threadId = (int) result.getId();
 					int threadPage = (int) result.getPage(getPrefs().postPerPage);
-					String postJump = result.getFragment().replaceAll("\\D", "");
+					String postJump = result.getFragment();
 					if (bypassBackStack) {
                         openThread(threadId, threadPage, postJump);
                     } else {
@@ -1011,16 +1001,34 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
     private void displayPostReplyDialog() {
         displayPostReplyDialog(getThreadId(), -1, AwfulMessage.TYPE_NEW_REPLY);
     }
-	private void toggleCloseThread(){
-		queueRequest(new CloseOpenRequest(getActivity(), getThreadId()).build(mSelf, new AwfulRequest.AwfulResultCallback<Void>() {
+
+
+	/**
+	 * Show a dialog that allows the user to lock or unlock the current thread, as appropriate.
+	 */
+	private void showThreadLockUnlockDialog() {
+    	new AlertDialog.Builder(getActivity())
+				.setTitle(getString(threadLocked ? R.string.thread_unlock : R.string.thread_lock) + "?")
+				.setPositiveButton(R.string.alert_ok, (dialogInterface, i) -> toggleThreadLock())
+				.setNegativeButton(R.string.cancel, null)
+				.show();
+	}
+
+
+	/**
+	 * Trigger a request to toggle the current thread's locked/unlocked state.
+	 */
+	private void toggleThreadLock(){
+		queueRequest(new ThreadLockUnlockRequest(getActivity(), getThreadId()).build(mSelf, new AwfulRequest.AwfulResultCallback<Void>() {
 			@Override
 			public void success(Void result) {
-				threadClosed = !threadClosed;
+			    // TODO: maybe this should trigger a thread data refresh instead, update everything from the source
+				threadLocked = !threadLocked;
 			}
 
 			@Override
 			public void failure(VolleyError error) {
-				Timber.e((threadClosed?"Thread closing":"Thread reopening") + " failed");
+				Timber.e(String.format("Couldn\'t %s this thread", threadLocked ? "unlock" : "lock"));
 			}
 		}));
 	}
@@ -1036,8 +1044,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
             Timber.d("populateThreadView: displaying %d posts", aPosts.size());
             String html = ThreadDisplay.getHtml(aPosts, AwfulPreferences.getInstance(getActivity()), getPageNumber(), mLastPage);
             refreshSessionCookie();
-            bodyHtml = html;
-			mThreadView.refreshPageContents(true);
+			mThreadView.setBodyHtml(html);
             setProgress(100);
         } catch (Exception e) {
             // If we've already left the activity the webview may still be working to populate,
@@ -1062,8 +1069,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 		return postJump;
 	}
 
-	private void setPostJump(String postJump) {
-		this.postJump = postJump;
+	private void setPostJump(@NonNull String postJump) {
+		// TODO: this strips out any prefix (so it handles prefixed fragments AND bare IDs) and adds the required prefix to all. Might be better to handle this in AwfulURL?
+		this.postJump = "post" + postJump.replaceAll("\\D", "");
 	}
 
 	private class ClickInterface extends WebViewJsInterface {
@@ -1082,11 +1090,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 			// TODO: 23/01/2017 add methods so you can't mess with the map directly
 			preferences.put("postjumpid", postJump);
 			preferences.put("scrollPosition", Integer.toString(savedScrollPosition));
-		}
-
-		@JavascriptInterface
-		public String getBodyHtml(){
-			return bodyHtml;
 		}
 
 		@JavascriptInterface
@@ -1139,6 +1142,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 			Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT).show();
 		}
 
+		@JavascriptInterface
+		public void openUrlMenu(String url) {
+			showUrlMenu(url);
+		}
     }
 
 	
@@ -1400,9 +1407,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	 * Clear the thread display, e.g. to show a blank page before loading new content
 	 */
 	private void showBlankPage() {
-		bodyHtml = "";
 		if(mThreadView != null){
-			mThreadView.refreshPageContents(true);
+			mThreadView.setBodyHtml(null);
 		}
 	}
 
@@ -1451,8 +1457,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
         	Timber.i("Loaded thread metadata, updating fragment state and UI");
         	if(aData.getCount() >0 && aData.moveToFirst()){
         		mLastPage = AwfulPagedItem.indexToPage(aData.getInt(aData.getColumnIndex(AwfulThread.POSTCOUNT)), getPrefs().postPerPage);
-				threadClosed = aData.getInt(aData.getColumnIndex(AwfulThread.LOCKED))>0;
-				threadOpenClose = aData.getInt(aData.getColumnIndex(AwfulThread.CAN_OPEN_CLOSE))>0;
+				threadLocked = aData.getInt(aData.getColumnIndex(AwfulThread.LOCKED))>0;
+				threadLockableUnlockable = aData.getInt(aData.getColumnIndex(AwfulThread.CAN_OPEN_CLOSE))>0;
         		threadBookmarked = aData.getInt(aData.getColumnIndex(AwfulThread.BOOKMARKED))>0;
 				threadArchived = aData.getInt(aData.getColumnIndex(AwfulThread.ARCHIVED))>0;
 				mTitle = aData.getString(aData.getColumnIndex(AwfulThread.TITLE));
@@ -1479,7 +1485,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
         		}
                 invalidateOptionsMenu();
 				if (mFAB != null) {
-					mFAB.setVisibility((getPrefs().noFAB || threadClosed || threadArchived)?View.GONE:View.VISIBLE);
+					mFAB.setVisibility((getPrefs().noFAB || threadLocked || threadArchived)?View.GONE:View.VISIBLE);
 				}
         	}
         }
