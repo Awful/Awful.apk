@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import com.ferg.awfulapp.announcements.AnnouncementsFragment
 import com.ferg.awfulapp.constants.Constants
+import com.ferg.awfulapp.preferences.AwfulPreferences
 import com.ferg.awfulapp.preferences.SettingsActivity
 import com.ferg.awfulapp.search.SearchFilter
 import com.ferg.awfulapp.search.SearchFragment
@@ -28,7 +29,7 @@ sealed class NavigationEvent(private val extraTypeId: String) {
      * Defaults to opening the main activity, override this for events handled by other activities.
      */
     protected open fun activityIntent(context: Context): Intent =
-            context.intentFor(ForumsIndexActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            context.intentFor("com.ferg.awfulapp.ForumsIndexActivity."+AwfulPreferences.getInstance().launcherIcon).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
 
     /**
      * Code to run when converting this event to an Intent.
@@ -147,6 +148,7 @@ sealed class NavigationEvent(private val extraTypeId: String) {
         private const val KEY_SEARCH_FILTERS = "key_search_filters"
 
         private fun Context.intentFor(clazz: Class<out Activity>): Intent = Intent().setClass(this, clazz)
+        private fun Context.intentFor(clasz: String): Intent = Intent().setClassName(this, clasz)
 
         /**
          * Parse an intent as one of the navigation events we handle. Defaults to [MainActivity]

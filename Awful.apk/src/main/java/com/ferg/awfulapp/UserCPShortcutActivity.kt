@@ -3,6 +3,7 @@ package com.ferg.awfulapp
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import com.ferg.awfulapp.preferences.AwfulPreferences
 
 /**
  * Activity that handles the 'create a bookmarks widget' Intent.
@@ -25,7 +26,7 @@ class UserCPShortcutActivity : Activity() {
      */
     private fun setupShortcut() {
         val shortcutIntent = NavigationEvent.Bookmarks.getIntent(this)
-        val iconResource = Intent.ShortcutIconResource.fromContext(this, R.mipmap.ic_launcher)
+        val iconResource = Intent.ShortcutIconResource.fromContext(this, getLauncherIcon())
         // Then, set up the container intent (the response to the caller)
         with(Intent()) {
             putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent)
@@ -34,5 +35,14 @@ class UserCPShortcutActivity : Activity() {
             // Now, return the result to the launcher
             setResult(Activity.RESULT_OK, this)
         }
+    }
+
+    private fun getLauncherIcon(): Int {
+        val launcherIconString = AwfulPreferences.getInstance().launcherIcon.replace('.','_');
+        var launcherIcon = if(launcherIconString == "frog") {
+            return R.mipmap.ic_launcher
+        } else {
+            return resources.getIdentifier("ic_launcher_" + launcherIconString,"mipmap", packageName)
+        };
     }
 }

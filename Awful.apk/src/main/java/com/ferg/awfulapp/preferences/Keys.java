@@ -26,6 +26,7 @@ public abstract class Keys {
             USERNAME,
             USER_TITLE,
             THEME,
+            LAUNCHER_ICON,
             LAYOUT,
             IMGUR_THUMBNAILS,
             PREFERRED_FONT,
@@ -138,6 +139,7 @@ public abstract class Keys {
     public static final int USERNAME = R.string.pref_key_username;
     public static final int USER_TITLE = R.string.pref_key_user_title;
     public static final int THEME = R.string.pref_key_theme;
+    public static final int LAUNCHER_ICON = R.string.pref_key_launcher_icon;
     public static final int LAYOUT = R.string.pref_key_layout;
     public static final int IMGUR_THUMBNAILS = R.string.pref_key_imgur_thumbnails;
     public static final int PREFERRED_FONT = R.string.pref_key_preferred_font;
