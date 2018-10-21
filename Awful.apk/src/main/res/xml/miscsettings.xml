@@ -24,12 +24,6 @@
                 android:defaultValue="false"
                 />
             <com.ferg.awfulapp.preferences.CustomSwitchPreference
-                android:key="make_dog"
-                android:title="make dog"
-                android:summary="make dog"
-                android:defaultValue="false"
-                />
-            <com.ferg.awfulapp.preferences.CustomSwitchPreference
                 android:key="@string/pref_key_immersion_mode"
                 android:title="@string/immersion_mode"
                 android:summary="@string/immersion_mode_summary"

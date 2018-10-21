@@ -31,9 +31,6 @@ public class MiscSettings extends SettingsFragment {
         prefClickListeners.put(new P2RDistanceListener(), new int[] {
                 R.string.pref_key_pull_to_refresh_distance
         });
-        prefClickListeners.put(new DoggoListener(), new int[] {
-               R.string.pref_key_make_dog
-        });
     }
 
 
@@ -113,23 +110,6 @@ public class MiscSettings extends SettingsFragment {
             bar.setProgress(Math.round(mPrefs.p2rDistance*100));
             mP2RDistanceText.setText(bar.getProgress()+ "%"+((bar.getProgress()<20||bar.getProgress()>75)?" (not recommended)":""));
             mP2RDistanceDialog.show();
-            return true;
-        }
-    }
-
-    /** Listener for the 'Use doggo instead of frog' option */
-    private class DoggoListener implements Preference.OnPreferenceClickListener {
-        @Override
-        public boolean onPreferenceClick(Preference preference) {
-            // deactivate old icon
-            getActivity().getPackageManager().setComponentEnabledSetting(
-                  new ComponentName(BuildConfig.APPLICATION_ID, ((TwoStatePreference) preference).isChecked() ? "com.ferg.awfulapp.ForumsIndexActivity.dog" : "com.ferg.awfulapp.ForumsIndexActivity.frog"),
-                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
-
-            // activate new icon
-            getActivity().getPackageManager().setComponentEnabledSetting(
-                    new ComponentName(BuildConfig.APPLICATION_ID, ((TwoStatePreference) preference).isChecked() ? "com.ferg.awfulapp.ForumsIndexActivity.frog" : "com.ferg.awfulapp.ForumsIndexActivity.dog"),
-                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
             return true;
         }
     }

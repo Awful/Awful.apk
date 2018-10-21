@@ -2,9 +2,11 @@ package com.ferg.awfulapp.preferences.fragments;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.preference.ListPreference;
+import android.preference.Preference;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -14,6 +16,7 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
 import com.ferg.awfulapp.AwfulApplication;
+import com.ferg.awfulapp.BuildConfig;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.provider.AwfulTheme;
@@ -57,6 +60,7 @@ public class ThemeSettings extends SettingsFragment {
     @Override
     protected void initialiseSettings() {
         super.initialiseSettings();
+        findPrefById(R.string.pref_key_launcher_icon).setOnPreferenceChangeListener(new IconListener());
         Pattern fontFilename = Pattern.compile("fonts/(.*).ttf.mp3", Pattern.CASE_INSENSITIVE);
         Activity activity = getActivity();
         // TODO: 25/04/2017 a separate permissions class would probably be good, keep all this garbage in one place
@@ -210,6 +214,33 @@ public class ThemeSettings extends SettingsFragment {
                 break;
             default:
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    /** Listener for changes on the launcher icon preference */
+    private class IconListener implements Preference.OnPreferenceChangeListener {
+
+        @Override
+        public boolean onPreferenceChange(Preference preference, Object newValue) {
+            PackageManager packageManager = getActivity().getPackageManager();
+            String[] iconValues = getResources().getStringArray(R.array.launcher_icon_values);
+
+            for (String iconValue : iconValues) {
+                if(iconValue != newValue) {
+                    // make sure old icon is disabled
+                    packageManager.setComponentEnabledSetting(
+                            new ComponentName(BuildConfig.APPLICATION_ID, "com.ferg.awfulapp.ForumsIndexActivity." + iconValue),
+                            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                            PackageManager.DONT_KILL_APP);
+                }
+            }
+
+            // activate new icon
+            packageManager.setComponentEnabledSetting(
+                    new ComponentName(BuildConfig.APPLICATION_ID, "com.ferg.awfulapp.ForumsIndexActivity." + (String) newValue),
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                    PackageManager.DONT_KILL_APP);
+            return true;
         }
     }
 }
