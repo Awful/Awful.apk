@@ -85,6 +85,10 @@ function containerInit() {
 			debouncedVideosScrollListener();
 		});
 	}
+
+	window.addEventListener('awful-scroll-post', function scrollToPost() {
+		window.topScrollID = window.requestAnimationFrame(scrollPost);
+	});
 }
 
 /**
@@ -105,16 +109,20 @@ function findInPath(event, cssClass, returnElement) {
  * Loads the current thread html into the body container
  */
 function loadPageHtml() {
-	if (window.topScrollID) {
-		window.clearTimeout(window.topScrollID);
+	if (window.topScrollTimeout) {
+		window.clearTimeout(window.topScrollTimeout);
+		window.cancelAnimationFrame(window.topScrollID);
 	}
+
 	window.topScrollItem = null;
 	window.topScrollPos = 0;
 	window.topScrollCount = 0;
 	var html = listener.getBodyHtml();
 	document.getElementById('container').innerHTML = html;
 	pageInit();
-	window.topScrollID = window.setTimeout(scrollPost, 1000);
+	window.topScrollTimeout = window.setTimeout(function hello() {
+		window.dispatchEvent(new Event('awful-scroll-post'));
+	}, 1000);
 	document.addEventListener('DOMContentLoaded', function updateCssForPage() {
 		changeCSS(listener.getCSS());
 	});
@@ -184,6 +192,19 @@ function pauseVideosOutOfView() {
 }
 
 /**
+ * Sets up the scrollUpdate function parameters
+ * @param {number} count How many times to try to scroll to the element
+ * @param {Element} element The element to scroll to
+ */
+function setTopScroll(count, element) {
+	window.topScrollCount = count;
+	window.topScrollItem = element;
+	window.topScrollPos = window.topScrollItem.getBoundingClientRect().top + window.scrollY;
+	window.scrollTo(0, window.topScrollPos);
+	window.topScrollID = requestAnimationFrame(scrollUpdate);
+}
+
+/**
  * Scrolls the webview to a certain post or the first unread post
  * @param {String} [postNumber] number of the post to just to
  */
@@ -191,17 +212,13 @@ function scrollPost(postNumber) {
 	var postjump = postNumber || listener.getPostJump();
 	if (postjump !== '') {
 		try {
-			window.topScrollItem = document.getElementById(postjump);
-			window.topScrollPos = window.topScrollItem.getBoundingClientRect().top + document.body.scrollTop;
-			window.scrollTo(0, window.topScrollPos);
-			window.topScrollCount = 200;
-			window.topScrollID = window.setTimeout(scrollUpdate.bind(null, postNumber), 500);
+			setTopScroll(200, document.getElementById(postjump));
 		} catch (error) {
 			scrollLastRead();
 		}
-	} else {
-		scrollLastRead();
+		return;
 	}
+	scrollLastRead();
 }
 
 /**
@@ -209,11 +226,7 @@ function scrollPost(postNumber) {
  */
 function scrollLastRead() {
 	try {
-		window.topScrollItem = document.querySelector('.unread');
-		window.topScrollPos = window.topScrollItem.getBoundingClientRect().top + document.body.scrollTop;
-		window.topScrollCount = 100;
-		window.scrollTo(0, window.topScrollPos);
-		window.topScrollID = window.setTimeout(scrollUpdate, 500);
+		setTopScroll(100, document.querySelector('.unread'));
 	} catch (error) {
 		window.topScrollCount = 0;
 		window.topScrollItem = null;
@@ -226,13 +239,13 @@ function scrollLastRead() {
 function scrollUpdate() {
 	try {
 		if (window.topScrollCount > 0 && window.topScrollItem) {
-			var newPosition = window.topScrollItem.getBoundingClientRect().top + document.body.scrollTop;
+			var newPosition = window.topScrollItem.getBoundingClientRect().top + window.scrollY;
 			if (newPosition - window.topScrollPos > 0) {
 				window.scrollBy(0, newPosition - window.topScrollPos);
 			}
 			window.topScrollPos = newPosition;
 			window.topScrollCount--;
-			window.topScrollID = window.setTimeout(scrollUpdate, 200);
+			window.topScrollID = requestAnimationFrame(scrollUpdate);
 		}
 	} catch (error) {
 		window.topScrollCount = 0;
@@ -360,8 +373,7 @@ function updateMarkedUsers(users) {
  * @param {String} id the id of the post
  */
 function waitForRedraw(id) {
-	var postOfID = document.getElementById('post' + id);
-	if (postOfID.style.display === 'none') {
+	if (document.getElementById(id).style.display === 'none') {
 		window.requestAnimationFrame(waitForRedraw.bind(null, id));
 		return;
 	}
@@ -374,9 +386,9 @@ function waitForRedraw(id) {
  * @param {Event} event The click-event triggered by the user
  */
 function handleQuoteLink(link, event) {
-	var id = link.hash.substring(5);
+	var id = link.hash.substring(1);
 	try {
-		var postOfID = document.getElementById('post' + id);
+		var postOfID = document.getElementById(id);
 		if (!postOfID) {
 			return;
 		}
