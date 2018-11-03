@@ -32,7 +32,11 @@
         -->
         <activity android:name="com.ferg.awfulapp.ForumsIndexActivity"
                   android:configChanges="orientation|keyboardHidden|screenSize"
-                  android:launchMode="singleTask"/>
+                  android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
 
         <activity-alias android:label="@string/app_name"
                         android:icon="@mipmap/ic_launcher"
