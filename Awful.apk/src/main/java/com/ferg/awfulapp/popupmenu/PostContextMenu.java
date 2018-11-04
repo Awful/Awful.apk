@@ -20,6 +20,7 @@ import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.EDIT;
 import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.IGNORE_USER;
 import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.MARK_LAST_SEEN;
 import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.MARK_USER;
+import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.RAP_SHEET;
 import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.REPORT_POST;
 import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.SEND_PM;
 import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.UNMARK_USER;
@@ -129,6 +130,7 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
             awfulActions.add(REPORT_POST);
         }
         awfulActions.add(COPY_URL);
+        awfulActions.add(RAP_SHEET);
         if (!ownPost) {
             awfulActions.add(IGNORE_USER);
         }
@@ -143,9 +145,9 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
             Log.w(TAG, "onActionClicked: can't get target ThreadDisplayFragment");
             return;
         }
+        AwfulActivity activity = (AwfulActivity) getActivity();
         switch (action) {
             case SEND_PM:
-                AwfulActivity activity = (AwfulActivity) getActivity();
                 if (activity != null) {
                     activity.navigate(new NavigationEvent.ComposePrivateMessage(posterUsername));
                 }
@@ -165,6 +167,12 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
             case YOUR_POSTS:
             case USER_POSTS:
                 parent.toggleUserPosts(postId, posterUserId, posterUsername);
+                break;
+            case RAP_SHEET:
+                if (activity != null) {
+                    // TODO: when/if this is refactored to Kotlin, pls remove the JvmOverloads constructor stuff from NavigationEvent.LepersColony that's providing a default page here
+                    activity.navigate(new NavigationEvent.LepersColony(posterUserId));
+                }
                 break;
             case UNMARK_USER:
             case MARK_USER:
@@ -203,8 +211,9 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
         UNMARK_USER(R.drawable.ic_account_minus_dark, "Unmark %s"),
         MARK_USER(R.drawable.ic_account_plus_dark, "Mark %s"),
         YOUR_POSTS(R.drawable.ic_user_posts_dark, "Show only your posts"),
-        REPORT_POST(R.drawable.ic_error_dark, "Report Post"),
+        REPORT_POST(R.drawable.ic_announcement_dark_24dp, "Report Post"),
         COPY_URL(R.drawable.ic_share_dark, "Copy URL"),
+        RAP_SHEET(R.drawable.ic_gavel_dark_24dp, "%s's rap sheet"),
         IGNORE_USER(R.drawable.ic_ignore_dark, "Ignore %s");
 
         final int iconId;
