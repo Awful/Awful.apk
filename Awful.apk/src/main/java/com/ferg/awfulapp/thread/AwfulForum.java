@@ -93,32 +93,31 @@ public class AwfulForum extends AwfulPagedItem {
 
 	/**
 	 * Parse a forum page, storing the thread list and updating the threads in the database.
-	 *
-	 * @param page             a forum page containing a list of threads
 	 * @param forumId          the ID of the forum being parsed
 	 * @param pageNumber       the number of the page being parsed, e.g. page 2 of GBS
+	 * @param lastPageNumber
+	 * @param page             a forum page containing a list of threads
 	 * @param contentInterface used for database access
 	 */
-	public static void parseThreads(Document page, int forumId, int pageNumber, ContentResolver contentInterface) {
+	public static void parseThreads(int forumId, int pageNumber, int lastPageNumber, Document page, ContentResolver contentInterface) {
 		// get the threads on a (normal) forum page, index them and store
 		List<ContentValues> threads = AwfulThread.parseForumThreads(page, forumId, forumPageToIndex(pageNumber));
 		deletePageOfThreads(forumId, pageNumber, contentInterface);
 		insertThreads(threads, contentInterface);
 
 		// update page count for forum
-		int lastPage = parseLastPage(page);
-		ForumRepository.getInstance(null).setPageCount(forumId, lastPage);
+		ForumRepository.getInstance(null).setPageCount(forumId, lastPageNumber);
 	}
 
 
 	/**
 	 * Parse a Bookmarks page, storing the thread list and updating the threads in the database.
-	 *
-	 * @param page             a page containing the user's bookmarks
+	 *  @param page             a page containing the user's bookmarks
 	 * @param pageNumber       the number of the page being parsed, e.g. page 2 of the bookmarks
+	 * @param lastPageNumber
 	 * @param contentInterface used for database access
 	 */
-	public static void parseUCPThreads(@NonNull Document page, int pageNumber, @NonNull ContentResolver contentInterface) {
+	public static void parseUCPThreads(@NonNull Document page, int pageNumber, int lastPageNumber, @NonNull ContentResolver contentInterface) {
 		// get all the threads on the bookmarks page, with their INDEXes set appropriately, and store them
 		List<ContentValues> threads = AwfulThread.parseForumThreads(page, Constants.USERCP_ID, forumPageToIndex(pageNumber));
 		insertThreads(threads, contentInterface);
@@ -142,7 +141,7 @@ public class AwfulForum extends AwfulPagedItem {
 		deletePageOfBookmarks(pageNumber, contentInterface);
 		insertBookmarks(bookmarks, contentInterface);
 		// update bookmarks forum
-		ForumRepository.getInstance(null).setPageCount(Constants.USERCP_ID, parseLastPage(page));
+		ForumRepository.getInstance(null).setPageCount(Constants.USERCP_ID, lastPageNumber);
 	}
 
 

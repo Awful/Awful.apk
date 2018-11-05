@@ -326,12 +326,13 @@ class ForumParseTask(
  * @returns new or updated data for this thread, represented as a ContentValues (see [AwfulThread])
  */
 class ThreadPageParseTask(
-    private val resolver: ContentResolver,
-    private val page: Document,
-    private val threadId: Int,
-    private val pageNumber: Int,
-    private val postsPerPage: Int,
-    private val prefs: AwfulPreferences
+        private val resolver: ContentResolver,
+        private val page: Document,
+        private val threadId: Int,
+        private val pageNumber: Int,
+        private val lastPageNumber: Int,
+        private val postsPerPage: Int,
+        private val prefs: AwfulPreferences
 ) : Callable<ContentValues> {
 
     companion object {
@@ -372,7 +373,6 @@ class ThreadPageParseTask(
 
 
             // now calculate some read/unread numbers based on what we can see on the page
-            val lastPageNumber = AwfulPagedItem.parseLastPage(page)
             val firstPostOnPageIndex = AwfulPagedItem.pageToIndex(pageNumber, postsPerPage, 0)
             val firstUnreadIndex = if (!hasBeenViewed) 0 else postCount - unreadCount
 
