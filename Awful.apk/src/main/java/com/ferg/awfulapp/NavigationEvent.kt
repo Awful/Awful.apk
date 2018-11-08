@@ -28,7 +28,7 @@ sealed class NavigationEvent(private val extraTypeId: String) {
      * Defaults to opening the main activity, override this for events handled by other activities.
      */
     protected open fun activityIntent(context: Context): Intent =
-        context.intentFor(ForumsIndexActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            context.intentFor(ForumsIndexActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
 
     /**
      * Code to run when converting this event to an Intent.
