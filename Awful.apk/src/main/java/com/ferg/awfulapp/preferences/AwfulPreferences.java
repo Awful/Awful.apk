@@ -105,7 +105,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     public int postFixedFontSizeSp;
     public int postFontSizePx;
     public boolean lockScrolling;
-    public String theme;
+	public String theme;
+	public String launcherIcon;
     public boolean forceForumThemes;
     public String layout;
     public String preferredFont;
@@ -248,6 +249,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         postFixedFontSizeSp = getPreference(Keys.POST_FIXED_FONT_SIZE_SP, Constants.DEFAULT_FIXED_FONT_SIZE_SP);
 		postFontSizePx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, postFontSizeSp, mContext.getResources().getDisplayMetrics());
 		theme					 = getPreference(Keys.THEME, "default.css");
+		launcherIcon			 = getPreference(Keys.LAUNCHER_ICON, "frog");
 		layout					 = getPreference(Keys.LAYOUT, "default");
         imagesEnabled            = getPreference(Keys.IMAGES_ENABLED, true);
         no3gImages	             = getPreference(Keys.NO_3G_IMAGES, false);

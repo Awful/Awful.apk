@@ -38,4 +38,13 @@
         <item>ZoomOutSlide</item>
         <item>ZoomOut</item>
     </string-array>
+    <string-array name="launcher_icon_values">
+        <item>frog</item>
+        <item>frog2</item>
+        <item>ghost</item>
+        <item>v</item>
+        <item>dead.dog</item>
+        <item>dog</item>
+        <item>green</item>
+    </string-array>
 </resources>

@@ -438,7 +438,8 @@
         <item>Default</item>
     </string-array>
     <string name="select_font">Font</string>
-
+    <string name="launcher_icon">Launcher Icon</string>
+    <string name="launcher_icon_summary">Changes the launcher icon. This will remove your current from the home-screen. Takes a few seconds depending on the launcher.</string>
     <!-- Misc Settings page -->
     <string name="disable_gifs">Disable GIF animation</string>
     <string name="disable_gifs_summary">Extends battery life significantly</string>
@@ -485,7 +486,15 @@
         <item>Zoom Out Slide</item>
         <item>Zoom Out</item>
     </string-array>
-
+    <string-array name="launcher_icons">
+        <item>Default</item>
+        <item>Get out 2</item>
+        <item>Ghost</item>
+        <item>:V</item>
+        <item>Doggo</item>
+        <item>Staredog</item>
+        <item>Mr. Green Water</item>
+    </string-array>
     <!-- Account settings page -->
     <string name="username_pref">Username</string>
     <string name="features">Refresh account features</string>

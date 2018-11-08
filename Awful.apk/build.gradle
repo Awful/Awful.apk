@@ -7,7 +7,7 @@ buildscript {
         maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.0'
+        classpath 'com.android.tools.build:gradle:3.2.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'io.fabric.tools:gradle:1.+'
     }
@@ -127,6 +127,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-auth:16.0.1'
     //implementation 'com.mcxiaoke.volley:library:1.0.19'
     implementation 'com.github.samkirton:android-volley:9aba4f5f86'
+
     implementation 'com.google.code.gson:gson:2.8.5'
 
     implementation 'org.jsoup:jsoup:1.11.3'
@@ -149,7 +150,7 @@ dependencies {
     implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
     kapt 'com.jakewharton:butterknife-compiler:8.8.1'
 //    implementation 'com.github.OrangeGangsters:SwipyRefreshLayout:15eeb9444d'
-    implementation('com.crashlytics.sdk.android:crashlytics:2.8.0@aar') {
+    implementation('com.crashlytics.sdk.android:crashlytics:2.9.5@aar') {
         transitive = true
     }
     implementation 'com.github.rubensousa:BottomSheetBuilder:1.5.1'

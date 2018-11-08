@@ -24,4 +24,12 @@
             android:title="@string/select_font"
             android:defaultValue="default"
             />
+        <ListPreference
+            android:key="@string/pref_key_launcher_icon"
+            android:title="@string/launcher_icon"
+            android:summary="@string/launcher_icon_summary"
+            android:entries="@array/launcher_icons"
+            android:entryValues="@array/launcher_icon_values"
+            android:defaultValue="frog"
+            />
 </PreferenceScreen>
