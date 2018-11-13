@@ -63,6 +63,6 @@ public class PreviewPostRequest extends AwfulRequest<String> {
     @Override
     protected boolean handleError(AwfulError error, Document doc) {
         Timber.e(error);
-        return error.getErrorCode() == AwfulError.ERROR_PROBATION || error.isCritical();//Don't allow probation to pass
+        return error.isCritical();
     }
 }

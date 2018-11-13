@@ -2,7 +2,6 @@ package com.ferg.awfulapp.task;
 
 import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.thread.AwfulSearch;
@@ -42,6 +41,6 @@ public class SearchResultRequest extends AwfulRequest<ArrayList<AwfulSearch>> {
 
     @Override
     protected boolean handleError(AwfulError error, Document doc) {
-        return error.getErrorCode() == AwfulError.ERROR_PROBATION || error.isCritical();//Don't allow probation to pass
+        return error.isCritical();
     }
 }
