@@ -56,6 +56,6 @@ public class SendEditRequest extends AwfulRequest<Void> {
 
     @Override
     protected boolean handleError(AwfulError error, Document doc) {
-        return error.getErrorCode() == AwfulError.ERROR_PROBATION || error.isCritical();//Don't allow probation to pass
+        return error.isCritical();
     }
 }
