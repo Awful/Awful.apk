@@ -3,6 +3,7 @@
 
     <style name="Theme.AwfulTheme.Launcher" parent="Theme.AwfulTheme">
         <item name="android:windowBackground">@drawable/launch_screen</item>
+        <item name="android:navigationBarColor">@color/forums_blue</item>
     </style>
 
     <!--
