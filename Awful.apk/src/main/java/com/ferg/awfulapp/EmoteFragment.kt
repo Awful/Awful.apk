@@ -234,14 +234,14 @@ abstract class EmoteGridFragment : AwfulFragment() {
     private fun restartLoader() = restartLoader(Constants.EMOTE_LOADER_ID, null, emoteLoader)
 
     fun syncEmotes() {
-        activity?.let {
+        activity?.let { activity ->
             queueRequest(
                 EmoteRequest(activity).build(
                     this,
-                    object : AwfulRequest.AwfulResultCallback<Void> {
+                    object : AwfulRequest.AwfulResultCallback<Void?> {
                         override fun success(result: Void?) {
                             loadFailed = false
-                            awfulActivity?.let { restartLoader() }
+                            awfulActivity?.run { restartLoader() }
                         }
 
                         override fun failure(error: VolleyError?) {
@@ -259,7 +259,7 @@ abstract class EmoteGridFragment : AwfulFragment() {
         /** when true the filter will only match emote codes exactly, otherwise it searches within codes and the emotes' title subtexts */
         var filterExactCode = false
         var currentFilter: String? = null
-            get() = field.let { if (it != null && it.isNotBlank()) it else null }
+            get() = field?.takeUnless(String::isNullOrBlank)
             set(value) {
                 field = value; restartLoader()
             }

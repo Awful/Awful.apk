@@ -20,7 +20,7 @@ import com.ferg.awfulapp.provider.AwfulTheme
 import com.ferg.awfulapp.provider.ColorProvider
 import com.ferg.awfulapp.task.AwfulRequest
 import com.ferg.awfulapp.task.FeatureRequest
-import com.ferg.awfulapp.task.ProfileRequest
+import com.ferg.awfulapp.task.RefreshUserProfileRequest
 import timber.log.Timber
 import java.io.File
 
@@ -66,7 +66,7 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
         updateOrientation()
         when {
             Authentication.isUserLoggedIn() -> with(mPrefs) {
-                if (ignoreFormkey == null || userTitle == null) ProfileRequest(this@AwfulActivity).sendBlind()
+                if (ignoreFormkey == null || userAvatarUrl == null) RefreshUserProfileRequest(this@AwfulActivity).sendBlind()
                 if (ignoreFormkey == null) FeatureRequest(this@AwfulActivity).sendBlind()
             }
         // TODO: this interferes with the code in AwfulFragment#reAuthenticate - i.e. it forces "return to this activity" behaviour, but fragments may want to return to the main activity.

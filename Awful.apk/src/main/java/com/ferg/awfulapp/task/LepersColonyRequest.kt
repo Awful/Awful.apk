@@ -22,7 +22,9 @@ class LepersColonyRequest(context: Context, val page: Int = 1, val userId: Strin
     companion object {
         val REQUEST_TAG = Any()
     }
-    override fun getRequestTag(): Any = REQUEST_TAG
+    // TODO: fix this
+    override val requestTag: Any
+        get() = REQUEST_TAG
 
     override fun generateUrl(urlBuilder: Uri.Builder?): String {
         with(urlBuilder!!) {
@@ -32,8 +34,8 @@ class LepersColonyRequest(context: Context, val page: Int = 1, val userId: Strin
         }
     }
 
-    override fun handleResponse(doc: Document?): LepersColonyPage? {
-        with (doc!!) {
+    override fun handleResponse(doc: Document): LepersColonyPage {
+        with (doc) {
             val thisPage = selectFirst(".pages option[selected]")?.text()?.toIntOrNull() ?: FIRST_PAGE
             val lastPage = selectFirst(".pages a[title='Last page']")
                     ?.attr("href")
@@ -48,14 +50,14 @@ class LepersColonyRequest(context: Context, val page: Int = 1, val userId: Strin
         }
     }
 
-    override fun handleStrippedResponse(doc: Document, currentPage: Int?, lastPage: Int?): LepersColonyPage {
+    override fun handleStrippedResponse(document: Document, currentPage: Int?, totalPages: Int?): LepersColonyPage {
         val thisPage = currentPage ?: FIRST_PAGE
-        val totalPages = lastPage ?: thisPage
-        val punishments = doc.select("table.standard.full tr").drop(1).map(Punishment.Companion::parse)
-        return LepersColonyPage(punishments, thisPage, totalPages, userId)
+        val lastPage = totalPages ?: thisPage
+        val punishments = document.select("table.standard.full tr").drop(1).map(Punishment.Companion::parse)
+        return LepersColonyPage(punishments, thisPage, lastPage, userId)
     }
 
-    override fun handleError(error: AwfulError?, doc: Document?) = true
+    override fun handleError(error: AwfulError, doc: Document) = false
 
     /**
      * Represents the contents and metadata for a page from the Leper's Colony

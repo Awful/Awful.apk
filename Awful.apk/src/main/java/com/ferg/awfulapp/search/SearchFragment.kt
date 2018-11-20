@@ -52,7 +52,7 @@ import com.ferg.awfulapp.preferences.AwfulPreferences
 import com.ferg.awfulapp.provider.ColorProvider
 import com.ferg.awfulapp.task.AwfulRequest
 import com.ferg.awfulapp.task.SearchRequest
-import com.ferg.awfulapp.task.SearchResultRequest
+import com.ferg.awfulapp.task.SearchResultPageRequest
 import com.ferg.awfulapp.thread.AwfulSearch
 import com.ferg.awfulapp.thread.AwfulSearchResult
 import com.ferg.awfulapp.thread.AwfulURL
@@ -135,7 +135,7 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
     private fun search() {
         mDialog = ProgressDialog.show(activity, getString(R.string.search_forums_active_dialog_title), getString(R.string.search_forums_active_dialog_message), true, false)
         val searchForumsPrimitive = ArrayUtils.toPrimitive(searchForums.toTypedArray())
-        NetworkUtils.queueRequest(SearchRequest(this.context, mSearchQuery.text.toString().toLowerCase(), searchForumsPrimitive)
+        NetworkUtils.queueRequest(SearchRequest(this.context!!, mSearchQuery.text.toString().toLowerCase(), searchForumsPrimitive)
                 .build(null, object : AwfulRequest.AwfulResultCallback<AwfulSearchResult> {
                     override fun success(result: AwfulSearchResult) {
                         removeDialog()
@@ -153,7 +153,7 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
                         }
                     }
 
-                    override fun failure(error: VolleyError) {
+                    override fun failure(error: VolleyError?) {
                         removeDialog()
                         Snackbar.make(view!!, R.string.search_forums_failure_message, Snackbar.LENGTH_LONG).setAction("Retry") { search() }.show()
                     }
@@ -212,7 +212,7 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
     override fun onRefresh(direction: SwipyRefreshLayoutDirection) {
         Timber.i("onRefresh: %s", mMaxPageQueried)
         val preItemCount = mSearchResultList.adapter?.itemCount ?: 0
-        NetworkUtils.queueRequest(SearchResultRequest(this.context, mQueryId, mMaxPageQueried + 1).build(null, object : AwfulRequest.AwfulResultCallback<ArrayList<AwfulSearch>> {
+        NetworkUtils.queueRequest(SearchResultPageRequest(this.context!!, mQueryId, mMaxPageQueried + 1).build(null, object : AwfulRequest.AwfulResultCallback<ArrayList<AwfulSearch>> {
 
             // TODO: combine this with #search since they share functionality - maybe a SearchQuery object for the current query that holds this state we're changing
             override fun success(result: ArrayList<AwfulSearch>) {
@@ -226,7 +226,7 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
                 mSearchResultList.smoothScrollToPosition(preItemCount + 1)
             }
 
-            override fun failure(error: VolleyError) {
+            override fun failure(error: VolleyError?) {
                 mSRL.isRefreshing = false
             }
         }))

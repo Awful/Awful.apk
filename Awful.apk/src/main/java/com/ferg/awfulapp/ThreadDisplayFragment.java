@@ -93,12 +93,12 @@ import com.ferg.awfulapp.task.BookmarkRequest;
 import com.ferg.awfulapp.task.IgnoreRequest;
 import com.ferg.awfulapp.task.ImageSizeRequest;
 import com.ferg.awfulapp.task.MarkLastReadRequest;
-import com.ferg.awfulapp.task.PostRequest;
-import com.ferg.awfulapp.task.ProfileRequest;
 import com.ferg.awfulapp.task.RedirectTask;
+import com.ferg.awfulapp.task.RefreshUserProfileRequest;
 import com.ferg.awfulapp.task.ReportRequest;
 import com.ferg.awfulapp.task.SinglePostRequest;
 import com.ferg.awfulapp.task.ThreadLockUnlockRequest;
+import com.ferg.awfulapp.task.ThreadPageRequest;
 import com.ferg.awfulapp.task.VoteRequest;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPagedItem;
@@ -448,7 +448,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	@Override
 	protected void cancelNetworkRequests() {
 		super.cancelNetworkRequests();
-		NetworkUtils.cancelRequests(PostRequest.REQUEST_TAG);
+		NetworkUtils.cancelRequests(ThreadPageRequest.Companion.getREQUEST_TAG());
 	}
 
 
@@ -641,7 +641,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 
 		new AlertDialog.Builder(activity)
 				.setTitle("Rate this thread")
-				.setItems(items, (dialog, item) -> queueRequest(new VoteRequest(activity, getThreadId(), item)
+				.setItems(items, (dialog, item) -> queueRequest(new VoteRequest(activity, getThreadId(), item+1)
                         .build(ThreadDisplayFragment.this, new AwfulRequest.AwfulResultCallback<Void>() {
                             @Override
                             public void success(Void result) {
@@ -667,7 +667,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	public void ignoreUser(int userId) {
 		final Activity activity = getActivity();
 		if (getPrefs().ignoreFormkey == null) {
-			queueRequest(new ProfileRequest(activity, null).build());
+			queueRequest(new RefreshUserProfileRequest(activity).build());
 		}
 		if (getPrefs().showIgnoreWarning) {
 
@@ -780,14 +780,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
         if (activity != null) {
 			Timber.i("Syncing - reloading from site (thread %d, page %d) to update DB", getThreadId(), getPageNumber());
 			// cancel pending post loading requests
-			NetworkUtils.cancelRequests(PostRequest.REQUEST_TAG);
+			NetworkUtils.cancelRequests(ThreadPageRequest.Companion.getREQUEST_TAG());
 			// call this with cancelOnDestroy=false to retain the request's specific type tag
 			final int pageNumber = getPageNumber();
 			int userId = postFilterUserId == null ? BLANK_USER_ID : postFilterUserId;
-			queueRequest(new PostRequest(activity, getThreadId(), pageNumber, userId)
-					.build(this, new AwfulRequest.AwfulResultCallback<Integer>() {
+			queueRequest(new ThreadPageRequest(activity, getThreadId(), pageNumber, userId)
+					.build(this, new AwfulRequest.AwfulResultCallback<Void>() {
 				@Override
-				public void success(Integer result) {
+				public void success(Void result) {
 					refreshInfo();
 					setProgress(75);
 					refreshPosts();
