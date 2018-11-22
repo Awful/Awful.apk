@@ -3,6 +3,7 @@ package com.ferg.awfulapp.task
 import android.content.Context
 import android.net.Uri
 import com.ferg.awfulapp.constants.Constants
+import com.ferg.awfulapp.task.LepersColonyRequest.LepersColonyPage
 import com.ferg.awfulapp.users.LepersColonyFragment.Companion.FIRST_PAGE
 import com.ferg.awfulapp.users.Punishment
 import com.ferg.awfulapp.util.AwfulError
@@ -15,7 +16,7 @@ import org.jsoup.nodes.Document
  */
 
 class LepersColonyRequest(context: Context, val page: Int = 1, val userId: String? = null):
-        AwfulRequest<LepersColonyRequest.LepersColonyPage>(context, Constants.FUNCTION_BANLIST) {
+        AwfulStrippedRequest<LepersColonyPage>(context, Constants.FUNCTION_BANLIST) {
 
     // allow queued requests to be cancelled when a new one starts, e.g. skipping quickly through pages
     companion object {
@@ -45,6 +46,13 @@ class LepersColonyRequest(context: Context, val page: Int = 1, val userId: Strin
             val punishments = select("table.standard.full tr").drop(1).map(Punishment.Companion::parse)
             return LepersColonyPage(punishments, thisPage, lastPage, userId)
         }
+    }
+
+    override fun handleStrippedResponse(doc: Document, currentPage: Int?, lastPage: Int?): LepersColonyPage {
+        val thisPage = currentPage ?: FIRST_PAGE
+        val totalPages = lastPage ?: thisPage
+        val punishments = doc.select("table.standard.full tr").drop(1).map(Punishment.Companion::parse)
+        return LepersColonyPage(punishments, thisPage, totalPages, userId)
     }
 
     override fun handleError(error: AwfulError?, doc: Document?) = true
