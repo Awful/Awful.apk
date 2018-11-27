@@ -57,12 +57,6 @@ function containerInit() {
 			})(event);
 			return;
 		}
-		if (target.tagName === 'VIDEO') {
-			Longtap(function longtap() {
-				listener.openUrlMenu(target.firstElementChild.getAttribute('src'));
-			})(event);
-			return;
-		}
 		if (target.tagName === 'VIDEO' ) {
 			Longtap(function longtap() {
 				listener.openUrlMenu(target.firstElementChild.getAttribute('src'));

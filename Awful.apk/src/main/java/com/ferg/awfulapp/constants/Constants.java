@@ -32,6 +32,8 @@ import com.ferg.awfulapp.BuildConfig;
 public class Constants {
     public static final boolean DEBUG = BuildConfig.DEBUG;
 
+    public static final String SITE_HTML_ENCODING = "CP1252";
+
     //public static final String BASE_URL = "http://forums.somethingawful.com";
     public static final String BASE_URL = "https://forums.somethingawful.com";
 
