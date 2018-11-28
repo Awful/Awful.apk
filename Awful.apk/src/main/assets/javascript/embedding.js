@@ -102,7 +102,7 @@ function processThreadEmbeds(post) {
 				if (document.getElementById('theme-css').dataset.darkTheme === 'true') {
 					div.querySelector('blockquote').dataset.theme = 'dark';
 				}
-				if (window.twttr) {
+				if (window.twttr.init) {
 					window.twttr.widgets.load(div);
 				} else {
 					window.missedEmbeds.push(div);
