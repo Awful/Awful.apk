@@ -126,7 +126,7 @@ function loadPageHtml() {
  * Initializes the newly added posts that have just been added to the container
  */
 function pageInit() {
-	document.querySelectorAll('head script.JSONP').forEach(function removeScripts(script) {
+	document.head.querySelectorAll('.JSONP').forEach(function removeScripts(script) {
 		script.remove();
 	});
 	var spoilers = document.querySelectorAll('.bbc-spoiler');
