@@ -195,7 +195,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
     
     private final ThreadDisplayFragment mSelf = this;
 
-
+    @Nullable
+	private NavigationEvent pendingNavigation = null;
 
 
 	private final HashMap<String,String> ignorePostsHtml = new HashMap<>();
@@ -205,50 +206,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	private final ThreadContentObserver mThreadObserver = new ThreadContentObserver(getHandler());
 
 
-	@Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        parentActivity = (ForumsIndexActivity) context;
-    }
 
     @Override
-    public void onCreate(Bundle savedInstanceState){
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-
-		mPostLoaderCallback = new PostLoaderManager();
-		mThreadLoaderCallback = new ThreadDataCallback();
-		boolean loadFromCache = false;
-
-		if (savedInstanceState != null) {
-			// restoring old state - we have a thread ID and page
-			// TODO: 04/05/2017 post filtering state isn't restored properly - need to do filtering AND maintain filtered page/position AND recreate the backstack/'go back' UI
-			Timber.i("Restoring fragment - loading cached posts from database");
-			setThreadId(savedInstanceState.getInt(THREAD_ID_KEY, NULL_THREAD_ID));
-			setPageNumber(savedInstanceState.getInt(THREAD_PAGE_KEY, FIRST_PAGE));
-			// TODO: 04/05/2017 saved scroll position doesn't seem to actually get used to set the position?
-			savedScrollPosition = savedInstanceState.getInt(SCROLL_POSITION_KEY, 0);
-			loadFromCache = true;
-		}
-		// no valid thread ID means do nothing I guess? If the intent that created the activity+fragments didn't request a thread
-        if (getThreadId() <= 0) {
-			return;
-		}
-		// if we recreated the fragment (and had a valid thread ID) we just want to load the cached page data,
-		// so we get the same state as before (we don't want to reload the page and e.g. have all the posts marked as seen)
-		if(loadFromCache) {
-			refreshPosts();
-			refreshInfo();
-		} else {
-        	syncThread();
-        }
-    }
-//--------------------------------
-    @Override
-    public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
-		View result;
+    public View onCreateView(@NonNull LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
 		try {
-			result = inflateView(R.layout.thread_display, aContainer, aInflater);
+			return inflateView(R.layout.thread_display, aContainer, aInflater);
 		} catch (InflateException e) {
 			if (webViewIsMissing(e)) {
 				return null;
@@ -256,8 +218,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 				throw e;
 			}
 		}
+	}
 
-		pageBar = (PageBar) result.findViewById(R.id.page_bar);
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+		pageBar = view.findViewById(R.id.page_bar);
 		pageBar.setListener(new PageBar.PageBarCallbacks() {
 			@Override
 			public void onPageNavigation(boolean nextPage) {
@@ -276,25 +244,15 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 		});
 		getAwfulActivity().setPreferredFont(pageBar.getTextView());
 
-		mThreadView = (AwfulWebView) result.findViewById(R.id.thread);
-        initThreadViewProperties();
+		mThreadView = view.findViewById(R.id.thread);
+		initThreadViewProperties();
 
-		mUserPostNotice = (TextView) result.findViewById(R.id.thread_userpost_notice);
+		mUserPostNotice = view.findViewById(R.id.thread_userpost_notice);
 		refreshProbationBar();
 
-		// FAB
-		mFAB  = (FloatingActionButton) result.findViewById(R.id.just_post);
+		mFAB = view.findViewById(R.id.just_post);
 		mFAB.setOnClickListener(onButtonClick);
-		mFAB.setVisibility(View.GONE);
-
-		return result;
-	}
-
-
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
+		mFAB.hide();
 
         setAllowedSwipeRefreshDirections(SwipyRefreshLayoutDirection.BOTH);
         setSwipyLayout(view.findViewById(R.id.thread_swipe));
@@ -307,6 +265,44 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
     @Override
 	public void onActivityCreated(Bundle aSavedState) {
 		super.onActivityCreated(aSavedState);
+
+        setHasOptionsMenu(true);
+        parentActivity = (ForumsIndexActivity) getActivity();
+        mPostLoaderCallback = new PostLoaderManager();
+        mThreadLoaderCallback = new ThreadDataCallback();
+
+		// if a navigation event is pending, we don't care about any saved state - just do the navigation
+		if (pendingNavigation != null) {
+			Timber.d("Activity attached: found pending navigation event, going there");
+			NavigationEvent event = pendingNavigation;
+			pendingNavigation = null;
+			navigate(event);
+			return;
+		}
+
+		boolean loadFromCache = false;
+		if (aSavedState != null) {
+			// restoring old state - we have a thread ID and page
+			// TODO: 04/05/2017 post filtering state isn't restored properly - need to do filtering AND maintain filtered page/position AND recreate the backstack/'go back' UI
+			Timber.i("Restoring fragment - loading cached posts from database");
+			setThreadId(aSavedState.getInt(THREAD_ID_KEY, NULL_THREAD_ID));
+			setPageNumber(aSavedState.getInt(THREAD_PAGE_KEY, FIRST_PAGE));
+			// TODO: 04/05/2017 saved scroll position doesn't seem to actually get used to set the position?
+			savedScrollPosition = aSavedState.getInt(SCROLL_POSITION_KEY, 0);
+			loadFromCache = true;
+		}
+		// no valid thread ID means do nothing I guess? If the intent that created the activity+fragments didn't request a thread
+		if (getThreadId() <= 0) {
+			return;
+		}
+		// if we recreated the fragment (and had a valid thread ID) we just want to load the cached page data,
+		// so we get the same state as before (we don't want to reload the page and e.g. have all the posts marked as seen)
+		if(loadFromCache) {
+			refreshPosts();
+			refreshInfo();
+		} else {
+			syncThread();
+		}
 		updateUiElements();
 	}
 
@@ -388,6 +384,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
         mThreadView.setJavascriptHandler(clickInterface);
 
         refreshSessionCookie();
+		Timber.d("Setting up WebView container HTML");
 		mThreadView.setContent(getBlankPage());
 
 		mThreadView.setDownloadListener(new DownloadListener() {
@@ -1296,7 +1293,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 		}
 		clickInterface.updatePreferences();
 		if(mFAB != null) {
-			mFAB.setVisibility((mPrefs.noFAB?View.GONE:View.VISIBLE));
+			if (mPrefs.noFAB) {
+				mFAB.hide();
+			} else {
+				mFAB.show();
+			}
 		}
 	}
 
@@ -1486,7 +1487,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
         		}
                 invalidateOptionsMenu();
 				if (mFAB != null) {
-					mFAB.setVisibility((getPrefs().noFAB || threadLocked || threadArchived)?View.GONE:View.VISIBLE);
+					if (getPrefs().noFAB || threadLocked || threadArchived) {
+						mFAB.hide();
+					} else {
+						mFAB.show();
+					}
 				}
         	}
         }
@@ -1556,16 +1561,33 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 
 	@Override
 	public boolean handleNavigation(@NotNull NavigationEvent event) {
+		// need to check if the fragment is attached to the activity - if not, defer any handled events until it is attached
 		if (event instanceof NavigationEvent.Thread) {
-			NavigationEvent.Thread thread = (NavigationEvent.Thread) event;
-			openThread(thread.getId(), thread.getPage(), thread.getPostJump());
+			if (!isAdded()) {
+				deferNavigation(event);
+			} else {
+				NavigationEvent.Thread thread = (NavigationEvent.Thread) event;
+				openThread(thread.getId(), thread.getPage(), thread.getPostJump());
+			}
 			return true;
 		} else if (event instanceof NavigationEvent.Url) {
-			NavigationEvent.Url url = (NavigationEvent.Url) event;
-			openThread(url.getUrl());
+			if (!isAdded()) {
+				deferNavigation(event);
+			} else {
+				NavigationEvent.Url url = (NavigationEvent.Url) event;
+				openThread(url.getUrl());
+			}
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Store a navigation event for handling when this fragment is attached to the activity
+	 */
+	private void deferNavigation(@NonNull NavigationEvent event) {
+		Timber.d("Deferring navigation event(%s) - isAdded = %b", event, isAdded());
+		pendingNavigation = event;
 	}
 
 
