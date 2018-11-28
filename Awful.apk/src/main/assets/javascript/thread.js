@@ -57,7 +57,7 @@ function containerInit() {
 			})(event);
 			return;
 		}
-		if (target.tagName === 'VIDEO' ) {
+		if (target.tagName === 'VIDEO') {
 			Longtap(function longtap() {
 				listener.openUrlMenu(target.firstElementChild.getAttribute('src'));
 			})(event);
@@ -126,7 +126,7 @@ function loadPageHtml() {
  * Initializes the newly added posts that have just been added to the container
  */
 function pageInit() {
-	document.querySelectorAll('head script.JSONP').forEach(function removeScripts(script) {
+	document.head.querySelectorAll('.JSONP').forEach(function removeScripts(script) {
 		script.remove();
 	});
 	var spoilers = document.querySelectorAll('.bbc-spoiler');
@@ -147,6 +147,9 @@ function pageInit() {
 		document.querySelectorAll('.postcontent .signature').forEach(function each(signature) {
 			signature.remove();
 		});
+	}
+	if (window.twttr && !window.twttr.init) {
+		window.twttr.insertTag();
 	}
 	processThreadEmbeds();
 	pauseVideosOutOfView();
@@ -447,10 +450,10 @@ function toggleInfo(info) {
  */
 function showPostMenu(postMenu) {
 // temp hack to create the right menu for rap sheet entries without making its own CSS class etc
-    if (postMenu.hasAttribute('badPostUrl')) {
+	if (postMenu.hasAttribute('badPostUrl')) {
     	showPunishmentMenu(postMenu);
     	return;
-    }
+	}
 	listener.onMoreClick(
 		postMenu.closest('article').getAttribute('id').replace(/post/, ''),
 		postMenu.getAttribute('username'),
@@ -461,7 +464,6 @@ function showPostMenu(postMenu) {
 		postMenu.hasAttribute('isPlat')
 	);
 }
-
 
 /**
  * Displays the context for a leper's colony punishment

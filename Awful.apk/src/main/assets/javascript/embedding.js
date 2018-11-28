@@ -87,7 +87,7 @@ function processThreadEmbeds(post) {
 		var tweets = replacementArea.querySelectorAll('.postcontent a[href*="twitter.com"]');
 
 		tweets = Array.prototype.filter.call(tweets, function isTweet(twitterURL) {
-			return twitterURL.href.match(RegExp('https?://(?:[\\w\\.]*\\.)?twitter.com/[\\w_]+/status(?:es)?/([\\d]+)'));
+			return twitterURL.href.match(/https?:\/\/(?:[\w.]*\.)?twitter\.com\/[\w_]+\/status(?:es)?\/([\d]+)/);
 		});
 		tweets = Array.prototype.filter.call(tweets, filterNwsAndSpoiler);
 		tweets.forEach(function eachTweet(tweet) {
@@ -95,14 +95,12 @@ function processThreadEmbeds(post) {
 			JSONP.get('https://publish.twitter.com/oembed?omit_script=true&url=' + escape(tweetUrl), {}, function getTworts(data) {
 				var div = document.createElement('div');
 				div.classList.add('tweet');
-				tweet.parentNode.insertBefore(div, tweet);
-				tweet.parentNode.removeChild(tweet);
-				div.appendChild(tweet);
+				tweet.parentNode.replaceChild(div, tweet);
 				div.innerHTML = data.html;
 				if (document.getElementById('theme-css').dataset.darkTheme === 'true') {
 					div.querySelector('blockquote').dataset.theme = 'dark';
 				}
-				if (window.twttr) {
+				if (window.twttr.init) {
 					window.twttr.widgets.load(div);
 				} else {
 					window.missedEmbeds.push(div);
@@ -132,16 +130,28 @@ function processThreadEmbeds(post) {
 		videos = Array.prototype.filter.call(videos, filterNwsAndSpoiler);
 		videos.forEach(function eachVideo(video) {
 			var hasThumbnail;
-			video.setAttribute('href', video.href.replace('.gifv', '.mp4'));
-			var videoURL = video.href;
+			var videoURL = video.href.replace('.gifv', '.mp4');
 			if (videoURL.indexOf('imgur.com') !== -1) {
 				hasThumbnail = videoURL.substring(0, videoURL.lastIndexOf('.')) + 'm.jpg';
-				video.setAttribute('href', videoURL.replace('.webm', '.mp4'));
+				videoURL = videoURL.replace('.webm', '.mp4');
 			} else if (videoURL.indexOf('gfycat.com') !== -1) {
 				hasThumbnail = 'https://thumbs' + videoURL.substring(videoURL.indexOf('.'), videoURL.lastIndexOf('.')) + '-mobile.jpg';
-				video.setAttribute('href', 'https://thumbs' + videoURL.substring(videoURL.indexOf('.'), videoURL.lastIndexOf('.')) + '-mobile.mp4');
+				videoURL = 'https://thumbs' + videoURL.substring(videoURL.indexOf('.'), videoURL.lastIndexOf('.')) + '-mobile.mp4';
 			}
-			video.outerHTML = '<video loop width="100%" muted="true" controls preload="none" ' + (hasThumbnail !== undefined ? 'poster="' + hasThumbnail + '"' : '') + ' > <source src="' + videoURL + '" type="video/' + videoURL.substring(videoURL.lastIndexOf('.') + 1) + '"> </video>';
+			var videoElement = document.createElement('video');
+			videoElement.setAttribute('loop', 'true');
+			videoElement.setAttribute('width', '100%');
+			videoElement.setAttribute('muted', 'true');
+			videoElement.setAttribute('controls', 'true');
+			videoElement.setAttribute('preload', 'none');
+			if (hasThumbnail) {
+				videoElement.setAttribute('poster', hasThumbnail);
+			}
+			var sourceElement = document.createElement('source');
+			sourceElement.setAttribute('src', videoURL);
+			sourceElement.setAttribute('type', 'video/' + videoURL.substring(videoURL.lastIndexOf('.') + 1));
+			videoElement.appendChild(sourceElement);
+			video.replaceWith(videoElement);
 		});
 	}
 
