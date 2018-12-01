@@ -14,7 +14,8 @@ function processThreadEmbeds(replacementArea) {
 		inlineInstagram: embedInstagram,
 		inlineTweets: embedTweets,
 		inlineVines: embedVines,
-		inlineWebm: embedVideos
+		inlineWebm: embedVideos,
+		inlineSoundcloud: embedSoundcloud
 	};
 
 	// check all embed preference keys - any set to true, run their embed function
@@ -63,7 +64,7 @@ function processThreadEmbeds(replacementArea) {
 			videoID = videoID[1];
 
 			var vimeoIframe = document.createElement('iframe');
-			vimeoIframe.setAttribute('src', 'http://player.vimeo.com/video/' + videoID + '?byline=0&portrait=0');
+			vimeoIframe.setAttribute('src', 'https://player.vimeo.com/video/' + videoID + '?byline=0&portrait=0');
 			vimeoIframe.setAttribute('frameborder', 0);
 			vimeoIframe.setAttribute('webkitAllowFullScreen', '');
 			vimeoIframe.setAttribute('allowFullScreen', '');
@@ -106,6 +107,34 @@ function processThreadEmbeds(replacementArea) {
 					window.missedEmbeds.push(div);
 				}
 			});
+		});
+	}
+
+	/**
+	 * Replaces all soundcloud links to tracks with embedded players
+	 */
+	function embedSoundcloud() {
+		var clouds = replacementArea.querySelectorAll('.postcontent a[href*="soundcloud.com"]');
+		if (clouds.length === 0) {
+			return;
+		}
+
+		clouds.forEach(function replaceSoundcloudLinks(cloudLink) {
+			var urlMatch = cloudLink.href.match(/https?:\/\/(?:[\w.]*\.)?soundcloud\.com\/([\w_-]+)\/([\w_-]*)/);
+			if (!urlMatch || !urlMatch[2]) {
+				return;
+			}
+
+			var soundCloudEmbed = document.createElement('iframe');
+			soundCloudEmbed.setAttribute('src', 'https://w.soundcloud.com/player/?color=006699&url=' + escape(urlMatch[0]));
+			soundCloudEmbed.setAttribute('frameborder', 0);
+			soundCloudEmbed.setAttribute('scrolling', 'no');
+			soundCloudEmbed.setAttribute('width', '100%');
+			soundCloudEmbed.setAttribute('height', '166');
+			soundCloudEmbed.setAttribute('webkitAllowFullScreen', '');
+			soundCloudEmbed.setAttribute('allowFullScreen', '');
+
+			cloudLink.replaceWith(soundCloudEmbed);
 		});
 	}
 
