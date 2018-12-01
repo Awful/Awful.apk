@@ -5,11 +5,10 @@ var listener;
 /**
  * Functions to automatically embed page content, e.g. turn an Instagram URL into a widget
  * @author baka kaba
- * @param {Element} [post] Can be set to limit the scope of where the embeds are processed, defaults to the document
+ * @param {Element} replacementArea The scope of where the embeds are processed, defaults to the document
  */
-function processThreadEmbeds(post) {
+function processThreadEmbeds(replacementArea) {
 
-	var replacementArea = post || document;
 	// map preference keys to their corresponding embed functions
 	var embedFunctions = {
 		inlineInstagram: embedInstagram,
@@ -21,7 +20,7 @@ function processThreadEmbeds(post) {
 	// check all embed preference keys - any set to true, run their embed function
 	for (var embedType in embedFunctions) {
 		if (listener.getPreference(embedType) === 'true') {
-			embedFunctions[embedType].call(post);
+			embedFunctions[embedType].call(replacementArea);
 		}
 	}
 	// There's no vimeo setting
@@ -31,20 +30,20 @@ function processThreadEmbeds(post) {
 	 * Replaces all instagram links with instagram embeds
 	 */
 	function embedInstagram() {
-		if (!document.getElementById('instagramScript')) {
-			// add the embed script, and run it after all the HTML widgets have been added
-			var instagramEmbedScript = document.createElement('script');
-			instagramEmbedScript.setAttribute('src', 'https://platform.instagram.com/en_US/embeds.js');
-			instagramEmbedScript.id = 'instagramScript';
-			document.getElementsByTagName('body')[0].appendChild(instagramEmbedScript);
-		}
 		var instagrams = replacementArea.querySelectorAll('.postcontent a[href*="instagr.am/p"],.postcontent a[href*="instagram.com/p"]');
 		if (instagrams.length > 0) {
+			if (!document.getElementById('instagramScript')) {
+			// add the embed script, and run it after all the HTML widgets have been added
+				var instagramEmbedScript = document.createElement('script');
+				instagramEmbedScript.setAttribute('src', 'https://platform.instagram.com/en_US/embeds.js');
+				instagramEmbedScript.id = 'instagramScript';
+				document.body.appendChild(instagramEmbedScript);
+			}
 			instagrams.forEach(function eachInstagramLink(instagramLink) {
-				var url = instagramLink.getAttribute('href');
-				var apiCall = 'https://api.instagram.com/oembed?omitscript=true&url=' + url + '&callback=?';
-
-				JSONP.get(apiCall, {}, function getInstagrams(data) {
+				var instaUrl = instagramLink.href;
+				fetch('https://api.instagram.com/oembed?omitscript=true&url=' + escape(instaUrl)).then(function parseResponse(response) {
+					return response.json();
+				}).then(function getInstagrams(data) {
 					instagramLink.outerHTML = data.html;
 					window.requestAnimationFrame(window.instgrm.Embeds.process);
 				});
@@ -76,7 +75,7 @@ function processThreadEmbeds(post) {
 			var videoWrapper = document.createElement('div');
 			videoWrapper.classList.add('videoWrapper');
 			videoWrapper.appendChild(vimeoIframe);
-			param.closest('div.bbcode_video').replaceWith(videoWrapper);
+			param.closest('.bbcode_video').replaceWith(videoWrapper);
 		});
 	}
 
@@ -120,10 +119,32 @@ function processThreadEmbeds(post) {
 	function embedVines() {
 		var vines = replacementArea.querySelectorAll('.postcontent a[href*="://vine.co/v/"]');
 
+		if (vines.length === 0) {
+			return;
+		}
+
 		vines = Array.prototype.filter.call(vines, filterNwsAndSpoiler);
 		vines.forEach(function eachVine(vine) {
-			vine.innerHTML = '<iframe class="vine-embed" src="' + vine.href + '/embed/simple" frameborder="0"></iframe>' + '<script async src="http://platform.vine.co/static/scripts/embed.js" charset="utf-8"></script>';
+			var vineStock = document.createElement('div');
+			vineStock.classList.add('vine-container');
+			var vineFrame = document.createElement('iframe');
+			vineFrame.classList.add('vine-embed');
+			vineFrame.setAttribute('src', vine.href + '/embed/simple');
+			vineFrame.setAttribute('frameborder', 0);
+			vineStock.appendChild(vineFrame);
+			vine.replaceWith(vineStock);
 		});
+
+		if (document.getElementById('vineScript')) {
+			document.getElementById('vineScript').remove();
+		}
+
+		// add the embed script, and run it after all the HTML widgets have been added
+		var vineEmbedScript = document.createElement('script');
+		vineEmbedScript.setAttribute('src', 'https://platform.vine.co/static/scripts/embed.js');
+		vineEmbedScript.setAttribute('charset', 'utf-8');
+		vineEmbedScript.id = 'vineScript';
+		document.body.appendChild(vineEmbedScript);
 	}
 
 	/**
