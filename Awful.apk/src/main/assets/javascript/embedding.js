@@ -55,19 +55,15 @@ function processThreadEmbeds(replacementArea) {
 	 * Replaces all broken Vimeo Flash plugins with iframe versions that Actually Work™
 	 */
 	function replaceVimeo() {
-		replacementArea.querySelectorAll('.postcontent .bbcode_video object param[value^="http://vimeo.com"]').forEach(function each(vimeoPlayer) {
-			var param = vimeoPlayer;
-			var videoID = param.getAttribute('value').match(/clip_id=(\d+)/);
+		replacementArea.querySelectorAll('.postcontent .bbcode_video object embed[src^="https://vimeo.com"]').forEach(function each(vimeoPlayer) {
+			var videoID = vimeoPlayer.getAttribute('src').match(/clip_id=(\d+)/);
 			if (videoID === null) {
 				return;
 			}
 			videoID = videoID[1];
-			var object = param.closest('object');
 
 			var vimeoIframe = document.createElement('iframe');
 			vimeoIframe.setAttribute('src', 'http://player.vimeo.com/video/' + videoID + '?byline=0&portrait=0');
-			vimeoIframe.setAttribute('width', object.getAttribute('width'));
-			vimeoIframe.setAttribute('height', object.getAttribute('height'));
 			vimeoIframe.setAttribute('frameborder', 0);
 			vimeoIframe.setAttribute('webkitAllowFullScreen', '');
 			vimeoIframe.setAttribute('allowFullScreen', '');
@@ -75,7 +71,7 @@ function processThreadEmbeds(replacementArea) {
 			var videoWrapper = document.createElement('div');
 			videoWrapper.classList.add('videoWrapper');
 			videoWrapper.appendChild(vimeoIframe);
-			param.closest('.bbcode_video').replaceWith(videoWrapper);
+			vimeoPlayer.closest('.bbcode_video').replaceWith(videoWrapper);
 		});
 	}
 
