@@ -61,7 +61,7 @@ var JSONP = (function JSONP() {
 		script.onreadystatechange = readyStateChanged;
 
 		if (!head) {
-			head = document.getElementsByTagName('head')[0];
+			head = document.head;
 		}
 		head.appendChild(script);
 	}

@@ -86,10 +86,15 @@ function processThreadEmbeds(post) {
 	function embedTweets() {
 		var tweets = replacementArea.querySelectorAll('.postcontent a[href*="twitter.com"]');
 
-		tweets = Array.prototype.filter.call(tweets, function isTweet(twitterURL) {
-			return twitterURL.href.match(/https?:\/\/(?:[\w.]*\.)?twitter\.com\/[\w_]+\/status(?:es)?\/([\d]+)/);
-		});
-		tweets = Array.prototype.filter.call(tweets, filterNwsAndSpoiler);
+		tweets = Array.prototype.reduce.call(tweets, function reduceTweets(filteredTwoops, twitterURL) {
+			var urlMatch = twitterURL.href.match(/https?:\/\/(?:[\w.]*\.)?twitter\.com\/[\w_]+\/status(?:es)?\/([\d]+)/);
+			if (urlMatch && filterNwsAndSpoiler(twitterURL)) {
+				twitterURL.href = urlMatch[0];
+				filteredTwoops.push(twitterURL);
+				return filteredTwoops;
+			}
+		}, []);
+
 		tweets.forEach(function eachTweet(tweet) {
 			var tweetUrl = tweet.href;
 			JSONP.get('https://publish.twitter.com/oembed?omit_script=true&url=' + escape(tweetUrl), {}, function getTworts(data) {
@@ -138,6 +143,7 @@ function processThreadEmbeds(post) {
 				hasThumbnail = 'https://thumbs' + videoURL.substring(videoURL.indexOf('.'), videoURL.lastIndexOf('.')) + '-mobile.jpg';
 				videoURL = 'https://thumbs' + videoURL.substring(videoURL.indexOf('.'), videoURL.lastIndexOf('.')) + '-mobile.mp4';
 			}
+
 			var videoElement = document.createElement('video');
 			videoElement.setAttribute('loop', 'true');
 			videoElement.setAttribute('width', '100%');
@@ -147,10 +153,12 @@ function processThreadEmbeds(post) {
 			if (hasThumbnail) {
 				videoElement.setAttribute('poster', hasThumbnail);
 			}
+
 			var sourceElement = document.createElement('source');
 			sourceElement.setAttribute('src', videoURL);
 			sourceElement.setAttribute('type', 'video/' + videoURL.substring(videoURL.lastIndexOf('.') + 1));
 			videoElement.appendChild(sourceElement);
+
 			video.replaceWith(videoElement);
 		});
 	}

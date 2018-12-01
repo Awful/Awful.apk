@@ -113,6 +113,9 @@ function loadPageHtml() {
 	window.topScrollCount = 0;
 	var html = listener.getBodyHtml();
 	document.getElementById('container').innerHTML = html;
+	if (!html) {
+		return;
+	}
 	pageInit();
 	window.topScrollTimeout = window.setTimeout(function hello() {
 		window.dispatchEvent(new Event('awful-scroll-post'));
@@ -326,8 +329,8 @@ function changeFontFace(font) {
 		var styleElement = document.createElement('style');
 		styleElement.id = 'font-face';
 		styleElement.setAttribute('type', 'text/css');
-		styleElement.innerHTML = '@font-face { font-family: userselected; src: url(\'content://com.ferg.awfulapp.webprovider/' + font + '\'); }';
-		document.getElementsByTagName('head')[0].appendChild(styleElement);
+		styleElement.textContent = '@font-face { font-family: userselected; src: url(\'content://com.ferg.awfulapp.webprovider/' + font + '\'); }';
+		document.head.appendChild(styleElement);
 	}
 }
 
