@@ -6,7 +6,7 @@
             android:title="@string/theme"
             android:defaultValue="default.css"
             />
-        <com.ferg.awfulapp.preferences.CustomSwitchPreference
+        <SwitchPreference
             android:key="@string/pref_key_force_forum_themes"
             android:title="@string/force_forum_themes"
             android:summary="@string/force_forum_themes_summary"

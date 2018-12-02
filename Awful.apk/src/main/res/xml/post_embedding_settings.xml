@@ -6,19 +6,19 @@
         android:summary="@string/post_embedding_description"
         />
 
-    <com.ferg.awfulapp.preferences.CustomSwitchPreference
+    <SwitchPreference
         android:defaultValue="true"
         android:key="@string/pref_key_inline_tweets"
         android:title="@string/inline_tweets"
         />
 
-    <com.ferg.awfulapp.preferences.CustomSwitchPreference
+    <SwitchPreference
         android:defaultValue="true"
         android:key="@string/pref_key_inline_instagram"
         android:title="@string/inline_instagram"
         />
 
-    <com.ferg.awfulapp.preferences.CustomSwitchPreference
+    <SwitchPreference
         android:defaultValue="true"
         android:key="@string/pref_key_inline_soundcloud"
         android:title="@string/inline_soundcloud"
@@ -27,33 +27,33 @@
     <PreferenceCategory
         android:title="@string/post_embedding_divider_videos">
 
-        <com.ferg.awfulapp.preferences.CustomSwitchPreference
+        <SwitchPreference
             android:defaultValue="true"
             android:key="@string/pref_key_inline_youtube"
             android:title="@string/inline_youtube"
             />
 
-        <com.ferg.awfulapp.preferences.CustomSwitchPreference
+        <SwitchPreference
             android:defaultValue="false"
             android:key="@string/pref_key_inline_vines"
             android:title="@string/inline_vines"
             />
 
-        <com.ferg.awfulapp.preferences.CustomSwitchPreference
+        <SwitchPreference
             android:defaultValue="false"
             android:key="@string/pref_key_inline_twitch"
             android:summary="@string/inline_twitch_summary"
             android:title="@string/inline_twitch"
             />
 
-        <com.ferg.awfulapp.preferences.CustomSwitchPreference
+        <SwitchPreference
             android:defaultValue="false"
             android:key="@string/pref_key_inline_webm"
             android:summary="@string/inline_webm_summary"
             android:title="@string/inline_webm"
             />
 
-        <com.ferg.awfulapp.preferences.CustomSwitchPreference
+        <SwitchPreference
             android:defaultValue="true"
             android:dependency="@string/pref_key_inline_webm"
             android:key="@string/pref_key_autostart_webm"
