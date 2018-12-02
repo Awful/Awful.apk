@@ -3,6 +3,14 @@
 var listener;
 
 /**
+ * Toggles the video playing class
+ * @param {Event} event the playing/pause event
+ */
+function toggleVideoClass(event) {
+	event.currentTarget.classList.toggle('playing', event.type === 'playing');
+}
+
+/**
  * Functions to automatically embed page content, e.g. turn an Instagram URL into a widget
  * @author baka kaba
  * @param {Element} replacementArea The scope of where the embeds are processed, defaults to the document
@@ -190,12 +198,17 @@ function processThreadEmbeds(replacementArea) {
 				videoURL = 'https://thumbs' + videoURL.substring(videoURL.indexOf('.'), videoURL.lastIndexOf('.')) + '-mobile.mp4';
 			}
 
+			var videoContainer = document.createElement('div');
+			videoContainer.classList.add('video-container');
+
 			var videoElement = document.createElement('video');
 			videoElement.setAttribute('loop', 'true');
 			videoElement.setAttribute('width', '100%');
 			videoElement.setAttribute('muted', 'true');
 			videoElement.setAttribute('controls', 'true');
 			videoElement.setAttribute('preload', 'none');
+			videoElement.addEventListener('playing', toggleVideoClass);
+			videoElement.addEventListener('pause', toggleVideoClass);
 			if (hasThumbnail) {
 				videoElement.setAttribute('poster', hasThumbnail);
 			}
@@ -205,7 +218,15 @@ function processThreadEmbeds(replacementArea) {
 			sourceElement.setAttribute('type', 'video/' + videoURL.substring(videoURL.lastIndexOf('.') + 1));
 			videoElement.appendChild(sourceElement);
 
-			video.replaceWith(videoElement);
+			var linkElement = document.createElement('a');
+			linkElement.classList.add('video-link');
+			linkElement.setAttribute('href', videoURL);
+			linkElement.textContent = '🔗';
+
+			videoContainer.appendChild(videoElement);
+			videoContainer.appendChild(linkElement);
+
+			video.replaceWith(videoContainer);
 		});
 	}
 
