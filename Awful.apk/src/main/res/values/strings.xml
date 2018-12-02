@@ -398,6 +398,7 @@
     <string name="post_embedding_description">Embed elements in posts instead of just showing a link. These options may cause scroll lag or graphical glitches</string>
     <string name="inline_tweets">Tweets</string>
     <string name="inline_instagram">Instagram</string>
+    <string name="inline_soundcloud">Soundcloud</string>
     <string name="post_embedding_divider_videos">Videos</string>
     <string name="inline_youtube">YouTube</string>
     <string name="inline_vines">Vine</string>

@@ -113,6 +113,9 @@ function loadPageHtml() {
 	window.topScrollCount = 0;
 	var html = listener.getBodyHtml();
 	document.getElementById('container').innerHTML = html;
+	if (!html) {
+		return;
+	}
 	pageInit();
 	window.topScrollTimeout = window.setTimeout(function hello() {
 		window.dispatchEvent(new Event('awful-scroll-post'));
@@ -129,7 +132,7 @@ function pageInit() {
 	document.head.querySelectorAll('.JSONP').forEach(function removeScripts(script) {
 		script.remove();
 	});
-	var spoilers = document.querySelectorAll('.bbc-spoiler');
+	var spoilers = document.body.querySelectorAll('.bbc-spoiler');
 	spoilers.forEach(function each(spoiler) {
 		spoiler.removeAttribute('onmouseover');
 		spoiler.removeAttribute('onmouseout');
@@ -138,32 +141,50 @@ function pageInit() {
 		}
 	});
 	// hide-old posts
-	if (document.querySelector('.toggleread') !== null) {
-		document.querySelectorAll('.read').forEach(function each(post) {
+	if (document.body.querySelector('.toggleread') !== null) {
+		document.body.querySelectorAll('.read').forEach(function each(post) {
 			post.style.display = 'none';
 		});
 	}
-	if (listener.getPreference('hideSignatures') === 'true') {
-		document.querySelectorAll('.postcontent .signature').forEach(function each(signature) {
-			signature.remove();
-		});
-	}
+
+	processPosts();
 	if (window.twttr && !window.twttr.init) {
 		window.twttr.insertTag();
 	}
-	processThreadEmbeds();
-	pauseVideosOutOfView();
+
+}
+
+/**
+ * Processes posts
+ * @param {Element} scopeElement The element containing posts to process
+ */
+function processPosts(scopeElement) {
+	if (!scopeElement) {
+		scopeElement = document;
+	}
+
+	if (listener.getPreference('hideSignatures') === 'true') {
+		scopeElement.querySelectorAll('.postcontent .signature').forEach(function each(signature) {
+			signature.remove();
+		});
+	}
+
+	processThreadEmbeds(scopeElement);
+
+	if (listener.getPreference('inlineWebm') === 'true' && listener.getPreference('autostartWebm') === 'true') {
+		pauseVideosOutOfView(scopeElement);
+	}
 
 	if (listener.getPreference('highlightUsername') === 'true') {
-		highlightOwnUsername();
+		highlightOwnUsername(scopeElement);
 	}
 
 	if (listener.getPreference('highlightUserQuote') === 'true') {
-		highlightOwnQuotes();
+		highlightOwnQuotes(scopeElement);
 	}
 
 	if (listener.getPreference('disableGifs') === 'true') {
-		document.querySelectorAll('img[title][src$=".gif"]').forEach(function each(gif) {
+		scopeElement.querySelectorAll('img[title][src$=".gif"]').forEach(function each(gif) {
 			if (!gif.complete) {
 				gif.addEventListener('load', function freezeLoadHandler() {
 					freezeGif(this);
@@ -177,9 +198,10 @@ function pageInit() {
 
 /**
  * Eventhandler that pauses all videos that have been scrolled out of the viewport and starts all videos currently in the viewport
+ * @param {Element} scopeElement The element containing videos to pause
  */
-function pauseVideosOutOfView() {
-	document.querySelectorAll('video').forEach(function eachVideo(video) {
+function pauseVideosOutOfView(scopeElement) {
+	scopeElement.querySelectorAll('video').forEach(function eachVideo(video) {
 		if (isElementInViewport(video) && video.parentElement.tagName !== 'BLOCKQUOTE' && video.firstElementChild.src.indexOf('webm') === -1) {
 			video.play();
 		} else {
@@ -223,7 +245,7 @@ function scrollPost(postNumber) {
  */
 function scrollLastRead() {
 	try {
-		setTopScroll(100, document.querySelector('.unread'));
+		setTopScroll(100, document.body.querySelector('.unread'));
 	} catch (error) {
 		window.topScrollCount = 0;
 		window.topScrollItem = null;
@@ -254,10 +276,10 @@ function scrollUpdate() {
  * Makes already read posts visible
  */
 function showReadPosts() {
-	document.querySelectorAll('.read').forEach(function showAllReadPosts(post) {
+	document.body.querySelectorAll('.read').forEach(function showAllReadPosts(post) {
 		post.style.display = '';
 	});
-	document.querySelector('.toggleread').remove();
+	document.body.querySelector('.toggleread').remove();
 	window.requestAnimationFrame(scrollLastRead);
 }
 
@@ -301,7 +323,7 @@ function showInlineImage(url) {
 		link.classList.remove(FROZEN_GIF);
 	}
 	// skip anything that's already loading/loaded
-	var imageLinks = document.querySelectorAll('a[href="' + url + '"]:not(.loading)');
+	var imageLinks = document.body.querySelectorAll('a[href="' + url + '"]:not(.loading)');
 	imageLinks.forEach(addEmptyImg);
 
 	var pseudoImage = document.createElement('img');
@@ -326,8 +348,8 @@ function changeFontFace(font) {
 		var styleElement = document.createElement('style');
 		styleElement.id = 'font-face';
 		styleElement.setAttribute('type', 'text/css');
-		styleElement.innerHTML = '@font-face { font-family: userselected; src: url(\'content://com.ferg.awfulapp.webprovider/' + font + '\'); }';
-		document.getElementsByTagName('head')[0].appendChild(styleElement);
+		styleElement.textContent = '@font-face { font-family: userselected; src: url(\'content://com.ferg.awfulapp.webprovider/' + font + '\'); }';
+		document.head.appendChild(styleElement);
 	}
 }
 
@@ -354,12 +376,12 @@ function freezeGif(image) {
  * @param {String} users A string of users separated by commas
  */
 function updateMarkedUsers(users) {
-	document.querySelectorAll('article.marked').forEach(function each(markedPoster) {
+	document.body.querySelectorAll('article.marked').forEach(function each(markedPoster) {
 		markedPoster.classList.remove('marked');
 	});
 	var userArray = users.split(',');
 	userArray.forEach(function each(username) {
-		document.querySelectorAll('.postmenu[username="' + username + '"]').forEach(function each(poster) {
+		document.body.querySelectorAll('.postmenu[username="' + username + '"]').forEach(function each(poster) {
 			poster.closest('article').classList.add('marked');
 		});
 	});
@@ -391,8 +413,8 @@ function handleQuoteLink(link, event) {
 		}
 		event.preventDefault();
 		if (postOfID.style.display === 'none') {
-			var readPosts = document.querySelectorAll('.read');
-			document.querySelector('.toggleread').remove();
+			var readPosts = document.body.querySelectorAll('.read');
+			document.body.querySelector('.toggleread').remove();
 			readPosts.forEach(function eachPost(readPost) {
 				window.requestAnimationFrame(function wait() {
 					readPost.style.display = '';
@@ -451,8 +473,8 @@ function toggleInfo(info) {
 function showPostMenu(postMenu) {
 // temp hack to create the right menu for rap sheet entries without making its own CSS class etc
 	if (postMenu.hasAttribute('badPostUrl')) {
-    	showPunishmentMenu(postMenu);
-    	return;
+		showPunishmentMenu(postMenu);
+		return;
 	}
 	listener.onMoreClick(
 		postMenu.closest('article').getAttribute('id').replace(/post/, ''),
@@ -506,7 +528,7 @@ function loadIgnoredPost(post, event) {
 function insertIgnoredPost(id) {
 	var ignoredPost = document.getElementById('ignorePost-' + id);
 	ignoredPost.innerHTML = listener.getIgnorePostHtml(id);
-	processThreadEmbeds(ignoredPost);
+	processPosts(ignoredPost);
 }
 
 /**
@@ -541,8 +563,9 @@ function isElementInViewport(element) {
 
 /**
  * Highlight the user's username in posts
+ * @param {Element} scopeElement The element containing posts to process
  */
-function highlightOwnUsername() {
+function highlightOwnUsername(scopeElement) {
 
 	/**
 	 * Returns all textnodes inside the element
@@ -562,7 +585,7 @@ function highlightOwnUsername() {
 
 	var regExp = new RegExp('\\b' + listener.getPreference('username') + '\\b', 'g');
 	var styled = '<span class="usernameHighlight">' + listener.getPreference('username') + '</span>';
-	document.querySelectorAll(selector).forEach(function eachPost(post) {
+	scopeElement.querySelectorAll(selector).forEach(function eachPost(post) {
 		getTextNodesIn(post).forEach(function eachTextNode(node) {
 			if (node.wholeText.match(regExp)) {
 				var newNode = node.ownerDocument.createElement('span');
@@ -575,10 +598,11 @@ function highlightOwnUsername() {
 
 /**
  * Highlight the quotes of the user themselves.
+ * @param {Element} scopeElement The element containing posts to process
  */
-function highlightOwnQuotes() {
+function highlightOwnQuotes(scopeElement) {
 	var usernameQuoteMatch = listener.getPreference('username') + ' posted:';
-	var quotes = document.querySelectorAll('.bbc-block h4');
+	var quotes = scopeElement.querySelectorAll('.bbc-block h4');
 	quotes = Array.prototype.filter.call(quotes, function filterQuotes(quote) {
 		return quote.innerText === usernameQuoteMatch;
 	});

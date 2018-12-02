@@ -7,7 +7,7 @@
         />
 
     <com.ferg.awfulapp.preferences.CustomSwitchPreference
-        android:defaultValue="false"
+        android:defaultValue="true"
         android:key="@string/pref_key_inline_tweets"
         android:title="@string/inline_tweets"
         />
@@ -16,6 +16,12 @@
         android:defaultValue="true"
         android:key="@string/pref_key_inline_instagram"
         android:title="@string/inline_instagram"
+        />
+
+    <com.ferg.awfulapp.preferences.CustomSwitchPreference
+        android:defaultValue="true"
+        android:key="@string/pref_key_inline_soundcloud"
+        android:title="@string/inline_soundcloud"
         />
 
     <PreferenceCategory

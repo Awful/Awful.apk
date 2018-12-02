@@ -1186,9 +1186,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 			Crashlytics.setBool("Activity exists", activity != null);
 			if (activity != null) {
 				String state = "Activity:";
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-					state += (activity.isDestroyed()) ? "IS_DESTROYED " : "";
-				}
+				state += (activity.isDestroyed()) ? "IS_DESTROYED " : "";
 				state += (activity.isFinishing()) ? "IS_FINISHING" : "";
 				state += (activity.isChangingConfigurations()) ? "IS_CHANGING_CONFIGURATIONS" : "";
 				Crashlytics.setString("Activity state:", state);
@@ -1201,7 +1199,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 
 		UrlContextMenu linkActions = UrlContextMenu.newInstance(url, isImage, isGif, isGif ? "Getting file size" : null);
 
-		if (isGif) {
+		if (isGif || !AwfulPreferences.getInstance().canLoadImages()) {
 			queueRequest(new ImageSizeRequest(url, result -> {
 				if (linkActions == null) {
 					return;

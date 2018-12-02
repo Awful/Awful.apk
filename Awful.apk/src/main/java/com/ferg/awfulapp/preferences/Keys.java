@@ -100,6 +100,7 @@ public abstract class Keys {
             INLINE_YOUTUBE,
             INLINE_TWEETS,
             INLINE_INSTAGRAM,
+            INLINE_SOUNDCLOUD,
             INLINE_TWITCH,
             INLINE_VINES,
             INLINE_WEBM,
@@ -176,6 +177,7 @@ public abstract class Keys {
     public static final int INLINE_YOUTUBE = R.string.pref_key_inline_youtube;
     public static final int INLINE_TWEETS = R.string.pref_key_inline_tweets;
     public static final int INLINE_INSTAGRAM = R.string.pref_key_inline_instagram;
+    public static final int INLINE_SOUNDCLOUD = R.string.pref_key_inline_soundcloud;
     public static final int INLINE_TWITCH = R.string.pref_key_inline_twitch;
     public static final int INLINE_VINES = R.string.pref_key_inline_vines;
     public static final int INLINE_WEBM = R.string.pref_key_inline_webm;
