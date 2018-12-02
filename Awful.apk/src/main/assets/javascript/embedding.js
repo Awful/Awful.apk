@@ -87,8 +87,8 @@ function processThreadEmbeds(replacementArea) {
 			if (urlMatch && filterNwsAndSpoiler(twitterURL)) {
 				twitterURL.href = urlMatch[0];
 				filteredTwoops.push(twitterURL);
-				return filteredTwoops;
 			}
+			return filteredTwoops;
 		}, []);
 
 		tweets.forEach(function eachTweet(tweet) {
