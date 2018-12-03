@@ -20,6 +20,7 @@
     <string name="pref_key_user_id">user_id</string>
     <string name="pref_key_probation_time">probation_time</string>
     <string name="pref_key_pull_to_refresh_distance">pull_to_refresh_distance</string>
+    <string name="pref_key_launcher_icon">launcher_icon</string>
     <string name="pref_key_has_platinum">has_platinum</string>
     <string name="pref_key_has_archives">has_archives</string>
     <string name="pref_key_has_no_ads">has_no_ads</string>
@@ -36,6 +37,7 @@
     <string name="pref_key_inline_youtube">inline_youtube</string>
     <string name="pref_key_inline_tweets">inline_tweets</string>
     <string name="pref_key_inline_instagram">inline_instagram</string>
+    <string name="pref_key_inline_soundcloud">inline_soundcloud</string>
     <string name="pref_key_inline_twitch">inline_twitch</string>
     <string name="pref_key_inline_vines">inline_vines</string>
     <string name="pref_key_inline_webm">inline_webm</string>

@@ -1,103 +1,55 @@
 .passive {
-color:#000000;
+    color: #000000;
 }
 
 a {
-color:#00c0f4;
+    color: #00c0f4;
 }
 
 body {
-background-image:url('file:///android_asset/images/fyadbg.jpg');
-font-family:Roboto, userselected, Verdana, Arial, sans-serif;
+    background-image: url('file:///android_asset/images/fyadbg.jpg');
+    font-family: Roboto, userselected, Verdana, Arial, sans-serif;
 }
 
-div.avatar {
-position:relative;
-display: table-cell;
-vertical-align: middle;
-text-align: center;
-max-width:50px;
-max-height:50px;
+.post {
+    border-radius: .15em;
+    background-color: #FCF;
+    color: #333;
+    margin: 10px 5px;
+    padding-bottom: 15px;
+    position: relative;
 }
 
-div.avatar img, div.avatar canvas{
-max-height:50px;
-max-width:50px;
+.read {
+    background-color: #FCC;
 }
 
-div.avatar-cell {
-max-width:50px;
-max-height:50px;
-float:left;
-margin-right:10px;
-position:relative;
+.marked {
+    background-color: #FFDFBF;
 }
 
-div.avatar.extended {
-max-width:100px;
-max-height:100px;
+.marked .postcontent .bbc-block {
+    border-left: 2px solid #CCCBCC !important;
 }
 
-div.avatar.extended img, div.avatar.extended canvas{
-max-height:100px;
-max-width:100px;
+.marked .postheader {
+    border-bottom: 2px solid #CCCBCC !important;
 }
 
-div.avatar-cell.extended {
-max-width:100px;
-max-height:100px;
+.self {
+    background-color: #ECFFD9;
 }
 
-article {
-border-radius:.15em;
-background-color:#FCF;
-color:#333;
-margin:10px 5px;
-padding:15px;
-position: relative;
-}
-
-article.read {
-background-color:#FCC;
-}
-
-article.read div.postcontent {
-color:#AAAAAA;
-}
-
-article.marked {
-background-color:#FFDFBF;
-}
-
-article.marked section.postcontent .bbc-block {
-border-left:2px solid #CCCBCC !important;
-}
-
-article.marked header {
-border-bottom:2px solid #CCCBCC !important;
-}
-
-article.self {
-background-color:#ECFFD9;
-}
-
-article.toggleread, article#taptorefresh {
-text-align: center;
-padding:5px;
-}
-
-section.postcontent {
+.postcontent {
     background-color: #FFFFFF;
     border: 3px solid #000000;
-    border-radius: 10px 10px 10px 10px;
-    margin-top: 15px;
+    border-radius: 10px;
+    margin-top: 20px;
     padding: 10px;
     position: relative;
-    word-wrap: break-word;
 }
 
-
-section.postcontent:before {
+.postcontent:before {
     background: url("file:///android_asset/images/fyad-bubble.png") no-repeat scroll 0 top / 75px 25px rgba(0, 0, 0, 0);
     content: "";
     height: 25px;
@@ -106,128 +58,33 @@ section.postcontent:before {
     top: -25px;
     width: 75px;
     display: block;
-	
 }
 
-section.postcontent .bbc-block {
-border-left:2px solid #999;
-margin:5px 0;
-padding:5px 10px 5px 20px;
+.postcontent .bbc-block {
+    border-left: 2px solid #999;
 }
 
-section.postcontent .self {
-background-color: #ECFFD9;
+.postcontent .self {
+    background-color: #ECFFD9;
 }
 
-section.postcontent .usernameHighlight {
-color: #00c0f4;
+.postcontent .usernameHighlight {
+    color: #00c0f4;
 }
 
-section.postcontent img, section.postcontent iframe{
-max-width: 100% !important;
+.postcontent .timg {
+    border-color: #00c0f4;
 }
 
-section.postcontent img.timg{
-border: 2px solid #00c0f4;
-width: 20%;
+.postcontent .editedby {
+    font-style: italic;
+    font-size: 0.7em;
 }
 
-section.postcontent .bbc-block h4 {
-font-style:italic;
-margin:2px 0 5px;
+.postcontent .bbc-spoiler {
+    background: #828282;
 }
 
-section.postcontent blockquote {
-margin:0;
-}
-
-section.postcontent .bbc-block.code, section.postcontent pre{
-overflow: auto;
-word-wrap: normal;
-}
-
-section.postcontent .editedby {
-font-style:italic;
-font-size: 0.7em;
-}
-
-section.postcontent .bbc-spoiler{
-background: #828282;
-}
-
-section.postcontent .bbc-spoiler * {
-visibility: hidden;
-}
-
-section.postcontent .bbc-spoiler:not(.spoiled) .bbc-block,
-section.postcontent .bbc-spoiler:not(.spoiled) .bbc-list{
-display: inline-block;
-}
-
-section.postcontent .bbc-spoiler.spoiled {
-background: transparent;
-}
-
-section.postcontent .bbc-spoiler.spoiled * {
-visibility: visible;
-}
-
-section.postcontent .signature {
-border-top: 2px solid #999;
-padding-top: 10px;
-}
-
-header {
-vertical-align:top;
-clear:left;
-overflow:hidden;
-border:0;
-margin:0 0 10px;
-padding:0 0 10px;
-}
-
-section.postinfo {
-font-size:1.1em;
-float:left;
-width:90%;
-overflow:hidden;
-display:inline-block;
-}
-
-aside.postinfo-poster img {
-height: 1em;
-}
-
-time.postinfo-postdate,time.postinfo-regdate,aside.postinfo-title {
-font-size:0.85em;
-}
-
-time.postinfo-postdate,time.postinfo-regdate {
-font-style: italic;
-}
-time.postinfo-regdate,aside.postinfo-title {
-display:none;
-}
-
-time.postinfo-regdate.extended,aside.postinfo-title.extended {
-display:block;
-}
-
-nav.postmenu {
-float:right;
-font-weight:bolder;
-font-size: 1.7em;
-width:10px;
-height:30px;
-padding:0 10px 0 0;
-}
-
-nav.postmenu:after {
-    font-family: 'icons' !important;
-    content: "\e902";
-    font-weight: normal;
-    -webkit-font-smoothing: antialiased;
-    display: inline-block;
-    -webkit-user-select: none;
-    user-select: none;
+.postcontent .signature {
+    border-top: 2px solid #999;
 }

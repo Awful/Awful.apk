@@ -1,14 +1,19 @@
 package com.ferg.awfulapp.preferences.fragments;
 
 import android.app.Dialog;
+import android.content.ComponentName;
+import android.content.pm.PackageManager;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.support.annotation.NonNull;
+import android.preference.TwoStatePreference;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.ferg.awfulapp.BuildConfig;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.preferences.Keys;
 import com.ferg.awfulapp.util.AwfulUtils;

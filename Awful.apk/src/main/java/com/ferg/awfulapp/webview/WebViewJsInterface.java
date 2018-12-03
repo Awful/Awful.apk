@@ -1,5 +1,7 @@
 package com.ferg.awfulapp.webview;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
@@ -26,8 +28,18 @@ public class WebViewJsInterface {
 
     private final Map<String, String> preferences = new ConcurrentHashMap<>();
 
+    @NonNull
+    private String bodyHtml = "";
+
+    @Nullable
+    private AwfulWebView webView = null;
+
     public WebViewJsInterface() {
         updatePreferences();
+    }
+
+    void setWebView(@NonNull AwfulWebView webView) {
+        this.webView = webView;
     }
 
     /**
@@ -43,6 +55,7 @@ public class WebViewJsInterface {
         preferences.put("highlightUsername", Boolean.toString(aPrefs.highlightUsername));
         preferences.put("inlineTweets", Boolean.toString(aPrefs.inlineTweets));
         preferences.put("inlineInstagram", Boolean.toString(aPrefs.getPreference(Keys.INLINE_INSTAGRAM, false)));
+        preferences.put("inlineSoundcloud", Boolean.toString(aPrefs.getPreference(Keys.INLINE_SOUNDCLOUD, true)));
         preferences.put("inlineTwitch", Boolean.toString(aPrefs.getPreference(Keys.INLINE_TWITCH, false)));
         preferences.put("inlineWebm", Boolean.toString(aPrefs.inlineWebm));
         preferences.put("autostartWebm", Boolean.toString(aPrefs.autostartWebm));
@@ -64,6 +77,17 @@ public class WebViewJsInterface {
     protected void setCustomPreferences(Map<String, String> preferences) {
     }
 
+    // TODO: sync for threads? check html -> update html needs to be atomic?
+
+    @NonNull
+    @JavascriptInterface
+    public final String getBodyHtml() {
+        return bodyHtml;
+    }
+
+    final void setBodyHtml(@Nullable String html) {
+        bodyHtml = (html == null) ? "" : html;
+    }
 
     @JavascriptInterface
     public String getPreference(String preference) {

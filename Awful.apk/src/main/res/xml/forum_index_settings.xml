@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <com.ferg.awfulapp.preferences.CustomSwitchPreference
+    <SwitchPreference
         android:defaultValue="true"
         android:key="@string/pref_key_forum_index_show_section_headers"
         android:summary="@string/forum_index_show_sections_summary"
         android:title="@string/forum_index_show_sections"
         />
 
-    <com.ferg.awfulapp.preferences.CustomSwitchPreference
+    <SwitchPreference
         android:defaultValue="true"
         android:key="@string/pref_key_forum_index_show_subtitles"
         android:title="@string/forum_index_show_subtitles"
         />
 
-    <com.ferg.awfulapp.preferences.CustomSwitchPreference
+    <SwitchPreference
         android:defaultValue="true"
         android:key="@string/pref_key_forum_index_hide_subforums"
         android:summary="@string/forum_index_hide_subforums_summary"
         android:title="@string/forum_index_hide_subforums"
         />
 
-    <com.ferg.awfulapp.preferences.CustomSwitchPreference
+    <SwitchPreference
         android:defaultValue="false"
         android:key="@string/pref_key_forum_index_default_show_favourites"
         android:summary="@string/forum_index_default_show_favourites_summary"

@@ -3,25 +3,33 @@
 var listener;
 
 /**
+ * Toggles the video playing class
+ * @param {Event} event the playing/pause event
+ */
+function toggleVideoClass(event) {
+	event.currentTarget.classList.toggle('playing', event.type === 'playing');
+}
+
+/**
  * Functions to automatically embed page content, e.g. turn an Instagram URL into a widget
  * @author baka kaba
- * @param {Element} [post] Can be set to limit the scope of where the embeds are processed, defaults to the document
+ * @param {Element} replacementArea The scope of where the embeds are processed, defaults to the document
  */
-function processThreadEmbeds(post) {
+function processThreadEmbeds(replacementArea) {
 
-	var replacementArea = post || document;
 	// map preference keys to their corresponding embed functions
 	var embedFunctions = {
 		inlineInstagram: embedInstagram,
 		inlineTweets: embedTweets,
 		inlineVines: embedVines,
-		inlineWebm: embedVideos
+		inlineWebm: embedVideos,
+		inlineSoundcloud: embedSoundcloud
 	};
 
 	// check all embed preference keys - any set to true, run their embed function
 	for (var embedType in embedFunctions) {
 		if (listener.getPreference(embedType) === 'true') {
-			embedFunctions[embedType].call(post);
+			embedFunctions[embedType].call(replacementArea);
 		}
 	}
 	// There's no vimeo setting
@@ -33,23 +41,22 @@ function processThreadEmbeds(post) {
 	function embedInstagram() {
 		var instagrams = replacementArea.querySelectorAll('.postcontent a[href*="instagr.am/p"],.postcontent a[href*="instagram.com/p"]');
 		if (instagrams.length > 0) {
-			instagrams.forEach(function eachInstagramLink(instagramLink) {
-				var url = instagramLink.getA('href');
-				var apiCall = 'https://api.instagram.com/oembed?omitscript=true&url=' + url + '&callback=?';
-
-				JSONP.get(apiCall, {}, function getInstagrams(data) {
-					instagramLink.outerHTML = data.html;
-				});
-			});
 			if (!document.getElementById('instagramScript')) {
-				window.instgrm.Embeds.process();
-			} else {
-				// add the embed script, and run it after all the HTML widgets have been added
-				var instagramEmbedScript = new document.createElement('script');
+			// add the embed script, and run it after all the HTML widgets have been added
+				var instagramEmbedScript = document.createElement('script');
 				instagramEmbedScript.setAttribute('src', 'https://platform.instagram.com/en_US/embeds.js');
 				instagramEmbedScript.id = 'instagramScript';
-				document.getElementsByTagName('body')[0].appendChild(instagramEmbedScript);
+				document.body.appendChild(instagramEmbedScript);
 			}
+			instagrams.forEach(function eachInstagramLink(instagramLink) {
+				var instaUrl = instagramLink.href;
+				fetch('https://api.instagram.com/oembed?omitscript=true&url=' + escape(instaUrl)).then(function parseResponse(response) {
+					return response.json();
+				}).then(function getInstagrams(data) {
+					instagramLink.outerHTML = data.html;
+					window.requestAnimationFrame(window.instgrm.Embeds.process);
+				});
+			});
 		}
 	}
 
@@ -57,19 +64,15 @@ function processThreadEmbeds(post) {
 	 * Replaces all broken Vimeo Flash plugins with iframe versions that Actually Work™
 	 */
 	function replaceVimeo() {
-		replacementArea.querySelectorAll('.postcontent .bbcode_video object param[value^="http://vimeo.com"]').forEach(function each(vimeoPlayer) {
-			var param = vimeoPlayer;
-			var videoID = param.getAttribute('value').match(/clip_id=(\d+)/);
+		replacementArea.querySelectorAll('.postcontent .bbcode_video object embed[src^="https://vimeo.com"]').forEach(function each(vimeoPlayer) {
+			var videoID = vimeoPlayer.getAttribute('src').match(/clip_id=(\d+)/);
 			if (videoID === null) {
 				return;
 			}
 			videoID = videoID[1];
-			var object = param.closest('object');
 
 			var vimeoIframe = document.createElement('iframe');
-			vimeoIframe.setAttribute('src', 'http://player.vimeo.com/video/' + videoID + '?byline=0&portrait=0');
-			vimeoIframe.setAttribute('width', object.getAttribute('width'));
-			vimeoIframe.setAttribute('height', object.getAttribute('height'));
+			vimeoIframe.setAttribute('src', 'https://player.vimeo.com/video/' + videoID + '?byline=0&portrait=0');
 			vimeoIframe.setAttribute('frameborder', 0);
 			vimeoIframe.setAttribute('webkitAllowFullScreen', '');
 			vimeoIframe.setAttribute('allowFullScreen', '');
@@ -77,7 +80,7 @@ function processThreadEmbeds(post) {
 			var videoWrapper = document.createElement('div');
 			videoWrapper.classList.add('videoWrapper');
 			videoWrapper.appendChild(vimeoIframe);
-			param.closest('div.bbcode_video').replaceWith(videoWrapper);
+			vimeoPlayer.closest('.bbcode_video').replaceWith(videoWrapper);
 		});
 	}
 
@@ -87,28 +90,59 @@ function processThreadEmbeds(post) {
 	function embedTweets() {
 		var tweets = replacementArea.querySelectorAll('.postcontent a[href*="twitter.com"]');
 
-		tweets = Array.prototype.filter.call(tweets, function isTweet(twitterURL) {
-			return twitterURL.href.match(RegExp('https?://(?:[\\w\\.]*\\.)?twitter.com/[\\w_]+/status(?:es)?/([\\d]+)'));
-		});
-		tweets = Array.prototype.filter.call(tweets, filterNwsAndSpoiler);
+		tweets = Array.prototype.reduce.call(tweets, function reduceTweets(filteredTwoops, twitterURL) {
+			var urlMatch = twitterURL.href.match(/https?:\/\/(?:[\w.]*\.)?twitter\.com\/[\w_]+\/status(?:es)?\/([\d]+)/);
+			if (urlMatch && filterNwsAndSpoiler(twitterURL)) {
+				twitterURL.href = urlMatch[0];
+				filteredTwoops.push(twitterURL);
+			}
+			return filteredTwoops;
+		}, []);
+
 		tweets.forEach(function eachTweet(tweet) {
 			var tweetUrl = tweet.href;
 			JSONP.get('https://publish.twitter.com/oembed?omit_script=true&url=' + escape(tweetUrl), {}, function getTworts(data) {
 				var div = document.createElement('div');
 				div.classList.add('tweet');
-				tweet.parentNode.insertBefore(div, tweet);
-				tweet.parentNode.removeChild(tweet);
-				div.appendChild(tweet);
+				tweet.parentNode.replaceChild(div, tweet);
 				div.innerHTML = data.html;
 				if (document.getElementById('theme-css').dataset.darkTheme === 'true') {
 					div.querySelector('blockquote').dataset.theme = 'dark';
 				}
-				if (window.twttr) {
+				if (window.twttr.init) {
 					window.twttr.widgets.load(div);
 				} else {
-					missedEmbeds.push(div);
+					window.missedEmbeds.push(div);
 				}
 			});
+		});
+	}
+
+	/**
+	 * Replaces all soundcloud links to tracks with embedded players
+	 */
+	function embedSoundcloud() {
+		var clouds = replacementArea.querySelectorAll('.postcontent a[href*="soundcloud.com"]');
+		if (clouds.length === 0) {
+			return;
+		}
+
+		clouds.forEach(function replaceSoundcloudLinks(cloudLink) {
+			var urlMatch = cloudLink.href.match(/https?:\/\/(?:[\w.]*\.)?soundcloud\.com\/([\w_-]+)\/([\w_-]*)/);
+			if (!urlMatch || !urlMatch[2]) {
+				return;
+			}
+
+			var soundCloudEmbed = document.createElement('iframe');
+			soundCloudEmbed.setAttribute('src', 'https://w.soundcloud.com/player/?color=006699&url=' + escape(urlMatch[0]));
+			soundCloudEmbed.setAttribute('frameborder', 0);
+			soundCloudEmbed.setAttribute('scrolling', 'no');
+			soundCloudEmbed.setAttribute('width', '100%');
+			soundCloudEmbed.setAttribute('height', '166');
+			soundCloudEmbed.setAttribute('webkitAllowFullScreen', '');
+			soundCloudEmbed.setAttribute('allowFullScreen', '');
+
+			cloudLink.replaceWith(soundCloudEmbed);
 		});
 	}
 
@@ -118,10 +152,32 @@ function processThreadEmbeds(post) {
 	function embedVines() {
 		var vines = replacementArea.querySelectorAll('.postcontent a[href*="://vine.co/v/"]');
 
+		if (vines.length === 0) {
+			return;
+		}
+
 		vines = Array.prototype.filter.call(vines, filterNwsAndSpoiler);
 		vines.forEach(function eachVine(vine) {
-			vine.innerHTML = '<iframe class="vine-embed" src="' + vine.href + '/embed/simple" frameborder="0"></iframe>' + '<script async src="http://platform.vine.co/static/scripts/embed.js" charset="utf-8"></script>';
+			var vineStock = document.createElement('div');
+			vineStock.classList.add('vine-container');
+			var vineFrame = document.createElement('iframe');
+			vineFrame.classList.add('vine-embed');
+			vineFrame.setAttribute('src', vine.href + '/embed/simple');
+			vineFrame.setAttribute('frameborder', 0);
+			vineStock.appendChild(vineFrame);
+			vine.replaceWith(vineStock);
 		});
+
+		if (document.getElementById('vineScript')) {
+			document.getElementById('vineScript').remove();
+		}
+
+		// add the embed script, and run it after all the HTML widgets have been added
+		var vineEmbedScript = document.createElement('script');
+		vineEmbedScript.setAttribute('src', 'https://platform.vine.co/static/scripts/embed.js');
+		vineEmbedScript.setAttribute('charset', 'utf-8');
+		vineEmbedScript.id = 'vineScript';
+		document.body.appendChild(vineEmbedScript);
 	}
 
 	/**
@@ -133,16 +189,44 @@ function processThreadEmbeds(post) {
 		videos = Array.prototype.filter.call(videos, filterNwsAndSpoiler);
 		videos.forEach(function eachVideo(video) {
 			var hasThumbnail;
-			video.setAttribute('href', video.href.replace('.gifv', '.mp4'));
-			var videoURL = video.href;
+			var videoURL = video.href.replace('.gifv', '.mp4');
 			if (videoURL.indexOf('imgur.com') !== -1) {
 				hasThumbnail = videoURL.substring(0, videoURL.lastIndexOf('.')) + 'm.jpg';
-				video.setAttribute('href', videoURL.replace('.webm', '.mp4'));
+				videoURL = videoURL.replace('.webm', '.mp4');
 			} else if (videoURL.indexOf('gfycat.com') !== -1) {
 				hasThumbnail = 'https://thumbs' + videoURL.substring(videoURL.indexOf('.'), videoURL.lastIndexOf('.')) + '-mobile.jpg';
-				video.setAttribute('href', 'https://thumbs' + videoURL.substring(videoURL.indexOf('.'), videoURL.lastIndexOf('.')) + '-mobile.mp4');
+				videoURL = 'https://thumbs' + videoURL.substring(videoURL.indexOf('.'), videoURL.lastIndexOf('.')) + '-mobile.mp4';
 			}
-			video.outerHTML = '<video loop width="100%" muted="true" controls preload="none" ' + (hasThumbnail !== undefined ? 'poster="' + hasThumbnail + '"' : '') + ' > <source src="' + videoURL + '" type="video/' + videoURL.substring(videoURL.lastIndexOf('.') + 1) + '"> </video>';
+
+			var videoContainer = document.createElement('div');
+			videoContainer.classList.add('video-container');
+
+			var videoElement = document.createElement('video');
+			videoElement.setAttribute('loop', 'true');
+			videoElement.setAttribute('width', '100%');
+			videoElement.setAttribute('muted', 'true');
+			videoElement.setAttribute('controls', 'true');
+			videoElement.setAttribute('preload', 'none');
+			videoElement.addEventListener('playing', toggleVideoClass);
+			videoElement.addEventListener('pause', toggleVideoClass);
+			if (hasThumbnail) {
+				videoElement.setAttribute('poster', hasThumbnail);
+			}
+
+			var sourceElement = document.createElement('source');
+			sourceElement.setAttribute('src', videoURL);
+			sourceElement.setAttribute('type', 'video/' + videoURL.substring(videoURL.lastIndexOf('.') + 1));
+			videoElement.appendChild(sourceElement);
+
+			var linkElement = document.createElement('a');
+			linkElement.classList.add('video-link');
+			linkElement.setAttribute('href', videoURL);
+			linkElement.textContent = '🔗';
+
+			videoContainer.appendChild(videoElement);
+			videoContainer.appendChild(linkElement);
+
+			video.replaceWith(videoContainer);
 		});
 	}
 

@@ -24,8 +24,8 @@ fun View.setInvisible() {
  * These let you late-bind views as vals, so long as you only access them after the view has been created
  * e.g. "val myTextView: TextView by bind(R.id.some_textview)"
  */
-fun <T : View> Fragment.bind(resId: Int): Lazy<T?> =
+fun <T : View?> Fragment.bind(resId: Int): Lazy<T> =
     lazy(LazyThreadSafetyMode.NONE) { view!!.findViewById<T>(resId) }
 
-fun <T : View> Activity.bind(resId: Int): Lazy<T?> =
+fun <T : View?> Activity.bind(resId: Int): Lazy<T> =
     lazy(LazyThreadSafetyMode.NONE) { findViewById<T>(resId) }

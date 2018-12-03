@@ -231,7 +231,7 @@ public class ForumsIndexFragment extends AwfulFragment
 
     @Override
     public void onForumClicked(@NonNull Forum forum) {
-        displayForum(forum.id, null);
+        navigate(new NavigationEvent.Forum(forum.id, null));
     }
 
     @Override

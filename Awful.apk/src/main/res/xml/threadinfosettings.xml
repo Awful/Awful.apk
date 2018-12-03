@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-		<com.ferg.awfulapp.preferences.CustomSwitchPreference
+		<SwitchPreference
             android:key="@string/pref_key_thread_info_tag"
 			android:title="@string/threadinfo_tag"
 			android:summary="@string/threadinfo_tag_summary"
 			android:defaultValue="true"
 			/>
-		<com.ferg.awfulapp.preferences.CustomSwitchPreference
+		<SwitchPreference
             android:key="@string/pref_key_colored_bookmarks"
 			android:title="@string/color_bookmarks"
             android:summary="@string/color_bookmarks_summary"
 			android:defaultValue="false"
 			/>
-        <com.ferg.awfulapp.preferences.CustomSwitchPreference
+        <SwitchPreference
           android:key="@string/pref_key_thread_info_rating"
           android:title="@string/threadinfo_rating"
           android:defaultValue="true"
           />
       <PreferenceCategory android:title="@string/new_threads_first_category">
-          <com.ferg.awfulapp.preferences.CustomSwitchPreference
+          <SwitchPreference
               android:key="@string/pref_key_new_threads_first_forum"
               android:title="@string/new_threads_first_forum"
               android:summary="@string/new_threads_first_forum_summary"
               android:defaultValue="false"
               />
-          <com.ferg.awfulapp.preferences.CustomSwitchPreference
+          <SwitchPreference
               android:key="@string/pref_key_new_threads_first_ucp"
               android:title="@string/new_threads_first_ucp"
               android:summary="@string/new_threads_first_ucp_summary"

@@ -105,14 +105,15 @@ class NavigationDrawer(val activity: AwfulActivity, toolbar: Toolbar, val prefs:
     private fun handleItemSelection(menuItem: MenuItem): Boolean {
         with(activity) {
             when (menuItem.itemId) {
-                R.id.sidebar_index -> showForumIndex()
-                R.id.sidebar_forum -> showForum(currentForumId, null)
-                R.id.sidebar_thread -> showThread(currentThreadId, null, null, false)
-                R.id.sidebar_bookmarks -> showBookmarks()
-                R.id.sidebar_settings -> showSettings()
-                R.id.sidebar_search -> showSearch()
-                R.id.sidebar_pm -> showPrivateMessages()
-                R.id.sidebar_announcements -> showAnnouncements()
+                R.id.sidebar_index -> navigate(NavigationEvent.ForumIndex)
+                R.id.sidebar_forum -> navigate(NavigationEvent.Forum(id = currentForumId))
+                R.id.sidebar_thread -> navigate(NavigationEvent.Thread(id = currentThreadId))
+                R.id.sidebar_bookmarks -> navigate(NavigationEvent.Bookmarks)
+                R.id.sidebar_settings -> navigate(NavigationEvent.Settings)
+                R.id.sidebar_search -> navigate(NavigationEvent.SearchForums())
+                R.id.sidebar_pm -> navigate(NavigationEvent.ShowPrivateMessages())
+                R.id.sidebar_announcements -> navigate(NavigationEvent.Announcements)
+                R.id.lepers_colony -> navigate(NavigationEvent.LepersColony())
                 R.id.sidebar_logout -> showLogoutDialog()
                 else -> return false //not handled, exit early without closing
             }

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -23,7 +24,9 @@ import com.ToxicBakery.viewpager.transforms.StackTransformer;
 import com.ToxicBakery.viewpager.transforms.TabletTransformer;
 import com.ToxicBakery.viewpager.transforms.ZoomInTransformer;
 import com.ToxicBakery.viewpager.transforms.ZoomOutSlideTransformer;
-import com.ToxicBakery.viewpager.transforms.ZoomOutTranformer;
+import com.ToxicBakery.viewpager.transforms.ZoomOutTransformer;
+import com.crashlytics.android.Crashlytics;
+import com.ferg.awfulapp.AwfulApplication;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.DatabaseHelper;
@@ -32,6 +35,8 @@ import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
 
 import java.util.HashMap;
+
+import timber.log.Timber;
 
 /**
  * Created by matt on 9/11/13.
@@ -128,7 +133,7 @@ public class AwfulUtils {
         transformerMap.put("Tablet", new TabletTransformer());
         transformerMap.put("ZoomIn", new ZoomInTransformer());
         transformerMap.put("ZoomOutSlide", new ZoomOutSlideTransformer());
-        transformerMap.put("ZoomOut", new ZoomOutTranformer());
+        transformerMap.put("ZoomOut", new ZoomOutTransformer());
 
 
         return transformerMap.get(AwfulPreferences.getInstance().transformer);
@@ -142,5 +147,25 @@ public class AwfulUtils {
             }
         }
         return false;
+    }
+
+
+    /**
+     * Logs a failure (including Crashlytics, if available) and throws a RuntimeException on debug builds.
+     *
+     * Use this for failure cases that should never happen, e.g. that point to some error in the app
+     * logic that needs to be fixed. This way the end user sees little disruption (ideally something
+     * just "doesn't work") but the developers are immediately alerted to the issue.
+     *
+     * @param e the cause of the failure, which will be logged (with its stacktrace)
+     */
+    public static void failSilently(@NonNull Exception e) {
+        Timber.e(e);
+        if (AwfulApplication.crashlyticsEnabled()) {
+            Crashlytics.logException(e);
+        }
+        if (Constants.DEBUG) {
+            throw new RuntimeException(e);
+        }
     }
 }

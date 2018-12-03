@@ -10,16 +10,12 @@ function containerInit() {
 	container.addEventListener('click', function containerClick(event) {
 		var target = event.target;
 
-		if (findInPath(event, 'bbc-spoiler') && listener.getPreference('showSpoilers') !== 'true') {
-			findInPath(event, 'bbc-spoiler', true).classList.toggle('spoiled');
-			return;
-		}
 		if (findInPath(event, 'toggleread')) {
 			showReadPosts();
 			return;
 		}
-		if (findInPath(event, 'postinfo')) {
-			toggleInfo(findInPath(event, 'postinfo', true));
+		if (findInPath(event, 'posterinfo')) {
+			toggleInfo(findInPath(event, 'posterinfo', true));
 			return;
 		}
 		if (findInPath(event, 'postmenu')) {
@@ -34,16 +30,20 @@ function containerInit() {
 			handleQuoteLink(target, event);
 			return;
 		}
-		if (target.tagName.toLowerCase() === 'a' && target.href.indexOf('showthread.php?action=showpost') !== -1) {
+		if (target.tagName === 'A' && target.href.indexOf('showthread.php?action=showpost') !== -1) {
 			loadIgnoredPost(target, event);
 			return;
 		}
-		if (target.tagName.toLowerCase() === 'img' && target.hasAttribute('title') && target.src.endsWith('.gif')) {
+		if (target.tagName === 'IMG' && target.hasAttribute('title') && target.src.endsWith('.gif')) {
 			freezeGif(target);
 			return;
 		}
-		if (target.tagName.toLowerCase() === 'canvas' && target.hasAttribute('title') && target.getAttribute('src').endsWith('.gif')) {
+		if (target.tagName === 'CANVAS' && target.hasAttribute('title') && target.getAttribute('src').endsWith('.gif')) {
 			target.outerHTML = '<img src="' + target.getAttribute('src') + '" title="' + target.getAttribute('title') + '" />';
+			return;
+		}
+		if (findInPath(event, 'bbc-spoiler') && listener.getPreference('showSpoilers') !== 'true') {
+			findInPath(event, 'bbc-spoiler', true).classList.toggle('spoiled');
 		}
 	});
 
@@ -51,9 +51,15 @@ function containerInit() {
 	container.addEventListener('touchstart', function touchStartHandler(event) {
 		var target = event.target;
 		// title popup on long-press
-		if ((target.tagName.toLowerCase() === 'img' || target.tagName.toLowerCase() === 'canvas') && target.hasAttribute('title')) {
+		if ((target.tagName === 'IMG' || target.tagName === 'CANVAS') && target.hasAttribute('title')) {
 			Longtap(function longtap() {
 				listener.popupText(target.getAttribute('title'));
+			})(event);
+			return;
+		}
+		if (target.tagName === 'VIDEO') {
+			Longtap(function longtap() {
+				listener.openUrlMenu(target.firstElementChild.getAttribute('src'));
 			})(event);
 			return;
 		}
@@ -73,6 +79,10 @@ function containerInit() {
 			debouncedVideosScrollListener();
 		});
 	}
+
+	window.addEventListener('awful-scroll-post', function scrollToPost() {
+		window.topScrollID = window.requestAnimationFrame(scrollPost.bind(null, null));
+	});
 }
 
 /**
@@ -84,29 +94,32 @@ function containerInit() {
  */
 function findInPath(event, cssClass, returnElement) {
 	var search = Array.prototype.filter.call(event.path, function filter(node) {
-        return node.classList && node.classList.contains(cssClass);
-    });
+		return node.classList && node.classList.contains(cssClass);
+	});
 	return returnElement ? search[0] : search.length > 0;
 }
 
 /**
- * Loads the thread html into the container
- * @param {Boolean} checkFirst If true checks whether the webview has actually already been initialized
+ * Loads the current thread html into the body container
  */
-function loadPageHtml(checkFirst) {
-	if (checkFirst !== undefined && document.getElementById('container').innerHTML != '') {
-		return;
+function loadPageHtml() {
+	if (window.topScrollTimeout) {
+		window.clearTimeout(window.topScrollTimeout);
+		window.cancelAnimationFrame(window.topScrollID);
 	}
-	if (window.topScrollID) {
-		window.clearTimeout(window.topScrollID);
-	}
+
 	window.topScrollItem = null;
 	window.topScrollPos = 0;
 	window.topScrollCount = 0;
 	var html = listener.getBodyHtml();
 	document.getElementById('container').innerHTML = html;
+	if (!html) {
+		return;
+	}
 	pageInit();
-	window.topScrollID = window.setTimeout(scrollPost, 1000);
+	window.topScrollTimeout = window.setTimeout(function hello() {
+		window.dispatchEvent(new Event('awful-scroll-post'));
+	}, 1000);
 	document.addEventListener('DOMContentLoaded', function updateCssForPage() {
 		changeCSS(listener.getCSS());
 	});
@@ -116,10 +129,10 @@ function loadPageHtml(checkFirst) {
  * Initializes the newly added posts that have just been added to the container
  */
 function pageInit() {
-	document.querySelectorAll('head script.JSONP').forEach(function removeScripts(script) {
+	document.head.querySelectorAll('.JSONP').forEach(function removeScripts(script) {
 		script.remove();
 	});
-	var spoilers = document.querySelectorAll('.bbc-spoiler');
+	var spoilers = document.body.querySelectorAll('.bbc-spoiler');
 	spoilers.forEach(function each(spoiler) {
 		spoiler.removeAttribute('onmouseover');
 		spoiler.removeAttribute('onmouseout');
@@ -128,29 +141,50 @@ function pageInit() {
 		}
 	});
 	// hide-old posts
-	if (document.querySelector('.toggleread') !== null) {
-		document.querySelectorAll('.read').forEach(function each(post) {
+	if (document.body.querySelector('.toggleread') !== null) {
+		document.body.querySelectorAll('.read').forEach(function each(post) {
 			post.style.display = 'none';
 		});
 	}
+
+	processPosts();
+	if (window.twttr && !window.twttr.init) {
+		window.twttr.insertTag();
+	}
+
+}
+
+/**
+ * Processes posts
+ * @param {Element} scopeElement The element containing posts to process
+ */
+function processPosts(scopeElement) {
+	if (!scopeElement) {
+		scopeElement = document;
+	}
+
 	if (listener.getPreference('hideSignatures') === 'true') {
-		document.querySelectorAll('section.postcontent .signature').forEach(function each(signature) {
+		scopeElement.querySelectorAll('.postcontent .signature').forEach(function each(signature) {
 			signature.remove();
 		});
 	}
-	processThreadEmbeds();
-	pauseVideosOutOfView();
+
+	processThreadEmbeds(scopeElement);
+
+	if (listener.getPreference('inlineWebm') === 'true' && listener.getPreference('autostartWebm') === 'true') {
+		pauseVideosOutOfView(scopeElement);
+	}
 
 	if (listener.getPreference('highlightUsername') === 'true') {
-		highlightOwnUsername();
+		highlightOwnUsername(scopeElement);
 	}
 
 	if (listener.getPreference('highlightUserQuote') === 'true') {
-		highlightOwnQuotes();
+		highlightOwnQuotes(scopeElement);
 	}
 
 	if (listener.getPreference('disableGifs') === 'true') {
-		document.querySelectorAll('img[title][src$=".gif"]').forEach(function each(gif) {
+		scopeElement.querySelectorAll('img[title][src$=".gif"]').forEach(function each(gif) {
 			if (!gif.complete) {
 				gif.addEventListener('load', function freezeLoadHandler() {
 					freezeGif(this);
@@ -164,10 +198,11 @@ function pageInit() {
 
 /**
  * Eventhandler that pauses all videos that have been scrolled out of the viewport and starts all videos currently in the viewport
+ * @param {Element} scopeElement The element containing videos to pause
  */
-function pauseVideosOutOfView() {
-	document.querySelectorAll('video').forEach(function eachVideo(video) {
-		if (isElementInViewport(video) && video.parentElement.tagName.toLowerCase() !== 'blockquote' && video.firstElementChild.src.indexOf('webm') === -1) {
+function pauseVideosOutOfView(scopeElement) {
+	scopeElement.querySelectorAll('video').forEach(function eachVideo(video) {
+		if (isElementInViewport(video) && video.parentElement.tagName !== 'BLOCKQUOTE' && video.firstElementChild.src.indexOf('webm') === -1) {
 			video.play();
 		} else {
 			video.pause();
@@ -176,23 +211,33 @@ function pauseVideosOutOfView() {
 }
 
 /**
- * Scrolls the webview to a certain post or the first unread post
+ * Sets up the scrollUpdate function parameters
+ * @param {number} count How many times to try to scroll to the element
+ * @param {Element} element The element to scroll to
  */
-function scrollPost() {
-	var postjump = listener.getPostJump();
+function setTopScroll(count, element) {
+	window.topScrollCount = count;
+	window.topScrollItem = element;
+	window.topScrollPos = window.topScrollItem.getBoundingClientRect().top + window.scrollY;
+	window.scrollTo(0, window.topScrollPos);
+	window.topScrollID = requestAnimationFrame(scrollUpdate);
+}
+
+/**
+ * Scrolls the webview to a certain post or the first unread post
+ * @param {String} [postNumber] number of the post to just to
+ */
+function scrollPost(postNumber) {
+	var postjump = postNumber || listener.getPostJump();
 	if (postjump !== '') {
 		try {
-			window.topScrollItem = document.getElementById('post' + postjump);
-			window.topScrollPos = window.topScrollItem.getBoundingClientRect().top + document.body.scrollTop;
-			window.scrollTo(0, window.topScrollPos);
-			window.topScrollCount = 200;
-			window.topScrollID = window.setTimeout(scrollUpdate, 500);
+			setTopScroll(200, document.getElementById(postjump));
 		} catch (error) {
 			scrollLastRead();
 		}
-	} else {
-		scrollLastRead();
+		return;
 	}
+	scrollLastRead();
 }
 
 /**
@@ -200,11 +245,7 @@ function scrollPost() {
  */
 function scrollLastRead() {
 	try {
-		window.topScrollItem = document.querySelector('.unread');
-		window.topScrollPos = window.topScrollItem.getBoundingClientRect().top + document.body.scrollTop;
-		window.topScrollCount = 100;
-		window.scrollTo(0, window.topScrollPos);
-		window.topScrollID = window.setTimeout(scrollUpdate, 500);
+		setTopScroll(100, document.body.querySelector('.unread'));
 	} catch (error) {
 		window.topScrollCount = 0;
 		window.topScrollItem = null;
@@ -217,13 +258,13 @@ function scrollLastRead() {
 function scrollUpdate() {
 	try {
 		if (window.topScrollCount > 0 && window.topScrollItem) {
-			var newPosition = window.topScrollItem.getBoundingClientRect().top + document.body.scrollTop;
+			var newPosition = window.topScrollItem.getBoundingClientRect().top + window.scrollY;
 			if (newPosition - window.topScrollPos > 0) {
 				window.scrollBy(0, newPosition - window.topScrollPos);
 			}
 			window.topScrollPos = newPosition;
 			window.topScrollCount--;
-			window.topScrollID = window.setTimeout(scrollUpdate, 200);
+			window.topScrollID = requestAnimationFrame(scrollUpdate);
 		}
 	} catch (error) {
 		window.topScrollCount = 0;
@@ -235,11 +276,11 @@ function scrollUpdate() {
  * Makes already read posts visible
  */
 function showReadPosts() {
-	document.querySelectorAll('.read').forEach(function showAllReadPosts(post) {
+	document.body.querySelectorAll('.read').forEach(function showAllReadPosts(post) {
 		post.style.display = '';
 	});
-	document.querySelector('.toggleread').remove();
-	window.setTimeout(scrollLastRead, 200);
+	document.body.querySelector('.toggleread').remove();
+	window.requestAnimationFrame(scrollLastRead);
 }
 
 /**
@@ -282,7 +323,7 @@ function showInlineImage(url) {
 		link.classList.remove(FROZEN_GIF);
 	}
 	// skip anything that's already loading/loaded
-	var imageLinks = document.querySelectorAll('a[href="' + url + '"]:not(.loading)');
+	var imageLinks = document.body.querySelectorAll('a[href="' + url + '"]:not(.loading)');
 	imageLinks.forEach(addEmptyImg);
 
 	var pseudoImage = document.createElement('img');
@@ -304,11 +345,11 @@ function changeFontFace(font) {
 		fontFace.remove();
 	}
 	if (font !== 'default') {
-	    var styleElement = document.createElement('style');
-	    styleElement.id = 'font-face';
-	    styleElement.setAttribute('type','text/css');
-	    styleElement.innerHTML = '@font-face { font-family: userselected; src: url(\'content://com.ferg.awfulapp.webprovider/' + font + '\'); }';
-		document.getElementsByTagName('head')[0].appendChild(styleElement);
+		var styleElement = document.createElement('style');
+		styleElement.id = 'font-face';
+		styleElement.setAttribute('type', 'text/css');
+		styleElement.textContent = '@font-face { font-family: userselected; src: url(\'content://com.ferg.awfulapp.webprovider/' + font + '\'); }';
+		document.head.appendChild(styleElement);
 	}
 }
 
@@ -335,15 +376,27 @@ function freezeGif(image) {
  * @param {String} users A string of users separated by commas
  */
 function updateMarkedUsers(users) {
-	document.querySelectorAll('article.marked').forEach(function each(markedPoster) {
+	document.body.querySelectorAll('article.marked').forEach(function each(markedPoster) {
 		markedPoster.classList.remove('marked');
 	});
 	var userArray = users.split(',');
 	userArray.forEach(function each(username) {
-		document.querySelectorAll('.postmenu[username="' + username + '"]').forEach(function each(poster) {
+		document.body.querySelectorAll('.postmenu[username="' + username + '"]').forEach(function each(poster) {
 			poster.closest('article').classList.add('marked');
 		});
 	});
+}
+
+/**
+ * wait for redraw
+ * @param {String} id the id of the post
+ */
+function waitForRedraw(id) {
+	if (document.getElementById(id).style.display === 'none') {
+		window.requestAnimationFrame(waitForRedraw.bind(null, id));
+		return;
+	}
+	window.setTimeout(scrollPost.bind(null, id), 500);
 }
 
 /**
@@ -360,15 +413,20 @@ function handleQuoteLink(link, event) {
 		}
 		event.preventDefault();
 		if (postOfID.style.display === 'none') {
-			var readPosts = document.querySelectorAll('.read');
-			document.querySelector('.toggleread').remove();
+			var readPosts = document.body.querySelectorAll('.read');
+			document.body.querySelector('.toggleread').remove();
 			readPosts.forEach(function eachPost(readPost) {
-				readPost.style.display = '';
+				window.requestAnimationFrame(function wait() {
+					readPost.style.display = '';
+				});
 			});
+			readPosts[0].offsetHeight;
+			window.requestAnimationFrame(waitForRedraw.bind(null, id));
+			return;
 		}
-		window.setTimeout(function wait() {
-			window.scrollTo(0, postOfID.getBoundingClientRect().top + document.body.scrollTop);
-		}, 100);
+
+		scrollPost(id);
+
 	} catch (error) {
 		window.console.log(error);
 	}
@@ -380,24 +438,28 @@ function handleQuoteLink(link, event) {
  */
 function toggleInfo(info) {
 	if (info.querySelector('.postinfo-title').classList.contains('extended')) {
-		if (info.querySelector('.avatar-cell') !== null) {
-			info.querySelector('.avatar-cell').classList.remove('extended');
-			info.querySelector('.avatar-cell .avatar').classList.remove('extended');
-			if (listener.getPreference('disableGifs') === 'true' && info.querySelector('.avatar img').src.endsWith('.gif')) {
-				freezeGif(info.querySelector('.avatar img'));
+		if (info.querySelector('.avatar') !== null) {
+			if (listener.getPreference('disableGifs') === 'true' && info.querySelector('.avatar').src.endsWith('.gif')) {
+				freezeGif(info.querySelector('.avatar'));
+				info.querySelector('canvas').classList.add('avatar');
 			}
+			window.requestAnimationFrame(function shrinkAvatar() {
+				info.querySelector('.avatar').classList.remove('extended');
+			});
 		}
 		info.querySelector('.postinfo-title').classList.remove('extended');
 		info.querySelector('.postinfo-regdate').classList.remove('extended');
 	} else {
-		if (info.querySelector('.avatar-cell') !== null) {
-			info.querySelector('.avatar-cell').classList.add('extended');
-			info.querySelector('.avatar-cell .avatar').classList.add('extended');
+		if (info.querySelector('.avatar') !== null) {
 			if (info.querySelector('canvas') !== null) {
 				var avatar = document.createElement('img');
 				avatar.src = info.querySelector('canvas').getAttribute('src');
+				avatar.classList.add('avatar');
 				info.querySelector('canvas').replaceWith(avatar);
 			}
+			window.requestAnimationFrame(function enlargeAvatar() {
+				info.querySelector('.avatar').classList.add('extended');
+			});
 		}
 		info.querySelector('.postinfo-title').classList.add('extended');
 		info.querySelector('.postinfo-regdate').classList.add('extended');
@@ -409,6 +471,11 @@ function toggleInfo(info) {
  * @param {Element} postMenu The HTMLElement of the postmenu
  */
 function showPostMenu(postMenu) {
+// temp hack to create the right menu for rap sheet entries without making its own CSS class etc
+	if (postMenu.hasAttribute('badPostUrl')) {
+		showPunishmentMenu(postMenu);
+		return;
+	}
 	listener.onMoreClick(
 		postMenu.closest('article').getAttribute('id').replace(/post/, ''),
 		postMenu.getAttribute('username'),
@@ -421,11 +488,25 @@ function showPostMenu(postMenu) {
 }
 
 /**
+ * Displays the context for a leper's colony punishment
+ * @param {Element} menu The HTMLElement of the clicked menu
+ */
+function showPunishmentMenu(menu) {
+	listener.onMoreClick(
+		menu.getAttribute('username'),
+		menu.getAttribute('userId'),
+		menu.getAttribute('badPostUrl'),
+		menu.getAttribute('adminUsername'),
+		menu.getAttribute('adminId')
+	);
+}
+
+/**
  * Changes the styling of the webview
  * @param {String} file Name of the CSS to be used
  */
 function changeCSS(file) {
-	document.getElementsByTagName('head')[0].querySelector('link').setAttribute('href', file);
+	document.getElementById('theme-css').setAttribute('href', file);
 }
 
 /**
@@ -447,7 +528,7 @@ function loadIgnoredPost(post, event) {
 function insertIgnoredPost(id) {
 	var ignoredPost = document.getElementById('ignorePost-' + id);
 	ignoredPost.innerHTML = listener.getIgnorePostHtml(id);
-	processThreadEmbeds(ignoredPost);
+	processPosts(ignoredPost);
 }
 
 /**
@@ -456,7 +537,7 @@ function insertIgnoredPost(id) {
  */
 function enlargeTimg(tImg) {
 	tImg.classList.remove('timg');
-	if (tImg.parentElement.tagName.toLowerCase() !== 'a') {
+	if (tImg.parentElement.tagName !== 'A') {
 		var link = document.createElement('a');
 		link.href = tImg.src;
 		tImg.parentNode.insertBefore(link, tImg);
@@ -482,8 +563,9 @@ function isElementInViewport(element) {
 
 /**
  * Highlight the user's username in posts
+ * @param {Element} scopeElement The element containing posts to process
  */
-function highlightOwnUsername() {
+function highlightOwnUsername(scopeElement) {
 
 	/**
 	 * Returns all textnodes inside the element
@@ -503,7 +585,7 @@ function highlightOwnUsername() {
 
 	var regExp = new RegExp('\\b' + listener.getPreference('username') + '\\b', 'g');
 	var styled = '<span class="usernameHighlight">' + listener.getPreference('username') + '</span>';
-	document.querySelectorAll(selector).forEach(function eachPost(post) {
+	scopeElement.querySelectorAll(selector).forEach(function eachPost(post) {
 		getTextNodesIn(post).forEach(function eachTextNode(node) {
 			if (node.wholeText.match(regExp)) {
 				var newNode = node.ownerDocument.createElement('span');
@@ -516,10 +598,11 @@ function highlightOwnUsername() {
 
 /**
  * Highlight the quotes of the user themselves.
+ * @param {Element} scopeElement The element containing posts to process
  */
-function highlightOwnQuotes() {
+function highlightOwnQuotes(scopeElement) {
 	var usernameQuoteMatch = listener.getPreference('username') + ' posted:';
-	var quotes = document.querySelectorAll('.bbc-block h4');
+	var quotes = scopeElement.querySelectorAll('.bbc-block h4');
 	quotes = Array.prototype.filter.call(quotes, function filterQuotes(quote) {
 		return quote.innerText === usernameQuoteMatch;
 	});

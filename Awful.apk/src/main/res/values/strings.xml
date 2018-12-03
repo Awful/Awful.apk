@@ -94,8 +94,8 @@
     <string name="find">Find on page</string>
     <string name="keep_screen_on">Keep screen on</string>
     <string name="yospos">YOSPOS</string>
-    <string name="thread_close">Close Thread</string>
-    <string name="thread_open">Reopen Thread</string>
+    <string name="thread_lock">Lock thread</string>
+    <string name="thread_unlock">Unlock thread</string>
 
     <string name="next_page">Next page</string>
     <string name="mark_last_read_progress">Marking Last-Read</string>
@@ -117,6 +117,7 @@
     <string name="toggle_bookmark_color">Toggle bookmark color</string>
     <string name="mark_unread">Mark thread unread</string>
     <string name="mark_unread_success">Thread Marked Unread</string>
+    <string name="search_thread">Search this thread</string>
 
     <!-- Reply view -->
     <string name="filter_emote_hint">Search terms</string>
@@ -397,6 +398,7 @@
     <string name="post_embedding_description">Embed elements in posts instead of just showing a link. These options may cause scroll lag or graphical glitches</string>
     <string name="inline_tweets">Tweets</string>
     <string name="inline_instagram">Instagram</string>
+    <string name="inline_soundcloud">Soundcloud</string>
     <string name="post_embedding_divider_videos">Videos</string>
     <string name="inline_youtube">YouTube</string>
     <string name="inline_vines">Vine</string>
@@ -437,7 +439,8 @@
         <item>Default</item>
     </string-array>
     <string name="select_font">Font</string>
-
+    <string name="launcher_icon">Launcher Icon</string>
+    <string name="launcher_icon_summary">Changes the launcher icon. This will remove your current from the home-screen. Takes a few seconds depending on the launcher.</string>
     <!-- Misc Settings page -->
     <string name="disable_gifs">Disable GIF animation</string>
     <string name="disable_gifs_summary">Extends battery life significantly</string>
@@ -484,7 +487,15 @@
         <item>Zoom Out Slide</item>
         <item>Zoom Out</item>
     </string-array>
-
+    <string-array name="launcher_icons">
+        <item>Default</item>
+        <item>Get out 2</item>
+        <item>Ghost</item>
+        <item>:V</item>
+        <item>Doggo</item>
+        <item>Staredog</item>
+        <item>Mr. Green Water</item>
+    </string-array>
     <!-- Account settings page -->
     <string name="username_pref">Username</string>
     <string name="features">Refresh account features</string>

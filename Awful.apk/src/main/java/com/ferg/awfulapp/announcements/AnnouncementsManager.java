@@ -1,8 +1,6 @@
 package com.ferg.awfulapp.announcements;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,8 +11,6 @@ import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.AwfulApplication;
-import com.ferg.awfulapp.BasicActivity;
-import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.task.AwfulRequest;
@@ -40,9 +36,9 @@ import java.util.WeakHashMap;
  * new), and stores these as the current announcements. Listeners can register for updates when
  * a new announcement is parsed.
  * <p>
- * {@link #showAnnouncements(Activity)} displays the current announcements and records the last time
- * the user viewed them. This is used with {@link #getUnreadCount()} to determine how many of the
- * current announcements were found since the last view.
+ * {@link com.ferg.awfulapp.NavigationEvent.Announcements} displays the current announcements and
+ * records the last time * the user viewed them. This is used with {@link #getUnreadCount()} to
+ * determine how many of the current announcements were found since the last view.
  * <p>
  * I don't really like this system, it feels kind of brittle - if announcements can update (I don't
  * know if they can) without the title changing, the change won't be spotted. And if a title is
@@ -199,17 +195,6 @@ public class AnnouncementsManager {
             // readAnnouncements is always a subset of currentAnnouncements
             return currentAnnouncements.size() - readAnnouncements.size();
         }
-    }
-
-
-    /**
-     * Launch the Announcements activity.
-     *
-     * @param activity used to launch the new activity
-     */
-    public void showAnnouncements(@NonNull Activity activity) {
-        Intent intent = BasicActivity.Companion.intentFor(AnnouncementsFragment.class, activity, activity.getString(R.string.announcements));
-        activity.startActivity(intent);
     }
 
 

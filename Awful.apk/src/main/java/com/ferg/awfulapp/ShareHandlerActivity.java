@@ -2,7 +2,6 @@ package com.ferg.awfulapp;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.widget.Toast;
@@ -48,10 +47,9 @@ public class ShareHandlerActivity extends Activity {
         // Right now we only handle URLs, and ignore any other plain text content
 
         // check if it's one of our URLs - AwfulURL parsing never fails, but falls back to EXTERNAL if it's not recognised
-        if (text != null && !AwfulURL.parse(text).isExternal()) {
-            Intent openAppIntent = new Intent(this, ForumsIndexActivity.class);
-            openAppIntent.setAction(Intent.ACTION_VIEW);
-            openAppIntent.setData(Uri.parse(text));
+        AwfulURL awfulURL = (text != null) ? AwfulURL.parse(text) : null;
+        if (awfulURL != null && !awfulURL.isExternal()) {
+            Intent openAppIntent = new NavigationEvent.Url(awfulURL).getIntent(this).setAction(Intent.ACTION_VIEW);
             startActivity(openAppIntent);
         } else {
             Toast.makeText(this, R.string.share_handler_no_url_found, Toast.LENGTH_LONG).show();

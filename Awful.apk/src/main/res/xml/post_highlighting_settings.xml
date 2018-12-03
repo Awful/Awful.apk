@@ -6,24 +6,24 @@
         android:summary="@string/post_highlighting_description"
         />
 
-    <com.ferg.awfulapp.preferences.CustomSwitchPreference
+    <SwitchPreference
         android:defaultValue="true"
         android:key="@string/pref_key_highlight_username"
         android:summary="@string/user_highlight_summary"
         android:title="@string/user_highlight"
         />
-    <com.ferg.awfulapp.preferences.CustomSwitchPreference
+    <SwitchPreference
         android:defaultValue="true"
         android:key="@string/pref_key_highlight_user_quote"
         android:summary="@string/user_quote_summary"
         android:title="@string/user_quote"
         />
-    <com.ferg.awfulapp.preferences.CustomSwitchPreference
+    <SwitchPreference
         android:defaultValue="true"
         android:key="@string/pref_key_highlight_self"
         android:title="@string/self_highlight"
         />
-    <com.ferg.awfulapp.preferences.CustomSwitchPreference
+    <SwitchPreference
         android:defaultValue="true"
         android:key="@string/pref_key_highlight_op"
         android:title="@string/op_highlight"
