@@ -40,7 +40,7 @@
 
         <activity-alias android:label="@string/app_name"
                         android:icon="@mipmap/ic_launcher"
-                        android:roundIcon="@mipmap/ic_launcher"
+                        android:roundIcon="@mipmap/ic_launcher_round"
                         android:name="com.ferg.awfulapp.ForumsIndexActivity.frog"
                         android:enabled="true"
                         android:targetActivity="com.ferg.awfulapp.ForumsIndexActivity">
