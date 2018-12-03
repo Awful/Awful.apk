@@ -81,7 +81,7 @@ function containerInit() {
 	}
 
 	window.addEventListener('awful-scroll-post', function scrollToPost() {
-		window.topScrollID = window.requestAnimationFrame(scrollPost);
+		window.topScrollID = window.requestAnimationFrame(scrollPost.bind(null, null));
 	});
 }
 

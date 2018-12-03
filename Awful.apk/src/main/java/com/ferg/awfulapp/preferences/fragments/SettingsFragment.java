@@ -47,12 +47,7 @@ public abstract class SettingsFragment extends PreferenceFragment implements Nav
     private volatile boolean isInflated;
     protected AwfulPreferences mPrefs;
     protected OnSubmenuSelectedListener submenuSelectedListener;
-
-    /*
-        !!!!! DON'T USE STANDARD SWITCH PREFERENCES !!!!!!
-        They're broken, use CustomSwitchPreference instead
-     */
-
+    
     /*
         CONFIGURATION
 
