@@ -37,6 +37,7 @@ body {
 
 .postcontent {
     border-top: none;
+    margin: 5px 10px;
 }
 
 .postcontent .bbc-block {
@@ -86,6 +87,7 @@ body {
     border: 0;
     border-bottom: 1px solid #e7e7e7;
     border-top: 1px solid #e7e7e7;
-    margin: 0 0 10px;
-    padding: 10px 0 10px;
+    margin: 0;
+    padding: 10px;
+    padding-right: 0;
 }
