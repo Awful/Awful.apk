@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.ferg.awfulapp"
-      android:versionCode="10003"
+      android:versionCode="10004"
       android:versionName="3.6.0-beta"
       android:installLocation="auto">
     <supports-screens
@@ -171,32 +171,6 @@
                         android:icon="@mipmap/ic_launcher_v"
                         android:roundIcon="@mipmap/ic_launcher_v"
                         android:name="com.ferg.awfulapp.ForumsIndexActivity.v"
-                        android:enabled="false"
-                        android:targetActivity="com.ferg.awfulapp.ForumsIndexActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="http" />
-                <data android:scheme="https" />
-                <data android:host="forums.somethingawful.com" />
-                <data android:pathPrefix="/index.php"/>
-                <data android:pathPrefix="/forumdisplay.php"/>
-                <data android:pathPrefix="/usercp.php"/>
-                <data android:pathPrefix="/bookmarkthreads.php"/>
-                <data android:pathPrefix="/showthread.php"/>
-            </intent-filter>
-        </activity-alias>
-
-        <activity-alias android:label="@string/app_name"
-                        android:icon="@mipmap/ic_launcher_frog2"
-                        android:roundIcon="@mipmap/ic_launcher_frog2_rounded"
-                        android:name="com.ferg.awfulapp.ForumsIndexActivity.frog2"
                         android:enabled="false"
                         android:targetActivity="com.ferg.awfulapp.ForumsIndexActivity">
             <intent-filter>
