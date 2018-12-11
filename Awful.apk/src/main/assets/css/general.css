@@ -9,18 +9,12 @@
     max-height: 50px;
     max-width: 50px;
     margin-right: 5px;
-    margin-bottom: 5px;
     transition: max-width 0.25s ease-in-out, max-height 0.25s ease-in-out;
 }
 
 .avatar.extended {
     max-width: 100px;
     max-height: 100px;
-}
-
-.post {
-    backface-visibility: hidden;
-    perspective: 1000;
 }
 
 .posterinfo {
