@@ -74,8 +74,8 @@ function processThreadEmbeds(replacementArea) {
 			var vimeoIframe = document.createElement('iframe');
 			vimeoIframe.setAttribute('src', 'https://player.vimeo.com/video/' + videoID + '?byline=0&portrait=0');
 			vimeoIframe.setAttribute('frameborder', 0);
-			vimeoIframe.setAttribute('webkitAllowFullScreen', '');
-			vimeoIframe.setAttribute('allowFullScreen', '');
+			vimeoIframe.webkitAllowFullScreen = true;
+			vimeoIframe.allowFullScreen = true;
 
 			var videoWrapper = document.createElement('div');
 			videoWrapper.classList.add('videoWrapper');
@@ -134,13 +134,13 @@ function processThreadEmbeds(replacementArea) {
 			}
 
 			var soundCloudEmbed = document.createElement('iframe');
-			soundCloudEmbed.setAttribute('src', 'https://w.soundcloud.com/player/?color=006699&url=' + escape(urlMatch[0]));
+			soundCloudEmbed.src = 'https://w.soundcloud.com/player/?color=006699&url=' + escape(urlMatch[0]);
 			soundCloudEmbed.setAttribute('frameborder', 0);
 			soundCloudEmbed.setAttribute('scrolling', 'no');
 			soundCloudEmbed.setAttribute('width', '100%');
 			soundCloudEmbed.setAttribute('height', '166');
-			soundCloudEmbed.setAttribute('webkitAllowFullScreen', '');
-			soundCloudEmbed.setAttribute('allowFullScreen', '');
+			soundCloudEmbed.webkitAllowFullScreen = true;
+			soundCloudEmbed.allowFullScreen = true;
 
 			cloudLink.replaceWith(soundCloudEmbed);
 		});
@@ -162,7 +162,7 @@ function processThreadEmbeds(replacementArea) {
 			vineStock.classList.add('vine-container');
 			var vineFrame = document.createElement('iframe');
 			vineFrame.classList.add('vine-embed');
-			vineFrame.setAttribute('src', vine.href + '/embed/simple');
+			vineFrame.src = vine.href + '/embed/simple';
 			vineFrame.setAttribute('frameborder', 0);
 			vineStock.appendChild(vineFrame);
 			vine.replaceWith(vineStock);
@@ -202,10 +202,10 @@ function processThreadEmbeds(replacementArea) {
 			videoContainer.classList.add('video-container');
 
 			var videoElement = document.createElement('video');
-			videoElement.setAttribute('loop', 'true');
 			videoElement.setAttribute('width', '100%');
-			videoElement.setAttribute('muted', 'true');
-			videoElement.setAttribute('controls', 'true');
+			videoElement.muted = true;
+			videoElement.controls = true;
+			videoElement.loop = true;
 			videoElement.setAttribute('preload', 'none');
 			videoElement.addEventListener('playing', toggleVideoClass);
 			videoElement.addEventListener('pause', toggleVideoClass);
@@ -214,13 +214,13 @@ function processThreadEmbeds(replacementArea) {
 			}
 
 			var sourceElement = document.createElement('source');
-			sourceElement.setAttribute('src', videoURL);
+			sourceElement.src = videoURL;
 			sourceElement.setAttribute('type', 'video/' + videoURL.substring(videoURL.lastIndexOf('.') + 1));
 			videoElement.appendChild(sourceElement);
 
 			var linkElement = document.createElement('a');
 			linkElement.classList.add('video-link');
-			linkElement.setAttribute('href', videoURL);
+			linkElement.href = videoURL;
 			linkElement.textContent = '🔗';
 
 			videoContainer.appendChild(videoElement);
