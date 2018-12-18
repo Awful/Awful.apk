@@ -26,6 +26,7 @@ public abstract class Keys {
             USERNAME,
             USER_TITLE,
             THEME,
+            LAUNCHER_ICON,
             LAYOUT,
             IMGUR_THUMBNAILS,
             PREFERRED_FONT,
@@ -99,6 +100,7 @@ public abstract class Keys {
             INLINE_YOUTUBE,
             INLINE_TWEETS,
             INLINE_INSTAGRAM,
+            INLINE_SOUNDCLOUD,
             INLINE_TWITCH,
             INLINE_VINES,
             INLINE_WEBM,
@@ -138,6 +140,7 @@ public abstract class Keys {
     public static final int USERNAME = R.string.pref_key_username;
     public static final int USER_TITLE = R.string.pref_key_user_title;
     public static final int THEME = R.string.pref_key_theme;
+    public static final int LAUNCHER_ICON = R.string.pref_key_launcher_icon;
     public static final int LAYOUT = R.string.pref_key_layout;
     public static final int IMGUR_THUMBNAILS = R.string.pref_key_imgur_thumbnails;
     public static final int PREFERRED_FONT = R.string.pref_key_preferred_font;
@@ -174,6 +177,7 @@ public abstract class Keys {
     public static final int INLINE_YOUTUBE = R.string.pref_key_inline_youtube;
     public static final int INLINE_TWEETS = R.string.pref_key_inline_tweets;
     public static final int INLINE_INSTAGRAM = R.string.pref_key_inline_instagram;
+    public static final int INLINE_SOUNDCLOUD = R.string.pref_key_inline_soundcloud;
     public static final int INLINE_TWITCH = R.string.pref_key_inline_twitch;
     public static final int INLINE_VINES = R.string.pref_key_inline_vines;
     public static final int INLINE_WEBM = R.string.pref_key_inline_webm;

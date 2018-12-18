@@ -24,7 +24,7 @@
             }
         ],
         "no-undef": 2,
-        "no-unused-vars": 2,
+        "no-unused-vars": ["error", { "vars": "local", "args": "all"}],
         "strict": [2, "global"],
         "brace-style": 2,
         "no-mixed-spaces-and-tabs": 2,

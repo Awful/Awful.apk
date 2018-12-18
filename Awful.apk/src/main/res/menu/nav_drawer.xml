@@ -25,8 +25,12 @@
             android:icon="@drawable/ic_mail_dark"
             android:title="@string/private_message" />
         <item
+            android:id="@+id/lepers_colony"
+            android:icon="@drawable/ic_gavel_dark_24dp"
+            android:title="Leper's Colony" />
+        <item
             android:id="@+id/sidebar_announcements"
-            android:icon="@drawable/ic_error"
+            android:icon="@drawable/ic_announcement_dark_24dp"
             android:title="@string/announcements" />
         <item
             android:id="@+id/sidebar_settings"

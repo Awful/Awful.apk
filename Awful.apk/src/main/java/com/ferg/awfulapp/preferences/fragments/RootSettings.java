@@ -8,10 +8,10 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
 
-import com.ferg.awfulapp.AwfulActivity;
+import com.ferg.awfulapp.NavigationEvent;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.dialog.ChangelogDialog;
+import com.ferg.awfulapp.dialog.Changelog;
 import com.ferg.awfulapp.preferences.SettingsActivity;
 import com.ferg.awfulapp.util.AwfulUtils;
 
@@ -74,7 +74,7 @@ public class RootSettings extends SettingsFragment {
 
         @Override
         public boolean onPreferenceClick(Preference preference) {
-            ChangelogDialog.show(getActivity());
+            Changelog.showDialog(getActivity(), null);
             return true;
         }
     }
@@ -86,9 +86,7 @@ public class RootSettings extends SettingsFragment {
     private class ThreadListener implements Preference.OnPreferenceClickListener {
         @Override
         public boolean onPreferenceClick(Preference preference) {
-            AwfulActivity activity = (AwfulActivity) getActivity();
-            activity.finish();
-            activity.showThread(Constants.AWFUL_THREAD_ID, null, null, false);
+            navigate(new NavigationEvent.Thread(Constants.AWFUL_THREAD_ID, null, null));
             return true;
         }
     }

@@ -30,8 +30,6 @@ package com.ferg.awfulapp
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.support.annotation.StringRes
@@ -44,7 +42,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.android.volley.Request
 import com.android.volley.VolleyError
-import com.ferg.awfulapp.constants.Constants
 import com.ferg.awfulapp.network.NetworkUtils
 import com.ferg.awfulapp.preferences.AwfulPreferences
 import com.ferg.awfulapp.task.AwfulRequest
@@ -53,12 +50,11 @@ import com.ferg.awfulapp.widget.AlertView
 import com.ferg.awfulapp.widget.AwfulProgressBar
 import com.ferg.awfulapp.widget.ProbationBar
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
-import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection.BOTH
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection.TOP
 import timber.log.Timber
 
 abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdate,
-    AwfulRequest.ProgressListener<Any>, ForumsPagerPage {
+    AwfulRequest.ProgressListener<Any>, ForumsPagerPage, NavigationEventHandler {
     protected var TAG = "AwfulFragment"
 
     protected val prefs: AwfulPreferences by lazy { AwfulPreferences.getInstance(context!!, this) }
@@ -66,6 +62,9 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
     protected val alertView: AlertView by lazy { AlertView(activity) }
 
     protected var swipyLayout: SwipyRefreshLayout? = null
+    // TODO: don't think this was ever initially set - just got reset (depending on the fragment type AFTER the first request ended) - fix that!
+    /** set to configure swiping on a particular fragment */
+    protected var allowedSwipeRefreshDirections = TOP
     private var progressBar: AwfulProgressBar? = null
     private var probationBar: ProbationBar? = null
 
@@ -105,7 +104,7 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
         // set up the probation and progress bar, if we have them - use this ID when adding to a layout!
         progressBar = v.findViewById(R.id.progress_bar)
         probationBar = v.findViewById(R.id.probation_bar)
-        probationBar?.setListener { goToLeperColony() }
+        probationBar?.setListener { navigate(NavigationEvent.LepersColony(prefs.userId)) }
         return v
     }
 
@@ -127,21 +126,13 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
         handler.removeCallbacksAndMessages(null)
     }
 
-    protected fun displayForumIndex() {
-        awfulActivity?.showForumIndex()
-    }
 
-    protected fun displayThread(
-        id: Int,
-        page: Int? = null,
-        postJump: String? = null,
-        forceReload: Boolean
-    ) {
-        awfulActivity?.showThread(id, page, postJump, forceReload)
-    }
+    //
+    // Navigation
+    //
 
-    protected fun displayForum(forumId: Int, page: Int? = null) {
-        awfulActivity?.showForum(forumId, page)
+    override fun defaultRoute(event: NavigationEvent) {
+        awfulActivity?.navigate(event)
     }
 
     fun displayPostReplyDialog(threadId: Int, postId: Int, type: Int) {
@@ -173,15 +164,6 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
         probationBar?.setProbation(if (prefs.isOnProbation) prefs.probationTime else null)
     }
 
-    // Open the Leper Colony page - call this when the user clicks the probation button
-    private fun goToLeperColony() {
-        val openThread = Intent(
-            Intent.ACTION_VIEW,
-            Uri.parse("""${Constants.FUNCTION_BANLIST}?${Constants.PARAM_USER_ID}=${prefs.userId}""")
-        )
-        startActivity(openThread)
-    }
-
 
     ///////////////////////////////////////////////////////////////////////////
     // Reacting to request progress
@@ -200,7 +182,7 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
     override fun requestEnded(req: AwfulRequest<Any>, error: VolleyError?) {
         // P2R Library is ... awful - part 2
         swipyLayout?.isRefreshing = false
-        swipyLayout?.direction = if (this is ThreadDisplayFragment) BOTH else TOP
+        swipyLayout?.direction = allowedSwipeRefreshDirections
 
         when (error) {
             is AwfulError -> alertView.show(error)
@@ -324,6 +306,7 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
      * @param successMessageId  If supplied, a success message popup will be displayed
      * @return                  false if the copy failed
      */
+    // TODO: this fixes an issue in an unsupported API - check it's unneeded and remove
     protected fun safeCopyToClipboard(
         label: String,
         clipText: String,

@@ -32,6 +32,8 @@ import com.ferg.awfulapp.BuildConfig;
 public class Constants {
     public static final boolean DEBUG = BuildConfig.DEBUG;
 
+    public static final String SITE_HTML_ENCODING = "CP1252";
+
     //public static final String BASE_URL = "http://forums.somethingawful.com";
     public static final String BASE_URL = "https://forums.somethingawful.com";
 
@@ -65,7 +67,7 @@ public class Constants {
     public static final String ACTION_ADDLIST 			  = "addlist";
     public static final String ACTION_QUERY 			  = "query";
     public static final String ACTION_RESULTS 			  = "results";
-    public static final String ACTION_OPEN_CLOSE_THREAD   = "openclosethread";
+    public static final String ACTION_TOGGLE_THREAD_LOCKED = "openclosethread";
     
     public static final String PARAM_USER_ID   = "userid";
     public static final String PARAM_USERNAME  = "username";

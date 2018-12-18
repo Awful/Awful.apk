@@ -1,0 +1,40 @@
+{{!
+    This basically tries to recreate a rap sheet entry using the established post structure,
+    so it all Just Works without having to duplicate functionality or refactor everything.
+}}
+
+<article class="post unread"> {{! all marked as unread, so when a page is loaded it'll scroll to the first post }}
+    <header class="postheader">
+        <section class="posterinfo">
+            {{#type.icon}}
+                <img class="avatar" src="file:///android_res/drawable/{{.}}" title="{{type}}" />
+            {{/type.icon}}
+            <section class="postinfo">
+                <aside class="postinfo-poster">
+                    <span class="postinfo-poster-name">{{badPoster.username}}</span>
+                </aside>
+                <time class="postinfo-postdate">at {{timestamp}}<br/></time>
+                <aside class="postinfo-title">
+                    Verdict: <strong>{{type}}</strong>
+                    <br /><br />
+                    Requested by <strong>{{requestedBy.username}}</strong><br />
+                    Approved by <strong>{{approvedBy.username}}</strong><br />
+                </aside>
+            </section>
+        </section>
+        <nav class="postmenu"
+            username="{{badPoster.username}}"
+            userId="{{badPoster.id}}"
+            badPostUrl="{{#badPostUrl}}{{badPostUrl}}{{/badPostUrl}}" {{! the url may be null if it's unavailable, so we leave it as an empty value }}
+            adminUsername="{{approvedBy.username}}"
+            adminId="{{approvedBy.id}}"
+        ></nav>
+    </header>
+
+    <section class="postcontent">
+        <div>
+            {{{ reasonHtml }}}
+        </div>
+    </section>
+
+</article>

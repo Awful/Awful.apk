@@ -257,16 +257,16 @@ public class AwfulThread extends AwfulPagedItem  {
      * <p>
      * Also stores/updates the rest of the thread metadata - title, locked status etc., and passes
      * the page to {@link AwfulPost} for parsing and syncing.
-     *
-     * @param resolver     a ContentResolver used to access the database
+     *  @param resolver     a ContentResolver used to access the database
      * @param page         the thread page's HTML document
      * @param threadId     the ID of this thread
      * @param pageNumber   which page of the thread this document represents
+     * @param lastPageNumber the number of the last page in this thread
      * @param postsPerPage used to calculate post counts
      * @param prefs        a preferences instance
      * @param filterUserId if this page is for a thread filtered by user, this should be set to the user's ID, otherwise 0
      */
-    public static void parseThreadPage(ContentResolver resolver, Document page, int threadId, int pageNumber, int postsPerPage, AwfulPreferences prefs, int filterUserId) {
+    public static void parseThreadPage(ContentResolver resolver, Document page, int threadId, int pageNumber, int lastPageNumber, int postsPerPage, AwfulPreferences prefs, int filterUserId) {
         long startTime = System.currentTimeMillis();
         // TODO: 03/06/2017 see issue #503 on GitHub - filtering by user means the thread data gets overwritten by the pages from this new, shorter thread containing their posts
         final int BLANK_USER_ID = 0;
@@ -274,7 +274,7 @@ public class AwfulThread extends AwfulPagedItem  {
         final boolean filteringOnUserId = filterUserId > BLANK_USER_ID;
 
         // finally write new thread data to the database
-        ContentValues cv = new ThreadPageParseTask(resolver, page, threadId, pageNumber, postsPerPage, prefs).call();
+        ContentValues cv = new ThreadPageParseTask(resolver, page, threadId, pageNumber, lastPageNumber, postsPerPage, prefs).call();
         // TODO: 04/06/2017 this should be handled in the database-management classes
         String update_time = new Timestamp(startTime).toString();
         cv.put(DatabaseHelper.UPDATED_TIMESTAMP, update_time);

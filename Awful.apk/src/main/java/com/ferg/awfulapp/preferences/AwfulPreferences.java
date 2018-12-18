@@ -105,7 +105,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     public int postFixedFontSizeSp;
     public int postFontSizePx;
     public boolean lockScrolling;
-    public String theme;
+	public String theme;
+	public String launcherIcon;
     public boolean forceForumThemes;
     public String layout;
     public String preferredFont;
@@ -248,6 +249,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         postFixedFontSizeSp = getPreference(Keys.POST_FIXED_FONT_SIZE_SP, Constants.DEFAULT_FIXED_FONT_SIZE_SP);
 		postFontSizePx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, postFontSizeSp, mContext.getResources().getDisplayMetrics());
 		theme					 = getPreference(Keys.THEME, "default.css");
+		launcherIcon			 = getPreference(Keys.LAUNCHER_ICON, "frog");
 		layout					 = getPreference(Keys.LAYOUT, "default");
         imagesEnabled            = getPreference(Keys.IMAGES_ENABLED, true);
         no3gImages	             = getPreference(Keys.NO_3G_IMAGES, false);
@@ -260,11 +262,11 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         highlightUsername        = getPreference(Keys.HIGHLIGHT_USERNAME, true);
         highlightSelf			 = getPreference(Keys.HIGHLIGHT_SELF, true);
         highlightOP				 = getPreference(Keys.HIGHLIGHT_OP, true);
-		inlineYoutube            = getPreference(Keys.INLINE_YOUTUBE, false);
-		inlineTweets             = getPreference(Keys.INLINE_TWEETS, false);
+		inlineYoutube            = getPreference(Keys.INLINE_YOUTUBE, true);
+		inlineTweets             = getPreference(Keys.INLINE_TWEETS, true);
 		inlineVines            	 = getPreference(Keys.INLINE_VINES, false);
-		inlineWebm            	 = getPreference(Keys.INLINE_WEBM, false);
-		autostartWebm            = getPreference(Keys.AUTOSTART_WEBM, true);
+		inlineWebm            	 = getPreference(Keys.INLINE_WEBM, true);
+		autostartWebm            = getPreference(Keys.AUTOSTART_WEBM, false);
         showAllSpoilers			 = getPreference(Keys.SHOW_ALL_SPOILERS, false);
         threadInfo_Rating		 = getPreference(Keys.THREAD_INFO_RATING, true);
         threadInfo_Tag		 	 = getPreference(Keys.THREAD_INFO_TAG, true);

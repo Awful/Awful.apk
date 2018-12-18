@@ -5,6 +5,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -20,7 +21,6 @@ import com.android.volley.toolbox.HttpHeaderParser;
 import com.crashlytics.android.Crashlytics;
 import com.ferg.awfulapp.AwfulApplication;
 import com.ferg.awfulapp.R;
-import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.util.AwfulError;
@@ -42,6 +42,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import timber.log.Timber;
+
+import static com.ferg.awfulapp.constants.Constants.BASE_URL;
+import static com.ferg.awfulapp.constants.Constants.SITE_HTML_ENCODING;
 
 /**
  * Created by Matt Shepard on 8/7/13.
@@ -268,52 +271,65 @@ public abstract class AwfulRequest<T> {
 
     private static final RetryPolicy lenientRetryPolicy = new DefaultRetryPolicy(20000, 1, 1);
 
+
+    protected Document parseAsHtml(@NonNull NetworkResponse response) throws IOException {
+        long jsoupParseStart = System.currentTimeMillis();
+        Document doc = Jsoup.parse(new ByteArrayInputStream(response.data), SITE_HTML_ENCODING, BASE_URL);
+        Timber.d("Jsoup parsing finished (took " + (System.currentTimeMillis() - jsoupParseStart) + "ms)");
+        return doc;
+    }
+
+    /**
+     * Allows subclasses (i.e. AwfulStrippedRequest) to direct the document to the appropriate handler function.
+     * Feels clunky to have this (don't override it in concrete classes!) as well as #handleResponse (do override that!)
+     */
+    protected T handleResponseDocument(@NonNull Document document) throws AwfulError {
+        return handleResponse(document);
+    }
+
     private class ActualRequest extends Request<T>{
+
         private Response.Listener<T> success;
-        public ActualRequest(String url, Response.Listener<T> successListener, Response.ErrorListener errorListener) {
+
+        ActualRequest(String url, Response.Listener<T> successListener, Response.ErrorListener errorListener) {
             super(params != null? Method.POST : Method.GET, url, errorListener);
             Timber.i("Created request: %s", url);
             success = successListener;
             setRetryPolicy(lenientRetryPolicy);
         }
 
+
         @Override
         protected Response<T> parseNetworkResponse(NetworkResponse response) {
-            try{
-                long startTime = System.currentTimeMillis();
-                Timber.i("Starting parse: %s", getUrl());
-                updateProgress(25);
-                Document doc = Jsoup.parse(new ByteArrayInputStream(response.data), "CP1252", Constants.BASE_URL);
+            long startTime = System.currentTimeMillis();
+            Timber.i("Starting parse: %s", getUrl());
+            updateProgress(25);
+            try {
+                Document doc = parseAsHtml(response);
                 updateProgress(50);
-                if(shouldCheckErrors()){
+                if (shouldCheckErrors()) {
                     AwfulError error = AwfulError.checkPageErrors(doc, getPreferences());
-                    if(error != null && handleError(error, doc)){
-                        updateProgress(100);
-                        return Response.error(error);
+                    if (error != null && handleError(error, doc)) {
+                        throw error;
                     }
                 }
-                try{
-                    T result = handleResponse(doc);
-                    updateProgress(100);
-                    if(Constants.DEBUG) {
-                        long parseTime = System.currentTimeMillis() - startTime;
-                        Timber.i("Successful parse: %s\nTook %dms", getUrl(), parseTime);
-                    }
-                    return Response.success(result, HttpHeaderParser.parseCacheHeaders(response));
-                }catch(AwfulError ae){
-                    updateProgress(100);
-                    return Response.error(ae);
-                }
+
+                T result = handleResponseDocument(doc);
+                Timber.d("Successful parse: %s\nTook %dms", getUrl(), System.currentTimeMillis() - startTime);
+                return Response.success(result, HttpHeaderParser.parseCacheHeaders(response));
+            } catch (AwfulError ae) {
+                return Response.error(ae);
             } catch (OutOfMemoryError e) {
                 if (AwfulApplication.crashlyticsEnabled()) {
                     Crashlytics.setString("Response URL", getUrl());
                     Crashlytics.setLong("Response data size", response.data.length);
                 }
                 throw e;
-            }catch(Exception e){
-                updateProgress(100);
+            } catch (Exception e) {
                 Timber.e(e, "Failed parse: %s", getUrl());
                 return Response.error(new ParseError(e));
+            } finally {
+                updateProgress(100);
             }
         }
 

@@ -7,12 +7,13 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.thread.AwfulThread;
 import com.ferg.awfulapp.util.AwfulError;
 
+import org.jetbrains.annotations.Nullable;
 import org.jsoup.nodes.Document;
 
 /**
  * Created by matt on 8/7/13.
  */
-public class PostRequest extends AwfulRequest<Integer> {
+public class PostRequest extends AwfulStrippedRequest<Integer> {
 
     public static final Object REQUEST_TAG = new Object();
 
@@ -44,8 +45,16 @@ public class PostRequest extends AwfulRequest<Integer> {
 
     @Override
     protected Integer handleResponse(Document doc) throws AwfulError {
-        AwfulThread.parseThreadPage(getContentResolver(), doc, threadId, page, getPreferences().postPerPage, getPreferences(), userId);
+        AwfulThread.parseThreadPage(getContentResolver(), doc, threadId, page, -1, getPreferences().postPerPage, getPreferences(), userId);
         return page;
+    }
+
+    @Override
+    public Integer handleStrippedResponse(Document doc, @Nullable Integer currentPage, @Nullable Integer totalPages) {
+        // TODO: this is all kinda janky, best to use the passed data from the response, right? Instead of relying on 'page' from the request
+        int lastPage = totalPages != null ? totalPages : page;
+        AwfulThread.parseThreadPage(getContentResolver(), doc, threadId, page, lastPage, getPreferences().postPerPage, getPreferences(), userId);
+        return null;
     }
 
     @Override

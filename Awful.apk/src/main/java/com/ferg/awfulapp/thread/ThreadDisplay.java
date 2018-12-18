@@ -3,6 +3,7 @@ package com.ferg.awfulapp.thread;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Environment;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
 import android.widget.Toast;
@@ -53,7 +54,7 @@ public abstract class ThreadDisplay {
      * @param forumId the ID of the forum this thread belongs to, used for themeing
      * @return the template containing a container class
      */
-    public static String getContainerHtml(AwfulPreferences aPrefs, int forumId) {
+    public static String getContainerHtml(AwfulPreferences aPrefs, @Nullable Integer forumId) {
         StringBuilder buffer = new StringBuilder("<!DOCTYPE html>\n<html>\n<head>\n");
         buffer.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0 maximum-scale=1.0 minimum-scale=1.0, user-scalable=no\" />\n");
         buffer.append("<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" />\n");
@@ -64,8 +65,8 @@ public abstract class ThreadDisplay {
         // build the theme css tag, using the appropriate css path
         // the dark-theme attribute can be used to e.g. embed a dark or light widget
         AwfulTheme theme = AwfulTheme.forForum(forumId);
-        buffer.append(String.format("<link id='theme-css' rel='stylesheet' data-dark-theme='%b' href='%s'>\n", theme.isDark(), theme.getCssPath()));
         buffer.append("<link rel='stylesheet' href='file:///android_asset/css/general.css' />");
+        buffer.append(String.format("<link id='theme-css' rel='stylesheet' data-dark-theme='%b' href='%s'>\n", theme.isDark(), theme.getCssPath()));
 
 
         if (!aPrefs.preferredFont.contains("default")) {
@@ -88,7 +89,7 @@ public abstract class ThreadDisplay {
      * Generates post content HTML for a list of posts.
      * <p>
      * This method produces the content that should be inserted into the container template that
-     * {@link #getContainerHtml(AwfulPreferences, int)} produces.
+     * {@link #getContainerHtml(AwfulPreferences, Integer)} produces.
      *
      * @param aPosts   the list of posts to generate HTML for
      * @param aPrefs   used to customise the post content to the user's preferences
@@ -109,7 +110,7 @@ public abstract class ThreadDisplay {
                 }
             }
             if (unreadCount < aPosts.size() && unreadCount > 0) {
-                buffer.append("    <article class='toggleread'>");
+                buffer.append("    <article class='toggleread post'>");
                 buffer.append("      <a>\n");
                 final int prevPosts = aPosts.size() - unreadCount;
                 buffer.append("        <h3>Show ")

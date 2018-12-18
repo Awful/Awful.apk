@@ -90,7 +90,6 @@ import com.ferg.awfulapp.provider.AwfulTheme;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.BookmarkRequest;
-import com.ferg.awfulapp.task.CloseOpenRequest;
 import com.ferg.awfulapp.task.IgnoreRequest;
 import com.ferg.awfulapp.task.ImageSizeRequest;
 import com.ferg.awfulapp.task.MarkLastReadRequest;
@@ -99,6 +98,7 @@ import com.ferg.awfulapp.task.ProfileRequest;
 import com.ferg.awfulapp.task.RedirectTask;
 import com.ferg.awfulapp.task.ReportRequest;
 import com.ferg.awfulapp.task.SinglePostRequest;
+import com.ferg.awfulapp.task.ThreadLockUnlockRequest;
 import com.ferg.awfulapp.task.VoteRequest;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPagedItem;
@@ -118,6 +118,7 @@ import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -135,7 +136,7 @@ import timber.log.Timber;
  *
  *  Can also handle an HTTP intent that refers to an SA showthread.php? url.
  */
-public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefreshLayout.OnRefreshListener {
+public class ThreadDisplayFragment extends AwfulFragment implements NavigationEventHandler, SwipyRefreshLayout.OnRefreshListener {
 
 	private static final String THREAD_ID_KEY = "thread_id";
 	private static final String THREAD_PAGE_KEY = "thread_page";
@@ -174,10 +175,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	/** Current thread's last page */
 	private int mLastPage = 0;
 	private int mParentForumId = 0;
-	private boolean threadClosed = false;
+	private boolean threadLocked = false;
 	private boolean threadBookmarked = false;
     private boolean threadArchived = false;
-	private boolean threadOpenClose = false;
+	private boolean threadLockableUnlockable = false;
 
     private boolean keepScreenOn = false;
 	//oh god i'm replicating core android functionality, this is a bad sign.
@@ -194,10 +195,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     
     private final ThreadDisplayFragment mSelf = this;
 
+    @Nullable
+	private NavigationEvent pendingNavigation = null;
 
 
-
-    private volatile String bodyHtml = "";
 	private final HashMap<String,String> ignorePostsHtml = new HashMap<>();
     private AsyncTask<Void, Void, String> redirect = null;
 	private Uri downloadLink;
@@ -205,73 +206,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	private final ThreadContentObserver mThreadObserver = new ThreadContentObserver(getHandler());
 
 
-	@Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        parentActivity = (ForumsIndexActivity) context;
-    }
 
     @Override
-    public void onCreate(Bundle savedInstanceState){
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-
-		mPostLoaderCallback = new PostLoaderManager();
-		mThreadLoaderCallback = new ThreadDataCallback();
-		boolean loadFromCache = false;
-
-		if (savedInstanceState != null) {
-			// restoring old state - we have a thread ID and page
-			// TODO: 04/05/2017 post filtering state isn't restored properly - need to do filtering AND maintain filtered page/position AND recreate the backstack/'go back' UI
-			Timber.i("Restoring fragment - loading cached posts from database");
-			setThreadId(savedInstanceState.getInt(THREAD_ID_KEY, NULL_THREAD_ID));
-			setPageNumber(savedInstanceState.getInt(THREAD_PAGE_KEY, FIRST_PAGE));
-			// TODO: 04/05/2017 saved scroll position doesn't seem to actually get used to set the position?
-			savedScrollPosition = savedInstanceState.getInt(SCROLL_POSITION_KEY, 0);
-			loadFromCache = true;
-		} else {
-			Timber.i("No saved fragment state - initialising by parsing Intent");
-			Intent data = getActivity().getIntent();
-			if (data.getData() != null && data.getScheme().equals("http")) {
-				AwfulURL url = AwfulURL.parse(data.getDataString());
-				setPostJump(url.getFragment().replaceAll("\\D", ""));
-				switch (url.getType()) {
-					case THREAD:
-						if (url.isRedirect()) {
-							startPostRedirect(url.getURL(getPrefs().postPerPage));
-						} else {
-							setThreadId((int) url.getId());
-							setPageNumber((int) url.getPage(getPrefs().postPerPage));
-						}
-						break;
-					case POST:
-						startPostRedirect(url.getURL(getPrefs().postPerPage));
-						break;
-					case INDEX:
-						displayForumIndex();
-						break;
-				}
-			}
-		}
-		// no valid thread ID means do nothing I guess? If the intent that created the activity+fragments didn't request a thread
-        if (getThreadId() <= 0) {
-			return;
-		}
-		// if we recreated the fragment (and had a valid thread ID) we just want to load the cached page data,
-		// so we get the same state as before (we don't want to reload the page and e.g. have all the posts marked as seen)
-		if(loadFromCache) {
-			refreshPosts();
-			refreshInfo();
-		} else {
-        	syncThread();
-        }
-    }
-//--------------------------------
-    @Override
-    public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
-		View result;
+    public View onCreateView(@NonNull LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
 		try {
-			result = inflateView(R.layout.thread_display, aContainer, aInflater);
+			return inflateView(R.layout.thread_display, aContainer, aInflater);
 		} catch (InflateException e) {
 			if (webViewIsMissing(e)) {
 				return null;
@@ -279,8 +218,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 				throw e;
 			}
 		}
+	}
 
-		pageBar = (PageBar) result.findViewById(R.id.page_bar);
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+		pageBar = view.findViewById(R.id.page_bar);
 		pageBar.setListener(new PageBar.PageBarCallbacks() {
 			@Override
 			public void onPageNavigation(boolean nextPage) {
@@ -299,27 +244,18 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		});
 		getAwfulActivity().setPreferredFont(pageBar.getTextView());
 
-		mThreadView = (AwfulWebView) result.findViewById(R.id.thread);
-        initThreadViewProperties();
+		mThreadView = view.findViewById(R.id.thread);
+		initThreadViewProperties();
 
-		mUserPostNotice = (TextView) result.findViewById(R.id.thread_userpost_notice);
+		mUserPostNotice = view.findViewById(R.id.thread_userpost_notice);
 		refreshProbationBar();
 
-		// FAB
-		mFAB  = (FloatingActionButton) result.findViewById(R.id.just_post);
+		mFAB = view.findViewById(R.id.just_post);
 		mFAB.setOnClickListener(onButtonClick);
-		mFAB.setVisibility(View.GONE);
+		mFAB.hide();
 
-		return result;
-	}
-
-
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-
-        setSwipyLayout((SwipyRefreshLayout) view.findViewById(R.id.thread_swipe));
+        setAllowedSwipeRefreshDirections(SwipyRefreshLayoutDirection.BOTH);
+        setSwipyLayout(view.findViewById(R.id.thread_swipe));
 		getSwipyLayout().setColorSchemeResources(ColorProvider.getSRLProgressColors(null));
 		getSwipyLayout().setProgressBackgroundColor(ColorProvider.getSRLBackgroundColor(null));
 		getSwipyLayout().setEnabled(!getPrefs().disablePullNext);
@@ -329,6 +265,44 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     @Override
 	public void onActivityCreated(Bundle aSavedState) {
 		super.onActivityCreated(aSavedState);
+
+        setHasOptionsMenu(true);
+        parentActivity = (ForumsIndexActivity) getActivity();
+        mPostLoaderCallback = new PostLoaderManager();
+        mThreadLoaderCallback = new ThreadDataCallback();
+
+		// if a navigation event is pending, we don't care about any saved state - just do the navigation
+		if (pendingNavigation != null) {
+			Timber.d("Activity attached: found pending navigation event, going there");
+			NavigationEvent event = pendingNavigation;
+			pendingNavigation = null;
+			navigate(event);
+			return;
+		}
+
+		boolean loadFromCache = false;
+		if (aSavedState != null) {
+			// restoring old state - we have a thread ID and page
+			// TODO: 04/05/2017 post filtering state isn't restored properly - need to do filtering AND maintain filtered page/position AND recreate the backstack/'go back' UI
+			Timber.i("Restoring fragment - loading cached posts from database");
+			setThreadId(aSavedState.getInt(THREAD_ID_KEY, NULL_THREAD_ID));
+			setPageNumber(aSavedState.getInt(THREAD_PAGE_KEY, FIRST_PAGE));
+			// TODO: 04/05/2017 saved scroll position doesn't seem to actually get used to set the position?
+			savedScrollPosition = aSavedState.getInt(SCROLL_POSITION_KEY, 0);
+			loadFromCache = true;
+		}
+		// no valid thread ID means do nothing I guess? If the intent that created the activity+fragments didn't request a thread
+		if (getThreadId() <= 0) {
+			return;
+		}
+		// if we recreated the fragment (and had a valid thread ID) we just want to load the cached page data,
+		// so we get the same state as before (we don't want to reload the page and e.g. have all the posts marked as seen)
+		if(loadFromCache) {
+			refreshPosts();
+			refreshInfo();
+		} else {
+			syncThread();
+		}
 		updateUiElements();
 	}
 
@@ -360,21 +334,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
 
 	private WebViewClient threadWebViewClient = new WebViewClient() {
-		@Override
-		public void onPageFinished(WebView view, String url) {
-			setProgress(100);
-			if (mThreadView != null && bodyHtml != null && !bodyHtml.isEmpty()) {
-				mThreadView.refreshPageContents(true);
-			}
-		}
-
 
 		@Override
 		public boolean shouldOverrideUrlLoading(WebView aView, String aUrl) {
 			AwfulURL aLink = AwfulURL.parse(aUrl);
 			switch (aLink.getType()) {
 				case FORUM:
-					displayForum((int) aLink.getId(), (int) aLink.getPage());
+					navigate(new NavigationEvent.Forum((int) aLink.getId(), (int) aLink.getPage()));
 					break;
 				case THREAD:
 					if (aLink.isRedirect()) {
@@ -394,7 +360,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 					}
 					break;
 				case INDEX:
-					displayForumIndex();
+					navigate(NavigationEvent.ForumIndex.INSTANCE);
 					break;
 			}
 			return true;
@@ -408,7 +374,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			return;
 		}
 		mThreadView.setWebViewClient(threadWebViewClient);
-		mThreadView.setWebChromeClient(new LoggingWebChromeClient() {
+		mThreadView.setWebChromeClient(new LoggingWebChromeClient(mThreadView) {
                 @Override
                 public void onProgressChanged(WebView view, int newProgress) {
                     super.onProgressChanged(view, newProgress);
@@ -418,6 +384,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         mThreadView.setJavascriptHandler(clickInterface);
 
         refreshSessionCookie();
+		Timber.d("Setting up WebView container HTML");
 		mThreadView.setContent(getBlankPage());
 
 		mThreadView.setDownloadListener(new DownloadListener() {
@@ -446,7 +413,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         super.onResume();
 		if(mThreadView != null){
 			mThreadView.onResume();
-			mThreadView.refreshPageContents(false);
 		}
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
         refreshInfo();
@@ -502,6 +468,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, NetworkUtils.getCookieString(Constants.COOKIE_NAME_SESSIONHASH));
         	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, NetworkUtils.getCookieString(Constants.COOKIE_NAME_USERID));
         	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, NetworkUtils.getCookieString(Constants.COOKIE_NAME_PASSWORD));
+        	cookieMonster.setAcceptThirdPartyCookies(mThreadView, true);
         	CookieSyncManager.getInstance().sync();
         }
     }
@@ -525,10 +492,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         if(menu == null || getActivity() == null){
             return;
         }
-		MenuItem openClose = menu.findItem(R.id.close);
-		if(openClose != null){
-			openClose.setVisible(threadOpenClose);
-			openClose.setTitle((threadClosed?getString(R.string.thread_open):getString(R.string.thread_close)));
+		MenuItem lockUnlock = menu.findItem(R.id.lock_unlock);
+		if(lockUnlock != null){
+			lockUnlock.setVisible(threadLockableUnlockable);
+			lockUnlock.setTitle((threadLocked ?getString(R.string.thread_unlock):getString(R.string.thread_lock)));
 		}
 		MenuItem find = menu.findItem(R.id.find);
 		if(find != null){
@@ -560,8 +527,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
-			case R.id.close:
-				toggleCloseThread();
+			case R.id.lock_unlock:
+				showThreadLockUnlockDialog();
 				break;
 			case R.id.reply:
 				displayPostReplyDialog();
@@ -814,7 +781,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			Timber.i("Syncing - reloading from site (thread %d, page %d) to update DB", getThreadId(), getPageNumber());
 			// cancel pending post loading requests
 			NetworkUtils.cancelRequests(PostRequest.REQUEST_TAG);
-        	bodyHtml = "";
 			// call this with cancelOnDestroy=false to retain the request's specific type tag
 			final int pageNumber = getPageNumber();
 			int userId = postFilterUserId == null ? BLANK_USER_ID : postFilterUserId;
@@ -942,14 +908,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
                 if (result.getType() == TYPE.THREAD) {
 					int threadId = (int) result.getId();
 					int threadPage = (int) result.getPage(getPrefs().postPerPage);
-					String postJump = result.getFragment().replaceAll("\\D", "");
+					String postJump = result.getFragment();
 					if (bypassBackStack) {
-                        openThread(threadId, threadPage, postJump, true);
+                        openThread(threadId, threadPage, postJump);
                     } else {
                         pushThread(threadId, threadPage, postJump);
                     }
                 } else if (result.getType() == TYPE.INDEX) {
-                    activity.showForumIndex();
+                    activity.navigate(NavigationEvent.ForumIndex.INSTANCE);
                 }
                 redirect = null;
                 bypassBackStack = false;
@@ -1033,16 +999,34 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     private void displayPostReplyDialog() {
         displayPostReplyDialog(getThreadId(), -1, AwfulMessage.TYPE_NEW_REPLY);
     }
-	private void toggleCloseThread(){
-		queueRequest(new CloseOpenRequest(getActivity(), getThreadId()).build(mSelf, new AwfulRequest.AwfulResultCallback<Void>() {
+
+
+	/**
+	 * Show a dialog that allows the user to lock or unlock the current thread, as appropriate.
+	 */
+	private void showThreadLockUnlockDialog() {
+    	new AlertDialog.Builder(getActivity())
+				.setTitle(getString(threadLocked ? R.string.thread_unlock : R.string.thread_lock) + "?")
+				.setPositiveButton(R.string.alert_ok, (dialogInterface, i) -> toggleThreadLock())
+				.setNegativeButton(R.string.cancel, null)
+				.show();
+	}
+
+
+	/**
+	 * Trigger a request to toggle the current thread's locked/unlocked state.
+	 */
+	private void toggleThreadLock(){
+		queueRequest(new ThreadLockUnlockRequest(getActivity(), getThreadId()).build(mSelf, new AwfulRequest.AwfulResultCallback<Void>() {
 			@Override
 			public void success(Void result) {
-				threadClosed = !threadClosed;
+			    // TODO: maybe this should trigger a thread data refresh instead, update everything from the source
+				threadLocked = !threadLocked;
 			}
 
 			@Override
 			public void failure(VolleyError error) {
-				Timber.e((threadClosed?"Thread closing":"Thread reopening") + " failed");
+				Timber.e(String.format("Couldn\'t %s this thread", threadLocked ? "unlock" : "lock"));
 			}
 		}));
 	}
@@ -1058,8 +1042,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
             Timber.d("populateThreadView: displaying %d posts", aPosts.size());
             String html = ThreadDisplay.getHtml(aPosts, AwfulPreferences.getInstance(getActivity()), getPageNumber(), mLastPage);
             refreshSessionCookie();
-            bodyHtml = html;
-			mThreadView.refreshPageContents(true);
+			mThreadView.setBodyHtml(html);
             setProgress(100);
         } catch (Exception e) {
             // If we've already left the activity the webview may still be working to populate,
@@ -1084,8 +1067,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		return postJump;
 	}
 
-	private void setPostJump(String postJump) {
-		this.postJump = postJump;
+	private void setPostJump(@NonNull String postJump) {
+		// TODO: this strips out any prefix (so it handles prefixed fragments AND bare IDs) and adds the required prefix to all. Might be better to handle this in AwfulURL?
+		this.postJump = "post" + postJump.replaceAll("\\D", "");
 	}
 
 	private class ClickInterface extends WebViewJsInterface {
@@ -1104,11 +1088,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			// TODO: 23/01/2017 add methods so you can't mess with the map directly
 			preferences.put("postjumpid", postJump);
 			preferences.put("scrollPosition", Integer.toString(savedScrollPosition));
-		}
-
-		@JavascriptInterface
-		public String getBodyHtml(){
-			return bodyHtml;
 		}
 
 		@JavascriptInterface
@@ -1161,6 +1140,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT).show();
 		}
 
+		@JavascriptInterface
+		public void openUrlMenu(String url) {
+			showUrlMenu(url);
+		}
     }
 
 	
@@ -1203,9 +1186,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			Crashlytics.setBool("Activity exists", activity != null);
 			if (activity != null) {
 				String state = "Activity:";
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-					state += (activity.isDestroyed()) ? "IS_DESTROYED " : "";
-				}
+				state += (activity.isDestroyed()) ? "IS_DESTROYED " : "";
 				state += (activity.isFinishing()) ? "IS_FINISHING" : "";
 				state += (activity.isChangingConfigurations()) ? "IS_CHANGING_CONFIGURATIONS" : "";
 				Crashlytics.setString("Activity state:", state);
@@ -1218,7 +1199,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
 		UrlContextMenu linkActions = UrlContextMenu.newInstance(url, isImage, isGif, isGif ? "Getting file size" : null);
 
-		if (isGif) {
+		if (isGif || !AwfulPreferences.getInstance().canLoadImages()) {
 			queueRequest(new ImageSizeRequest(url, result -> {
 				if (linkActions == null) {
 					return;
@@ -1310,7 +1291,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		}
 		clickInterface.updatePreferences();
 		if(mFAB != null) {
-			mFAB.setVisibility((mPrefs.noFAB?View.GONE:View.VISIBLE));
+			if (mPrefs.noFAB) {
+				mFAB.hide();
+			} else {
+				mFAB.show();
+			}
 		}
 	}
 
@@ -1422,9 +1407,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	 * Clear the thread display, e.g. to show a blank page before loading new content
 	 */
 	private void showBlankPage() {
-		bodyHtml = "";
 		if(mThreadView != null){
-			mThreadView.refreshPageContents(true);
+			mThreadView.setBodyHtml(null);
 		}
 	}
 
@@ -1473,8 +1457,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         	Timber.i("Loaded thread metadata, updating fragment state and UI");
         	if(aData.getCount() >0 && aData.moveToFirst()){
         		mLastPage = AwfulPagedItem.indexToPage(aData.getInt(aData.getColumnIndex(AwfulThread.POSTCOUNT)), getPrefs().postPerPage);
-				threadClosed = aData.getInt(aData.getColumnIndex(AwfulThread.LOCKED))>0;
-				threadOpenClose = aData.getInt(aData.getColumnIndex(AwfulThread.CAN_OPEN_CLOSE))>0;
+				threadLocked = aData.getInt(aData.getColumnIndex(AwfulThread.LOCKED))>0;
+				threadLockableUnlockable = aData.getInt(aData.getColumnIndex(AwfulThread.CAN_OPEN_CLOSE))>0;
         		threadBookmarked = aData.getInt(aData.getColumnIndex(AwfulThread.BOOKMARKED))>0;
 				threadArchived = aData.getInt(aData.getColumnIndex(AwfulThread.ARCHIVED))>0;
 				mTitle = aData.getString(aData.getColumnIndex(AwfulThread.TITLE));
@@ -1501,7 +1485,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         		}
                 invalidateOptionsMenu();
 				if (mFAB != null) {
-					mFAB.setVisibility((getPrefs().noFAB || threadClosed || threadArchived)?View.GONE:View.VISIBLE);
+					if (getPrefs().noFAB || threadLocked || threadArchived) {
+						mFAB.hide();
+					} else {
+						mFAB.show();
+					}
 				}
         	}
         }
@@ -1569,21 +1557,54 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	}
 
 
+	@Override
+	public boolean handleNavigation(@NotNull NavigationEvent event) {
+		// need to check if the fragment is attached to the activity - if not, defer any handled events until it is attached
+		if (event instanceof NavigationEvent.Thread) {
+			if (!isAdded()) {
+				deferNavigation(event);
+			} else {
+				NavigationEvent.Thread thread = (NavigationEvent.Thread) event;
+				openThread(thread.getId(), thread.getPage(), thread.getPostJump());
+			}
+			return true;
+		} else if (event instanceof NavigationEvent.Url) {
+			if (!isAdded()) {
+				deferNavigation(event);
+			} else {
+				NavigationEvent.Url url = (NavigationEvent.Url) event;
+				openThread(url.getUrl());
+			}
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Store a navigation event for handling when this fragment is attached to the activity
+	 */
+	private void deferNavigation(@NonNull NavigationEvent event) {
+		Timber.d("Deferring navigation event(%s) - isAdded = %b", event, isAdded());
+		pendingNavigation = event;
+	}
+
+
 	/**
 	 * Open a thread, jumping to a specific page and post if required.
-	 *
-	 * @param id        The thread's ID
+	 *  @param id        The thread's ID
 	 * @param page        An optional page to display, otherwise it defaults to the first page
 	 * @param postJump    An optional URL fragment representing the post ID to jump to
-	 * @param forceReload if this thread view is already being displayed, nothing will happen - set true to force a reload
 	 */
-	public void openThread(int id, @Nullable Integer page, @Nullable String postJump, boolean forceReload){
-		if (!forceReload && id == currentThreadId && (page == null || page == currentPage)) {
-			// do nothing if there's no change
-			// TODO: 15/01/2018 handle a change in postJump though? Right now this reflects the old logic from ForumsIndexActivity
-			return;
-		}
-		// TODO: 15/01/2018 a call to display a thread may come before the fragment has been properly created - if so, store the request details and perform it when ready. Handle that here or in #loadThread? 
+	private void openThread(int id, @Nullable Integer page, @Nullable String postJump){
+		Timber.i("Opening thread (old/new) ID:%d/%d, PAGE:%s/%s, JUMP:%s/%s",
+				getThreadId(), id, getPageNumber(), page, getPostJump(), postJump);
+		// removed because it included (if !forceReload) and that param was always set to true
+//		if (id == currentThreadId && (page == null || page == currentPage)) {
+//			// do nothing if there's no change
+//			// TODO: 15/01/2018 handle a change in postJump though? Right now this reflects the old logic from ForumsIndexActivity
+//			return;
+//		}
+		// TODO: 15/01/2018 a call to display a thread may come before the fragment has been properly created - if so, store the request details and perform it when ready. Handle that here or in #loadThread?
 		clearBackStack();
 		int threadPage = (page == null) ? FIRST_PAGE : page;
     	loadThread(id, threadPage, postJump, true);
@@ -1593,7 +1614,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	/**
 	 * Open a specific thread represented in an AwfulURL
      */
-	public void openThread(AwfulURL url) {
+	private void openThread(AwfulURL url) {
 		// TODO: fix this prefs stuff, get it initialised somewhere consistent in the lifecycle, preferably in AwfulFragment
 		// TODO: validate the AwfulURL, e.g. make sure it's the correct type
 		if(url == null){

@@ -1,26 +1,14 @@
 package com.ferg.awfulapp.task;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
-import android.text.TextUtils;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.network.NetworkUtils;
-import com.ferg.awfulapp.thread.AwfulMessage;
-import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulSearch;
 import com.ferg.awfulapp.thread.AwfulSearchResult;
 import com.ferg.awfulapp.util.AwfulError;
 
 import org.jsoup.nodes.Document;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Created by matt on 8/8/13.
@@ -52,6 +40,6 @@ public class SearchRequest extends AwfulRequest<AwfulSearchResult> {
 
     @Override
     protected boolean handleError(AwfulError error, Document doc) {
-        return error.getErrorCode() == AwfulError.ERROR_PROBATION || error.isCritical();//Don't allow probation to pass
+        return error.isCritical();
     }
 }

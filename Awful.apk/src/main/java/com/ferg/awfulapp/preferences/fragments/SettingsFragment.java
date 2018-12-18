@@ -16,9 +16,13 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.widget.ListView;
 
+import com.ferg.awfulapp.NavigationEvent;
+import com.ferg.awfulapp.NavigationEventHandler;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.SettingsActivity;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
@@ -37,18 +41,13 @@ import java.util.Map;
  * {@link SettingsActivity#PREFERENCE_XML_FILES} so it can be
  * automatically checked for defaults!</p>
  */
-public abstract class SettingsFragment extends PreferenceFragment {
+public abstract class SettingsFragment extends PreferenceFragment implements NavigationEventHandler {
 
     public static final String TAG = "SettingsFragment";
     private volatile boolean isInflated;
     protected AwfulPreferences mPrefs;
     protected OnSubmenuSelectedListener submenuSelectedListener;
-
-    /*
-        !!!!! DON'T USE STANDARD SWITCH PREFERENCES !!!!!!
-        They're broken, use CustomSwitchPreference instead
-     */
-
+    
     /*
         CONFIGURATION
 
@@ -140,6 +139,31 @@ public abstract class SettingsFragment extends PreferenceFragment {
         divider.setColorFilter(colour.data, PorterDuff.Mode.SRC_IN);
         listview.setDivider(divider);
     }
+
+
+    //
+    // Navigation
+    //
+    // TODO: convert to Kotlin, we only need defaultRoute defined (the interface has default implementations for the others)
+    @Override
+    public boolean handleNavigation(@NotNull NavigationEvent event) {
+        return false;
+    }
+
+    @Override
+    public void defaultRoute(@NotNull NavigationEvent event) {
+        NavigationEventHandler activity = (NavigationEventHandler) getActivity();
+        if (activity != null) {
+            activity.navigate(event);
+        }
+    }
+
+    @Override
+    public void navigate(@NotNull NavigationEvent event) {
+        if (!handleNavigation(event)) defaultRoute(event);
+    }
+
+
 
     /**
      * Set required defaults and selectively enable preferences.

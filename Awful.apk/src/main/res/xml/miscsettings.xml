@@ -17,13 +17,13 @@
                 android:entryValues="@array/orientation_values"
                 android:defaultValue="default"
                 />
-            <com.ferg.awfulapp.preferences.CustomSwitchPreference
+            <SwitchPreference
                 android:key="@string/pref_key_no_fab"
                 android:title="@string/no_fab"
                 android:summary="@string/no_fab_summary"
                 android:defaultValue="false"
                 />
-            <com.ferg.awfulapp.preferences.CustomSwitchPreference
+            <SwitchPreference
                 android:key="@string/pref_key_immersion_mode"
                 android:title="@string/immersion_mode"
                 android:summary="@string/immersion_mode_summary"
@@ -40,7 +40,7 @@
         </PreferenceCategory>
 
         <PreferenceCategory android:title="@string/misc_category_navigation">
-            <com.ferg.awfulapp.preferences.CustomSwitchPreference
+            <SwitchPreference
                 android:key="@string/pref_key_disable_pull_next"
                 android:title="@string/disable_pull_next"
                 android:summary="@string/disable_pull_next_summary"
@@ -52,13 +52,13 @@
                 android:summary="@string/pull_to_refresh_distance_summary"
                 android:defaultValue="0.5"
                 />
-            <com.ferg.awfulapp.preferences.CustomSwitchPreference
+            <SwitchPreference
                 android:key="@string/pref_key_lock_scrolling"
                 android:title="@string/lock_scrolling"
                 android:summary="@string/lock_scrolling_summary"
                 android:defaultValue="false"
                 />
-            <com.ferg.awfulapp.preferences.CustomSwitchPreference
+            <SwitchPreference
                 android:key="@string/pref_key_volume_scroll"
                 android:title="@string/volume_scroll"
                 android:summary="@string/volume_scroll_summary"
