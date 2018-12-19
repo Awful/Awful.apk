@@ -32,10 +32,7 @@
 .postmenu {
     font-weight: bolder;
     font-size: 1.7em;
-    width: 10px;
-    height: 30px;
-    padding: 0 10px;
-    margin-left: 10px;
+    display: contents;
 }
 
 .postmenu:after {
@@ -46,9 +43,9 @@
     display: inline-block;
     -webkit-user-select: none;
     user-select: none;
-    margin-left: -20px;
     margin-top: -10px;
     padding: 10px;
+    height: 100%;
 }
 
 .postcontent {
