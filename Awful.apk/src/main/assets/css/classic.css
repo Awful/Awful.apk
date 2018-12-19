@@ -38,14 +38,14 @@ body {
 
 .postcontent {
     padding: 5px;
-    margin: 5px 15px 0;
+    margin: 5px 5px 0;
     border: none;
 }
 
 .postcontent .bbc-block {
     border-left: 2px solid #eae9ea;
-    margin: 5px 0 5px 5px;
-    padding: 5px 10px 5px 15px;
+    margin: 5px 0;
+    padding: 5px 10px;
 }
 
 .postcontent .self {
