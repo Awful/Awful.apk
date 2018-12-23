@@ -1,22 +1,19 @@
 package com.ferg.awfulapp.task
 
 import android.content.Context
-import android.net.Uri
-import com.ferg.awfulapp.constants.Constants
+import com.ferg.awfulapp.constants.Constants.FUNCTION_MISC
+import com.ferg.awfulapp.constants.Constants.PARAM_ACTION
 import com.ferg.awfulapp.thread.AwfulEmote
 import com.ferg.awfulapp.util.AwfulError
 import org.jsoup.nodes.Document
 
 /**
- * Created by matt on 8/8/13.
+ * Request the current set of site emotes, updating the local database.
  */
-class EmoteRequest(context: Context) : AwfulRequest<Void?>(context, Constants.FUNCTION_MISC) {
+class EmoteRequest(context: Context) : AwfulRequest<Void?>(context, FUNCTION_MISC) {
 
-    override fun generateUrl(urlBuilder: Uri.Builder?): String {
-        with(urlBuilder!!) {
-            appendQueryParameter(Constants.PARAM_ACTION, "showsmilies")
-            return build().toString()
-        }
+    init {
+        parameters.add(PARAM_ACTION, "showsmilies")
     }
 
     @Throws(AwfulError::class)

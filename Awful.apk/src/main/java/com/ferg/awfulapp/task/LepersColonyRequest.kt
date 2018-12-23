@@ -2,7 +2,7 @@ package com.ferg.awfulapp.task
 
 import android.content.Context
 import android.net.Uri
-import com.ferg.awfulapp.constants.Constants
+import com.ferg.awfulapp.constants.Constants.*
 import com.ferg.awfulapp.task.LepersColonyRequest.LepersColonyPage
 import com.ferg.awfulapp.users.LepersColonyFragment.Companion.FIRST_PAGE
 import com.ferg.awfulapp.users.Punishment
@@ -16,7 +16,7 @@ import org.jsoup.nodes.Document
  */
 
 class LepersColonyRequest(context: Context, val page: Int = 1, val userId: String? = null):
-        AwfulStrippedRequest<LepersColonyPage>(context, Constants.FUNCTION_BANLIST) {
+        AwfulStrippedRequest<LepersColonyPage>(context, FUNCTION_BANLIST) {
 
     // allow queued requests to be cancelled when a new one starts, e.g. skipping quickly through pages
     companion object {
@@ -26,11 +26,10 @@ class LepersColonyRequest(context: Context, val page: Int = 1, val userId: Strin
     override val requestTag: Any
         get() = REQUEST_TAG
 
-    override fun generateUrl(urlBuilder: Uri.Builder?): String {
-        with(urlBuilder!!) {
-            appendQueryParameter(Constants.PARAM_PAGE, page.toString())
-            userId?.let { appendQueryParameter(Constants.PARAM_USER_ID, userId) }
-            return build().toString()
+    init {
+        with(parameters) {
+            add(PARAM_PAGE, page.toString())
+            userId?.let { add(PARAM_USER_ID, userId) }
         }
     }
 
@@ -40,7 +39,7 @@ class LepersColonyRequest(context: Context, val page: Int = 1, val userId: Strin
             val lastPage = selectFirst(".pages a[title='Last page']")
                     ?.attr("href")
                     ?.let(Uri::parse)
-                    ?.getQueryParameter(Constants.PARAM_PAGE)
+                    ?.getQueryParameter(PARAM_PAGE)
                     ?.toIntOrNull()
                     ?: thisPage
 

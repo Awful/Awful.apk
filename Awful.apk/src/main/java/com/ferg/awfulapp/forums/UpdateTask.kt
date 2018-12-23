@@ -1,7 +1,6 @@
 package com.ferg.awfulapp.forums
 
 import android.content.Context
-import android.net.Uri
 import android.support.annotation.WorkerThread
 import com.ferg.awfulapp.constants.Constants.DEBUG
 import com.ferg.awfulapp.forums.UpdateTask.ResultListener
@@ -216,15 +215,15 @@ internal abstract class UpdateTask(protected val context: Context, private val t
      * Abstract superclass ensuring [.finishTask] is always called appropriately
      */
     @WorkerThread
-    protected abstract inner class ForumParseTask : AwfulRequest<Void?>(context, null) {
+    protected abstract inner class ForumParseTask(url: String) : AwfulRequest<Void?>(context, url) {
 
         /**
          * The url of the page to retrieve, which is returned in the handle* methods
          */
-        abstract val url: String
-
-
-        override fun generateUrl(urlBuilder: Uri.Builder?): String = url
+//        abstract val url: String
+//
+//
+//        override fun generateUrl(urlBuilder: Uri.Builder?): String = url
 
         // TODO: request errors aren't being handled properly, e.g. failed page loads when you're not logged in don't call here, and the task times out
 

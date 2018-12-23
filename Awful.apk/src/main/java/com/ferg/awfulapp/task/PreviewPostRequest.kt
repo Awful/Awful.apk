@@ -2,7 +2,6 @@ package com.ferg.awfulapp.task
 
 import android.content.ContentValues
 import android.content.Context
-import android.net.Uri
 import com.ferg.awfulapp.constants.Constants.*
 import com.ferg.awfulapp.network.NetworkUtils
 import com.ferg.awfulapp.thread.AwfulMessage
@@ -18,34 +17,33 @@ import org.jsoup.nodes.Document
  * the data on the edit page via the ContentValues parameter, which is sent to
  * the site to retrieve the preview.
  */
-class PreviewPostRequest (context: Context, reply: ContentValues) : AwfulRequest<String>(context, null) {
+class PreviewPostRequest (context: Context, reply: ContentValues)
+    : AwfulRequest<String>(context, FUNCTION_POST_REPLY, isPostRequest = true) {
 // TODO: 18/12/2017 this and PreviewEditRequest are almost identical, merge 'em
     init {
-        with(reply) {
-            val threadId = getAsInteger(AwfulMessage.ID)?.toString()
+        with(parameters) {
+            val threadId = reply.getAsInteger(AwfulMessage.ID)?.toString()
                     ?: throw IllegalArgumentException("No thread ID included")
-            addPostParam(PARAM_ACTION, "postreply")
-            addPostParam(PARAM_THREAD_ID, threadId)
-            addPostParam(PARAM_FORMKEY, getAsString(AwfulPost.FORM_KEY))
-            addPostParam(PARAM_FORM_COOKIE, getAsString(AwfulPost.FORM_COOKIE))
-            addPostParam(PARAM_MESSAGE, getAsString(AwfulMessage.REPLY_CONTENT).run(NetworkUtils::encodeHtml))
+            add(PARAM_ACTION, "postreply")
+            add(PARAM_THREAD_ID, threadId)
+            add(PARAM_FORMKEY, reply.getAsString(AwfulPost.FORM_KEY))
+            add(PARAM_FORM_COOKIE, reply.getAsString(AwfulPost.FORM_COOKIE))
+            add(PARAM_MESSAGE, reply.getAsString(AwfulMessage.REPLY_CONTENT).run(NetworkUtils::encodeHtml))
 
-            addPostParam(PARAM_PARSEURL, YES)
+            add(PARAM_PARSEURL, YES)
             // TODO: this bookmarks every thread you post in, unless you turn it off in a browser - seems bad?
-            if (getAsString(AwfulPost.FORM_BOOKMARK).equals("checked", ignoreCase = true)) {
-                addPostParam(PARAM_BOOKMARK, YES)
+            if (reply.getAsString(AwfulPost.FORM_BOOKMARK).equals("checked", ignoreCase = true)) {
+                add(PARAM_BOOKMARK, YES)
             }
             listOf(AwfulMessage.REPLY_SIGNATURE, AwfulMessage.REPLY_DISABLE_SMILIES)
-                    .forEach { if (containsKey(it)) addPostParam(it, YES) }
+                    .forEach { if (reply.containsKey(it)) add(it, YES) }
 
-            getAsString(AwfulMessage.REPLY_ATTACHMENT)?.let { filePath -> attachFile(PARAM_ATTACHMENT, filePath) }
-            addPostParam(PARAM_SUBMIT, SUBMIT_REPLY)
-            addPostParam(PARAM_PREVIEW, PREVIEW_REPLY)
+            reply.getAsString(AwfulMessage.REPLY_ATTACHMENT)?.let { filePath -> attachFile(PARAM_ATTACHMENT, filePath) }
+            add(PARAM_SUBMIT, SUBMIT_REPLY)
+            add(PARAM_PREVIEW, PREVIEW_REPLY)
         }
-        buildFinalRequest()
     }
 
-    override fun generateUrl(urlBuilder: Uri.Builder?) = FUNCTION_POST_REPLY
 
     override fun handleResponse(doc: Document): String = PostPreviewParseTask(doc).call()
 

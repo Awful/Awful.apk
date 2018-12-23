@@ -1,7 +1,6 @@
 package com.ferg.awfulapp.task
 
 import android.content.Context
-import android.net.Uri
 import com.ferg.awfulapp.constants.Constants.*
 import com.ferg.awfulapp.util.AwfulError
 import org.jsoup.nodes.Document
@@ -19,11 +18,10 @@ class SinglePostRequest(context: Context, private val postId: String)
         get() = REQUEST_TAG
 
 
-    override fun generateUrl(urlBuilder: Uri.Builder?): String {
-        with(urlBuilder!!) {
-            appendQueryParameter(PARAM_ACTION, ACTION_SHOWPOST)
-            appendQueryParameter(PARAM_POST_ID, postId)
-            return build().toString()
+    init {
+        with(parameters) {
+            add(PARAM_ACTION, ACTION_SHOWPOST)
+            add(PARAM_POST_ID, postId)
         }
     }
 

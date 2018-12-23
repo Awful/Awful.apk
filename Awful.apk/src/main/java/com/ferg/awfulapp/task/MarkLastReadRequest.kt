@@ -3,30 +3,29 @@ package com.ferg.awfulapp.task
 import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
-import android.net.Uri
-
 import com.android.volley.VolleyError
-import com.ferg.awfulapp.constants.Constants
+import com.ferg.awfulapp.constants.Constants.*
 import com.ferg.awfulapp.provider.AwfulProvider
 import com.ferg.awfulapp.thread.AwfulPost
 import com.ferg.awfulapp.thread.AwfulThread
 import com.ferg.awfulapp.util.AwfulError
 import com.ferg.awfulapp.util.toSqlBoolean
-
 import org.jsoup.nodes.Document
 
 /**
  * An AwfulRequest that sets a given post as the last one read in a particular thread, updating
  * the database to reflect this when the request is successful.
  */
-class MarkLastReadRequest(context: Context, private val threadId: Int, private val postIndex: Int) : AwfulRequest<Void?>(context, null) {
+class MarkLastReadRequest(context: Context, private val threadId: Int, private val postIndex: Int)
+    : AwfulRequest<Void?>(context, FUNCTION_THREAD, isPostRequest = true) {
     init {
-        addPostParam(Constants.PARAM_ACTION, "setseen")
-        addPostParam(Constants.PARAM_THREAD_ID, Integer.toString(threadId))
-        addPostParam(Constants.PARAM_INDEX, Integer.toString(postIndex))
+        with(parameters) {
+            add(PARAM_ACTION, "setseen")
+            add(PARAM_THREAD_ID, threadId.toString())
+            add(PARAM_INDEX, postIndex.toString())
+        }
     }
 
-    override fun generateUrl(urlBuilder: Uri.Builder?): String = Constants.FUNCTION_THREAD
 
     @Throws(AwfulError::class)
     override fun handleResponse(doc: Document): Void? {

@@ -1,8 +1,7 @@
 package com.ferg.awfulapp.task
 
 import android.content.Context
-import android.net.Uri
-import com.ferg.awfulapp.constants.Constants
+import com.ferg.awfulapp.constants.Constants.BASE_URL
 import com.ferg.awfulapp.preferences.Keys
 import com.ferg.awfulapp.thread.AwfulForum
 import com.ferg.awfulapp.util.AwfulError
@@ -13,7 +12,7 @@ import java.util.regex.Pattern
 /**
  * An AwfulRequest that parses forum icons from the main forums page, and stores them in the database.
  */
-class IndexIconRequest(context: Context) : AwfulRequest<Void?>(context, null) {
+class IndexIconRequest(context: Context) : AwfulRequest<Void?>(context, BASE_URL) {
 
     //TODO: do we even need this anymore? We don't display these forum icons, but we do parse the colours for our custom icons, so check what's needed
     companion object {
@@ -23,13 +22,9 @@ class IndexIconRequest(context: Context) : AwfulRequest<Void?>(context, null) {
     override val requestTag: Any
         get() = REQUEST_TAG
 
-
-    override fun generateUrl(urlBuilder: Uri.Builder?): String = Constants.BASE_URL + "/"
-
     @Throws(AwfulError::class)
     override fun handleResponse(doc: Document): Void? {
         AwfulForum.processForumIcons(doc, contentResolver)
-        updateProgress(80)
 
         //optional section, parses username from PM notification field.
         // TODO: this has nothing to do with parsing forum icons - if we need to update the username, do it separately. Also it's broken when there's an apostrophe in the username?

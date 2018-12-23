@@ -1,7 +1,6 @@
 package com.ferg.awfulapp.task
 
 import android.content.Context
-import android.net.Uri
 import com.ferg.awfulapp.constants.Constants.*
 import com.ferg.awfulapp.preferences.AwfulPreferences
 import com.ferg.awfulapp.preferences.Keys.IGNORE_FORMKEY
@@ -23,11 +22,10 @@ class RefreshUserProfileRequest(context: Context) : AwfulRequest<Void?>(context,
         private const val PROFILE_ID_FOR_THIS_USER = "0"
     }
 
-    override fun generateUrl(urlBuilder: Uri.Builder?): String {
-        with(urlBuilder!!) {
-            appendQueryParameter(PARAM_ACTION, ACTION_PROFILE)
-            appendQueryParameter(PARAM_USER_ID, PROFILE_ID_FOR_THIS_USER)
-            return build().toString()
+    init {
+        with(parameters) {
+            add(PARAM_ACTION, ACTION_PROFILE)
+            add(PARAM_USER_ID, PROFILE_ID_FOR_THIS_USER)
         }
     }
 

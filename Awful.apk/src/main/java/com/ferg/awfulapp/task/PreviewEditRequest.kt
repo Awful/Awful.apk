@@ -2,7 +2,6 @@ package com.ferg.awfulapp.task
 
 import android.content.ContentValues
 import android.content.Context
-import android.net.Uri
 import com.ferg.awfulapp.constants.Constants.*
 import com.ferg.awfulapp.network.NetworkUtils
 import com.ferg.awfulapp.thread.AwfulMessage
@@ -19,31 +18,31 @@ import timber.log.Timber
  * the data on the edit page via the ContentValues parameter, which is sent to
  * the site to retrieve the preview.
  */
-class PreviewEditRequest(context: Context, reply: ContentValues) : AwfulRequest<String>(context, null) {
+class PreviewEditRequest(context: Context, reply: ContentValues)
+    : AwfulRequest<String>(context, FUNCTION_EDIT_POST, isPostRequest = true) {
+
     init {
-        with(reply) {
-            val postId = getAsInteger(AwfulPost.EDIT_POST_ID)?.toString()
+        with(parameters) {
+            val postId = reply.getAsInteger(AwfulPost.EDIT_POST_ID)?.toString()
                     ?: throw IllegalArgumentException("No post ID included")
-            addPostParam(PARAM_ACTION, "updatepost")
-            addPostParam(PARAM_POST_ID, postId)
             Timber.i("$PARAM_POST_ID: $postId")
-            addPostParam(PARAM_MESSAGE, getAsString(AwfulMessage.REPLY_CONTENT).run(NetworkUtils::encodeHtml))
-            addPostParam(PARAM_PARSEURL, YES)
+
+            add(PARAM_ACTION, "updatepost")
+            add(PARAM_POST_ID, postId)
+            add(PARAM_MESSAGE, reply.getAsString(AwfulMessage.REPLY_CONTENT).run(NetworkUtils::encodeHtml))
+            add(PARAM_PARSEURL, YES)
             // TODO: this bookmarks every thread you edit a post in, unless you turn it off in a browser - seems bad for replies, worse for edits?
-            if (getAsString(AwfulPost.FORM_BOOKMARK).equals("checked", ignoreCase = true)) {
-                addPostParam(PARAM_BOOKMARK, YES)
+            if (reply.getAsString(AwfulPost.FORM_BOOKMARK).equals("checked", ignoreCase = true)) {
+                parameters.add(PARAM_BOOKMARK, YES)
             }
 
             listOf(AwfulMessage.REPLY_SIGNATURE, AwfulMessage.REPLY_DISABLE_SMILIES)
-                    .forEach { if (containsKey(it)) addPostParam(it, YES) }
-            addPostParam(PARAM_SUBMIT, SUBMIT_REPLY)
-            addPostParam(PARAM_PREVIEW, PREVIEW_REPLY)
+                    .forEach { if (reply.containsKey(it)) parameters.add(it, YES) }
+            add(PARAM_SUBMIT, SUBMIT_REPLY)
+            add(PARAM_PREVIEW, PREVIEW_REPLY)
         }
-
-        buildFinalRequest()
     }
 
-    override fun generateUrl(urlBuilder: Uri.Builder?) = FUNCTION_EDIT_POST
 
     override fun handleResponse(doc: Document): String = PostPreviewParseTask(doc).call()
 

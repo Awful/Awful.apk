@@ -1,7 +1,6 @@
 package com.ferg.awfulapp.task
 
 import android.content.Context
-import android.net.Uri
 import com.ferg.awfulapp.constants.Constants.*
 import org.jsoup.nodes.Document
 
@@ -11,11 +10,10 @@ import org.jsoup.nodes.Document
 class ThreadLockUnlockRequest(context: Context, private val threadId: Int)
     : AwfulRequest<Void?>(context, FUNCTION_POSTINGS) {
 
-    override fun generateUrl(urlBuilder: Uri.Builder?): String {
-        addPostParam(PARAM_THREAD_ID, threadId.toString())
-        with(urlBuilder!!) {
-            appendQueryParameter(PARAM_ACTION, ACTION_TOGGLE_THREAD_LOCKED)
-            return build().toString()
+    init {
+        with(parameters) {
+            add(PARAM_THREAD_ID, threadId.toString())
+            add(PARAM_ACTION, ACTION_TOGGLE_THREAD_LOCKED)
         }
     }
 

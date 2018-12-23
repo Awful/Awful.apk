@@ -1,12 +1,10 @@
 package com.ferg.awfulapp.task
 
 import android.content.Context
-import android.net.Uri
-
-import com.ferg.awfulapp.constants.Constants
+import com.ferg.awfulapp.constants.Constants.FUNCTION_MEMBER
+import com.ferg.awfulapp.constants.Constants.PARAM_ACTION
 import com.ferg.awfulapp.preferences.Keys
 import com.ferg.awfulapp.util.AwfulError
-
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import timber.log.Timber
@@ -15,10 +13,10 @@ import timber.log.Timber
  * An AwfulRequest that fetches the features active on the user's account (platinum etc.),
  * and stores that data in AwfulPreferences.
  */
-class FeatureRequest(context: Context) : AwfulRequest<Void?>(context, Constants.FUNCTION_MEMBER) {
+class FeatureRequest(context: Context) : AwfulRequest<Void?>(context, FUNCTION_MEMBER) {
 
-    override fun generateUrl(urlBuilder: Uri.Builder?): String {
-        return urlBuilder!!.appendQueryParameter(Constants.PARAM_ACTION, "accountfeatures").build().toString()
+    init {
+        parameters.add(PARAM_ACTION, "accountfeatures")
     }
 
     @Throws(AwfulError::class)

@@ -1,7 +1,6 @@
 package com.ferg.awfulapp.task
 
 import android.content.Context
-import android.net.Uri
 import com.ferg.awfulapp.constants.Constants.*
 import com.ferg.awfulapp.thread.AwfulSearch
 import org.jsoup.nodes.Document
@@ -14,20 +13,14 @@ class SearchResultPageRequest(context: Context, private val queryId: Int, privat
     : AwfulRequest<ArrayList<AwfulSearch>>(context, FUNCTION_SEARCH) {
 
     init {
-        buildFinalRequest()
-    }
-
-    override fun generateUrl(urlBuilder: Uri.Builder?): String {
-        with(urlBuilder!!){
-            appendQueryParameter(PARAM_ACTION, ACTION_RESULTS)
-            appendQueryParameter(PARAM_QID, queryId.toString())
-            appendQueryParameter(PAGE, page.toString())
-            return build().toString()
+        with(parameters){
+            add(PARAM_ACTION, ACTION_RESULTS)
+            add(PARAM_QID, queryId.toString())
+            add(PAGE, page.toString())
         }
     }
 
-    override fun handleResponse(doc: Document): ArrayList<AwfulSearch> {
-        return AwfulSearch.parseSearchResult(doc)
-    }
+    override fun handleResponse(doc: Document): ArrayList<AwfulSearch> =
+            AwfulSearch.parseSearchResult(doc)
 
 }

@@ -98,7 +98,7 @@ class EmotePicker : DialogFragment() {
             viewPager!!.adapter = this
             tabLayout!!.setupWithViewPager(viewPager)
             pages.forEachIndexed { i, page ->
-                tabLayout.getTabAt(i)!!.setIcon(page.iconResId).contentDescription = page.title
+                tabLayout!!.getTabAt(i)!!.setIcon(page.iconResId).contentDescription = page.title
             }
         }
     }

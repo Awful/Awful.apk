@@ -5,6 +5,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
+import android.support.annotation.UiThread
 import android.widget.Toast
 import com.android.volley.*
 import com.android.volley.toolbox.HttpHeaderParser
@@ -15,6 +16,8 @@ import com.ferg.awfulapp.constants.Constants.BASE_URL
 import com.ferg.awfulapp.constants.Constants.SITE_HTML_ENCODING
 import com.ferg.awfulapp.network.NetworkUtils
 import com.ferg.awfulapp.preferences.AwfulPreferences
+import com.ferg.awfulapp.task.AwfulRequest.Parameters.GetParams
+import com.ferg.awfulapp.task.AwfulRequest.Parameters.PostParams
 import com.ferg.awfulapp.util.AwfulError
 import org.apache.http.HttpEntity
 import org.apache.http.entity.ContentType
@@ -28,119 +31,121 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
-import java.util.*
 
 /**
- * Created by Matt Shepard on 8/7/13.
+ * Base class for requests to the Something Awful forums site, with HTML response and error handling.
+ *
+ * You can create a request by subclassing this, specifying the [baseUrl] you want to call
+ * (and [isPostRequest] if necessary), and then adding data to the [parameters] object to define
+ * the GET/POST parameters, any attachments etc. To send the request, call [build] with any required
+ * callback listeners, and pass the resulting [Request] to a Volley queue (e.g. through
+ * [NetworkUtils.queueRequest].
+ *
+ * The only method you need to implement is [handleResponse], where you process the response's HTML
+ * [Document] and produce a return value for any result listeners. If you don't actually need to
+ * do anything with the response (e.g. a fire-and-forget message to the site) you can just set  [T]
+ * to a nullable type (Void? makes most sense if there's no meaningful result) and return null here.
+ *
+ * [handleError] and [customizeProgressListenerError] both have default implementations, but can be
+ * overridden for special error handling and creating custom notification messages. You probably
+ * won't want to change [handleError] in most cases, and if you do add any handler code (e.g. if
+ * a network failure requires the app to update some state) you'll probably just want to call the
+ * super method to get the standard error handling when you're done.
  */
-abstract class AwfulRequest<T>(protected val context: Context, private val baseUrl: String?) {
+abstract class AwfulRequest<T>(protected val context: Context, private val baseUrl: String, private val isPostRequest: Boolean = false) {
     private val handler: Handler = Handler(Looper.getMainLooper())
-    private var params: MutableMap<String, String>? = null
-    private var attachParams: MultipartEntityBuilder? = MultipartEntityBuilder.create()
-    private var httpEntity: HttpEntity? = null
     private var progressListener: ProgressListener? = null
 
+    /**
+     * Represents parameters to be added to the final request.
+     * The concrete type depends on whether this is a GET or POST request.
+     */
+    protected val parameters: Parameters
 
-    open val requestTag: Any
-        get() = REQUEST_TAG
-
-    protected val preferences: AwfulPreferences
-        get() = AwfulPreferences.getInstance(context)
-    protected val contentResolver: ContentResolver
-        get() = context.contentResolver
-
-    interface AwfulResultCallback<T> {
-        /**
-         * Called whenever a queued request successfully completes.
-         * The return value is optional and will likely be null depending on request type.
-         * @param result Response result or null if request does not provide direct result (most requests won't).
-         */
-        fun success(result: T)
-
-        /**
-         * Called whenever a network request fails, parsing was not successful, or if a forums issue is detected.
-         * If AwfulRequest.build() is provided an AwfulFragment ProgressListener, it will automatically pass the error to the AwfulFragment's displayAlert function.
-         * @param error
-         */
-        fun failure(error: VolleyError?)
+    init {
+        parameters = if (isPostRequest) PostParams() else GetParams()
     }
 
 
-    protected fun addPostParam(key: String, value: String) {
-        attachParams?.attachParam(key, value)
-        params = (params ?: HashMap()).apply { this[key] = value }
-    }
+    protected sealed class Parameters {
+        /** add a simple key/value parameter to this request */
+        abstract fun add(key: String, value: String)
 
-    protected fun attachFile(key: String, filename: String) {
-        attachParams = (attachParams ?: MultipartEntityBuilder.create()).apply {
-            params?.forEach { (k, v) -> attachParam(k, v) }
-            addPart(key, FileBody(File(filename)))
+        /** add a file to this request by specifying its path */
+        abstract fun attachFile(key: String, filePath: String)
+
+        class PostParams : Parameters() {
+            val params: MultipartEntityBuilder = MultipartEntityBuilder.create()
+            val httpEntity: HttpEntity by lazy { params.build() }
+
+            override fun add(key: String, value: String) {
+                params.addPart(key, StringBody(value, ContentType.TEXT_PLAIN))
+            }
+
+            override fun attachFile(key: String, filePath: String) {
+                params.addPart(key, FileBody(File(filePath)))
+            }
+        }
+
+        class GetParams : Parameters() {
+            val params = HashMap<String, String>()
+
+            override fun add(key: String, value: String) {
+                params[key] = value
+            }
+
+            override fun attachFile(key: String, filePath: String) {
+                throw RuntimeException("Can't attach a file with a GET request - use a POST one instead")
+            }
         }
     }
 
-    private fun MultipartEntityBuilder.attachParam(key: String, value: String) {
-        addPart(key, StringBody(value, ContentType.TEXT_PLAIN))
-    }
 
-    protected fun buildFinalRequest() {
-        httpEntity = attachParams!!.build()
-    }
+    open val requestTag: Any get() = REQUEST_TAG
 
-    protected fun setPostParams(post: MutableMap<String, String>) {
-        params = post
-    }
+    protected val preferences: AwfulPreferences get() = AwfulPreferences.getInstance(context)
+    protected val contentResolver: ContentResolver get() = context.contentResolver
+
 
     /**
-     * Build request with no status/success/failure callbacks. Useful for fire-and-forget calls.
-     * @return The final request, to pass into queueRequest.
+     * Build this request, for passing into [NetworkUtils.queueRequest].
+     *
+     * You can provide an optional [progressListener] for progress updates on the UI thread
+     * (e.g. to update a loading bar). This will typically be an AwfulFragment.
+     *
+     * Passing in a [resultListener] will give you success and failure callbacks on the UI thread -
+     * if you don't care about these (e.g. for fire-and-forget requests) this can be left null.
+     *
+     * Since both listeners receive 'finished' callbacks, with any resulting errors, you'll probably
+     * want to handle any UI activity through [progressListener] and do any app logic through the
+     * [resultListener] callback. By passing in an AwfulFragment as the progress listener, you'll
+     * get progress bar updates and error message display for free!
      */
-    fun build(): Request<T> {
-        return build(null, null, null)
+    @JvmOverloads
+    fun build(progressListener: ProgressListener? = null, resultListener: AwfulResultCallback<T>? = null): Request<T> {
+        this@AwfulRequest.progressListener = progressListener
+        // if it's a GET request, we need to build the full parameterised URL here
+        val requestUrl =
+                if (parameters is GetParams) {
+                    val builder = Uri.parse(baseUrl).buildUpon()
+                    parameters.params.entries
+                            .fold(builder) { uri, (k, v) -> uri.appendQueryParameter(k, v) }
+                            .build().toString()
+                } else baseUrl
+
+        val successListener = resultListener?.let { Response.Listener(it::success) }
+
+        val errorListener = Response.ErrorListener { error ->
+            // TODO: 29/10/2017 this is a temporary warning/advice for people on older devices who can't connect - remove it once there's something better for recommending security updates
+            if (error?.message?.contains("SSLProtocolException") == true) {
+                Toast.makeText(context, R.string.ssl_connection_error_message, Toast.LENGTH_LONG).show()
+            }
+            resultListener?.failure(error)
+        }
+
+        return ActualRequest(requestUrl, successListener, errorListener).apply { tag = requestTag }
     }
 
-    /**
-     * Build request, using the ProgressListener (AwfulFragment already implements this)
-     * and the AwfulResultCallback (for success/failure messages).
-     * @param prog A ProgressListener, typically the current AwfulFragment instance. A null value disables progress updates.
-     * @param resultListener AwfulResultCallback interface for success/failure callbacks. These will always be called on the UI thread.
-     * @return A result to pass into queueRequest. (AwfulApplication implements queueRequest, AwfulActivity provides a convenience shortcut to access it)
-     */
-    fun build(prog: ProgressListener?, resultListener: AwfulResultCallback<T>?): Request<T> {
-        return build(prog, Response.Listener { response ->
-            resultListener?.success(response)
-        },
-                Response.ErrorListener { error ->
-                    // TODO: 29/10/2017 this is a temporary warning/advice for people on older devices who can't connect - remove it once there's something better for recommending security updates
-                    error?.message?.contains("SSLProtocolException")?.let {
-                        Toast.makeText(context, R.string.ssl_connection_error_message, Toast.LENGTH_LONG).show()
-                    }
-                    resultListener?.failure(error)
-                })
-    }
-
-    /**
-     * Build request, same as build(ProgressListener, AwfulResultCallback<T>) but provides direct access to volley callbacks.
-     * There is no real reason to use this over the other version.
-     * @param prog
-     * @param successListener
-     * @param errorListener
-     * @return
-    </T> */
-    private fun build(prog: ProgressListener?, successListener: Response.Listener<T>?, errorListener: Response.ErrorListener?): Request<T> {
-        progressListener = prog
-        val helper = baseUrl?.run(Uri::parse)?.run(Uri::buildUpon)
-        val actualRequest = ActualRequest(generateUrl(helper), successListener, errorListener)
-        actualRequest.tag = requestTag
-        return actualRequest
-    }
-
-    /**
-     * Generate the URL to use in the request here. This includes any query arguments.
-     * A Uri.Builder is provided with the base URL already processed if a base URL is provided in the constructor.
-     * @param urlBuilder A Uri.Builder instance with the provided base URL. If no URL is provided in the constructor, this will be null.
-     * @return String containing the full request URL.
-     */
-    protected abstract fun generateUrl(urlBuilder: Uri.Builder?): String
 
     /**
      * Handle the parsed response [doc]ument here, process any data and return any values if needed.
@@ -159,7 +164,7 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
      * the request implementation will handle it (and processing can proceed to [handleResponse]).
      * Returns true if the error was handled.
      *
-     * By default this swallows non-critical errors, and allows everything else through. If you need
+     * By default this swallows non-critical errors, and returns false for everything else. If you need
      * different behaviour for some reason, override this!
      */
     protected open fun handleError(error: AwfulError, doc: Document): Boolean = !error.isCritical
@@ -175,14 +180,23 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
      * @return the error to pass to listeners, or null for no error (and no alert)
      */
     protected open fun customizeProgressListenerError(error: VolleyError): VolleyError = error
+    // TODO: check if any request classes should be using this, for better error feedback
 
 
-    protected fun updateProgress(percent: Int) {
+    /**
+     * Pass a progress [percent]age to any progress listener attached to this request.
+     */
+    private fun updateProgress(percent: Int) {
         //updateProgress() will be called from a secondary thread, so run these on the UI thread.
         progressListener?.let { handler.post { it.requestUpdate(this@AwfulRequest, percent) } }
     }
 
 
+    /**
+     * Parse a HTML [Document] from this request's [response].
+     *
+     * Don't override this, it's an internal function that's handled differently by [AwfulStrippedRequest]
+     */
     @Throws(IOException::class)
     protected open fun parseAsHtml(response: NetworkResponse): Document {
         val jsoupParseStart = System.currentTimeMillis()
@@ -190,6 +204,7 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
         Timber.d("Jsoup parsing finished (took ${System.currentTimeMillis() - jsoupParseStart}ms)")
         return doc
     }
+
 
     /**
      * Allows subclasses (i.e. AwfulStrippedRequest) to direct the document to the appropriate handler function.
@@ -200,12 +215,20 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
         return handleResponse(document)
     }
 
+
+    /**
+     * Final Volley Request class, created when the AwfulRequest is complete and ready to be queued.
+     *
+     * Since GET requests (apparently?) require their full parameterised URL to be passed into
+     * the constructor here, we can't just make AwfulRequest a subclass of this, since its subclasses
+     * add their GET parameters in the init blocks
+     */
     private inner class ActualRequest internal constructor(
             url: String,
             private val success: Response.Listener<T>?,
-            errorListener: Response.ErrorListener?
+            errorListener: Response.ErrorListener
     ) : Request<T>(
-            if (params != null) Request.Method.POST else Request.Method.GET,
+            if (isPostRequest) Request.Method.POST else Request.Method.GET,
             url,
             errorListener
     ) {
@@ -223,10 +246,10 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
             try {
                 val doc = parseAsHtml(response)
                 updateProgress(50)
-                    val error = AwfulError.checkPageErrors(doc, preferences)
-                    if (error != null && handleError(error, doc)) {
-                        throw error
-                    }
+                val error = AwfulError.checkPageErrors(doc, preferences)
+                if (error != null && handleError(error, doc)) {
+                    throw error
+                }
 
                 val result = handleResponseDocument(doc)
                 Timber.d("Successful parse: $url\nTook ${System.currentTimeMillis() - startTime}ms")
@@ -240,6 +263,7 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
                 }
                 throw e
             } catch (e: Exception) {
+                // TODO: find out what else this is meant to be catching, because it's swallowing every exception
                 Timber.e(e, "Failed parse: $url")
                 return Response.error(ParseError(e))
             } finally {
@@ -283,48 +307,72 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
 
         @Throws(AuthFailureError::class)
         override fun getHeaders(): Map<String, String> {
-            return (super.getHeaders()?.takeIf { it.isNotEmpty() } ?: HashMap())
-                    .also(NetworkUtils::setCookieHeaders)
+            return mutableMapOf<String, String>().apply(NetworkUtils::setCookieHeaders)
                     .also { Timber.i("getHeaders: %s", this) }
         }
 
-        @Throws(AuthFailureError::class)
-        override fun getParams(): Map<String, String>? = this@AwfulRequest.params
 
         @Throws(AuthFailureError::class)
         override fun getBody(): ByteArray {
-            attachParams?.let {
-                if (httpEntity == null) buildFinalRequest()
-                try {
-                    return ByteArrayOutputStream().apply(httpEntity!!::writeTo).toByteArray()
-                } catch (ioe: IOException) {
-                    Timber.e(ioe, "Failed to convert response body byte stream")
-                }
+            check(parameters is PostParams)
+            return try {
+                ByteArrayOutputStream().apply(parameters.httpEntity::writeTo).toByteArray()
+            } catch (e: IOException) {
+                Timber.w(e, "Failed to convert response body byte stream")
+                super.getBody()
             }
-            return super.getBody()
         }
 
         override fun getBodyContentType(): String {
-            attachParams?.let {
-                if (httpEntity == null) buildFinalRequest()
-                return httpEntity!!.contentType.value
-            }
-            return super.getBodyContentType()
+            check(parameters is PostParams)
+            return parameters.httpEntity.contentType.value
         }
     }
 
 
+    /**
+     * Receives callbacks when a request succeeds or fails.
+     */
+    interface AwfulResultCallback<T> {
+        /**
+         * Called when the queued request successfully completes.
+         *
+         * If the request returns a [result] it will be passed here - most requests don't, in which
+         * case this will be null.
+         */
+        @UiThread
+        fun success(result: T)
+
+        /**
+         * Called when the network request fails, parsing was not successful, or if a forums issue was detected.
+         *
+         * Any generated [error] will be provided here, which may provide useful information!
+         */
+        @UiThread
+        fun failure(error: VolleyError?)
+    }
+
+
+    /**
+     * Receives callbacks on the request's lifecycle.
+     */
     interface ProgressListener {
+        /** Called when the request has been queued */
+        @UiThread
         fun requestStarted(req: AwfulRequest<*>)
+
+        /** Called when the request is announcing a progress [percent]age update */
+        @UiThread
         fun requestUpdate(req: AwfulRequest<*>, percent: Int)
+
+        /** Called when the request has finished, with a possible [error] if it failed */
+        @UiThread
         fun requestEnded(req: AwfulRequest<*>, error: VolleyError?)
     }
 
     companion object {
-
-        /** Used for identifying request types when cancelling, reassign this in subclasses  */
+        /** Used for identifying request types when cancelling, reassign this in subclasses */
         val REQUEST_TAG = Any()
-        val TAG = "AwfulRequest"
 
         private val lenientRetryPolicy = DefaultRetryPolicy(20000, 1, 1f)
     }

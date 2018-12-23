@@ -2,15 +2,11 @@ package com.ferg.awfulapp.task
 
 import android.content.ContentValues
 import android.content.Context
-import android.net.Uri
-
-import com.ferg.awfulapp.constants.Constants
+import com.ferg.awfulapp.constants.Constants.*
 import com.ferg.awfulapp.provider.DatabaseHelper
 import com.ferg.awfulapp.reply.Reply
 import com.ferg.awfulapp.util.AwfulError
-
 import org.jsoup.nodes.Document
-
 import java.sql.Timestamp
 
 /**
@@ -21,13 +17,12 @@ import java.sql.Timestamp
  * options (see [Reply.processReply]) and a current timestamp.
  */
 class ReplyRequest(context: Context, private val threadId: Int)
-    : AwfulRequest<ContentValues>(context, Constants.FUNCTION_POST_REPLY) {
+    : AwfulRequest<ContentValues>(context, FUNCTION_POST_REPLY) {
 
-    override fun generateUrl(urlBuilder: Uri.Builder?): String {
-        with(urlBuilder!!) {
-            appendQueryParameter(Constants.PARAM_ACTION, "newreply")
-            appendQueryParameter(Constants.PARAM_THREAD_ID, threadId.toString())
-            return build().toString()
+    init {
+        with(parameters) {
+            add(PARAM_ACTION, "newreply")
+            add(PARAM_THREAD_ID, threadId.toString())
         }
     }
 

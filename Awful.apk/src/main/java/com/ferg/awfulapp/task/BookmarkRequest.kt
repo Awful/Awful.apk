@@ -2,27 +2,25 @@ package com.ferg.awfulapp.task
 
 import android.content.ContentValues
 import android.content.Context
-import android.net.Uri
-import com.ferg.awfulapp.constants.Constants
+import com.ferg.awfulapp.constants.Constants.*
 import com.ferg.awfulapp.thread.AwfulThread
 import com.ferg.awfulapp.util.AwfulError
 import com.ferg.awfulapp.util.toSqlBoolean
 import org.jsoup.nodes.Document
 
 /**
- * Created by matt on 8/8/13.
+ * Add or remove a bookmark on the site for the given [threadId], updating the local database.
  */
-class BookmarkRequest(context: Context, private val threadId: Int, private val add: Boolean) : AwfulRequest<Void?>(context, null) {
+class BookmarkRequest(context: Context, private val threadId: Int, private val add: Boolean)
+    : AwfulRequest<Void?>(context, FUNCTION_BOOKMARK, isPostRequest = true) {
 
-    override fun generateUrl(urlBuilder: Uri.Builder?): String {
-        addPostParam(Constants.PARAM_THREAD_ID, Integer.toString(threadId))
-        if (add) {
-            addPostParam(Constants.PARAM_ACTION, "add")
-        } else {
-            addPostParam(Constants.PARAM_ACTION, "remove")
+    init {
+        with(parameters) {
+            add(PARAM_THREAD_ID, threadId.toString())
+            add(PARAM_ACTION, if (add) "add" else "remove")
         }
-        return Constants.FUNCTION_BOOKMARK
     }
+
 
     @Throws(AwfulError::class)
     override fun handleResponse(doc: Document): Void? {

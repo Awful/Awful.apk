@@ -1,8 +1,7 @@
 package com.ferg.awfulapp.task
 
 import android.content.Context
-import android.net.Uri
-import com.ferg.awfulapp.constants.Constants
+import com.ferg.awfulapp.constants.Constants.*
 import com.ferg.awfulapp.thread.AwfulThread
 import org.jsoup.nodes.Document
 
@@ -19,19 +18,19 @@ import org.jsoup.nodes.Document
  * something to be aware of.
  */
 class ThreadPageRequest(context: Context, private val threadId: Int, private val page: Int, private val userId: Int = 0)
-    : AwfulStrippedRequest<Void?>(context, Constants.FUNCTION_THREAD) {
+    : AwfulStrippedRequest<Void?>(context, FUNCTION_THREAD) {
 
 
     override val requestTag: Any
         get() = REQUEST_TAG
 
-
-    override fun generateUrl(urlBuilder: Uri.Builder?): String = with(urlBuilder!!) {
-        appendQueryParameter(Constants.PARAM_THREAD_ID, threadId.toString())
-        appendQueryParameter(Constants.PARAM_PER_PAGE, preferences.postPerPage.toString())
-        appendQueryParameter(Constants.PARAM_PAGE, page.toString())
-        if (userId > 0) appendQueryParameter(Constants.PARAM_USER_ID, userId.toString())
-        build().toString()
+    init {
+        with(parameters) {
+            add(PARAM_THREAD_ID, threadId.toString())
+            add(PARAM_PER_PAGE, preferences.postPerPage.toString())
+            add(PARAM_PAGE, page.toString())
+            if (userId > 0) add(PARAM_USER_ID, userId.toString())
+        }
     }
 
     override fun handleResponse(doc: Document): Void? {
@@ -39,10 +38,10 @@ class ThreadPageRequest(context: Context, private val threadId: Int, private val
         return null
     }
 
-    public override fun handleStrippedResponse(doc: Document, currentPage: Int?, totalPages: Int?): Void? {
+    public override fun handleStrippedResponse(document: Document, currentPage: Int?, totalPages: Int?): Void? {
         // TODO: this is all kinda janky, best to use the passed data from the response, right? Instead of relying on 'page' from the request
         val lastPage = totalPages ?: page
-        AwfulThread.parseThreadPage(contentResolver, doc, threadId, page, lastPage, preferences.postPerPage, preferences, userId)
+        AwfulThread.parseThreadPage(contentResolver, document, threadId, page, lastPage, preferences.postPerPage, preferences, userId)
         return null
     }
 

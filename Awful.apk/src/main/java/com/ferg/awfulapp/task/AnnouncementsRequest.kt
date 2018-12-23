@@ -1,8 +1,7 @@
 package com.ferg.awfulapp.task
 
 import android.content.Context
-import android.net.Uri
-import com.ferg.awfulapp.constants.Constants
+import com.ferg.awfulapp.constants.Constants.FUNCTION_ANNOUNCEMENTS
 import com.ferg.awfulapp.preferences.AwfulPreferences
 import com.ferg.awfulapp.thread.AwfulPost
 import com.ferg.awfulapp.thread.AwfulPost.tryConvertToHttps
@@ -23,7 +22,12 @@ import java.util.*
  * of the usual page elements, and only a few properties set in AwfulPost.
  */
 @JvmSuppressWildcards
-class AnnouncementsRequest(context: Context) : AwfulRequest<List<@JvmSuppressWildcards AwfulPost>>(context, null) {
+class AnnouncementsRequest(context: Context)
+    : AwfulRequest<List<@JvmSuppressWildcards AwfulPost>>(context, FUNCTION_ANNOUNCEMENTS) {
+
+    init {
+        parameters.add("forumid", "1")
+    }
 
     private fun parseAnnouncement(aThread: Document): List<AwfulPost> {
         val results = ArrayList<AwfulPost>()
@@ -87,9 +91,6 @@ class AnnouncementsRequest(context: Context) : AwfulRequest<List<@JvmSuppressWil
         }
         return results
     }
-
-
-    override fun generateUrl(urlBuilder: Uri.Builder?): String = Constants.FUNCTION_ANNOUNCEMENTS + "?forumid=1"
 
     @Throws(AwfulError::class)
     override fun handleResponse(doc: Document): List<AwfulPost> {

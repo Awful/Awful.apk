@@ -112,10 +112,7 @@ internal class CrawlerTask(context: Context, priority: Priority) : UpdateTask(co
     /**
      * A request that fetches the main forums page and parses it for sections (Main etc)
      */
-    private inner class MainForumRequest : UpdateTask.ForumParseTask() {
-
-        override val url: String
-            get() = BASE_URL
+    private inner class MainForumRequest : UpdateTask.ForumParseTask(BASE_URL) {
 
         override fun onRequestSucceeded(doc: Document) {
             Timber.i("Parsing main page")
@@ -131,10 +128,10 @@ internal class CrawlerTask(context: Context, priority: Priority) : UpdateTask(co
     /**
      * A request that fetches a forum page and parses it for subforum data
      *
-     * This loads a [url] representing a [forum], and parses the resulting page, adding the data to
+     * This loads a URL representing a [forum], and parses the resulting page, adding the data to
      * the [forum] object.
      */
-    private inner class ParseSubforumsRequest(private val forum: Forum, override val url: String) : UpdateTask.ForumParseTask() {
+    private inner class ParseSubforumsRequest(private val forum: Forum, url: String) : UpdateTask.ForumParseTask(url) {
 
         override fun onRequestSucceeded(doc: Document) {
             parseSubforums(forum, doc)

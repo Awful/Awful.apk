@@ -1,11 +1,8 @@
 package com.ferg.awfulapp.task
 
 import android.content.Context
-import android.net.Uri
-
-import com.ferg.awfulapp.constants.Constants
+import com.ferg.awfulapp.constants.Constants.*
 import com.ferg.awfulapp.util.AwfulError
-
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 
@@ -17,13 +14,14 @@ import org.jsoup.nodes.Element
  * successful, otherwise an error is thrown.
  */
 class ReportRequest(context: Context, private val postId: Int, private val comments: String)
-    : AwfulRequest<String>(context, null) {
+    : AwfulRequest<String>(context, FUNCTION_REPORT, isPostRequest = true) {
 
-    override fun generateUrl(urlBuilder: Uri.Builder?): String {
-        addPostParam(Constants.PARAM_COMMENTS, comments)
-        addPostParam(Constants.PARAM_POST_ID, postId.toString())
-        addPostParam(Constants.PARAM_ACTION, "submit")
-        return Constants.FUNCTION_REPORT
+        init {
+        with(parameters) {
+            add(PARAM_COMMENTS, comments)
+            add(PARAM_POST_ID, postId.toString())
+            add(PARAM_ACTION, "submit")
+        }
     }
 
     @Throws(AwfulError::class)

@@ -28,10 +28,11 @@ internal class DropdownParserTask(context: Context) : UpdateTask(context) {
     private val parsedForums = ArrayList<Forum>()
 
 
-    private inner class DropdownParseRequest : UpdateTask.ForumParseTask() {
+    private inner class DropdownParseRequest : UpdateTask.ForumParseTask(FUNCTION_FORUM) {
 
-        override val url: String
-            get() = "$FUNCTION_FORUM?$PARAM_FORUM_ID=$FORUM_ID_GOLDMINE"
+        init {
+            parameters.add(PARAM_FORUM_ID, FORUM_ID_GOLDMINE.toString())
+        }
 
         override fun onRequestSucceeded(doc: Document) {
             Timber.i("Got page - parsing dropdown to get forum hierarchy")

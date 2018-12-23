@@ -1,7 +1,6 @@
 package com.ferg.awfulapp.task
 
 import android.content.Context
-import android.net.Uri
 import com.ferg.awfulapp.announcements.AnnouncementsManager
 import com.ferg.awfulapp.constants.Constants.*
 import com.ferg.awfulapp.messages.PmManager
@@ -31,11 +30,10 @@ class ThreadListRequest(context: Context, private val forumId: Int, private val 
         get() = REQUEST_TAG
 
 
-    override fun generateUrl(urlBuilder: Uri.Builder?): String {
-        with(urlBuilder!!) {
-            if (forumId != USERCP_ID) appendQueryParameter(PARAM_FORUM_ID, forumId.toString())
-            appendQueryParameter(PARAM_PAGE, page.toString())
-            return build().toString()
+    init {
+        with(parameters) {
+            if (forumId != USERCP_ID) add(PARAM_FORUM_ID, forumId.toString())
+            add(PARAM_PAGE, page.toString())
         }
     }
 
