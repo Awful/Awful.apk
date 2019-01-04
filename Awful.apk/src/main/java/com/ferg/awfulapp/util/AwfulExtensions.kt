@@ -32,3 +32,16 @@ fun Intent.tryGetIntExtra(key: String): Int? = this::getIntExtra.tryGet(key, MIS
 private fun <T> ((String, T) -> T).tryGet(key: String, missing: T): T? {
     this(key, missing).let { result -> return if (result == missing) null else result }
 }
+
+
+/*
+    Database/content values stuff
+ */
+
+/** This Boolean's SQLite representation (an int) */
+val Boolean.toSqlBoolean: Int
+    get() = if (this) 1 else 0
+
+/** This Int's Boolean equivalent, when treated as a SQLite boolean */
+val Int.fromSqlBoolean: Boolean
+    get() = this >= 1

@@ -28,8 +28,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -120,7 +118,7 @@ public class ForumRepository implements UpdateTask.ResultListener {
             UpdateTask cancelledTask = currentUpdateTask;
             currentUpdateTask = null;
             cancelledTask.cancel();
-            NetworkUtils.cancelRequests(IndexIconRequest.REQUEST_TAG);
+            NetworkUtils.cancelRequests(IndexIconRequest.Companion.getREQUEST_TAG());
         }
         for (ForumsUpdateListener listener : listeners) {
             listener.onForumsUpdateCancelled();

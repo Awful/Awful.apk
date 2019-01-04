@@ -191,8 +191,8 @@ class LepersColonyFragment : AwfulFragment(), SwipyRefreshLayout.OnRefreshListen
             val request = LepersColonyRequest(context, navigationState.page, navigationState.userId?.toString())
                     .build(this, object : AwfulRequest.AwfulResultCallback<LepersColonyRequest.LepersColonyPage> {
 
-                        override fun success(result: LepersColonyRequest.LepersColonyPage?) {
-                            result?.run {
+                        override fun success(result: LepersColonyRequest.LepersColonyPage) {
+                            result.run {
                                 lastPage = totalPages
                                 pageBar.updatePagePosition(navigationState.page, lastPage)
                                 showData(punishments)

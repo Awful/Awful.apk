@@ -47,7 +47,6 @@ import android.util.TypedValue;
 
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.util.AwfulUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -89,7 +88,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 
     //GENERAL STUFF
     public String username;
-    public String userTitle;
+    public String userAvatarUrl;
 	/** this is only set when the user is on probation! See {@link com.ferg.awfulapp.util.AwfulError#checkPageErrors(Document, AwfulPreferences)} */
     public int userId;
     public boolean hasPlatinum;
@@ -155,6 +154,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     public boolean disablePullNext;
     public long probationTime;
     public boolean showIgnoreWarning;
+    /** some user-specific validation key that's required when sending a request to ignore a user */
     public String ignoreFormkey;
     public Set<String> markedUsers;
     public Float p2rDistance;
@@ -241,7 +241,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		Resources res = mContext.getResources();
 		scaleFactor				 = res.getDisplayMetrics().density;
 		username                 = getPreference(Keys.USERNAME, "Username");
-        userTitle                = getPreference(Keys.USER_TITLE, (String) null);
+        userAvatarUrl            = getPreference(Keys.USER_AVATAR_URL, (String) null);
 		hasPlatinum              = getPreference(Keys.HAS_PLATINUM, false);
 		hasArchives              = getPreference(Keys.HAS_ARCHIVES, false);
 		hasNoAds         	     = getPreference(Keys.HAS_NO_ADS, false);
