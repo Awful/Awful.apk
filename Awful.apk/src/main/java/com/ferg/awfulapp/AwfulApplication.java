@@ -51,15 +51,7 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
         AnnouncementsManager.init();
         onPreferenceChange(mPref, null);
 
-        // work out how long it's been since the app was updated
-        long hoursSinceInstall = Long.MAX_VALUE;
-        try {
-            PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-            long millisSinceInstall = System.currentTimeMillis() - packageInfo.lastUpdateTime;
-            hoursSinceInstall = TimeUnit.HOURS.convert(millisSinceInstall, TimeUnit.MILLISECONDS);
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
+        long hoursSinceInstall = getHoursSinceInstall();
         Timber.i("App installed %d hours ago", hoursSinceInstall);
 
         // enable Crashlytics on non-debug builds, or debug builds that have been installed for a while
@@ -89,6 +81,21 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
         }
 
         SyncManager.sync(this);
+    }
+
+    /**
+     * @return how long it's been since the app was updated
+     */
+    private long getHoursSinceInstall() {
+        long hoursSinceInstall = Long.MAX_VALUE;
+        try {
+            PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            long millisSinceInstall = System.currentTimeMillis() - packageInfo.lastUpdateTime;
+            hoursSinceInstall = TimeUnit.HOURS.convert(millisSinceInstall, TimeUnit.MILLISECONDS);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return hoursSinceInstall;
     }
 
     /**
