@@ -109,7 +109,7 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
         return appStatePrefs;
     }
 
-    public void setFontFromPreference(TextView textView, int flags) {
+    private void setFontFromPreference(TextView textView, int flags) {
         if (flags < 0 && textView.getTypeface() != null) {
             flags = textView.getTypeface().getStyle();
         } else {
@@ -141,7 +141,7 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
         }
     }
 
-    public void setFontFromPreferenceRecurse(ViewGroup viewGroup, int flags) {
+    private void setFontFromPreferenceRecurse(ViewGroup viewGroup, int flags) {
         for (int x = 0; x < viewGroup.getChildCount(); x++) {
             View child = viewGroup.getChildAt(x);
             if (child instanceof TextView) {
