@@ -163,7 +163,7 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
     @Override
     public void onPreferenceChange(AwfulPreferences prefs, String key) {
         currentFont = fonts.get(mPref.preferredFont);
-        Timber.i("FONT SELECTED: " + mPref.preferredFont);
+        Timber.i("FONT SELECTED: %s", mPref.preferredFont);
     }
 
     public String[] getFontList() {
@@ -172,7 +172,7 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
         }
         Set<String> keys = fonts.keySet();
         for (String key : keys) {
-            Timber.i("Font: " + key);
+            Timber.i("Font: %s", key);
         }
         return keys.toArray(new String[keys.size()]);
     }
@@ -185,7 +185,7 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
             for (String file : files) {
                 String fileName = "fonts/" + file;
                 fonts.put(fileName, Typeface.createFromAsset(getAssets(), fileName));
-                Timber.i("Processed Font: " + fileName);
+                Timber.i("Processed Font: %s", fileName);
             }
         } catch (IOException | RuntimeException e) {
             e.printStackTrace();
@@ -195,7 +195,7 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 
     @Override
     public File getCacheDir() {
-        Timber.i("getCacheDir(): " + super.getCacheDir());
+        Timber.i("getCacheDir(): %s", super.getCacheDir());
         return super.getCacheDir();
     }
 
