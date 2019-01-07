@@ -120,22 +120,14 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
             textView.setTypeface(currentFont, flags);
     }
 
-    private void setFontFromPreferenceRecurse(ViewGroup viewGroup, int flags) {
-        for (int x = 0; x < viewGroup.getChildCount(); x++) {
-            View child = viewGroup.getChildAt(x);
-            if (child instanceof TextView) {
-                setFontFromPreference((TextView) child, flags);
-            } else if (child instanceof ViewGroup) {
-                setFontFromPreferenceRecurse((ViewGroup) child, flags);
-            }
-        }
-    }
-
     public void setPreferredFont(View view, int flags) {
-        if (view instanceof TextView) {
+        if (view instanceof TextView)
             setFontFromPreference((TextView) view, flags);
-        } else if (view instanceof ViewGroup) {
-            setFontFromPreferenceRecurse((ViewGroup) view, flags);
+        else if (view instanceof ViewGroup) {
+            ViewGroup viewGroup = (ViewGroup) view;
+
+            for (int i = 0; i < viewGroup.getChildCount(); i++)
+                setPreferredFont(viewGroup.getChildAt(i), flags);
         }
     }
 
