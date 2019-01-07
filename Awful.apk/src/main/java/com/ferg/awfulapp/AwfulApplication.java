@@ -110,17 +110,14 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
     }
 
     private void setFontFromPreference(TextView textView, int flags) {
-        if (flags < 0 && textView.getTypeface() != null) {
-            flags = textView.getTypeface().getStyle();
-        } else {
-            flags = Typeface.NORMAL;
-        }
-        if (fonts.size() == 0) {
+        flags = flags < 0 && textView.getTypeface() != null ?
+                textView.getTypeface().getStyle() : Typeface.NORMAL;
+
+        if (fonts.size() == 0)
             processFonts();
-        }
-        if (currentFont != null) {
+
+        if (currentFont != null)
             textView.setTypeface(currentFont, flags);
-        }
     }
 
     private void setFontFromPreferenceRecurse(ViewGroup viewGroup, int flags) {
