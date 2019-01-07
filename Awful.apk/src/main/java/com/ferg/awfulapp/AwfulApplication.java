@@ -122,17 +122,17 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
             if (mPref.preferredFont.contains("mono")) {
                 switch (flags) {
                     case Typeface.BOLD:
-                        textView.setTypeface(currentFont, Typeface.MONOSPACE.BOLD);
+                        textView.setTypeface(currentFont, Typeface.BOLD);
                         break;
                     case Typeface.ITALIC:
-                        textView.setTypeface(currentFont, Typeface.MONOSPACE.ITALIC);
+                        textView.setTypeface(currentFont, Typeface.ITALIC);
                         break;
                     case Typeface.BOLD_ITALIC:
-                        textView.setTypeface(currentFont, Typeface.MONOSPACE.BOLD_ITALIC);
+                        textView.setTypeface(currentFont, Typeface.BOLD_ITALIC);
                         break;
                     case Typeface.NORMAL:
                     default:
-                        textView.setTypeface(currentFont, Typeface.MONOSPACE.NORMAL);
+                        textView.setTypeface(currentFont, Typeface.NORMAL);
                         break;
                 }
             } else {
