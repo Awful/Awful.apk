@@ -37,6 +37,7 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
     private static boolean crashlyticsEnabled = false;
 
     private AwfulPreferences mPref;
+    private static final String FONT_PATH = "fonts";
     private final Map<String, Typeface> fonts = new HashMap<>();
     private Typeface currentFont;
 
@@ -163,14 +164,14 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
         String[] files = null;
 
         try {
-            files = getAssets().list("fonts");
+            files = getAssets().list(FONT_PATH);
         } catch (IOException | RuntimeException e) {
             e.printStackTrace();
         }
 
         if (files != null) {
             for (String file : files) {
-                String fileName = "fonts/" + file;
+                String fileName = String.format("%s/%s", FONT_PATH, file);
                 fonts.put(fileName, Typeface.createFromAsset(getAssets(), fileName));
                 Timber.i("Processed Font: %s", fileName);
             }
