@@ -159,16 +159,23 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
     private void buildFontList() {
         fonts.clear();
         fonts.put("default", Typeface.defaultFromStyle(Typeface.NORMAL));
+
+        String[] files = null;
+
         try {
-            String[] files = getAssets().list("fonts");
+            files = getAssets().list("fonts");
+        } catch (IOException | RuntimeException e) {
+            e.printStackTrace();
+        }
+
+        if (files != null) {
             for (String file : files) {
                 String fileName = "fonts/" + file;
                 fonts.put(fileName, Typeface.createFromAsset(getAssets(), fileName));
                 Timber.i("Processed Font: %s", fileName);
             }
-        } catch (IOException | RuntimeException e) {
-            e.printStackTrace();
         }
+
         onPreferenceChange(mPref, null);
     }
 
