@@ -21,6 +21,7 @@ import com.jakewharton.threetenabp.AndroidThreeTen;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -36,7 +37,7 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
     private static boolean crashlyticsEnabled = false;
 
     private AwfulPreferences mPref;
-    private final HashMap<String, Typeface> fonts = new HashMap<>();
+    private final Map<String, Typeface> fonts = new HashMap<>();
     private Typeface currentFont;
 
     @Override
