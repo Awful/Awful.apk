@@ -121,7 +121,7 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
                 textView.getTypeface().getStyle() : Typeface.NORMAL;
 
         if (fonts.size() == 0)
-            processFonts();
+            buildFontList();
 
         if (currentFont != null)
             textView.setTypeface(currentFont, flags);
@@ -145,9 +145,9 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
     }
 
     public String[] getFontList() {
-        if (fonts.size() == 0) {
-            processFonts();
-        }
+        if (fonts.size() == 0)
+            buildFontList();
+
         Set<String> keys = fonts.keySet();
         for (String key : keys) {
             Timber.i("Font: %s", key);
@@ -155,7 +155,7 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
         return keys.toArray(new String[keys.size()]);
     }
 
-    private void processFonts() {
+    private void buildFontList() {
         fonts.clear();
         fonts.put("default", Typeface.defaultFromStyle(Typeface.NORMAL));
         try {
