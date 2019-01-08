@@ -51,7 +51,7 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
         NetworkUtils.init(this);
         AndroidThreeTen.init(this);
         AnnouncementsManager.init();
-        onPreferenceChange(mPref, null);
+        setCurrentFont(mPref.preferredFont);
 
         long hoursSinceInstall = getHoursSinceInstall();
         Timber.i("App installed %d hours ago", hoursSinceInstall);
@@ -142,8 +142,12 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 
     @Override
     public void onPreferenceChange(AwfulPreferences prefs, String key) {
-        currentFont = fonts.get(mPref.preferredFont);
-        Timber.i("FONT SELECTED: %s", mPref.preferredFont);
+        setCurrentFont(prefs.preferredFont);
+    }
+
+    private void setCurrentFont(String fontName) {
+        currentFont = fonts.get(fontName);
+        Timber.i("FONT SELECTED: %s", fontName);
     }
 
     public String[] getFontList() {
@@ -177,7 +181,7 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
             }
         }
 
-        onPreferenceChange(mPref, null);
+        setCurrentFont(mPref.preferredFont);
     }
 
     @Override
