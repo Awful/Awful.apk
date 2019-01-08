@@ -153,7 +153,7 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
         for (String key : keys) {
             Timber.i("Font: %s", key);
         }
-        return keys.toArray(new String[keys.size()]);
+        return keys.toArray(new String[0]);
     }
 
     private void buildFontList() {
