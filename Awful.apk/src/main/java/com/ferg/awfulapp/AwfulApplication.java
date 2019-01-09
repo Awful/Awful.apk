@@ -146,7 +146,11 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 
     private void setCurrentFont(String fontName) {
         currentFont = fonts.get(fontName);
-        Timber.i("FONT SELECTED: %s", fontName);
+
+        if (currentFont != null)
+            Timber.i("Font Selected: %s", fontName);
+        else
+            Timber.e("Couldn't select font: %s", fontName);
     }
 
     public String[] getFontList() {
