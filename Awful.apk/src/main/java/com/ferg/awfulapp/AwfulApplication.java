@@ -56,15 +56,15 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 
         // enable Crashlytics on non-debug builds, or debug builds that have been installed for a while
         crashlyticsEnabled = !BuildConfig.DEBUG || hoursSinceInstall > 4;
+
         if (crashlyticsEnabled) {
             Fabric.with(this, new Crashlytics());
-            Timber.plant(new CrashlyticsReportingTree());
-            if (mPref.sendUsernameInReport) {
+
+            if (mPref.sendUsernameInReport)
                 Crashlytics.setUserName(mPref.username);
-            }
-        } else {
-            Timber.plant(new Timber.DebugTree());
         }
+
+        Timber.plant(crashlyticsEnabled ? new CrashlyticsReportingTree() : new Timber.DebugTree());
 
         Timber.i("App installed %d hours ago", hoursSinceInstall);
 
