@@ -20,9 +20,9 @@ import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import io.fabric.sdk.android.Fabric;
@@ -154,11 +154,8 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
     }
 
     public String[] getFontList() {
-        Set<String> keys = fonts.keySet();
-        for (String key : keys) {
-            Timber.i("Font: %s", key);
-        }
-        return keys.toArray(new String[0]);
+        Timber.i("Font list: %s", fonts.keySet());
+        return fonts.keySet().toArray(new String[0]);
     }
 
     private void buildFontList() {
