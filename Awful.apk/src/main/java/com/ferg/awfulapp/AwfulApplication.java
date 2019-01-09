@@ -20,7 +20,6 @@ import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -54,7 +53,6 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
         buildFontList();
 
         long hoursSinceInstall = getHoursSinceInstall();
-        Timber.i("App installed %d hours ago", hoursSinceInstall);
 
         // enable Crashlytics on non-debug builds, or debug builds that have been installed for a while
         crashlyticsEnabled = !BuildConfig.DEBUG || hoursSinceInstall > 4;
@@ -67,6 +65,8 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
         } else {
             Timber.plant(new Timber.DebugTree());
         }
+
+        Timber.i("App installed %d hours ago", hoursSinceInstall);
 
         if (Constants.DEBUG) {
             Timber.d("*\n*\n*Debug active\n*\n*");
