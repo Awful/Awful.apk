@@ -126,6 +126,8 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 
         if (currentFont != null)
             textView.setTypeface(currentFont, textStyle);
+        else
+            Timber.e("currentFont is null");
     }
 
     public void setPreferredFont(View view, int flags) {
@@ -170,12 +172,15 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
             e.printStackTrace();
         }
 
-        if (files != null) {
-            for (String file : files) {
-                String fileName = String.format("%s/%s", FONT_PATH, file);
-                fonts.put(fileName, Typeface.createFromAsset(getAssets(), fileName));
-                Timber.i("Processed Font: %s", fileName);
-            }
+        if (files == null) {
+            Timber.e("Couldn't load fonts from files?");
+            return;
+        }
+
+        for (String file : files) {
+            String fileName = String.format("%s/%s", FONT_PATH, file);
+            fonts.put(fileName, Typeface.createFromAsset(getAssets(), fileName));
+            Timber.i("Processed Font: %s", fileName);
         }
 
         setCurrentFont(mPref.preferredFont);
