@@ -4,11 +4,8 @@ import android.app.Application;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Typeface;
 import android.os.StrictMode;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
 import com.ferg.awfulapp.announcements.AnnouncementsManager;
@@ -19,9 +16,6 @@ import com.ferg.awfulapp.sync.SyncManager;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import io.fabric.sdk.android.Fabric;
@@ -35,22 +29,21 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
     private static SharedPreferences appStatePrefs;
     private static boolean crashlyticsEnabled = false;
 
-    private AwfulPreferences mPref;
-    private static final String FONT_PATH = "fonts";
-    private final Map<String, Typeface> fonts = new HashMap<>();
-    private Typeface currentFont;
+    private FontManager fontManager;
 
     @Override
     public void onCreate() {
         super.onCreate();
+
         // initialise the AwfulPreferences singleton first since a lot of things rely on it for a Context
-        mPref = AwfulPreferences.getInstance(this, this);
+        AwfulPreferences mPref = AwfulPreferences.getInstance(this, this);
+
         appStatePrefs = this.getSharedPreferences(APP_STATE_PREFERENCES, MODE_PRIVATE);
 
         NetworkUtils.init(this);
         AndroidThreeTen.init(this);
         AnnouncementsManager.init();
-        buildFontList();
+        fontManager = new FontManager(mPref, getAssets());
 
         long hoursSinceInstall = getHoursSinceInstall();
 
@@ -118,72 +111,17 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
         return appStatePrefs;
     }
 
-    private void setTextViewTypefaceToCurrentFont(TextView textView, int textStyle) {
-        if (textStyle < 0 || textStyle > 3) {
-            textStyle = textView.getTypeface() == null ? Typeface.NORMAL :
-                    textView.getTypeface().getStyle();
-        }
-
-        if (currentFont != null)
-            textView.setTypeface(currentFont, textStyle);
-        else
-            Timber.e("currentFont is null");
-    }
-
     public void setPreferredFont(View view, int flags) {
-        if (view instanceof TextView)
-            setTextViewTypefaceToCurrentFont((TextView) view, flags);
-        else if (view instanceof ViewGroup) {
-            ViewGroup viewGroup = (ViewGroup) view;
-
-            for (int i = 0; i < viewGroup.getChildCount(); i++)
-                setPreferredFont(viewGroup.getChildAt(i), flags);
-        }
+        fontManager.setTypefaceToCurrentFont(view, flags);
     }
 
     @Override
     public void onPreferenceChange(AwfulPreferences prefs, String key) {
-        setCurrentFont(prefs.preferredFont);
-    }
-
-    private void setCurrentFont(String fontName) {
-        currentFont = fonts.get(fontName);
-
-        if (currentFont != null)
-            Timber.i("Font Selected: %s", fontName);
-        else
-            Timber.e("Couldn't select font: %s", fontName);
+        fontManager.setCurrentFont(prefs.preferredFont);
     }
 
     public String[] getFontList() {
-        Timber.i("Font list: %s", fonts.keySet());
-        return fonts.keySet().toArray(new String[0]);
-    }
-
-    private void buildFontList() {
-        fonts.clear();
-        fonts.put("default", Typeface.defaultFromStyle(Typeface.NORMAL));
-
-        String[] files = null;
-
-        try {
-            files = getAssets().list(FONT_PATH);
-        } catch (IOException | RuntimeException e) {
-            e.printStackTrace();
-        }
-
-        if (files == null) {
-            Timber.e("Couldn't load fonts from files?");
-            return;
-        }
-
-        for (String file : files) {
-            String fileName = String.format("%s/%s", FONT_PATH, file);
-            fonts.put(fileName, Typeface.createFromAsset(getAssets(), fileName));
-            Timber.i("Processed Font: %s", fileName);
-        }
-
-        setCurrentFont(mPref.preferredFont);
+        return fontManager.getFontList();
     }
 
     @Override
