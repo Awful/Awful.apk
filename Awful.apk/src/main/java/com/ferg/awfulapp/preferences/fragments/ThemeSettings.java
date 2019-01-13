@@ -61,7 +61,6 @@ public class ThemeSettings extends SettingsFragment {
     protected void initialiseSettings() {
         super.initialiseSettings();
         findPrefById(R.string.pref_key_launcher_icon).setOnPreferenceChangeListener(new IconListener());
-        Pattern fontFilename = Pattern.compile("fonts/(.*).ttf.mp3", Pattern.CASE_INSENSITIVE);
         Activity activity = getActivity();
         // TODO: 25/04/2017 a separate permissions class would probably be good, keep all this garbage in one place
         if (AwfulUtils.isMarshmallow()) {
@@ -81,29 +80,12 @@ public class ThemeSettings extends SettingsFragment {
             }
         }
         refreshListPreferences();
-
-        // completely replace all entries in the font ListPreference
-        ListPreference f = (ListPreference) findPrefById(R.string.pref_key_preferred_font);
-        String[] fontList = ((AwfulApplication) activity.getApplication()).getFontList();
-        String[] fontNames = new String[fontList.length];
-        String thisFontName;
-        for (int x = 0; x < fontList.length; x++) {
-            Matcher fontName = fontFilename.matcher(fontList[x]);
-            if (fontName.find()) {
-                thisFontName = fontName.group(1).replaceAll("_", " ");
-            } else {//if the regex fails, try our best to clean up the filename.
-                thisFontName = fontList[x].replaceAll(".ttf.mp3", "").replaceAll("fonts/", "").replaceAll("_", " ");
-            }
-            fontNames[x] = WordUtils.capitalize(thisFontName);
-        }
-        //noinspection ConstantConditions - let it crash if the preference is missing, someone screwed up
-        f.setEntries(fontNames);
-        f.setEntryValues(fontList);
     }
 
     private void refreshListPreferences() {
         refreshLayoutPreference();
         refreshThemePreference();
+        refreshFontListPreference();
     }
 
     /**
@@ -197,6 +179,40 @@ public class ThemeSettings extends SettingsFragment {
                                           @NonNull List<CharSequence> values) {
         pref.setEntries(entries.toArray(new CharSequence[entries.size()]));
         pref.setEntryValues(values.toArray(new CharSequence[values.size()]));
+    }
+
+    private void refreshFontListPreference() {
+        String[] fontList = ((AwfulApplication) getActivity().getApplication()).getFontList();
+
+        ListPreference listPreference = (ListPreference) findPrefById(R.string.pref_key_preferred_font);
+
+        //noinspection ConstantConditions - let it crash if the preference is missing, someone screwed up
+        listPreference.setEntries(extractFontNames(fontList));
+        listPreference.setEntryValues(fontList);
+    }
+
+    @NonNull
+    private static String[] extractFontNames(@NonNull String[] fontList) {
+        String[] fontNames = new String[fontList.length];
+
+        Pattern pattern = Pattern.compile("fonts/(.*).ttf.mp3", Pattern.CASE_INSENSITIVE);
+
+        for (int i = 0; i < fontList.length; i++) {
+            String fontName;
+            Matcher matcher = pattern.matcher(fontList[i]);
+
+            if (matcher.find()) {
+                fontName = matcher.group(1).replaceAll("_", " ");
+            } else {
+                //if the regex fails, try our best to clean up the filename.
+                fontName = fontList[i].replaceAll(".ttf.mp3", "")
+                        .replaceAll("fonts/", "")
+                        .replaceAll("_", " ");
+            }
+
+            fontNames[i] = WordUtils.capitalize(fontName);
+        }
+        return fontNames;
     }
 
 
