@@ -59,7 +59,6 @@ import java.net.URLEncoder;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -367,27 +366,24 @@ public class NetworkUtils {
     }
 
     public static String getQueryStringParameters(HashMap<String, String> aParams) {
+        if (aParams == null)
+            return "";
+
         StringBuilder result = new StringBuilder("?");
 
-        if (aParams != null) {
-            try {
-                // Loop over each parameter and add it to the query string
-                Iterator<Map.Entry<String, String>> iter = aParams.entrySet().iterator();
+        try {
+            String separator = "";
 
-                while (iter.hasNext()) {
-                    Map.Entry<String, String> param = iter.next();
+            for (Map.Entry<String, String> entry : aParams.entrySet()) {
+                result.append(separator)
+                        .append(entry.getKey())
+                        .append("=")
+                        .append(URLEncoder.encode(entry.getValue(), "UTF-8"));
 
-                    result.append(param.getKey()).append("=").append(URLEncoder.encode(param.getValue(), "UTF-8"));
-
-                    if (iter.hasNext()) {
-                        result.append("&");
-                    }
-                }
-            } catch (UnsupportedEncodingException e) {
-                Timber.i(e.toString());
+                separator = "&";
             }
-        } else {
-            return "";
+        } catch (UnsupportedEncodingException e) {
+            Timber.i(e.toString());
         }
 
         return result.toString();
