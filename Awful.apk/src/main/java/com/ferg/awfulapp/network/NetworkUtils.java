@@ -73,26 +73,24 @@ public class NetworkUtils {
     private static final Pattern unencodeCharactersPattern = Pattern.compile("&#(\\d+);");
     private static final Pattern encodeCharactersPattern = Pattern.compile("([^\\x00-\\x7F])");
 
-
-    private static RequestQueue     mNetworkQueue;
-    private static LRUImageCache    mImageCache;
-    private static ImageLoader      mImageLoader;
+    private static RequestQueue mNetworkQueue;
+    private static LRUImageCache mImageCache;
+    private static ImageLoader mImageLoader;
 
     private static CookieManager ckmngr;
 
     private static String cookie = null;
     private static final String COOKIE_HEADER = "Cookie";
 
-
     static {
         ckmngr = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
         CookieHandler.setDefault(ckmngr);
     }
 
-
     /**
      * Initialise request handling and caching - call this early!
-     * @param context   A context used to create a cache dir
+     *
+     * @param context A context used to create a cache dir
      */
     public static void init(Context context) {
         // update the security provider first, to ensure we fix SSL errors before setting anything else up
@@ -119,8 +117,7 @@ public class NetworkUtils {
         }
     }
 
-
-    public static void queueRequest(Request request){
+    public static void queueRequest(Request request) {
         if (mNetworkQueue != null) {
             mNetworkQueue.add(request);
         } else {
@@ -128,8 +125,7 @@ public class NetworkUtils {
         }
     }
 
-
-    public static void cancelRequests(Object tag){
+    public static void cancelRequests(Object tag) {
         if (mNetworkQueue != null) {
             mNetworkQueue.cancelAll(tag);
         } else {
@@ -139,12 +135,12 @@ public class NetworkUtils {
 
     /**
      * Add the current session cookie's data to a header map.
-     *
+     * <p>
      * The data is provided as a single header - see {@link #restoreLoginCookies(Context)} for the format.
      */
     public static void setCookieHeaders(@NonNull Map<String, String> headers) {
-        if(cookie == null){
-            Log.e(TAG,"Cookie was empty for some reason, trying to restore cookie");
+        if (cookie == null) {
+            Log.e(TAG, "Cookie was empty for some reason, trying to restore cookie");
             restoreLoginCookies(AwfulPreferences.getInstance().getContext());
         }
         if (!cookie.isEmpty()) {
@@ -200,7 +196,7 @@ public class NetworkUtils {
             ckmngr.getCookieStore().add(URI.create(Constants.COOKIE_DOMAIN), useridCookie);
             ckmngr.getCookieStore().add(URI.create(Constants.COOKIE_DOMAIN), passwordCookie);
             ckmngr.getCookieStore().add(URI.create(Constants.COOKIE_DOMAIN), sessionhashCookie);
-            if(Constants.DEBUG) {
+            if (Constants.DEBUG) {
                 Log.w(TAG, "Cookies restored from prefs");
                 Log.w(TAG, "Cookie dump: " + TextUtils.join("\n", ckmngr.getCookieStore().getCookies()));
             }
@@ -210,7 +206,7 @@ public class NetworkUtils {
             logMsg += (useridCookieValue == null) ? "USER_ID is NULL\n" : "";
             logMsg += (passwordCookieValue == null) ? "PASSWORD is NULL\n" : "";
             logMsg += (expiry == -1) ? "EXPIRY is -1" : "";
-            if(Constants.DEBUG) Log.w(TAG, logMsg);
+            if (Constants.DEBUG) Log.w(TAG, logMsg);
             cookie = "";
         }
 
@@ -223,7 +219,7 @@ public class NetworkUtils {
      */
     public static synchronized void clearLoginCookies(Context ctx) {
         // First clear out the persistent preferences...
-        if(null == ctx){
+        if (null == ctx) {
             ctx = AwfulPreferences.getInstance().getContext();
         }
         SharedPreferences prefs = ctx.getSharedPreferences(
@@ -276,7 +272,7 @@ public class NetworkUtils {
                 // keep the soonest valid expiry in case they don't match
                 Calendar c = Calendar.getInstance();
                 c.add(Calendar.SECOND, ((int) cookie.getMaxAge()));
-                Date cookieExpiryDate  = c.getTime();
+                Date cookieExpiryDate = c.getTime();
                 if (expires == null || (cookieExpiryDate != null && cookieExpiryDate.before(expires))) {
                     expires = cookieExpiryDate;
                 }
@@ -337,7 +333,7 @@ public class NetworkUtils {
             if (urlConnection != null) {
                 response = Jsoup.parse(urlConnection.getInputStream(), CHARSET, Constants.BASE_URL);
             }
-        }finally {
+        } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
             }
@@ -345,7 +341,6 @@ public class NetworkUtils {
         Log.i(TAG, "Fetched " + location);
         return response;
     }
-
 
     public static String getRedirect(String aUrl, HashMap<String, String> aParams) throws Exception {
         URI location;
@@ -371,14 +366,13 @@ public class NetworkUtils {
         return null;
     }
 
-
     public static String getQueryStringParameters(HashMap<String, String> aParams) {
         StringBuilder result = new StringBuilder("?");
 
         if (aParams != null) {
             try {
                 // Loop over each parameter and add it to the query string
-                Iterator<Map.Entry<String,String>> iter = aParams.entrySet().iterator();
+                Iterator<Map.Entry<String, String>> iter = aParams.entrySet().iterator();
 
                 while (iter.hasNext()) {
                     Map.Entry<String, String> param = iter.next();
@@ -400,7 +394,7 @@ public class NetworkUtils {
     }
 
     public static void logCookies() {
-        if(Constants.DEBUG) {
+        if (Constants.DEBUG) {
             Log.i(TAG, "---BEGIN COOKIE DUMP---");
             List<HttpCookie> cookies = ckmngr.getCookieStore().getCookies();
             for (HttpCookie c : cookies) {
@@ -444,6 +438,4 @@ public class NetworkUtils {
         fixCharMatch.appendTail(unencodedContent);
         return unencodedContent.toString();
     }
-
-
 }
