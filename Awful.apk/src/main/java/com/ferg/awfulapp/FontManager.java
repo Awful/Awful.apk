@@ -6,8 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.ferg.awfulapp.preferences.AwfulPreferences;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,8 +17,8 @@ public class FontManager {
     private Typeface currentFont;
     private final Map<String, Typeface> fonts = new HashMap<>();
 
-    public FontManager(AwfulPreferences preferences, AssetManager assets) {
-        buildFontList(preferences, assets);
+    public FontManager(String preferredFont, AssetManager assets) {
+        buildFontList(preferredFont, assets);
     }
 
     public String[] getFontList() {
@@ -48,7 +46,7 @@ public class FontManager {
         }
     }
 
-    private void buildFontList(AwfulPreferences preferences, AssetManager assets) {
+    private void buildFontList(String preferredFont, AssetManager assets) {
         fonts.clear();
         fonts.put("default", Typeface.defaultFromStyle(Typeface.NORMAL));
 
@@ -71,7 +69,7 @@ public class FontManager {
             Timber.i("Processed Font: %s", fileName);
         }
 
-        setCurrentFont(preferences.preferredFont);
+        setCurrentFont(preferredFont);
     }
 
     private void setTextViewTypefaceToCurrentFont(TextView textView, int textStyle) {

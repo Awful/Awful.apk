@@ -43,7 +43,7 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
         NetworkUtils.init(this);
         AndroidThreeTen.init(this);
         AnnouncementsManager.init();
-        fontManager = new FontManager(mPref, getAssets());
+        fontManager = new FontManager(mPref.preferredFont, getAssets());
 
         long hoursSinceInstall = getHoursSinceInstall();
 
