@@ -34,7 +34,6 @@ import android.net.http.HttpResponseCache;
 import android.os.Messenger;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -66,8 +65,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import timber.log.Timber;
+
 public class NetworkUtils {
-    private static final String TAG = "NetworkUtils";
     private static final String CHARSET = "windows-1252";
 
     private static final Pattern unencodeCharactersPattern = Pattern.compile("&#(\\d+);");
@@ -121,7 +121,7 @@ public class NetworkUtils {
         if (mNetworkQueue != null) {
             mNetworkQueue.add(request);
         } else {
-            Log.w(TAG, "Can't queue request - NetworkQueue is null, has NetworkUtils been initialised?");
+            Timber.w("Can't queue request - NetworkQueue is null, has NetworkUtils been initialised?");
         }
     }
 
@@ -129,7 +129,7 @@ public class NetworkUtils {
         if (mNetworkQueue != null) {
             mNetworkQueue.cancelAll(tag);
         } else {
-            Log.w(TAG, "Can't cancel requests - NetworkQueue is null, has NetworkUtils been initialised?");
+            Timber.w("Can't cancel requests - NetworkQueue is null, has NetworkUtils been initialised?");
         }
     }
 
@@ -140,7 +140,7 @@ public class NetworkUtils {
      */
     public static void setCookieHeaders(@NonNull Map<String, String> headers) {
         if (cookie == null) {
-            Log.e(TAG, "Cookie was empty for some reason, trying to restore cookie");
+            Timber.e("Cookie was empty for some reason, trying to restore cookie");
             restoreLoginCookies(AwfulPreferences.getInstance().getContext());
         }
         if (!cookie.isEmpty()) {
@@ -186,7 +186,7 @@ public class NetworkUtils {
             Date now = new Date();
             HttpCookie[] allCookies = {useridCookie, passwordCookie, sessionidCookie, sessionhashCookie};
 
-            Log.e(TAG, "now.compareTo(expiryDate):" + (expiryDate.getTime() - now.getTime()));
+            Timber.e("now.compareTo(expiryDate):%s", (expiryDate.getTime() - now.getTime()));
             for (HttpCookie tempCookie : allCookies) {
                 tempCookie.setVersion(cookieVersion);
                 tempCookie.setDomain(Constants.COOKIE_DOMAIN);
@@ -197,8 +197,8 @@ public class NetworkUtils {
             ckmngr.getCookieStore().add(URI.create(Constants.COOKIE_DOMAIN), passwordCookie);
             ckmngr.getCookieStore().add(URI.create(Constants.COOKIE_DOMAIN), sessionhashCookie);
             if (Constants.DEBUG) {
-                Log.w(TAG, "Cookies restored from prefs");
-                Log.w(TAG, "Cookie dump: " + TextUtils.join("\n", ckmngr.getCookieStore().getCookies()));
+                Timber.w("Cookies restored from prefs");
+                Timber.w("Cookie dump: %s", TextUtils.join("\n", ckmngr.getCookieStore().getCookies()));
             }
             return true;
         } else {
@@ -206,7 +206,7 @@ public class NetworkUtils {
             logMsg += (useridCookieValue == null) ? "USER_ID is NULL\n" : "";
             logMsg += (passwordCookieValue == null) ? "PASSWORD is NULL\n" : "";
             logMsg += (expiry == -1) ? "EXPIRY is -1" : "";
-            if (Constants.DEBUG) Log.w(TAG, logMsg);
+            if (Constants.DEBUG) Timber.w(logMsg);
             cookie = "";
         }
 
@@ -314,7 +314,7 @@ public class NetworkUtils {
                 }
             }
         }
-        Log.w(TAG, "getCookieString couldn't find type: " + type);
+        Timber.w("getCookieString couldn't find type: %s", type);
         return "";
     }
 
@@ -326,7 +326,7 @@ public class NetworkUtils {
         Document response = null;
         String responseString = "";
 
-        Log.i(TAG, "Fetching " + location);
+        Timber.i("Fetching %s", location);
 
         HttpURLConnection urlConnection = (HttpURLConnection) location.toURL().openConnection();
         try {
@@ -338,7 +338,7 @@ public class NetworkUtils {
                 urlConnection.disconnect();
             }
         }
-        Log.i(TAG, "Fetched " + location);
+        Timber.i("Fetched %s", location);
         return response;
     }
 
@@ -384,7 +384,7 @@ public class NetworkUtils {
                     }
                 }
             } catch (UnsupportedEncodingException e) {
-                Log.i(TAG, e.toString());
+                Timber.i(e.toString());
             }
         } else {
             return "";
@@ -395,12 +395,12 @@ public class NetworkUtils {
 
     public static void logCookies() {
         if (Constants.DEBUG) {
-            Log.i(TAG, "---BEGIN COOKIE DUMP---");
+            Timber.i("---BEGIN COOKIE DUMP---");
             List<HttpCookie> cookies = ckmngr.getCookieStore().getCookies();
             for (HttpCookie c : cookies) {
-                Log.i(TAG, c.toString());
+                Timber.i(c.toString());
             }
-            Log.i(TAG, "---END COOKIE DUMP---");
+            Timber.i("---END COOKIE DUMP---");
         }
     }
 
