@@ -200,14 +200,16 @@ public class NetworkUtils {
                 Timber.w("Cookie dump: %s", TextUtils.join("\n", ckmngr.getCookieStore().getCookies()));
             }
             return true;
-        } else {
-            String logMsg = "Unable to restore cookies! Reasons:\n";
-            logMsg += (useridCookieValue == null) ? "USER_ID is NULL\n" : "";
-            logMsg += (passwordCookieValue == null) ? "PASSWORD is NULL\n" : "";
-            logMsg += (expiry == -1) ? "EXPIRY is -1" : "";
-            if (Constants.DEBUG) Timber.w(logMsg);
-            cookie = "";
         }
+
+        if (Constants.DEBUG) {
+            Timber.w("Unable to restore cookies! Reasons:\n" +
+                    (useridCookieValue == null ? "USER_ID is NULL\n" : "") +
+                    (passwordCookieValue == null ? "PASSWORD is NULL\n" : "") +
+                    (expiry == -1 ? "EXPIRY is -1" : ""));
+        }
+
+        cookie = "";
 
         return false;
     }
