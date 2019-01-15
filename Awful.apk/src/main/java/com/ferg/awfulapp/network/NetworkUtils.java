@@ -165,53 +165,54 @@ public class NetworkUtils {
         long expiry = prefs.getLong(Constants.COOKIE_PREF_EXPIRY_DATE, -1);
         int cookieVersion = prefs.getInt(Constants.COOKIE_PREF_VERSION, 0);
 
-        if (useridCookieValue != null && passwordCookieValue != null && expiry != -1) {
-            cookie = String.format("%s=%s;%s=%s;%s=%s;%s=%s;",
-                    Constants.COOKIE_NAME_USERID, useridCookieValue,
-                    Constants.COOKIE_NAME_PASSWORD, passwordCookieValue,
-                    Constants.COOKIE_NAME_SESSIONID, sessionidCookieValue,
-                    Constants.COOKIE_NAME_SESSIONHASH, sessionhashCookieValue);
-
-            HttpCookie useridCookie =
-                    new HttpCookie(Constants.COOKIE_NAME_USERID, useridCookieValue);
-            HttpCookie passwordCookie =
-                    new HttpCookie(Constants.COOKIE_NAME_PASSWORD, passwordCookieValue);
-            HttpCookie sessionidCookie =
-                    new HttpCookie(Constants.COOKIE_NAME_SESSIONID, sessionidCookieValue);
-            HttpCookie sessionhashCookie =
-                    new HttpCookie(Constants.COOKIE_NAME_SESSIONHASH, sessionhashCookieValue);
-
-            Date expiryDate = new Date(expiry);
-            Date now = new Date();
-            HttpCookie[] allCookies = {useridCookie, passwordCookie, sessionidCookie, sessionhashCookie};
-
-            Timber.e("now.compareTo(expiryDate):%s", (expiryDate.getTime() - now.getTime()));
-            for (HttpCookie tempCookie : allCookies) {
-                tempCookie.setVersion(cookieVersion);
-                tempCookie.setDomain(Constants.COOKIE_DOMAIN);
-                tempCookie.setMaxAge(expiryDate.getTime() - now.getTime());
-                tempCookie.setPath(Constants.COOKIE_PATH);
-            }
-            ckmngr.getCookieStore().add(URI.create(Constants.COOKIE_DOMAIN), useridCookie);
-            ckmngr.getCookieStore().add(URI.create(Constants.COOKIE_DOMAIN), passwordCookie);
-            ckmngr.getCookieStore().add(URI.create(Constants.COOKIE_DOMAIN), sessionhashCookie);
+        if (useridCookieValue == null || passwordCookieValue == null || expiry == -1) {
             if (Constants.DEBUG) {
-                Timber.w("Cookies restored from prefs");
-                Timber.w("Cookie dump: %s", TextUtils.join("\n", ckmngr.getCookieStore().getCookies()));
+                Timber.w("Unable to restore cookies! Reasons:\n" +
+                        (useridCookieValue == null ? "USER_ID is NULL\n" : "") +
+                        (passwordCookieValue == null ? "PASSWORD is NULL\n" : "") +
+                        (expiry == -1 ? "EXPIRY is -1" : ""));
             }
-            return true;
+
+            cookie = "";
+            return false;
         }
+
+        cookie = String.format("%s=%s;%s=%s;%s=%s;%s=%s;",
+                Constants.COOKIE_NAME_USERID, useridCookieValue,
+                Constants.COOKIE_NAME_PASSWORD, passwordCookieValue,
+                Constants.COOKIE_NAME_SESSIONID, sessionidCookieValue,
+                Constants.COOKIE_NAME_SESSIONHASH, sessionhashCookieValue);
+
+        HttpCookie useridCookie =
+                new HttpCookie(Constants.COOKIE_NAME_USERID, useridCookieValue);
+        HttpCookie passwordCookie =
+                new HttpCookie(Constants.COOKIE_NAME_PASSWORD, passwordCookieValue);
+        HttpCookie sessionidCookie =
+                new HttpCookie(Constants.COOKIE_NAME_SESSIONID, sessionidCookieValue);
+        HttpCookie sessionhashCookie =
+                new HttpCookie(Constants.COOKIE_NAME_SESSIONHASH, sessionhashCookieValue);
+
+        Date expiryDate = new Date(expiry);
+        Date now = new Date();
+        HttpCookie[] allCookies = {useridCookie, passwordCookie, sessionidCookie, sessionhashCookie};
+
+        Timber.e("now.compareTo(expiryDate):%s", (expiryDate.getTime() - now.getTime()));
+        for (HttpCookie tempCookie : allCookies) {
+            tempCookie.setVersion(cookieVersion);
+            tempCookie.setDomain(Constants.COOKIE_DOMAIN);
+            tempCookie.setMaxAge(expiryDate.getTime() - now.getTime());
+            tempCookie.setPath(Constants.COOKIE_PATH);
+        }
+        ckmngr.getCookieStore().add(URI.create(Constants.COOKIE_DOMAIN), useridCookie);
+        ckmngr.getCookieStore().add(URI.create(Constants.COOKIE_DOMAIN), passwordCookie);
+        ckmngr.getCookieStore().add(URI.create(Constants.COOKIE_DOMAIN), sessionhashCookie);
 
         if (Constants.DEBUG) {
-            Timber.w("Unable to restore cookies! Reasons:\n" +
-                    (useridCookieValue == null ? "USER_ID is NULL\n" : "") +
-                    (passwordCookieValue == null ? "PASSWORD is NULL\n" : "") +
-                    (expiry == -1 ? "EXPIRY is -1" : ""));
+            Timber.w("Cookies restored from prefs");
+            Timber.w("Cookie dump: %s", TextUtils.join("\n", ckmngr.getCookieStore().getCookies()));
         }
 
-        cookie = "";
-
-        return false;
+        return true;
     }
 
     /**
