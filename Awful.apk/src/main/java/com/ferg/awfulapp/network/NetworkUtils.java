@@ -47,6 +47,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -321,20 +322,24 @@ public class NetworkUtils {
     }
 
     public static Document get(URI location) throws Exception {
-        Document response = null;
-
         Timber.i("Fetching %s", location);
 
         HttpURLConnection urlConnection = (HttpURLConnection) location.toURL().openConnection();
-        try {
-            if (urlConnection != null) {
-                response = Jsoup.parse(urlConnection.getInputStream(), CHARSET, Constants.BASE_URL);
-            }
-        } finally {
-            if (urlConnection != null) {
-                urlConnection.disconnect();
-            }
+
+        if (urlConnection == null) {
+            Timber.e("Couldn't open connection");
+            return null;
         }
+
+        Document response;
+
+        try {
+            InputStream inputStream = urlConnection.getInputStream();
+            response = Jsoup.parse(inputStream, CHARSET, Constants.BASE_URL);
+        } finally {
+            urlConnection.disconnect();
+        }
+
         Timber.i("Fetched %s", location);
         return response;
     }
