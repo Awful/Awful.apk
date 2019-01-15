@@ -342,12 +342,8 @@ public class NetworkUtils {
     }
 
     public static String getRedirect(String aUrl, HashMap<String, String> aParams) throws Exception {
-        URI location;
-        if (aParams != null) {
-            location = new URI(aUrl + getQueryStringParameters(aParams));
-        } else {
-            location = new URI(aUrl);
-        }
+        URI location = new URI(aUrl + getQueryStringParameters(aParams));
+
         String redirectLocation;
         HttpURLConnection urlConnection = (HttpURLConnection) location.toURL().openConnection();
         try {
