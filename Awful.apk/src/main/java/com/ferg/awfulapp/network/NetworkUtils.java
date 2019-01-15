@@ -250,35 +250,35 @@ public class NetworkUtils {
         Date expires = null;
         Integer version = null;
 
-        List<HttpCookie> cookies = ckmngr.getCookieStore().getCookies();
-        for (HttpCookie cookie : cookies) {
-            if (cookie.getDomain().contains(Constants.COOKIE_DOMAIN)) {
-                final String cookieName = cookie.getName();
-                switch (cookieName) {
-                    case Constants.COOKIE_NAME_USERID:
-                        useridValue = cookie.getValue();
-                        break;
-                    case Constants.COOKIE_NAME_PASSWORD:
-                        passwordValue = cookie.getValue();
-                        break;
-                    case Constants.COOKIE_NAME_SESSIONID:
-                        sessionId = cookie.getValue();
-                        break;
-                    case Constants.COOKIE_NAME_SESSIONHASH:
-                        sessionHash = cookie.getValue();
-                        break;
-                }
-                // keep the soonest valid expiry in case they don't match
-                Calendar c = Calendar.getInstance();
-                c.add(Calendar.SECOND, ((int) cookie.getMaxAge()));
-                Date cookieExpiryDate = c.getTime();
-                if (expires == null || (cookieExpiryDate != null && cookieExpiryDate.before(expires))) {
-                    expires = cookieExpiryDate;
-                }
-                // fall back to the lowest cookie spec version
-                if (version == null || cookie.getVersion() < version) {
-                    version = cookie.getVersion();
-                }
+        for (HttpCookie cookie : ckmngr.getCookieStore().getCookies()) {
+            if (!cookie.getDomain().contains(Constants.COOKIE_DOMAIN))
+                continue;
+
+            switch (cookie.getName()) {
+                case Constants.COOKIE_NAME_USERID:
+                    useridValue = cookie.getValue();
+                    break;
+                case Constants.COOKIE_NAME_PASSWORD:
+                    passwordValue = cookie.getValue();
+                    break;
+                case Constants.COOKIE_NAME_SESSIONID:
+                    sessionId = cookie.getValue();
+                    break;
+                case Constants.COOKIE_NAME_SESSIONHASH:
+                    sessionHash = cookie.getValue();
+                    break;
+            }
+
+            // keep the soonest valid expiry in case they don't match
+            Calendar c = Calendar.getInstance();
+            c.add(Calendar.SECOND, ((int) cookie.getMaxAge()));
+            Date cookieExpiryDate = c.getTime();
+            if (expires == null || (cookieExpiryDate != null && cookieExpiryDate.before(expires))) {
+                expires = cookieExpiryDate;
+            }
+            // fall back to the lowest cookie spec version
+            if (version == null || cookie.getVersion() < version) {
+                version = cookie.getVersion();
             }
         }
 
