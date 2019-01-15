@@ -31,7 +31,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.http.HttpResponseCache;
-import android.os.Messenger;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
@@ -318,12 +317,11 @@ public class NetworkUtils {
     }
 
     public static Document get(String aUrl) throws Exception {
-        return get(new URI(aUrl), null, 0);
+        return get(new URI(aUrl));
     }
 
-    public static Document get(URI location, Messenger statusCallback, int midpointPercent) throws Exception {
+    public static Document get(URI location) throws Exception {
         Document response = null;
-        String responseString = "";
 
         Timber.i("Fetching %s", location);
 
