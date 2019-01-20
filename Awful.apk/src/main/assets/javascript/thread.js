@@ -83,6 +83,9 @@ function containerInit() {
 	window.addEventListener('awful-scroll-post', function scrollToPost() {
 		window.topScrollID = window.requestAnimationFrame(scrollPost.bind(null, null));
 	});
+
+    // trigger a page content load, in case some was sent before the container was ready to handle it
+    loadPageHtml();
 }
 
 /**

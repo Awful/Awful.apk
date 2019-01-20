@@ -2,8 +2,6 @@ package com.ferg.awfulapp.webview;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.WorkerThread;
-import android.util.Log;
 import android.webkit.JavascriptInterface;
 
 import com.ferg.awfulapp.preferences.AwfulPreferences;
@@ -11,6 +9,8 @@ import com.ferg.awfulapp.preferences.Keys;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import timber.log.Timber;
 
 /**
  * Created by baka kaba on 23/01/2017.
@@ -21,25 +21,15 @@ import java.util.concurrent.ConcurrentHashMap;
  * be used in a {@link com.ferg.awfulapp.ThreadDisplayFragment} and needs to react to other UI clicks.
  */
 // TODO: 12/02/2017 JS interface methods are called on a separate thread apparently - none of our implementations are thread-safe at all
-@WorkerThread
 public class WebViewJsInterface {
-
-    private static final String TAG = "WebViewJsInterface";
 
     private final Map<String, String> preferences = new ConcurrentHashMap<>();
 
     @NonNull
-    private String bodyHtml = "";
-
-    @Nullable
-    private AwfulWebView webView = null;
+    private volatile String bodyHtml = "";
 
     public WebViewJsInterface() {
         updatePreferences();
-    }
-
-    void setWebView(@NonNull AwfulWebView webView) {
-        this.webView = webView;
     }
 
     /**
@@ -77,8 +67,6 @@ public class WebViewJsInterface {
     protected void setCustomPreferences(Map<String, String> preferences) {
     }
 
-    // TODO: sync for threads? check html -> update html needs to be atomic?
-
     @NonNull
     @JavascriptInterface
     public final String getBodyHtml() {
@@ -97,7 +85,7 @@ public class WebViewJsInterface {
 
     @JavascriptInterface
     public void debugMessage(final String msg) {
-        Log.d(TAG, "Awful DEBUG: " + msg);
+        Timber.d("Awful DEBUG: %s", msg);
     }
 
     // TODO: 28/01/2017 work out if any other common interface methods can go in here
