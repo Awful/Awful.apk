@@ -122,16 +122,12 @@ public class CookieController {
      * Clears cookies from both the current client's store and
      * the persistent SharedPreferences. Effectively, logs out.
      */
-    public static synchronized void clearLoginCookies(Context ctx) {
+    public static synchronized void clearLoginCookies(@NonNull Context context) {
         // First clear out the persistent preferences...
-        if (null == ctx) {
-            ctx = AwfulPreferences.getInstance().getContext();
-        }
-        SharedPreferences prefs = ctx.getSharedPreferences(
+        context.getSharedPreferences(
                 Constants.COOKIE_PREFERENCE,
-                Context.MODE_PRIVATE);
-
-        prefs.edit().clear().apply();
+                Context.MODE_PRIVATE)
+                .edit().clear().apply();
 
         // Then the memory store
         cookieManager.getCookieStore().removeAll();
