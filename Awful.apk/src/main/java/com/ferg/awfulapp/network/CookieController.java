@@ -207,13 +207,12 @@ public class CookieController {
     }
 
     public static synchronized String getCookieString(String type) {
-        List<HttpCookie> cookies = cookieManager.getCookieStore().getCookies();
-        for (HttpCookie cookie : cookies) {
-            if (cookie.getDomain().contains(Constants.COOKIE_DOMAIN)) {
-                if (cookie.getName().contains(type)) {
-                    return String.format("%s=%s; domain=%s", type, cookie.getValue(), cookie.getDomain());
-                }
-            }
+        for (HttpCookie cookie : cookieManager.getCookieStore().getCookies()) {
+            if (!cookie.getDomain().contains(Constants.COOKIE_DOMAIN))
+                continue;
+
+            if (cookie.getName().contains(type))
+                return String.format("%s=%s; domain=%s", type, cookie.getValue(), cookie.getDomain());
         }
         Timber.w("getCookieString couldn't find type: %s", type);
         return "";
