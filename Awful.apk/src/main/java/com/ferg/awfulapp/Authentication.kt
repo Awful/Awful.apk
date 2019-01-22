@@ -9,7 +9,7 @@ import android.support.v7.app.AlertDialog
 import com.ferg.awfulapp.Authentication.logOut
 import com.ferg.awfulapp.Authentication.reAuthenticate
 import com.ferg.awfulapp.constants.Constants
-import com.ferg.awfulapp.network.NetworkUtils
+import com.ferg.awfulapp.network.CookieController
 import com.ferg.awfulapp.preferences.AwfulPreferences
 
 /**
@@ -36,13 +36,13 @@ class LogOutDialog : DialogFragment() {
 
 object Authentication {
 
-    fun isUserLoggedIn() = NetworkUtils.restoreLoginCookies(context)
+    fun isUserLoggedIn() = CookieController.restoreLoginCookies(context)
 
     /**
      * Logs the user out silently - call [reAuthenticate] if you want to show the login screen instead
      */
     fun logOut() {
-        NetworkUtils.clearLoginCookies(context)
+        CookieController.clearLoginCookies(context)
     }
 
 

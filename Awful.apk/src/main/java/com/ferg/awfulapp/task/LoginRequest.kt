@@ -3,7 +3,7 @@ package com.ferg.awfulapp.task
 import android.content.Context
 import com.android.volley.NetworkResponse
 import com.ferg.awfulapp.constants.Constants.*
-import com.ferg.awfulapp.network.NetworkUtils
+import com.ferg.awfulapp.network.CookieController
 import com.ferg.awfulapp.preferences.Keys
 import com.ferg.awfulapp.util.AwfulError
 import org.jsoup.nodes.Document
@@ -36,7 +36,7 @@ class LoginRequest(context: Context, private val username: String, password: Str
      * Check if we've received login cookies, and if so store the username we used to log in
      */
     private fun validateLoginState(): Boolean {
-        return NetworkUtils.saveLoginCookies(context).also { success ->
+        return CookieController.saveLoginCookies(context).also { success ->
             if (success) preferences.setPreference(Keys.USERNAME, username)
         }
     }

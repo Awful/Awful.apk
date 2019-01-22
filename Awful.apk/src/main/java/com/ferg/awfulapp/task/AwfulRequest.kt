@@ -14,6 +14,7 @@ import com.ferg.awfulapp.AwfulApplication
 import com.ferg.awfulapp.R
 import com.ferg.awfulapp.constants.Constants.BASE_URL
 import com.ferg.awfulapp.constants.Constants.SITE_HTML_ENCODING
+import com.ferg.awfulapp.network.CookieController
 import com.ferg.awfulapp.network.NetworkUtils
 import com.ferg.awfulapp.preferences.AwfulPreferences
 import com.ferg.awfulapp.task.AwfulRequest.Parameters.GetParams
@@ -307,7 +308,7 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
 
         @Throws(AuthFailureError::class)
         override fun getHeaders(): Map<String, String> {
-            return mutableMapOf<String, String>().apply(NetworkUtils::setCookieHeaders)
+            return mutableMapOf<String, String>().apply(CookieController::setCookieHeaders)
                     .also { Timber.i("getHeaders: %s", this) }
         }
 

@@ -79,6 +79,7 @@ import android.widget.Toast;
 import com.android.volley.VolleyError;
 import com.crashlytics.android.Crashlytics;
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.network.CookieController;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.popupmenu.PostContextMenu;
 import com.ferg.awfulapp.popupmenu.UrlContextMenu;
@@ -463,10 +464,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
         	CookieSyncManager.createInstance(getActivity());
         	CookieManager cookieMonster = CookieManager.getInstance();
         	cookieMonster.removeAllCookie();
-        	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, NetworkUtils.getCookieString(Constants.COOKIE_NAME_SESSIONID));
-        	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, NetworkUtils.getCookieString(Constants.COOKIE_NAME_SESSIONHASH));
-        	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, NetworkUtils.getCookieString(Constants.COOKIE_NAME_USERID));
-        	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, NetworkUtils.getCookieString(Constants.COOKIE_NAME_PASSWORD));
+        	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, CookieController.getCookieString(Constants.COOKIE_NAME_SESSIONID));
+        	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, CookieController.getCookieString(Constants.COOKIE_NAME_SESSIONHASH));
+        	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, CookieController.getCookieString(Constants.COOKIE_NAME_USERID));
+        	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, CookieController.getCookieString(Constants.COOKIE_NAME_PASSWORD));
         	cookieMonster.setAcceptThirdPartyCookies(mThreadView, true);
         	CookieSyncManager.getInstance().sync();
         }
