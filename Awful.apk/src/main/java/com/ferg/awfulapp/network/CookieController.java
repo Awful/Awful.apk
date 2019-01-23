@@ -86,29 +86,30 @@ public class CookieController {
                 Constants.COOKIE_NAME_SESSIONID, sessionidCookieValue,
                 Constants.COOKIE_NAME_SESSIONHASH, sessionhashCookieValue);
 
-        HttpCookie useridCookie =
-                new HttpCookie(Constants.COOKIE_NAME_USERID, useridCookieValue);
-        HttpCookie passwordCookie =
-                new HttpCookie(Constants.COOKIE_NAME_PASSWORD, passwordCookieValue);
-        HttpCookie sessionidCookie =
-                new HttpCookie(Constants.COOKIE_NAME_SESSIONID, sessionidCookieValue);
-        HttpCookie sessionhashCookie =
-                new HttpCookie(Constants.COOKIE_NAME_SESSIONHASH, sessionhashCookieValue);
-
         Date expiryDate = new Date(expiry);
         Date now = new Date();
-        HttpCookie[] allCookies = {useridCookie, passwordCookie, sessionidCookie, sessionhashCookie};
 
-        Timber.e("now.compareTo(expiryDate):%s", (expiryDate.getTime() - now.getTime()));
+        HttpCookie[] allCookies = {
+                new HttpCookie(Constants.COOKIE_NAME_USERID, useridCookieValue),
+                new HttpCookie(Constants.COOKIE_NAME_PASSWORD, passwordCookieValue),
+                // TODO: 23/01/2019 should sessionid cookie not be added to the cookie store?
+//                new HttpCookie(Constants.COOKIE_NAME_SESSIONID, sessionidCookieValue),
+                new HttpCookie(Constants.COOKIE_NAME_SESSIONHASH, sessionhashCookieValue)
+        };
+
+        long maxAge = expiryDate.getTime() - now.getTime();
+        Timber.e("now.compareTo(expiryDate):%s", maxAge);
+
+        URI uri = URI.create(Constants.COOKIE_DOMAIN);
+
         for (HttpCookie tempCookie : allCookies) {
             tempCookie.setVersion(cookieVersion);
             tempCookie.setDomain(Constants.COOKIE_DOMAIN);
-            tempCookie.setMaxAge(expiryDate.getTime() - now.getTime());
+            tempCookie.setMaxAge(maxAge);
             tempCookie.setPath(Constants.COOKIE_PATH);
+
+            cookieManager.getCookieStore().add(uri, tempCookie);
         }
-        cookieManager.getCookieStore().add(URI.create(Constants.COOKIE_DOMAIN), useridCookie);
-        cookieManager.getCookieStore().add(URI.create(Constants.COOKIE_DOMAIN), passwordCookie);
-        cookieManager.getCookieStore().add(URI.create(Constants.COOKIE_DOMAIN), sessionhashCookie);
 
         if (Constants.DEBUG) {
             Timber.w("Cookies restored from prefs");
