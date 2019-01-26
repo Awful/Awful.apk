@@ -40,7 +40,7 @@ public class FontManager implements AwfulPreferences.AwfulPreferenceUpdate {
         if (currentFont != null)
             Timber.i("Font Selected: %s", fontName);
         else
-            Timber.e("Couldn't select font: %s", fontName);
+            Timber.w("Couldn't select font: %s", fontName);
     }
 
     public void setTypefaceToCurrentFont(View view, int flags) {
@@ -67,7 +67,7 @@ public class FontManager implements AwfulPreferences.AwfulPreferenceUpdate {
         }
 
         if (files == null) {
-            Timber.e("Couldn't load fonts from files?");
+            Timber.w("Couldn't load font assets from %s", FONT_PATH);
             return;
         }
 
@@ -89,6 +89,6 @@ public class FontManager implements AwfulPreferences.AwfulPreferenceUpdate {
         if (currentFont != null)
             textView.setTypeface(currentFont, textStyle);
         else
-            Timber.e("currentFont is null");
+            Timber.w("Couldn't set typeface as currentFont is null");
     }
 }
