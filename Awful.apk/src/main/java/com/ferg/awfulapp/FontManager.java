@@ -2,9 +2,12 @@ package com.ferg.awfulapp;
 
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.ferg.awfulapp.preferences.AwfulPreferences;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -12,7 +15,7 @@ import java.util.Map;
 
 import timber.log.Timber;
 
-public class FontManager {
+public class FontManager implements AwfulPreferences.AwfulPreferenceUpdate {
     private static final String FONT_PATH = "fonts";
     private Typeface currentFont;
     private final Map<String, Typeface> fonts = new HashMap<>();
@@ -24,6 +27,11 @@ public class FontManager {
     public String[] getFontList() {
         Timber.i("Font list: %s", fonts.keySet());
         return fonts.keySet().toArray(new String[0]);
+    }
+
+    @Override
+    public void onPreferenceChange(AwfulPreferences preferences, @Nullable String key) {
+        setCurrentFont(preferences.preferredFont);
     }
 
     public void setCurrentFont(String fontName) {

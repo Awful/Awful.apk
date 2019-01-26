@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;
 
-public class AwfulApplication extends Application implements AwfulPreferences.AwfulPreferenceUpdate {
+public class AwfulApplication extends Application {
     private static final String APP_STATE_PREFERENCES = "app_state_prefs";
     /**
      * Used for storing misc app data, separate from user preferences, so onPreferenceChange callbacks aren't triggered
@@ -36,14 +36,16 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
         super.onCreate();
 
         // initialise the AwfulPreferences singleton first since a lot of things rely on it for a Context
-        AwfulPreferences mPref = AwfulPreferences.getInstance(this, this);
+        AwfulPreferences mPref = AwfulPreferences.getInstance(this);
 
         appStatePrefs = this.getSharedPreferences(APP_STATE_PREFERENCES, MODE_PRIVATE);
 
         NetworkUtils.init(this);
         AndroidThreeTen.init(this);
         AnnouncementsManager.init();
+
         fontManager = new FontManager(mPref.preferredFont, getAssets());
+        mPref.registerCallback(fontManager);
 
         long hoursSinceInstall = getHoursSinceInstall();
 
@@ -113,11 +115,6 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 
     public void setPreferredFont(View view, int flags) {
         fontManager.setTypefaceToCurrentFont(view, flags);
-    }
-
-    @Override
-    public void onPreferenceChange(AwfulPreferences prefs, String key) {
-        fontManager.setCurrentFont(prefs.preferredFont);
     }
 
     public String[] getFontList() {
