@@ -2,6 +2,7 @@ package com.ferg.awfulapp;
 
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,9 +10,13 @@ import android.widget.TextView;
 
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 
+import org.apache.commons.lang3.text.WordUtils;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import timber.log.Timber;
 
@@ -125,5 +130,35 @@ public class FontManager implements AwfulPreferences.AwfulPreferenceUpdate {
             textView.setTypeface(currentFont, textStyle);
         else
             Timber.w("Couldn't set typeface as currentFont is null");
+    }
+
+    /**
+     * Create clean font names from the given file names.
+     *
+     * @param fontList An array of font file names
+     * @return An array of font names
+     */
+    public static String[] extractFontNames(@NonNull String[] fontList) {
+        String[] fontNames = new String[fontList.length];
+
+        Pattern pattern = Pattern.compile(FONT_PATH + "/(.*).ttf.mp3", Pattern.CASE_INSENSITIVE);
+
+        for (int i = 0; i < fontList.length; i++) {
+            String fontName;
+            Matcher matcher = pattern.matcher(fontList[i]);
+
+            if (matcher.find()) {
+                fontName = matcher.group(1).replaceAll("_", " ");
+            } else {
+                //if the regex fails, try our best to clean up the filename.
+                fontName = fontList[i].replaceAll(".ttf.mp3", "")
+                        .replaceAll("fonts/", "")
+                        .replaceAll("_", " ");
+            }
+
+            fontNames[i] = WordUtils.capitalize(fontName);
+        }
+
+        return fontNames;
     }
 }

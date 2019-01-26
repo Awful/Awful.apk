@@ -17,13 +17,13 @@ import android.util.Log;
 
 import com.ferg.awfulapp.AwfulApplication;
 import com.ferg.awfulapp.BuildConfig;
+import com.ferg.awfulapp.FontManager;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.provider.AwfulTheme;
 import com.ferg.awfulapp.util.AwfulUtils;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.WordUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -187,34 +187,9 @@ public class ThemeSettings extends SettingsFragment {
         ListPreference listPreference = (ListPreference) findPrefById(R.string.pref_key_preferred_font);
 
         //noinspection ConstantConditions - let it crash if the preference is missing, someone screwed up
-        listPreference.setEntries(extractFontNames(fontList));
+        listPreference.setEntries(FontManager.extractFontNames(fontList));
         listPreference.setEntryValues(fontList);
     }
-
-    @NonNull
-    private static String[] extractFontNames(@NonNull String[] fontList) {
-        String[] fontNames = new String[fontList.length];
-
-        Pattern pattern = Pattern.compile("fonts/(.*).ttf.mp3", Pattern.CASE_INSENSITIVE);
-
-        for (int i = 0; i < fontList.length; i++) {
-            String fontName;
-            Matcher matcher = pattern.matcher(fontList[i]);
-
-            if (matcher.find()) {
-                fontName = matcher.group(1).replaceAll("_", " ");
-            } else {
-                //if the regex fails, try our best to clean up the filename.
-                fontName = fontList[i].replaceAll(".ttf.mp3", "")
-                        .replaceAll("fonts/", "")
-                        .replaceAll("_", " ");
-            }
-
-            fontNames[i] = WordUtils.capitalize(fontName);
-        }
-        return fontNames;
-    }
-
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void requestStoragePermissions() {
