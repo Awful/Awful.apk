@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.StrictMode;
-import android.view.View;
 
 import com.crashlytics.android.Crashlytics;
 import com.ferg.awfulapp.announcements.AnnouncementsManager;
@@ -109,10 +108,6 @@ public class AwfulApplication extends Application {
      */
     public static SharedPreferences getAppStatePrefs() {
         return appStatePrefs;
-    }
-
-    public void setPreferredFont(View view, int flags) {
-        FontManager.getInstance().setTypefaceToCurrentFont(view, flags);
     }
 
     @Override
