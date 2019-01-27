@@ -58,29 +58,7 @@ public class FontManager implements AwfulPreferences.AwfulPreferenceUpdate {
      * @param assets        An AssetManager for accessing the font files
      */
     private FontManager(String preferredFont, AssetManager assets) {
-        fonts.clear();
-        fonts.put("default", Typeface.defaultFromStyle(Typeface.NORMAL));
-
-        String[] files = null;
-
-        try {
-            files = assets.list(FONT_PATH);
-        } catch (IOException | RuntimeException e) {
-            e.printStackTrace();
-        }
-
-        if (files == null) {
-            Timber.w("Couldn't load font assets from %s", FONT_PATH);
-            return;
-        }
-
-        for (String file : files) {
-            String fileName = String.format("%s/%s", FONT_PATH, file);
-            fonts.put(fileName, Typeface.createFromAsset(assets, fileName));
-            Timber.i("Processed Font: %s", fileName);
-        }
-
-        setCurrentFont(preferredFont);
+        buildFontList(preferredFont, assets);
     }
 
     /**
@@ -143,6 +121,38 @@ public class FontManager implements AwfulPreferences.AwfulPreferenceUpdate {
             for (int i = 0; i < viewGroup.getChildCount(); i++)
                 setTypefaceToCurrentFont(viewGroup.getChildAt(i), flags);
         }
+    }
+
+    /**
+     * Recreate the font Map from the asset files.
+     *
+     * @param preferredFont The filename of the currently selected font
+     * @param assets        An AssetManager for accessing the font files
+     */
+    private void buildFontList(String preferredFont, AssetManager assets) {
+        fonts.clear();
+        fonts.put("default", Typeface.defaultFromStyle(Typeface.NORMAL));
+
+        String[] files = null;
+
+        try {
+            files = assets.list(FONT_PATH);
+        } catch (IOException | RuntimeException e) {
+            e.printStackTrace();
+        }
+
+        if (files == null) {
+            Timber.w("Couldn't load font assets from %s", FONT_PATH);
+            return;
+        }
+
+        for (String file : files) {
+            String fileName = String.format("%s/%s", FONT_PATH, file);
+            fonts.put(fileName, Typeface.createFromAsset(assets, fileName));
+            Timber.i("Processed Font: %s", fileName);
+        }
+
+        setCurrentFont(preferredFont);
     }
 
     /**
