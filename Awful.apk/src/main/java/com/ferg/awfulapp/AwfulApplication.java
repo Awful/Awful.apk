@@ -115,10 +115,6 @@ public class AwfulApplication extends Application {
         FontManager.getInstance().setTypefaceToCurrentFont(view, flags);
     }
 
-    public String[] getFontList() {
-        return FontManager.getInstance().getFontList();
-    }
-
     @Override
     public File getCacheDir() {
         Timber.i("getCacheDir(): %s", super.getCacheDir());

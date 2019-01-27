@@ -15,7 +15,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
-import com.ferg.awfulapp.AwfulApplication;
 import com.ferg.awfulapp.BuildConfig;
 import com.ferg.awfulapp.FontManager;
 import com.ferg.awfulapp.R;
@@ -182,7 +181,7 @@ public class ThemeSettings extends SettingsFragment {
     }
 
     private void refreshFontListPreference() {
-        String[] fontList = ((AwfulApplication) getActivity().getApplication()).getFontList();
+        String[] fontList = FontManager.getInstance().getFontList();
 
         ListPreference listPreference = (ListPreference) findPrefById(R.string.pref_key_preferred_font);
 
