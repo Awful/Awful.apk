@@ -139,7 +139,7 @@ public class NetworkUtils {
      */
     public static void setCookieHeaders(@NonNull Map<String, String> headers) {
         if (cookie == null) {
-            Timber.e("Cookie was empty for some reason, trying to restore cookie");
+            Timber.w("Cookie was empty for some reason, trying to restore cookie");
             restoreLoginCookies(AwfulPreferences.getInstance().getContext());
         }
         if (!cookie.isEmpty()) {
