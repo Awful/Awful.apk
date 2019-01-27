@@ -183,6 +183,9 @@ public class ThemeSettings extends SettingsFragment {
     private void refreshFontListPreference() {
         ListPreference listPreference = (ListPreference) findPrefById(R.string.pref_key_preferred_font);
 
+        // reload the font files
+        FontManager.getInstance().buildFontList(mPrefs.preferredFont, getActivity().getAssets());
+
         // noinspection ConstantConditions - let it crash if the preference is missing, someone screwed up
         listPreference.setEntries(FontManager.getInstance().getFontNames());
         listPreference.setEntryValues(FontManager.getInstance().getFontFilenames());

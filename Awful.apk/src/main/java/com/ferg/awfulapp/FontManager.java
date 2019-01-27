@@ -129,7 +129,7 @@ public class FontManager implements AwfulPreferences.AwfulPreferenceUpdate {
      * @param preferredFont The filename of the currently selected font
      * @param assets        An AssetManager for accessing the font files
      */
-    private void buildFontList(String preferredFont, AssetManager assets) {
+    public void buildFontList(String preferredFont, AssetManager assets) {
         fonts.clear();
         fonts.put("default", Typeface.defaultFromStyle(Typeface.NORMAL));
 
