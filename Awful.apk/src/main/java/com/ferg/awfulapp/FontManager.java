@@ -156,15 +156,26 @@ public class FontManager implements AwfulPreferences.AwfulPreferenceUpdate {
      *                  {@link Typeface#ITALIC}, or {@link Typeface#BOLD_ITALIC},
      */
     private void setTextViewTypefaceToCurrentFont(TextView textView, int textStyle) {
-        if (textStyle < 0 || textStyle > 3) {
-            textStyle = textView.getTypeface() == null ? Typeface.NORMAL :
-                    textView.getTypeface().getStyle();
+        if (!isValidTextStyle(textStyle)) {
+            textStyle = textView.getTypeface() != null ?
+                    textView.getTypeface().getStyle() : Typeface.NORMAL;
         }
 
         if (currentFont != null)
             textView.setTypeface(currentFont, textStyle);
         else
             Timber.w("Couldn't set typeface as currentFont is null");
+    }
+
+    /**
+     * Check if the passed text style is valid.
+     *
+     * @param textStyle A text style
+     * @return True iff textStyle is valid
+     */
+    private static boolean isValidTextStyle(int textStyle) {
+        return textStyle == Typeface.NORMAL || textStyle == Typeface.BOLD ||
+                textStyle == Typeface.ITALIC || textStyle == Typeface.BOLD_ITALIC;
     }
 
     /**
