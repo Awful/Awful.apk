@@ -32,7 +32,7 @@ public class FontManager implements AwfulPreferences.AwfulPreferenceUpdate {
     /**
      * Get the singleton instance of FontManager.
      * <p>
-     * Note: Will be null if it hasn't been built using the other getInstance first
+     * Note: Will be null if it hasn't been built using {@link #createInstance(AwfulPreferences, AssetManager)}
      *
      * @return The instance of FontManager or null.
      */
@@ -41,17 +41,14 @@ public class FontManager implements AwfulPreferences.AwfulPreferenceUpdate {
     }
 
     /**
-     * Get the singleton instance of FontManager.
+     * Create the singleton instance of FontManager.
      *
-     * @param preferredFont The filename of the selected font
-     * @param assets        An AssetManager for accessing the font files
-     * @return The instance of FontManager
+     * @param preferences The AwfulPreferences
+     * @param assets      An AssetManager for accessing the font files
      */
-    public static FontManager getInstance(@NonNull String preferredFont, @NonNull AssetManager assets) {
-        if (instance == null)
-            instance = new FontManager(preferredFont, assets);
-
-        return instance;
+    public static void createInstance(@NonNull AwfulPreferences preferences, @NonNull AssetManager assets) {
+        instance = new FontManager(preferences.preferredFont, assets);
+        preferences.registerCallback(instance);
     }
 
     /**

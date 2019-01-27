@@ -40,9 +40,7 @@ public class AwfulApplication extends Application {
         NetworkUtils.init(this);
         AndroidThreeTen.init(this);
         AnnouncementsManager.init();
-
-        // create FontManager instance and register it to receive preference changes
-        mPref.registerCallback(FontManager.getInstance(mPref.preferredFont, getAssets()));
+        FontManager.createInstance(mPref, getAssets());
 
         long hoursSinceInstall = getHoursSinceInstall();
 
