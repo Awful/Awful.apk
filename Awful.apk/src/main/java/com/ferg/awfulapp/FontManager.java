@@ -24,9 +24,35 @@ import timber.log.Timber;
  * Handles accessing font files from the assets
  */
 public class FontManager implements AwfulPreferences.AwfulPreferenceUpdate {
+    private static FontManager instance;
     private static final String FONT_PATH = "fonts";
     private Typeface currentFont;
     private final Map<String, Typeface> fonts = new HashMap<>();
+
+    /**
+     * Get the singleton instance of FontManager.
+     * <p>
+     * Note: Will be null if it hasn't been built using the other getInstance first
+     *
+     * @return The instance of FontManager or null.
+     */
+    public static FontManager getInstance() {
+        return instance;
+    }
+
+    /**
+     * Get the singleton instance of FontManager.
+     *
+     * @param preferredFont The filename of the selected font
+     * @param assets        An AssetManager for accessing the font files
+     * @return The instance of FontManager
+     */
+    public static FontManager getInstance(@NonNull String preferredFont, @NonNull AssetManager assets) {
+        if (instance == null)
+            instance = new FontManager(preferredFont, assets);
+
+        return instance;
+    }
 
     /**
      * Constructor for FontManager
@@ -34,7 +60,7 @@ public class FontManager implements AwfulPreferences.AwfulPreferenceUpdate {
      * @param preferredFont The filename of the selected font
      * @param assets        An AssetManager for accessing the font files
      */
-    public FontManager(String preferredFont, AssetManager assets) {
+    private FontManager(String preferredFont, AssetManager assets) {
         fonts.clear();
         fonts.put("default", Typeface.defaultFromStyle(Typeface.NORMAL));
 

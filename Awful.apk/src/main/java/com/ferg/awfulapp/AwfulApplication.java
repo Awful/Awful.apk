@@ -29,8 +29,6 @@ public class AwfulApplication extends Application {
     private static SharedPreferences appStatePrefs;
     private static boolean crashlyticsEnabled = false;
 
-    private FontManager fontManager;
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -44,8 +42,8 @@ public class AwfulApplication extends Application {
         AndroidThreeTen.init(this);
         AnnouncementsManager.init();
 
-        fontManager = new FontManager(mPref.preferredFont, getAssets());
-        mPref.registerCallback(fontManager);
+        // create FontManager instance and register it to receive preference changes
+        mPref.registerCallback(FontManager.getInstance(mPref.preferredFont, getAssets()));
 
         long hoursSinceInstall = getHoursSinceInstall();
 
@@ -114,11 +112,11 @@ public class AwfulApplication extends Application {
     }
 
     public void setPreferredFont(View view, int flags) {
-        fontManager.setTypefaceToCurrentFont(view, flags);
+        FontManager.getInstance().setTypefaceToCurrentFont(view, flags);
     }
 
     public String[] getFontList() {
-        return fontManager.getFontList();
+        return FontManager.getInstance().getFontList();
     }
 
     @Override
