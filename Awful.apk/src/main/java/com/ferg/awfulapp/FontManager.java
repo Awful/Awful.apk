@@ -91,9 +91,18 @@ public class FontManager implements AwfulPreferences.AwfulPreferenceUpdate {
      *
      * @return The list of font filenames as a String array
      */
-    public String[] getFontList() {
+    public String[] getFontFilenames() {
         Timber.i("Font list: %s", fonts.keySet());
         return fonts.keySet().toArray(new String[0]);
+    }
+
+    /**
+     * Get the list of clean font names
+     *
+     * @return The list of font filenames as a String array
+     */
+    public String[] getFontNames() {
+        return extractFontNames(getFontFilenames());
     }
 
     /**
@@ -164,7 +173,7 @@ public class FontManager implements AwfulPreferences.AwfulPreferenceUpdate {
      * @param fontList An array of font file names
      * @return An array of font names
      */
-    public static String[] extractFontNames(@NonNull String[] fontList) {
+    private static String[] extractFontNames(@NonNull String[] fontList) {
         String[] fontNames = new String[fontList.length];
 
         Pattern pattern = Pattern.compile(FONT_PATH + "/(.*).ttf.mp3", Pattern.CASE_INSENSITIVE);
