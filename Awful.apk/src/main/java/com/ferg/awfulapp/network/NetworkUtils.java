@@ -31,10 +31,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.http.HttpResponseCache;
-import android.os.Messenger;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -49,6 +47,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -60,39 +59,37 @@ import java.net.URLEncoder;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import timber.log.Timber;
+
 public class NetworkUtils {
-    private static final String TAG = "NetworkUtils";
     private static final String CHARSET = "windows-1252";
 
     private static final Pattern unencodeCharactersPattern = Pattern.compile("&#(\\d+);");
     private static final Pattern encodeCharactersPattern = Pattern.compile("([^\\x00-\\x7F])");
 
-
-    private static RequestQueue     mNetworkQueue;
-    private static LRUImageCache    mImageCache;
-    private static ImageLoader      mImageLoader;
+    private static RequestQueue mNetworkQueue;
+    private static LRUImageCache mImageCache;
+    private static ImageLoader mImageLoader;
 
     private static CookieManager ckmngr;
 
     private static String cookie = null;
     private static final String COOKIE_HEADER = "Cookie";
 
-
     static {
         ckmngr = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
         CookieHandler.setDefault(ckmngr);
     }
 
-
     /**
      * Initialise request handling and caching - call this early!
-     * @param context   A context used to create a cache dir
+     *
+     * @param context A context used to create a cache dir
      */
     public static void init(Context context) {
         // update the security provider first, to ensure we fix SSL errors before setting anything else up
@@ -119,32 +116,30 @@ public class NetworkUtils {
         }
     }
 
-
-    public static void queueRequest(Request request){
+    public static void queueRequest(Request request) {
         if (mNetworkQueue != null) {
             mNetworkQueue.add(request);
         } else {
-            Log.w(TAG, "Can't queue request - NetworkQueue is null, has NetworkUtils been initialised?");
+            Timber.w("Can't queue request - NetworkQueue is null, has NetworkUtils been initialised?");
         }
     }
 
-
-    public static void cancelRequests(Object tag){
+    public static void cancelRequests(Object tag) {
         if (mNetworkQueue != null) {
             mNetworkQueue.cancelAll(tag);
         } else {
-            Log.w(TAG, "Can't cancel requests - NetworkQueue is null, has NetworkUtils been initialised?");
+            Timber.w("Can't cancel requests - NetworkQueue is null, has NetworkUtils been initialised?");
         }
     }
 
     /**
      * Add the current session cookie's data to a header map.
-     *
+     * <p>
      * The data is provided as a single header - see {@link #restoreLoginCookies(Context)} for the format.
      */
     public static void setCookieHeaders(@NonNull Map<String, String> headers) {
-        if(cookie == null){
-            Log.e(TAG,"Cookie was empty for some reason, trying to restore cookie");
+        if (cookie == null) {
+            Timber.w("Cookie was empty for some reason, trying to restore cookie");
             restoreLoginCookies(AwfulPreferences.getInstance().getContext());
         }
         if (!cookie.isEmpty()) {
@@ -170,51 +165,54 @@ public class NetworkUtils {
         long expiry = prefs.getLong(Constants.COOKIE_PREF_EXPIRY_DATE, -1);
         int cookieVersion = prefs.getInt(Constants.COOKIE_PREF_VERSION, 0);
 
-        if (useridCookieValue != null && passwordCookieValue != null && expiry != -1) {
-            cookie = String.format("%s=%s;%s=%s;%s=%s;%s=%s;",
-                    Constants.COOKIE_NAME_USERID, useridCookieValue,
-                    Constants.COOKIE_NAME_PASSWORD, passwordCookieValue,
-                    Constants.COOKIE_NAME_SESSIONID, sessionidCookieValue,
-                    Constants.COOKIE_NAME_SESSIONHASH, sessionhashCookieValue);
-
-            HttpCookie useridCookie =
-                    new HttpCookie(Constants.COOKIE_NAME_USERID, useridCookieValue);
-            HttpCookie passwordCookie =
-                    new HttpCookie(Constants.COOKIE_NAME_PASSWORD, passwordCookieValue);
-            HttpCookie sessionidCookie =
-                    new HttpCookie(Constants.COOKIE_NAME_SESSIONID, sessionidCookieValue);
-            HttpCookie sessionhashCookie =
-                    new HttpCookie(Constants.COOKIE_NAME_SESSIONHASH, sessionhashCookieValue);
-
-            Date expiryDate = new Date(expiry);
-            Date now = new Date();
-            HttpCookie[] allCookies = {useridCookie, passwordCookie, sessionidCookie, sessionhashCookie};
-
-            Log.e(TAG, "now.compareTo(expiryDate):" + (expiryDate.getTime() - now.getTime()));
-            for (HttpCookie tempCookie : allCookies) {
-                tempCookie.setVersion(cookieVersion);
-                tempCookie.setDomain(Constants.COOKIE_DOMAIN);
-                tempCookie.setMaxAge(expiryDate.getTime() - now.getTime());
-                tempCookie.setPath(Constants.COOKIE_PATH);
+        if (useridCookieValue == null || passwordCookieValue == null || expiry == -1) {
+            if (Constants.DEBUG) {
+                Timber.w("Unable to restore cookies! Reasons:\n" +
+                        (useridCookieValue == null ? "USER_ID is NULL\n" : "") +
+                        (passwordCookieValue == null ? "PASSWORD is NULL\n" : "") +
+                        (expiry == -1 ? "EXPIRY is -1" : ""));
             }
-            ckmngr.getCookieStore().add(URI.create(Constants.COOKIE_DOMAIN), useridCookie);
-            ckmngr.getCookieStore().add(URI.create(Constants.COOKIE_DOMAIN), passwordCookie);
-            ckmngr.getCookieStore().add(URI.create(Constants.COOKIE_DOMAIN), sessionhashCookie);
-            if(Constants.DEBUG) {
-                Log.w(TAG, "Cookies restored from prefs");
-                Log.w(TAG, "Cookie dump: " + TextUtils.join("\n", ckmngr.getCookieStore().getCookies()));
-            }
-            return true;
-        } else {
-            String logMsg = "Unable to restore cookies! Reasons:\n";
-            logMsg += (useridCookieValue == null) ? "USER_ID is NULL\n" : "";
-            logMsg += (passwordCookieValue == null) ? "PASSWORD is NULL\n" : "";
-            logMsg += (expiry == -1) ? "EXPIRY is -1" : "";
-            if(Constants.DEBUG) Log.w(TAG, logMsg);
+
             cookie = "";
+            return false;
         }
 
-        return false;
+        cookie = String.format("%s=%s;%s=%s;%s=%s;%s=%s;",
+                Constants.COOKIE_NAME_USERID, useridCookieValue,
+                Constants.COOKIE_NAME_PASSWORD, passwordCookieValue,
+                Constants.COOKIE_NAME_SESSIONID, sessionidCookieValue,
+                Constants.COOKIE_NAME_SESSIONHASH, sessionhashCookieValue);
+
+        HttpCookie useridCookie =
+                new HttpCookie(Constants.COOKIE_NAME_USERID, useridCookieValue);
+        HttpCookie passwordCookie =
+                new HttpCookie(Constants.COOKIE_NAME_PASSWORD, passwordCookieValue);
+        HttpCookie sessionidCookie =
+                new HttpCookie(Constants.COOKIE_NAME_SESSIONID, sessionidCookieValue);
+        HttpCookie sessionhashCookie =
+                new HttpCookie(Constants.COOKIE_NAME_SESSIONHASH, sessionhashCookieValue);
+
+        Date expiryDate = new Date(expiry);
+        Date now = new Date();
+        HttpCookie[] allCookies = {useridCookie, passwordCookie, sessionidCookie, sessionhashCookie};
+
+        Timber.e("now.compareTo(expiryDate):%s", (expiryDate.getTime() - now.getTime()));
+        for (HttpCookie tempCookie : allCookies) {
+            tempCookie.setVersion(cookieVersion);
+            tempCookie.setDomain(Constants.COOKIE_DOMAIN);
+            tempCookie.setMaxAge(expiryDate.getTime() - now.getTime());
+            tempCookie.setPath(Constants.COOKIE_PATH);
+        }
+        ckmngr.getCookieStore().add(URI.create(Constants.COOKIE_DOMAIN), useridCookie);
+        ckmngr.getCookieStore().add(URI.create(Constants.COOKIE_DOMAIN), passwordCookie);
+        ckmngr.getCookieStore().add(URI.create(Constants.COOKIE_DOMAIN), sessionhashCookie);
+
+        if (Constants.DEBUG) {
+            Timber.w("Cookies restored from prefs");
+            Timber.w("Cookie dump: %s", TextUtils.join("\n", ckmngr.getCookieStore().getCookies()));
+        }
+
+        return true;
     }
 
     /**
@@ -223,7 +221,7 @@ public class NetworkUtils {
      */
     public static synchronized void clearLoginCookies(Context ctx) {
         // First clear out the persistent preferences...
-        if(null == ctx){
+        if (null == ctx) {
             ctx = AwfulPreferences.getInstance().getContext();
         }
         SharedPreferences prefs = ctx.getSharedPreferences(
@@ -255,35 +253,35 @@ public class NetworkUtils {
         Date expires = null;
         Integer version = null;
 
-        List<HttpCookie> cookies = ckmngr.getCookieStore().getCookies();
-        for (HttpCookie cookie : cookies) {
-            if (cookie.getDomain().contains(Constants.COOKIE_DOMAIN)) {
-                final String cookieName = cookie.getName();
-                switch (cookieName) {
-                    case Constants.COOKIE_NAME_USERID:
-                        useridValue = cookie.getValue();
-                        break;
-                    case Constants.COOKIE_NAME_PASSWORD:
-                        passwordValue = cookie.getValue();
-                        break;
-                    case Constants.COOKIE_NAME_SESSIONID:
-                        sessionId = cookie.getValue();
-                        break;
-                    case Constants.COOKIE_NAME_SESSIONHASH:
-                        sessionHash = cookie.getValue();
-                        break;
-                }
-                // keep the soonest valid expiry in case they don't match
-                Calendar c = Calendar.getInstance();
-                c.add(Calendar.SECOND, ((int) cookie.getMaxAge()));
-                Date cookieExpiryDate  = c.getTime();
-                if (expires == null || (cookieExpiryDate != null && cookieExpiryDate.before(expires))) {
-                    expires = cookieExpiryDate;
-                }
-                // fall back to the lowest cookie spec version
-                if (version == null || cookie.getVersion() < version) {
-                    version = cookie.getVersion();
-                }
+        for (HttpCookie cookie : ckmngr.getCookieStore().getCookies()) {
+            if (!cookie.getDomain().contains(Constants.COOKIE_DOMAIN))
+                continue;
+
+            switch (cookie.getName()) {
+                case Constants.COOKIE_NAME_USERID:
+                    useridValue = cookie.getValue();
+                    break;
+                case Constants.COOKIE_NAME_PASSWORD:
+                    passwordValue = cookie.getValue();
+                    break;
+                case Constants.COOKIE_NAME_SESSIONID:
+                    sessionId = cookie.getValue();
+                    break;
+                case Constants.COOKIE_NAME_SESSIONHASH:
+                    sessionHash = cookie.getValue();
+                    break;
+            }
+
+            // keep the soonest valid expiry in case they don't match
+            Calendar c = Calendar.getInstance();
+            c.add(Calendar.SECOND, ((int) cookie.getMaxAge()));
+            Date cookieExpiryDate = c.getTime();
+            if (expires == null || (cookieExpiryDate != null && cookieExpiryDate.before(expires))) {
+                expires = cookieExpiryDate;
+            }
+            // fall back to the lowest cookie spec version
+            if (version == null || cookie.getVersion() < version) {
+                version = cookie.getVersion();
             }
         }
 
@@ -318,42 +316,40 @@ public class NetworkUtils {
                 }
             }
         }
-        Log.w(TAG, "getCookieString couldn't find type: " + type);
+        Timber.w("getCookieString couldn't find type: %s", type);
         return "";
     }
 
     public static Document get(String aUrl) throws Exception {
-        return get(new URI(aUrl), null, 0);
+        return get(new URI(aUrl));
     }
 
-    public static Document get(URI location, Messenger statusCallback, int midpointPercent) throws Exception {
-        Document response = null;
-        String responseString = "";
-
-        Log.i(TAG, "Fetching " + location);
+    public static Document get(URI location) throws Exception {
+        Timber.i("Fetching %s", location);
 
         HttpURLConnection urlConnection = (HttpURLConnection) location.toURL().openConnection();
-        try {
-            if (urlConnection != null) {
-                response = Jsoup.parse(urlConnection.getInputStream(), CHARSET, Constants.BASE_URL);
-            }
-        }finally {
-            if (urlConnection != null) {
-                urlConnection.disconnect();
-            }
+
+        if (urlConnection == null) {
+            Timber.e("Couldn't open connection");
+            return null;
         }
-        Log.i(TAG, "Fetched " + location);
+
+        Document response;
+
+        try {
+            InputStream inputStream = urlConnection.getInputStream();
+            response = Jsoup.parse(inputStream, CHARSET, Constants.BASE_URL);
+        } finally {
+            urlConnection.disconnect();
+        }
+
+        Timber.i("Fetched %s", location);
         return response;
     }
 
-
     public static String getRedirect(String aUrl, HashMap<String, String> aParams) throws Exception {
-        URI location;
-        if (aParams != null) {
-            location = new URI(aUrl + getQueryStringParameters(aParams));
-        } else {
-            location = new URI(aUrl);
-        }
+        URI location = new URI(aUrl + getQueryStringParameters(aParams));
+
         String redirectLocation;
         HttpURLConnection urlConnection = (HttpURLConnection) location.toURL().openConnection();
         try {
@@ -371,42 +367,38 @@ public class NetworkUtils {
         return null;
     }
 
-
     public static String getQueryStringParameters(HashMap<String, String> aParams) {
+        if (aParams == null)
+            return "";
+
         StringBuilder result = new StringBuilder("?");
 
-        if (aParams != null) {
-            try {
-                // Loop over each parameter and add it to the query string
-                Iterator<Map.Entry<String,String>> iter = aParams.entrySet().iterator();
+        try {
+            String separator = "";
 
-                while (iter.hasNext()) {
-                    Map.Entry<String, String> param = iter.next();
+            for (Map.Entry<String, String> entry : aParams.entrySet()) {
+                result.append(separator)
+                        .append(entry.getKey())
+                        .append("=")
+                        .append(URLEncoder.encode(entry.getValue(), "UTF-8"));
 
-                    result.append(param.getKey()).append("=").append(URLEncoder.encode(param.getValue(), "UTF-8"));
-
-                    if (iter.hasNext()) {
-                        result.append("&");
-                    }
-                }
-            } catch (UnsupportedEncodingException e) {
-                Log.i(TAG, e.toString());
+                separator = "&";
             }
-        } else {
-            return "";
+        } catch (UnsupportedEncodingException e) {
+            Timber.i(e.toString());
         }
 
         return result.toString();
     }
 
     public static void logCookies() {
-        if(Constants.DEBUG) {
-            Log.i(TAG, "---BEGIN COOKIE DUMP---");
+        if (Constants.DEBUG) {
+            Timber.i("---BEGIN COOKIE DUMP---");
             List<HttpCookie> cookies = ckmngr.getCookieStore().getCookies();
             for (HttpCookie c : cookies) {
-                Log.i(TAG, c.toString());
+                Timber.i(c.toString());
             }
-            Log.i(TAG, "---END COOKIE DUMP---");
+            Timber.i("---END COOKIE DUMP---");
         }
     }
 
@@ -444,6 +436,4 @@ public class NetworkUtils {
         fixCharMatch.appendTail(unencodedContent);
         return unencodedContent.toString();
     }
-
-
 }

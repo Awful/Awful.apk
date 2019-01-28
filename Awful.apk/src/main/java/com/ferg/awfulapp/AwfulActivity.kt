@@ -187,7 +187,7 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
 
     @JvmOverloads
     fun setPreferredFont(view: View?, flags: Int = -1) =
-            view?.let { (application as AwfulApplication).setPreferredFont(view, flags) }
+            view?.let { FontManager.getInstance().setTypefaceToCurrentFont(view, flags) }
 
     protected fun updateTheme() = setTheme(AwfulTheme.forForum(null).themeResId)
 
