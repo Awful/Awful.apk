@@ -23,7 +23,9 @@
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher"
-        android:theme="@style/Theme.AwfulTheme.Launcher">
+        android:theme="@style/Theme.AwfulTheme.Launcher"
+        android:usesCleartextTraffic="true"
+        >
         <uses-library android:name="org.apache.http.legacy" android:required="false" />
 
         <!--
