@@ -43,7 +43,6 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -1598,13 +1597,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	private void openThread(int id, @Nullable Integer page, @Nullable String postJump){
 		Timber.i("Opening thread (old/new) ID:%d/%d, PAGE:%s/%s, JUMP:%s/%s",
 				getThreadId(), id, getPageNumber(), page, getPostJump(), postJump);
-		// removed because it included (if !forceReload) and that param was always set to true
-//		if (id == currentThreadId && (page == null || page == currentPage)) {
-//			// do nothing if there's no change
-//			// TODO: 15/01/2018 handle a change in postJump though? Right now this reflects the old logic from ForumsIndexActivity
-//			return;
-//		}
-		// TODO: 15/01/2018 a call to display a thread may come before the fragment has been properly created - if so, store the request details and perform it when ready. Handle that here or in #loadThread?
+		if (id == currentThreadId && (page == null || page == currentPage)) {
+			// do nothing if there's no change
+			// TODO: 15/01/2018 handle a change in postJump though? Right now this reflects the old logic from ForumsIndexActivity
+			return;
+		}
 		clearBackStack();
 		int threadPage = (page == null) ? FIRST_PAGE : page;
     	loadThread(id, threadPage, postJump, true);
