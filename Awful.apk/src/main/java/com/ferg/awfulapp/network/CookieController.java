@@ -26,6 +26,7 @@ public class CookieController {
     private static CookieManager cookieManager;
     private static String cookie = null;
     private static final String COOKIE_HEADER = "Cookie";
+    private static final URI uri = URI.create(Constants.BASE_URL);
 
     private CookieController() {
     }
@@ -100,8 +101,6 @@ public class CookieController {
         long maxAge = expiryDate.getTime() - now.getTime();
         Timber.e("now.compareTo(expiryDate):%s", maxAge);
 
-        URI uri = URI.create(Constants.COOKIE_DOMAIN);
-
         for (HttpCookie tempCookie : allCookies) {
             tempCookie.setVersion(cookieVersion);
             tempCookie.setDomain(Constants.COOKIE_DOMAIN);
@@ -153,10 +152,7 @@ public class CookieController {
         Date expires = null;
         Integer version = null;
 
-        for (HttpCookie cookie : cookieManager.getCookieStore().getCookies()) {
-            if (!cookie.getDomain().contains(Constants.COOKIE_DOMAIN))
-                continue;
-
+        for (HttpCookie cookie : cookieManager.getCookieStore().get(uri)) {
             switch (cookie.getName()) {
                 case Constants.COOKIE_NAME_USERID:
                     useridValue = cookie.getValue();
@@ -208,10 +204,7 @@ public class CookieController {
     }
 
     public static synchronized String getCookieString(String type) {
-        for (HttpCookie cookie : cookieManager.getCookieStore().getCookies()) {
-            if (!cookie.getDomain().contains(Constants.COOKIE_DOMAIN))
-                continue;
-
+        for (HttpCookie cookie : cookieManager.getCookieStore().get(uri)) {
             if (cookie.getName().contains(type))
                 return String.format("%s=%s; domain=%s", type, cookie.getValue(), cookie.getDomain());
         }
