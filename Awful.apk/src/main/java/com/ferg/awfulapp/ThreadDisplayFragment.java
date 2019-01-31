@@ -1564,7 +1564,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 				deferNavigation(event);
 			} else {
 				NavigationEvent.Thread thread = (NavigationEvent.Thread) event;
-				openThread(thread.getId(), thread.getPage(), thread.getPostJump());
+				// if we're currently displaying this thread, and no page was specified (i.e. it's
+				// a "show this thread" navigation) then we don't need to do anything
+				if (thread.getId() != currentThreadId || thread.getPage() != null) {
+					openThread(thread.getId(), thread.getPage(), thread.getPostJump());
+				}
 			}
 			return true;
 		} else if (event instanceof NavigationEvent.Url) {
@@ -1590,18 +1594,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 
 	/**
 	 * Open a thread, jumping to a specific page and post if required.
-	 *  @param id        The thread's ID
+	 * @param id          The thread's ID
 	 * @param page        An optional page to display, otherwise it defaults to the first page
 	 * @param postJump    An optional URL fragment representing the post ID to jump to
 	 */
 	private void openThread(int id, @Nullable Integer page, @Nullable String postJump){
 		Timber.i("Opening thread (old/new) ID:%d/%d, PAGE:%s/%s, JUMP:%s/%s",
 				getThreadId(), id, getPageNumber(), page, getPostJump(), postJump);
-		if (id == currentThreadId && (page == null || page == currentPage)) {
-			// do nothing if there's no change
-			// TODO: 15/01/2018 handle a change in postJump though? Right now this reflects the old logic from ForumsIndexActivity
-			return;
-		}
 		clearBackStack();
 		int threadPage = (page == null) ? FIRST_PAGE : page;
     	loadThread(id, threadPage, postJump, true);
