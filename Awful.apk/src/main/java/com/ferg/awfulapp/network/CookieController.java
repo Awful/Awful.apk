@@ -93,8 +93,7 @@ public class CookieController {
         HttpCookie[] allCookies = {
                 new HttpCookie(Constants.COOKIE_NAME_USERID, useridCookieValue),
                 new HttpCookie(Constants.COOKIE_NAME_PASSWORD, passwordCookieValue),
-                // TODO: 23/01/2019 should sessionid cookie not be added to the cookie store?
-//                new HttpCookie(Constants.COOKIE_NAME_SESSIONID, sessionidCookieValue),
+                new HttpCookie(Constants.COOKIE_NAME_SESSIONID, sessionidCookieValue),
                 new HttpCookie(Constants.COOKIE_NAME_SESSIONHASH, sessionhashCookieValue)
         };
 
