@@ -22,6 +22,9 @@ import timber.log.Timber;
 
 import static android.content.SharedPreferences.Editor;
 
+/**
+ * Handles all interactions with cookies
+ */
 public class CookieController {
     private static CookieManager cookieManager;
     private static String cookie = null;

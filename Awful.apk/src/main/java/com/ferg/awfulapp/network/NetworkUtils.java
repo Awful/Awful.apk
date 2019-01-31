@@ -47,7 +47,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URLEncoder;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -137,7 +136,7 @@ public class NetworkUtils {
         return response;
     }
 
-    public static String getRedirect(String aUrl, HashMap<String, String> aParams) throws Exception {
+    public static String getRedirect(String aUrl, Map<String, String> aParams) throws Exception {
         URI location = new URI(aUrl + getQueryStringParameters(aParams));
 
         String redirectLocation;
@@ -154,8 +153,16 @@ public class NetworkUtils {
         return redirectLocation;
     }
 
-    public static String getQueryStringParameters(HashMap<String, String> aParams) {
-        if (aParams == null)
+    /**
+     * Build a html query string from a map.
+     * <p>
+     * Returns an empty string if <code>parameters</code> is null
+     *
+     * @param parameters Map of query string pairs
+     * @return A valid query string
+     */
+    public static String getQueryStringParameters(Map<String, String> parameters) {
+        if (parameters == null)
             return "";
 
         StringBuilder result = new StringBuilder("?");
@@ -163,7 +170,7 @@ public class NetworkUtils {
         try {
             String separator = "";
 
-            for (Map.Entry<String, String> entry : aParams.entrySet()) {
+            for (Map.Entry<String, String> entry : parameters.entrySet()) {
                 result.append(separator)
                         .append(entry.getKey())
                         .append("=")
@@ -201,6 +208,7 @@ public class NetworkUtils {
     /**
      * Parses a Java string into html-escaped characters. Does not handle html tags.
      *
+     * @param str String to process
      * @return unencoded text.
      */
     public static String encodeHtml(String str) {
