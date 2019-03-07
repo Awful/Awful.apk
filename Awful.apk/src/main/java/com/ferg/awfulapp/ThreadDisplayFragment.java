@@ -188,6 +188,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
     private String mTitle = null;
 	private String postJump = "";
 	private int savedScrollPosition = 0;
+	/** Whether the currently displayed page represents a full page of posts */
+	private boolean displayingFullPage = false;
 	
 	private ShareActionProvider shareProvider;
 
@@ -1043,6 +1045,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
             String html = ThreadDisplay.getHtml(aPosts, AwfulPreferences.getInstance(getActivity()), getPageNumber(), mLastPage);
             refreshSessionCookie();
 			mThreadView.setBodyHtml(html);
+			displayingFullPage = aPosts.size() >= getPrefs().postPerPage; // shouldn't ever be > but just to be safe
             setProgress(100);
         } catch (Exception e) {
             // If we've already left the activity the webview may still be working to populate,
@@ -1054,9 +1057,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
     
 	@Override
 	public void onRefresh(SwipyRefreshLayoutDirection swipyRefreshLayoutDirection) {
-		if(swipyRefreshLayoutDirection == SwipyRefreshLayoutDirection.TOP){
+		if (swipyRefreshLayoutDirection == SwipyRefreshLayoutDirection.TOP) {
+			// no page turn when swiping at the top of the page
 			refresh();
-		}else{
+		} else if (!displayingFullPage) {
+			// always refresh if there could be more posts
+			refresh();
+		} else {
 			turnPage(true);
 		}
 	}
