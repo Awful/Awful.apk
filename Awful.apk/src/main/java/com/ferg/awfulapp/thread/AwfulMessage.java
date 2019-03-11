@@ -275,7 +275,7 @@ public class AwfulMessage extends AwfulPagedItem {
 			buffer.append("<link rel='stylesheet' href='").append(AwfulTheme.forForum(null).getCssPath()).append("'>");
 
 			if(!pref.preferredFont.contains("default")){
-				buffer.append("<style type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/").append(pref.preferredFont).append("'); }</style>\n");
+				buffer.append("<style type='text/css'>@font-face { font-family: userselected; src: url('file:///android_asset/").append(pref.preferredFont).append("'); }</style>\n");
 			}
 			buffer.append("</head><body>");
 			buffer.append("<article><section class='postcontent'>");

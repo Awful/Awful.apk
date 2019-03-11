@@ -351,7 +351,7 @@ function changeFontFace(font) {
 		var styleElement = document.createElement('style');
 		styleElement.id = 'font-face';
 		styleElement.setAttribute('type', 'text/css');
-		styleElement.textContent = '@font-face { font-family: userselected; src: url(\'content://com.ferg.awfulapp.webprovider/' + font + '\'); }';
+		styleElement.textContent = '@font-face { font-family: userselected; src: url(\'file:///android_asset/' + font + '\'); }';
 		document.head.appendChild(styleElement);
 	}
 }

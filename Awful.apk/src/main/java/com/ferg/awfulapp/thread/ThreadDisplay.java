@@ -70,7 +70,7 @@ public abstract class ThreadDisplay {
 
 
         if (!aPrefs.preferredFont.contains("default")) {
-            buffer.append("<style id='font-face' type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/").append(aPrefs.preferredFont).append("'); }</style>\n");
+            buffer.append("<style id='font-face' type='text/css'>@font-face { font-family: userselected; src: url('file:///android_asset/").append(aPrefs.preferredFont).append("'); }</style>\n");
         }
         for (String scriptName : JS_FILES) {
             buffer.append("<script src='file:///android_asset/javascript/")
