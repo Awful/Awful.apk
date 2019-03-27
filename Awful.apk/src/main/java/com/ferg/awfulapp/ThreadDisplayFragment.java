@@ -1175,7 +1175,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 		if (lastSegment != null) {
 			lastSegment = lastSegment.toLowerCase();
 			// using 'contains' instead of 'ends with' in case of any url suffix shenanigans, like twitter's ".jpg:large"
-			isImage = (StringUtils.indexOfAny(lastSegment, ".jpg", ".jpeg", ".png", ".gif") != -1
+			isImage = (StringUtils.indexOfAny(lastSegment, ".jpg", ".jpeg", ".png", ".gif", ".webp") != -1
 					&& !StringUtils.contains(lastSegment, ".gifv"))
 					|| (lastSegment.equals("attachment.php") && path.getHost().equals("forums.somethingawful.com"));
 			isGif = StringUtils.contains(lastSegment, ".gif")
