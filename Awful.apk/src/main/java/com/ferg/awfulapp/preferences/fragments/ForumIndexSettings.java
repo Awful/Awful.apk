@@ -2,6 +2,7 @@ package com.ferg.awfulapp.preferences.fragments;
 
 import android.preference.Preference;
 import android.support.annotation.NonNull;
+import android.support.annotation.UiThread;
 
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
@@ -76,25 +77,31 @@ public class ForumIndexSettings extends SettingsFragment
 
     @Override
     public void onForumsUpdateStarted() {
-        updateRunning = true;
-        setUpdateForumsSummary();
+        handleForumUpdateCallback(true);
     }
 
 
     @Override
     public void onForumsUpdateCompleted(boolean success) {
-        updateRunning = false;
-        setUpdateForumsSummary();
+        handleForumUpdateCallback(false);
     }
 
 
     @Override
     public void onForumsUpdateCancelled() {
-        updateRunning = false;
-        setUpdateForumsSummary();
+        handleForumUpdateCallback(false);
     }
 
 
+    private void handleForumUpdateCallback(boolean running) {
+        updateRunning = running;
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(this::setUpdateForumsSummary);
+        }
+    }
+
+
+    @UiThread
     private void setUpdateForumsSummary() {
         Preference updatePref = findPrefById(R.string.pref_key_update_forums_menu_item);
         if (updatePref != null) {
@@ -115,7 +122,7 @@ public class ForumIndexSettings extends SettingsFragment
         @Override
         public boolean onPreferenceClick(Preference preference) {
             // TODO: maybe move this into a full sync button somewhere, that does forum features etc
-            forumRepo.updateForums(new CrawlerTask(getActivity(), CrawlerTask.PRIORITY_HIGH));
+            forumRepo.updateForums(new CrawlerTask(getActivity(), CrawlerTask.Priority.HIGH));
             return true;
         }
     }

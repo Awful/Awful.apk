@@ -16,7 +16,7 @@ import com.ferg.awfulapp.messages.PmManager;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.task.FeatureRequest;
-import com.ferg.awfulapp.task.ProfileRequest;
+import com.ferg.awfulapp.task.RefreshUserProfileRequest;
 import com.ferg.awfulapp.util.AwfulUtils;
 
 import java.util.concurrent.TimeUnit;
@@ -68,7 +68,7 @@ public class SyncManager {
 
 
     private static void updateProfile(@NonNull Context context) {
-        NetworkUtils.queueRequest(new ProfileRequest(context).build(null, null));
+        NetworkUtils.queueRequest(new RefreshUserProfileRequest(context).build(null, null));
     }
 
 
@@ -97,9 +97,9 @@ public class SyncManager {
                 Timber.d("Not updating forums - %s %s since last update", timeSinceUpdate, timeUnits);
             return;
         }
-        int updatePriority = hasForumData ? CrawlerTask.PRIORITY_LOW : CrawlerTask.PRIORITY_HIGH;
+        CrawlerTask.Priority updatePriority = hasForumData ? CrawlerTask.Priority.LOW : CrawlerTask.Priority.HIGH;
             Timber.d("Updating forums (%s priority) - %s forum data, %d %s since last update",
-                    updatePriority == CrawlerTask.PRIORITY_HIGH ? "high" : "low",
+                    updatePriority.name(),
                     hasForumData ? "we have old" : "no existing",
                     timeSinceUpdate,
                     timeUnits);

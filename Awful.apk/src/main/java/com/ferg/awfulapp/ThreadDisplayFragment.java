@@ -43,7 +43,6 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -80,6 +79,7 @@ import android.widget.Toast;
 import com.android.volley.VolleyError;
 import com.crashlytics.android.Crashlytics;
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.network.CookieController;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.popupmenu.PostContextMenu;
 import com.ferg.awfulapp.popupmenu.UrlContextMenu;
@@ -93,12 +93,12 @@ import com.ferg.awfulapp.task.BookmarkRequest;
 import com.ferg.awfulapp.task.IgnoreRequest;
 import com.ferg.awfulapp.task.ImageSizeRequest;
 import com.ferg.awfulapp.task.MarkLastReadRequest;
-import com.ferg.awfulapp.task.PostRequest;
-import com.ferg.awfulapp.task.ProfileRequest;
 import com.ferg.awfulapp.task.RedirectTask;
+import com.ferg.awfulapp.task.RefreshUserProfileRequest;
 import com.ferg.awfulapp.task.ReportRequest;
 import com.ferg.awfulapp.task.SinglePostRequest;
 import com.ferg.awfulapp.task.ThreadLockUnlockRequest;
+import com.ferg.awfulapp.task.ThreadPageRequest;
 import com.ferg.awfulapp.task.VoteRequest;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPagedItem;
@@ -141,6 +141,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	private static final String THREAD_ID_KEY = "thread_id";
 	private static final String THREAD_PAGE_KEY = "thread_page";
 	private static final String SCROLL_POSITION_KEY = "scroll_position";
+	private static final String KEEP_SCREEN_ON_KEY = "screen_stays_on";
 	private PostLoaderManager mPostLoaderCallback;
     private ThreadDataCallback mThreadLoaderCallback;
 
@@ -188,6 +189,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
     private String mTitle = null;
 	private String postJump = "";
 	private int savedScrollPosition = 0;
+	/** Whether the currently displayed page represents a full page of posts */
+	private boolean displayingFullPage = false;
 	
 	private ShareActionProvider shareProvider;
 
@@ -244,6 +247,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 		});
 		getAwfulActivity().setPreferredFont(pageBar.getTextView());
 
+		if (savedInstanceState != null) {
+			// setting this before the thread view is initialised, so it will reflect the stored state
+			keepScreenOn = savedInstanceState.getBoolean(KEEP_SCREEN_ON_KEY);
+		}
 		mThreadView = view.findViewById(R.id.thread);
 		initThreadViewProperties();
 
@@ -386,6 +393,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
         refreshSessionCookie();
 		Timber.d("Setting up WebView container HTML");
 		mThreadView.setContent(getBlankPage());
+		mThreadView.setKeepScreenOn(keepScreenOn);
 
 		mThreadView.setDownloadListener(new DownloadListener() {
 			@Override
@@ -448,7 +456,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	@Override
 	protected void cancelNetworkRequests() {
 		super.cancelNetworkRequests();
-		NetworkUtils.cancelRequests(PostRequest.REQUEST_TAG);
+		NetworkUtils.cancelRequests(ThreadPageRequest.Companion.getREQUEST_TAG());
 	}
 
 
@@ -464,10 +472,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
         	CookieSyncManager.createInstance(getActivity());
         	CookieManager cookieMonster = CookieManager.getInstance();
         	cookieMonster.removeAllCookie();
-        	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, NetworkUtils.getCookieString(Constants.COOKIE_NAME_SESSIONID));
-        	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, NetworkUtils.getCookieString(Constants.COOKIE_NAME_SESSIONHASH));
-        	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, NetworkUtils.getCookieString(Constants.COOKIE_NAME_USERID));
-        	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, NetworkUtils.getCookieString(Constants.COOKIE_NAME_PASSWORD));
+        	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, CookieController.getCookieString(Constants.COOKIE_NAME_SESSIONID));
+        	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, CookieController.getCookieString(Constants.COOKIE_NAME_SESSIONHASH));
+        	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, CookieController.getCookieString(Constants.COOKIE_NAME_USERID));
+        	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, CookieController.getCookieString(Constants.COOKIE_NAME_PASSWORD));
         	cookieMonster.setAcceptThirdPartyCookies(mThreadView, true);
         	CookieSyncManager.getInstance().sync();
         }
@@ -641,7 +649,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 
 		new AlertDialog.Builder(activity)
 				.setTitle("Rate this thread")
-				.setItems(items, (dialog, item) -> queueRequest(new VoteRequest(activity, getThreadId(), item)
+				.setItems(items, (dialog, item) -> queueRequest(new VoteRequest(activity, getThreadId(), item+1)
                         .build(ThreadDisplayFragment.this, new AwfulRequest.AwfulResultCallback<Void>() {
                             @Override
                             public void success(Void result) {
@@ -667,7 +675,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	public void ignoreUser(int userId) {
 		final Activity activity = getActivity();
 		if (getPrefs().ignoreFormkey == null) {
-			queueRequest(new ProfileRequest(activity, null).build());
+			queueRequest(new RefreshUserProfileRequest(activity).build());
 		}
 		if (getPrefs().showIgnoreWarning) {
 
@@ -761,7 +769,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	}
 	
     @Override
-    public void onSaveInstanceState(Bundle outState){
+    public void onSaveInstanceState(@NonNull Bundle outState){
     	super.onSaveInstanceState(outState);
     	Timber.d("onSaveInstanceState - storing thread ID, page number and scroll position");
         outState.putInt(THREAD_ID_KEY, getThreadId());
@@ -769,6 +777,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
     	if(mThreadView != null){
     		outState.putInt(SCROLL_POSITION_KEY, mThreadView.getScrollY());
     	}
+    	outState.putBoolean(KEEP_SCREEN_ON_KEY, keepScreenOn);
     }
 
 
@@ -780,14 +789,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
         if (activity != null) {
 			Timber.i("Syncing - reloading from site (thread %d, page %d) to update DB", getThreadId(), getPageNumber());
 			// cancel pending post loading requests
-			NetworkUtils.cancelRequests(PostRequest.REQUEST_TAG);
+			NetworkUtils.cancelRequests(ThreadPageRequest.Companion.getREQUEST_TAG());
 			// call this with cancelOnDestroy=false to retain the request's specific type tag
 			final int pageNumber = getPageNumber();
 			int userId = postFilterUserId == null ? BLANK_USER_ID : postFilterUserId;
-			queueRequest(new PostRequest(activity, getThreadId(), pageNumber, userId)
-					.build(this, new AwfulRequest.AwfulResultCallback<Integer>() {
+			queueRequest(new ThreadPageRequest(activity, getThreadId(), pageNumber, userId)
+					.build(this, new AwfulRequest.AwfulResultCallback<Void>() {
 				@Override
-				public void success(Integer result) {
+				public void success(Void result) {
 					refreshInfo();
 					setProgress(75);
 					refreshPosts();
@@ -1043,6 +1052,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
             String html = ThreadDisplay.getHtml(aPosts, AwfulPreferences.getInstance(getActivity()), getPageNumber(), mLastPage);
             refreshSessionCookie();
 			mThreadView.setBodyHtml(html);
+			displayingFullPage = aPosts.size() >= getPrefs().postPerPage; // shouldn't ever be > but just to be safe
             setProgress(100);
         } catch (Exception e) {
             // If we've already left the activity the webview may still be working to populate,
@@ -1054,9 +1064,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
     
 	@Override
 	public void onRefresh(SwipyRefreshLayoutDirection swipyRefreshLayoutDirection) {
-		if(swipyRefreshLayoutDirection == SwipyRefreshLayoutDirection.TOP){
+		if (swipyRefreshLayoutDirection == SwipyRefreshLayoutDirection.TOP) {
+			// no page turn when swiping at the top of the page
 			refresh();
-		}else{
+		} else if (!displayingFullPage) {
+			// always refresh if there could be more posts
+			refresh();
+		} else {
 			turnPage(true);
 		}
 	}
@@ -1168,7 +1182,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 		if (lastSegment != null) {
 			lastSegment = lastSegment.toLowerCase();
 			// using 'contains' instead of 'ends with' in case of any url suffix shenanigans, like twitter's ".jpg:large"
-			isImage = (StringUtils.indexOfAny(lastSegment, ".jpg", ".jpeg", ".png", ".gif") != -1
+			isImage = (StringUtils.indexOfAny(lastSegment, ".jpg", ".jpeg", ".png", ".gif", ".webp") != -1
 					&& !StringUtils.contains(lastSegment, ".gifv"))
 					|| (lastSegment.equals("attachment.php") && path.getHost().equals("forums.somethingawful.com"));
 			isGif = StringUtils.contains(lastSegment, ".gif")
@@ -1565,7 +1579,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 				deferNavigation(event);
 			} else {
 				NavigationEvent.Thread thread = (NavigationEvent.Thread) event;
-				openThread(thread.getId(), thread.getPage(), thread.getPostJump());
+				// if we're currently displaying this thread, and no page was specified (i.e. it's
+				// a "show this thread" navigation) then we don't need to do anything
+				if (thread.getId() != currentThreadId || thread.getPage() != null) {
+					openThread(thread.getId(), thread.getPage(), thread.getPostJump());
+				}
 			}
 			return true;
 		} else if (event instanceof NavigationEvent.Url) {
@@ -1591,20 +1609,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 
 	/**
 	 * Open a thread, jumping to a specific page and post if required.
-	 *  @param id        The thread's ID
+	 * @param id          The thread's ID
 	 * @param page        An optional page to display, otherwise it defaults to the first page
 	 * @param postJump    An optional URL fragment representing the post ID to jump to
 	 */
 	private void openThread(int id, @Nullable Integer page, @Nullable String postJump){
 		Timber.i("Opening thread (old/new) ID:%d/%d, PAGE:%s/%s, JUMP:%s/%s",
 				getThreadId(), id, getPageNumber(), page, getPostJump(), postJump);
-		// removed because it included (if !forceReload) and that param was always set to true
-//		if (id == currentThreadId && (page == null || page == currentPage)) {
-//			// do nothing if there's no change
-//			// TODO: 15/01/2018 handle a change in postJump though? Right now this reflects the old logic from ForumsIndexActivity
-//			return;
-//		}
-		// TODO: 15/01/2018 a call to display a thread may come before the fragment has been properly created - if so, store the request details and perform it when ready. Handle that here or in #loadThread?
 		clearBackStack();
 		int threadPage = (page == null) ? FIRST_PAGE : page;
     	loadThread(id, threadPage, postJump, true);

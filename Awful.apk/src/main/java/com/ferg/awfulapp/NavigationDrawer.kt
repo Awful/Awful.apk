@@ -125,7 +125,7 @@ class NavigationDrawer(val activity: AwfulActivity, toolbar: Toolbar, val prefs:
 
     private fun refresh() {
         username.text = prefs.username
-        prefs.userTitle?.let { customTitle ->
+        prefs.userAvatarUrl?.let { customTitle ->
             if (customTitle.isNotBlank()) loadAvatar(
                 customTitle,
                 avatar

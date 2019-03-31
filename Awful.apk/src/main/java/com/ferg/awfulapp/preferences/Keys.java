@@ -24,7 +24,7 @@ public abstract class Keys {
     // strings
     @IntDef({
             USERNAME,
-            USER_TITLE,
+            USER_AVATAR_URL,
             THEME,
             LAUNCHER_ICON,
             LAYOUT,
@@ -138,7 +138,7 @@ public abstract class Keys {
 
 
     public static final int USERNAME = R.string.pref_key_username;
-    public static final int USER_TITLE = R.string.pref_key_user_title;
+    public static final int USER_AVATAR_URL = R.string.pref_key_user_title;
     public static final int THEME = R.string.pref_key_theme;
     public static final int LAUNCHER_ICON = R.string.pref_key_launcher_icon;
     public static final int LAYOUT = R.string.pref_key_layout;

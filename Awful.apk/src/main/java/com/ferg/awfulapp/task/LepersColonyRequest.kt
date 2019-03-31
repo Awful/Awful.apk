@@ -2,7 +2,7 @@ package com.ferg.awfulapp.task
 
 import android.content.Context
 import android.net.Uri
-import com.ferg.awfulapp.constants.Constants
+import com.ferg.awfulapp.constants.Constants.*
 import com.ferg.awfulapp.task.LepersColonyRequest.LepersColonyPage
 import com.ferg.awfulapp.users.LepersColonyFragment.Companion.FIRST_PAGE
 import com.ferg.awfulapp.users.Punishment
@@ -16,29 +16,30 @@ import org.jsoup.nodes.Document
  */
 
 class LepersColonyRequest(context: Context, val page: Int = 1, val userId: String? = null):
-        AwfulStrippedRequest<LepersColonyPage>(context, Constants.FUNCTION_BANLIST) {
+        AwfulStrippedRequest<LepersColonyPage>(context, FUNCTION_BANLIST) {
 
     // allow queued requests to be cancelled when a new one starts, e.g. skipping quickly through pages
     companion object {
         val REQUEST_TAG = Any()
     }
-    override fun getRequestTag(): Any = REQUEST_TAG
+    // TODO: fix this
+    override val requestTag: Any
+        get() = REQUEST_TAG
 
-    override fun generateUrl(urlBuilder: Uri.Builder?): String {
-        with(urlBuilder!!) {
-            appendQueryParameter(Constants.PARAM_PAGE, page.toString())
-            userId?.let { appendQueryParameter(Constants.PARAM_USER_ID, userId) }
-            return build().toString()
+    init {
+        with(parameters) {
+            add(PARAM_PAGE, page.toString())
+            userId?.let { add(PARAM_USER_ID, userId) }
         }
     }
 
-    override fun handleResponse(doc: Document?): LepersColonyPage? {
-        with (doc!!) {
+    override fun handleResponse(doc: Document): LepersColonyPage {
+        with (doc) {
             val thisPage = selectFirst(".pages option[selected]")?.text()?.toIntOrNull() ?: FIRST_PAGE
             val lastPage = selectFirst(".pages a[title='Last page']")
                     ?.attr("href")
                     ?.let(Uri::parse)
-                    ?.getQueryParameter(Constants.PARAM_PAGE)
+                    ?.getQueryParameter(PARAM_PAGE)
                     ?.toIntOrNull()
                     ?: thisPage
 
@@ -48,14 +49,14 @@ class LepersColonyRequest(context: Context, val page: Int = 1, val userId: Strin
         }
     }
 
-    override fun handleStrippedResponse(doc: Document, currentPage: Int?, lastPage: Int?): LepersColonyPage {
+    override fun handleStrippedResponse(document: Document, currentPage: Int?, totalPages: Int?): LepersColonyPage {
         val thisPage = currentPage ?: FIRST_PAGE
-        val totalPages = lastPage ?: thisPage
-        val punishments = doc.select("table.standard.full tr").drop(1).map(Punishment.Companion::parse)
-        return LepersColonyPage(punishments, thisPage, totalPages, userId)
+        val lastPage = totalPages ?: thisPage
+        val punishments = document.select("table.standard.full tr").drop(1).map(Punishment.Companion::parse)
+        return LepersColonyPage(punishments, thisPage, lastPage, userId)
     }
 
-    override fun handleError(error: AwfulError?, doc: Document?) = true
+    override fun handleError(error: AwfulError, doc: Document) = false
 
     /**
      * Represents the contents and metadata for a page from the Leper's Colony
