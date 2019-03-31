@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.ferg.awfulapp"
-      android:versionCode="185"
-      android:versionName="3.6.2"
+      android:versionCode="186"
+      android:versionName="3.6.4"
       android:installLocation="auto">
     <supports-screens
         android:smallScreens="true"
@@ -23,7 +23,9 @@
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher"
-        android:theme="@style/Theme.AwfulTheme.Launcher">
+        android:theme="@style/Theme.AwfulTheme.Launcher"
+        android:usesCleartextTraffic="true"
+        >
         <uses-library android:name="org.apache.http.legacy" android:required="false" />
 
         <!--
