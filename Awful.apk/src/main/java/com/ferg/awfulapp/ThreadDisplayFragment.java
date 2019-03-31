@@ -141,6 +141,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	private static final String THREAD_ID_KEY = "thread_id";
 	private static final String THREAD_PAGE_KEY = "thread_page";
 	private static final String SCROLL_POSITION_KEY = "scroll_position";
+	private static final String KEEP_SCREEN_ON_KEY = "screen_stays_on";
 	private PostLoaderManager mPostLoaderCallback;
     private ThreadDataCallback mThreadLoaderCallback;
 
@@ -246,6 +247,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 		});
 		getAwfulActivity().setPreferredFont(pageBar.getTextView());
 
+		if (savedInstanceState != null) {
+			// setting this before the thread view is initialised, so it will reflect the stored state
+			keepScreenOn = savedInstanceState.getBoolean(KEEP_SCREEN_ON_KEY);
+		}
 		mThreadView = view.findViewById(R.id.thread);
 		initThreadViewProperties();
 
@@ -388,6 +393,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
         refreshSessionCookie();
 		Timber.d("Setting up WebView container HTML");
 		mThreadView.setContent(getBlankPage());
+		mThreadView.setKeepScreenOn(keepScreenOn);
 
 		mThreadView.setDownloadListener(new DownloadListener() {
 			@Override
@@ -763,7 +769,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	}
 	
     @Override
-    public void onSaveInstanceState(Bundle outState){
+    public void onSaveInstanceState(@NonNull Bundle outState){
     	super.onSaveInstanceState(outState);
     	Timber.d("onSaveInstanceState - storing thread ID, page number and scroll position");
         outState.putInt(THREAD_ID_KEY, getThreadId());
@@ -771,6 +777,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
     	if(mThreadView != null){
     		outState.putInt(SCROLL_POSITION_KEY, mThreadView.getScrollY());
     	}
+    	outState.putBoolean(KEEP_SCREEN_ON_KEY, keepScreenOn);
     }
 
 
@@ -1175,7 +1182,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 		if (lastSegment != null) {
 			lastSegment = lastSegment.toLowerCase();
 			// using 'contains' instead of 'ends with' in case of any url suffix shenanigans, like twitter's ".jpg:large"
-			isImage = (StringUtils.indexOfAny(lastSegment, ".jpg", ".jpeg", ".png", ".gif") != -1
+			isImage = (StringUtils.indexOfAny(lastSegment, ".jpg", ".jpeg", ".png", ".gif", ".webp") != -1
 					&& !StringUtils.contains(lastSegment, ".gifv"))
 					|| (lastSegment.equals("attachment.php") && path.getHost().equals("forums.somethingawful.com"));
 			isGif = StringUtils.contains(lastSegment, ".gif")
