@@ -584,10 +584,19 @@ function highlightOwnUsername(scopeElement) {
 		return textNodeArray;
 	}
 
-	var selector = 'article:not(self) .postcontent';
+	/**
+	 * Escapes a string for inserting into a regex.
+	 * Taken from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
+	 */
+	function escapeRegExp(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+    }
 
-	var regExp = new RegExp('\\b' + listener.getPreference('username') + '\\b', 'g');
-	var styled = '<span class="usernameHighlight">' + listener.getPreference('username') + '</span>';
+	var selector = 'article:not(self) .postcontent';
+    var username = listener.getPreference('username');
+
+	var regExp = new RegExp('\\b' + escapeRegExp(username) + '\\b', 'g');
+	var styled = '<span class="usernameHighlight">' + username + '</span>';
 	scopeElement.querySelectorAll(selector).forEach(function eachPost(post) {
 		getTextNodesIn(post).forEach(function eachTextNode(node) {
 			if (node.wholeText.match(regExp)) {
