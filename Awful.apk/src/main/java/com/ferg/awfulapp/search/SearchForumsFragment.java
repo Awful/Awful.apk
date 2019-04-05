@@ -44,7 +44,7 @@ import com.ferg.awfulapp.AwfulDialogFragment;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.task.AwfulRequest;
-import com.ferg.awfulapp.task.SearchForumsRequest;
+import com.ferg.awfulapp.task.SearchForumsFilterRequest;
 import com.ferg.awfulapp.thread.AwfulSearchForum;
 
 import java.util.ArrayList;
@@ -149,7 +149,7 @@ public class SearchForumsFragment extends AwfulDialogFragment {
 	}
 
 	public void getForums(){
-		NetworkUtils.queueRequest(new SearchForumsRequest(this.getContext()).build(null, new AwfulRequest.AwfulResultCallback<ArrayList<AwfulSearchForum>>() {
+		NetworkUtils.queueRequest(new SearchForumsFilterRequest(this.getContext()).build(null, new AwfulRequest.AwfulResultCallback<ArrayList<AwfulSearchForum>>() {
 
 			@Override
 			public void success(ArrayList<AwfulSearchForum> result) {

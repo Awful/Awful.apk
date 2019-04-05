@@ -87,7 +87,7 @@ public class AwfulWebView extends WebView {
         webSettings.setDefaultFontSize(prefs.postFontSizeSp);
         webSettings.setDefaultFixedFontSize(prefs.postFixedFontSizeSp);
         webSettings.setDomStorageEnabled(true);
-        webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+        webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
 
         if (DEBUG) {
             WebView.setWebContentsDebuggingEnabled(true);

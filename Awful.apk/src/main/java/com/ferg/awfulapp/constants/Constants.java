@@ -40,6 +40,7 @@ public class Constants {
     public static final String FUNCTION_LOGIN           = BASE_URL + "/account.php";
     public static final String FUNCTION_LOGIN_SSL       = "https://forums.somethingawful.com/account.php";
     public static final String FUNCTION_BOOKMARK        = BASE_URL + "/bookmarkthreads.php";
+    public static final String FUNCTION_ANNOUNCEMENTS   = BASE_URL + "/announcement.php";
     public static final String FUNCTION_USERCP          = BASE_URL + "/usercp.php";
     public static final String FUNCTION_FORUM           = BASE_URL + "/forumdisplay.php";
     public static final String FUNCTION_THREAD          = BASE_URL + "/showthread.php";
@@ -146,6 +147,10 @@ public class Constants {
     public static final int ITEMS_PER_PAGE = 40;
     //we can have up to 80 threads per forum page (SAMart)
     public static final int THREADS_PER_PAGE = 80;
+
+    // private message folder IDs
+    public static final int PRIVATE_MESSAGE_DEFAULT_FOLDER = 0;
+    public static final int PRIVATE_MESSAGE_SENT_FOLDER = -1;
 
     // attachments
     public static final int ATTACHMENT_MAX_BYTES = 1024 * 1024;

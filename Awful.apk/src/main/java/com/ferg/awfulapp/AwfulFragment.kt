@@ -54,7 +54,7 @@ import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutD
 import timber.log.Timber
 
 abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdate,
-    AwfulRequest.ProgressListener<Any>, ForumsPagerPage, NavigationEventHandler {
+    AwfulRequest.ProgressListener, ForumsPagerPage, NavigationEventHandler {
     protected var TAG = "AwfulFragment"
 
     protected val prefs: AwfulPreferences by lazy { AwfulPreferences.getInstance(context!!, this) }
@@ -169,17 +169,17 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
     // Reacting to request progress
     ///////////////////////////////////////////////////////////////////////////
 
-    override fun requestStarted(req: AwfulRequest<Any>) {
+    override fun requestStarted(req: AwfulRequest<*>) {
         // P2R Library is ... awful - part 1
         swipyLayout?.direction = TOP
         swipyLayout?.isRefreshing = true
     }
 
-    override fun requestUpdate(req: AwfulRequest<Any>, percent: Int) {
+    override fun requestUpdate(req: AwfulRequest<*>, percent: Int) {
         setProgress(percent)
     }
 
-    override fun requestEnded(req: AwfulRequest<Any>, error: VolleyError?) {
+    override fun requestEnded(req: AwfulRequest<*>, error: VolleyError?) {
         // P2R Library is ... awful - part 2
         swipyLayout?.isRefreshing = false
         swipyLayout?.direction = allowedSwipeRefreshDirections
@@ -231,7 +231,7 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
      * Queue a network [Request].
      * Set true to tag the request with the fragment, so it will be cancelled
      * when the fragment is destroyed. Set false if you want to retain the request's
-     * default tag, e.g. so pending [com.ferg.awfulapp.task.PostRequest]s can
+     * default tag, e.g. so pending [com.ferg.awfulapp.task.ThreadPageRequest]s can
      * be cancelled when starting a new one.
      * @param request           A Volley request
      * @param cancelOnDestroy   Whether to tag with the fragment and automatically cancel

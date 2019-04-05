@@ -230,7 +230,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
     @Override
     protected void cancelNetworkRequests() {
         super.cancelNetworkRequests();
-        NetworkUtils.cancelRequests(ThreadListRequest.REQUEST_TAG);
+        NetworkUtils.cancelRequests(ThreadListRequest.Companion.getREQUEST_TAG());
     }
 
     @Override
@@ -445,7 +445,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 	public void syncForum() {
 		if(getActivity() != null && getForumId() > 0){
             // cancel pending thread list loading requests
-            NetworkUtils.cancelRequests(ThreadListRequest.REQUEST_TAG);
+            NetworkUtils.cancelRequests(ThreadListRequest.Companion.getREQUEST_TAG());
             // call this with cancelOnDestroy=false to retain the request's specific type tag
             queueRequest(new ThreadListRequest(getActivity(), getForumId(), getPage()).build(this,
                     new AwfulRequest.AwfulResultCallback<Void>() {

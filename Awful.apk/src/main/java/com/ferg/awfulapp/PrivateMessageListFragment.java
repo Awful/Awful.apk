@@ -82,8 +82,8 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
     
     private int currentFolder = FOLDER_INBOX;
 
-    public final static int FOLDER_INBOX	= 0;
-    public final static int FOLDER_SENT		= -1;
+    public final static int FOLDER_INBOX	= Constants.PRIVATE_MESSAGE_DEFAULT_FOLDER;
+    public final static int FOLDER_SENT		= Constants.PRIVATE_MESSAGE_SENT_FOLDER;
     
     
     @Override
