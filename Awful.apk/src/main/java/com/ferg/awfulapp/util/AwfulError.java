@@ -188,7 +188,6 @@ public class AwfulError extends VolleyError {
             }
 
             prefs.setPreference(Keys.PROBATION_TIME, probTimestamp);
-            // TODO: decide if this should really be an AwfulError, because a whole lot of code exists to check for this just to ignore it when handling errors (see AwfulRequest#handleError)
             return new AwfulError(ERROR_PROBATION);
         }
         return null;
