@@ -32,13 +32,14 @@ import timber.log.Timber;
  * requests we make can focus on looking for specific problems.
  */
 public class AwfulError extends VolleyError {
-    private static final String TAG = "AwfulError";
 
     public static final int ERROR_LOGGED_OUT = 0x00000001;
     public static final int ERROR_FORUM_CLOSED = 0x00000002;
     public static final int ERROR_PROBATION = 0x00000004;
     public static final int ERROR_GENERIC_FAILURE = 0x00000008;
     public static final int ERROR_ACCESS_DENIED = 0x00000010;
+
+    private static final Pattern PROBATION_MESSAGE_REGEX = Pattern.compile("(.*)until\\s(([\\s\\w:,])+).\\sYou(.*)");
 
     private final int errorCode;
     @Nullable
@@ -60,7 +61,6 @@ public class AwfulError extends VolleyError {
     public AwfulError(int code, @Nullable String message) {
         errorCode = code;
         errorMessage = message;
-        Timber.e("Error: " + code + " - " + getMessage());
     }
 
     /**
@@ -157,7 +157,7 @@ public class AwfulError extends VolleyError {
             }
         }
 
-        // you're probed!
+        // handle probation status by looking for the probation message (or lack of it)
         Element probation = page.getElementById("probation_warn");
         if (probation == null) {
             // clear any probation
@@ -171,9 +171,8 @@ public class AwfulError extends VolleyError {
             }
 
             // try to parse the probation date - default to 1 day in case we can't parse it (not too scary)
-            Long probTimestamp = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1);
-            Pattern p = Pattern.compile("(.*)until\\s(([\\s\\w:,])+).\\sYou(.*)");
-            Matcher m = p.matcher(probation.text());
+            long probTimestamp = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1);
+            Matcher m = PROBATION_MESSAGE_REGEX.matcher(probation.text());
             if (m.find()) {
                 String date = m.group(2);
                 //for example January 11, 2013 10:35 AM CST
@@ -182,13 +181,14 @@ public class AwfulError extends VolleyError {
                     //TODO this might have timezone issues?
                     probTimestamp = probationFormat.parse(date).getTime();
                 } catch (ParseException e) {
-                    Timber.tag(TAG).w(e, "checkPageErrors: couldn't parse probation date text: %s", date);
+                    Timber.w(e, "checkPageErrors: couldn't parse probation date text: %s", date);
                 }
             } else {
-                Timber.tag(TAG).w("checkPageErrors: couldn't find expected probation date text!\nFull text: %s", probation.text());
+                Timber.w("checkPageErrors: couldn't find expected probation date text!\nFull text: %s", probation.text());
             }
 
             prefs.setPreference(Keys.PROBATION_TIME, probTimestamp);
+            // TODO: decide if this should really be an AwfulError, because a whole lot of code exists to check for this just to ignore it when handling errors (see AwfulRequest#handleError)
             return new AwfulError(ERROR_PROBATION);
         }
         return null;

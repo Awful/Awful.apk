@@ -72,12 +72,15 @@ public class CookieController {
         long expiry = prefs.getLong(Constants.COOKIE_PREF_EXPIRY_DATE, -1);
         int cookieVersion = prefs.getInt(Constants.COOKIE_PREF_VERSION, 0);
 
-        if (useridCookieValue == null || passwordCookieValue == null || expiry == -1) {
+        long maxAge = expiry - System.currentTimeMillis();
+        boolean cookieExpired = maxAge <= 0;
+        // verify the cookie is valid - if not, we need to clear the cookie and return a failure
+        if (useridCookieValue == null || passwordCookieValue == null || cookieExpired) {
             if (Constants.DEBUG) {
                 Timber.w("Unable to restore cookies! Reasons:\n" +
                         (useridCookieValue == null ? "USER_ID is NULL\n" : "") +
                         (passwordCookieValue == null ? "PASSWORD is NULL\n" : "") +
-                        (expiry == -1 ? "EXPIRY is -1" : ""));
+                        (cookieExpired ? "cookie has expired, max age = " + maxAge : ""));
             }
 
             cookie = "";
@@ -90,8 +93,6 @@ public class CookieController {
                 Constants.COOKIE_NAME_SESSIONID, sessionidCookieValue,
                 Constants.COOKIE_NAME_SESSIONHASH, sessionhashCookieValue);
 
-        Date expiryDate = new Date(expiry);
-        Date now = new Date();
 
         HttpCookie[] allCookies = {
                 new HttpCookie(Constants.COOKIE_NAME_USERID, useridCookieValue),
@@ -100,8 +101,6 @@ public class CookieController {
                 new HttpCookie(Constants.COOKIE_NAME_SESSIONHASH, sessionhashCookieValue)
         };
 
-        long maxAge = expiryDate.getTime() - now.getTime();
-        Timber.e("now.compareTo(expiryDate):%s", maxAge);
 
         for (HttpCookie tempCookie : allCookies) {
             tempCookie.setVersion(cookieVersion);
@@ -113,8 +112,8 @@ public class CookieController {
         }
 
         if (Constants.DEBUG) {
-            Timber.w("Cookies restored from prefs");
-            Timber.w("Cookie dump: %s", TextUtils.join("\n", cookieManager.getCookieStore().getCookies()));
+            Timber.i("Cookies restored from prefs");
+            Timber.i("Cookie dump: %s", TextUtils.join("\n", cookieManager.getCookieStore().getCookies()));
         }
 
         return true;

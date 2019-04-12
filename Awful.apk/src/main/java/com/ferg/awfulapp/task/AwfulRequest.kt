@@ -168,6 +168,7 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
      * By default this swallows non-critical errors, and returns false for everything else. If you need
      * different behaviour for some reason, override this!
      */
+    // TODO: decide whether probations (or any other non-critical thing) should even be an AwfulError because this and every override basically has to ignore them
     protected open fun handleError(error: AwfulError, doc: Document): Boolean = !error.isCritical
 
     /**
@@ -248,7 +249,7 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
                 val doc = parseAsHtml(response)
                 updateProgress(50)
                 val error = AwfulError.checkPageErrors(doc, preferences)
-                if (error != null && handleError(error, doc)) {
+                if (error != null && !handleError(error, doc)) {
                     throw error
                 }
 

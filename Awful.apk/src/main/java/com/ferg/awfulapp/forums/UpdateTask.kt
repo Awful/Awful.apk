@@ -236,6 +236,8 @@ internal abstract class UpdateTask(protected val context: Context, private val t
 
 
         override fun handleError(error: AwfulError, doc: Document): Boolean {
+            if (!error.isCritical) return true
+
             onRequestFailed(error)
             finishTask(false)
             return true
