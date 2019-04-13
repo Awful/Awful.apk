@@ -6,7 +6,6 @@ import com.ferg.awfulapp.constants.Constants.*
 import com.ferg.awfulapp.task.LepersColonyRequest.LepersColonyPage
 import com.ferg.awfulapp.users.LepersColonyFragment.Companion.FIRST_PAGE
 import com.ferg.awfulapp.users.Punishment
-import com.ferg.awfulapp.util.AwfulError
 import org.jsoup.nodes.Document
 
 /**
@@ -56,7 +55,6 @@ class LepersColonyRequest(context: Context, val page: Int = 1, val userId: Strin
         return LepersColonyPage(punishments, thisPage, lastPage, userId)
     }
 
-    override fun handleError(error: AwfulError, doc: Document) = false
 
     /**
      * Represents the contents and metadata for a page from the Leper's Colony
