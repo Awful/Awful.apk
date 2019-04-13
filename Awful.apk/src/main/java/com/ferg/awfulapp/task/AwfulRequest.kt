@@ -47,9 +47,9 @@ import java.io.IOException
  * do anything with the response (e.g. a fire-and-forget message to the site) you can just set  [T]
  * to a nullable type (Void? makes most sense if there's no meaningful result) and return null here.
  *
- * [handleError] and [customizeProgressListenerError] both have default implementations, but can be
+ * [handleCriticalError] and [customizeProgressListenerError] both have default implementations, but can be
  * overridden for special error handling and creating custom notification messages. You probably
- * won't want to change [handleError] in most cases, and if you do add any handler code (e.g. if
+ * won't want to change [handleCriticalError] in most cases, and if you do add any handler code (e.g. if
  * a network failure requires the app to update some state) you'll probably just want to call the
  * super method to get the standard error handling when you're done.
  */
@@ -159,16 +159,17 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
 
 
     /**
-     * Handler for [error]s thrown by [AwfulError.checkPageErrors] when parsing a response.
+     * Handler for critical [error]s thrown by [AwfulError.checkPageErrors] when parsing a response.
      *
-     * The main response-handler logic calls this when it encounters an [AwfulError], to check whether
-     * the request implementation will handle it (and processing can proceed to [handleResponse]).
-     * Returns true if the error was handled.
+     * The main response-handler logic calls this when it encounters a critical [AwfulError],
+     * to check whether the request implementation will handle it (and processing can proceed
+     * to [handleResponse]). Returns true if the error was handled.
      *
-     * By default this swallows non-critical errors, and returns false for everything else. If you need
-     * different behaviour for some reason, override this!
+     * This is only called for errors that return true for [AwfulError.isCritical], and returns
+     * false by default. If you want to handle any of these errors, override this and return true
+     * for those.
      */
-    protected open fun handleError(error: AwfulError, doc: Document): Boolean = !error.isCritical
+    protected open fun handleCriticalError(error: AwfulError, doc: Document): Boolean = false
 
     /**
      * Customize the error a request delivers in its [ProgressListener.requestEnded] callback.
@@ -247,9 +248,9 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
             try {
                 val doc = parseAsHtml(response)
                 updateProgress(50)
-                val error = AwfulError.checkPageErrors(doc, preferences)
-                if (error != null && handleError(error, doc)) {
-                    throw error
+                // we only pass critical errors for requests to handle - anything else (i.e. probations) gets swallowed
+                AwfulError.checkPageErrors(doc, preferences)?.let { error ->
+                    if (error.isCritical && !handleCriticalError(error, doc)) throw error
                 }
 
                 val result = handleResponseDocument(doc)
