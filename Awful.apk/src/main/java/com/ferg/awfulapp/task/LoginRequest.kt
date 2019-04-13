@@ -26,8 +26,8 @@ class LoginRequest(context: Context, private val username: String, password: Str
     @Throws(AwfulError::class)
     override fun handleResponse(doc: Document): Boolean = validateLoginState()
 
-    override fun handleError(error: AwfulError, doc: Document): Boolean =
-            error.networkResponse?.isRedirect == true || !error.isCritical
+    override fun handleCriticalError(error: AwfulError, doc: Document): Boolean =
+            error.networkResponse?.isRedirect == true
 
 
     private val NetworkResponse.isRedirect get() = this.statusCode == 302
