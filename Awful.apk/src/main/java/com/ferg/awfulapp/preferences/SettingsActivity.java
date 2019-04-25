@@ -10,7 +10,6 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -21,6 +20,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.ferg.awfulapp.AwfulActivity;
@@ -29,8 +29,6 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.fragments.RootSettings;
 import com.ferg.awfulapp.preferences.fragments.SettingsFragment;
 import com.ferg.awfulapp.util.AwfulUtils;
-
-import org.apache.commons.lang3.StringUtils;
 
 import timber.log.Timber;
 
@@ -272,6 +270,8 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == SETTINGS_FILE) {
                 if (AwfulUtils.isMarshmallow()) {
@@ -302,32 +302,60 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
 
     @Override
     protected Dialog onCreateDialog(int dialogId) {
-        switch (dialogId) {
-            case DIALOG_ABOUT:
-                CharSequence app_version = getText(R.string.app_name);
-                try {
-                    app_version = app_version + " " +
-                            getPackageManager().getPackageInfo(getPackageName(), 0)
-                                    .versionName;
-                } catch (PackageManager.NameNotFoundException e) {
-                    // rather unlikely, just show app_name without version
-                }
-                // Build the text for the About dialog
-                Resources res = getResources();
-                String aboutText = getString(R.string.about_contributors_title) + "\n\n";
-                aboutText += StringUtils.join(res.getStringArray(R.array.about_contributors_array), '\n');
-                aboutText += "\n\n" + getString(R.string.about_libraries_title) + "\n\n";
-                aboutText += StringUtils.join(res.getStringArray(R.array.about_libraries_array), '\n');
+        if (dialogId == DIALOG_ABOUT)
+            return getAboutDialog();
+        else
+            return super.onCreateDialog(dialogId);
+    }
 
-                return new AlertDialog.Builder(this)
-                        .setTitle(app_version)
-                        .setMessage(aboutText)
-                        .setNeutralButton(android.R.string.ok, (dialog, which) -> {
-                        })
-                        .create();
-            default:
-                return super.onCreateDialog(dialogId);
+    private Dialog getAboutDialog() {
+        return new AlertDialog.Builder(this)
+                .setTitle(getAboutDialogTitle())
+                .setMessage(getAboutDialogText())
+                .setNeutralButton(android.R.string.ok, (dialog, which) -> {
+                })
+                .create();
+    }
+
+    private String getAboutDialogTitle() {
+        String result = getText(R.string.app_name).toString();
+
+        try {
+            result += " " +
+                    getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            // rather unlikely, just return app_name without version
         }
+
+        return result;
+    }
+
+    private String getAboutDialogText() {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append(getString(R.string.about_contributors_title)).append("\n");
+
+        for (String s : getStringArray(R.array.about_contributors_array)) {
+            stringBuilder.append("- ").append(s).append('\n');
+        }
+
+        stringBuilder.append("\n").append(getString(R.string.about_libraries_title)).append("\n");
+
+        for (String s : getStringArray(R.array.about_libraries_array)) {
+            stringBuilder.append("- ").append(s).append('\n');
+        }
+
+        stringBuilder.append('\n').append(getWebViewUserAgentString());
+
+        return stringBuilder.toString();
+    }
+
+    private String[] getStringArray(int arrayId) {
+        return getResources().getStringArray(arrayId);
+    }
+
+    private String getWebViewUserAgentString() {
+        return new WebView(this).getSettings().getUserAgentString();
     }
 
     @Override
