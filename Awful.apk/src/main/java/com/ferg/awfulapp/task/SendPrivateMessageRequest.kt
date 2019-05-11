@@ -35,7 +35,7 @@ class SendPrivateMessageRequest(context: Context, private val pmId: Int)
                 if (pmId > 0) add("prevmessageid", pmId.toString())
                 add(PARAM_PARSEURL, YES)
                 add("savecopy", YES)
-                add("iconid", "0") // we don't have an icon picker yet, so use the default
+                add("iconid", getString(getColumnIndex(AwfulMessage.REPLY_ICON)))
                 add(PARAM_MESSAGE, getString(getColumnIndex(AwfulMessage.REPLY_CONTENT)).run(NetworkUtils::encodeHtml))
             }
             failed = false

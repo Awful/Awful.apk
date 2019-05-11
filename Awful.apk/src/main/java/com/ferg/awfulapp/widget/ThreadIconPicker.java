@@ -172,7 +172,9 @@ public class ThreadIconPicker extends Fragment {
                     @Override
                     public void success(ArrayList<AwfulPostIcon> result) {
                         // add a blank 'no icon' icon too
-                        result.add(0, BLANK_ICON);
+                        if(!result.isEmpty()) {
+                            result.add(0, BLANK_ICON);
+                        }
                         // update the cache with these new icons
                         if (iconType == Constants.POST_ICON_REQUEST_TYPES.PM) {
                             iconsCache.put(PM_FORUM_ID, result);
@@ -220,7 +222,7 @@ public class ThreadIconPicker extends Fragment {
     public boolean secretForumCycler() {
         if (allTheForums == null || !allTheForums.hasNext()) {
             ForumRepository repo = ForumRepository.getInstance(getContext());
-            allTheForums = repo.getForumStructure().getAsList().formatAs(ForumStructure.FLAT).includeSections(false).build().iterator();
+            allTheForums = repo.getAllForums().getAsList().formatAs(ForumStructure.FLAT).includeSections(false).build().iterator();
         }
         if (allTheForums.hasNext()) {
             Forum forum = allTheForums.next();

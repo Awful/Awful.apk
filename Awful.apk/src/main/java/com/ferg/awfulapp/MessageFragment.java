@@ -37,6 +37,7 @@ import com.ferg.awfulapp.task.SendPrivateMessageRequest;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.webview.AwfulWebView;
 import com.ferg.awfulapp.webview.WebViewJsInterface;
+import com.ferg.awfulapp.widget.ThreadIconPicker;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -57,6 +58,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 	private EditText mRecipient;
 	private EditText mSubject;
 	private View mBackground;
+	private ThreadIconPicker threadIconPicker;
 
 	private AwfulPreferences mPrefs;
 	
@@ -116,6 +118,8 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 		mTitle = (TextView) result.findViewById(R.id.message_title);
 
 		messageComposer = (MessageComposer) getChildFragmentManager().findFragmentById(R.id.message_composer_fragment);
+		threadIconPicker = (ThreadIconPicker) getChildFragmentManager().findFragmentById(R.id.thread_icon_picker);
+		threadIconPicker.usePrivateMessageIcons();
 
 		mBackground = result;
         updateColors(result, mPrefs);
@@ -262,6 +266,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 		values.put(AwfulMessage.TYPE, AwfulMessage.TYPE_PM);
 		values.put(AwfulMessage.RECIPIENT, mRecipient.getText().toString());
 		values.put(AwfulMessage.REPLY_CONTENT, messageComposer.getText());
+		values.put(AwfulMessage.REPLY_ICON, threadIconPicker.getIcon().iconId);
 		if(content.update(ContentUris.withAppendedId(AwfulMessage.CONTENT_URI_REPLY,pmId), values, null, null)<1){
 			content.insert(AwfulMessage.CONTENT_URI_REPLY, values);
 		}

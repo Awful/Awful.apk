@@ -49,6 +49,7 @@ import com.ferg.awfulapp.AwfulFragment;
 import com.ferg.awfulapp.ForumDisplayFragment;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.forums.ClassicThreadTag;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
@@ -310,7 +311,7 @@ public class AwfulThread extends AwfulPagedItem  {
 
 
         // main thread tag
-        final ImageView threadTag = findById(item, R.id.thread_tag);
+        final ClassicThreadTag threadTag = (ClassicThreadTag) findById(item, R.id.thread_tag);
         threadTag.setVisibility(GONE);
         if (prefs.threadInfo_Tag) {
 			if (!TextUtils.isEmpty(thread.tagCacheFile)) {
