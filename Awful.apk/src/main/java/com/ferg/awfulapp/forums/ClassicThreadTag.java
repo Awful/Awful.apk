@@ -62,6 +62,7 @@ public class ClassicThreadTag extends ImageView {
         Bitmap backgroundBitmap = ThumbnailUtils.extractThumbnail(tagBitmap, getWidth(), getHeight());
         BitmapDrawable drawable = new BitmapDrawable(getResources(), backgroundBitmap);
         drawable.setColorFilter(BACKGROUND_FILTER);
+        drawable.setAlpha(128);
         setBackground(drawable);
     }
 
