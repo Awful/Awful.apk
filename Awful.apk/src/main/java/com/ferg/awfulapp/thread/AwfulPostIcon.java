@@ -98,11 +98,11 @@ public class AwfulPostIcon {
 
         BitmapDrawable foregroundDrawable = new BitmapDrawable(context.getResources(), bitmap);
         int newHeight = Math.round(((float) TAG_SIZE / (float)foregroundDrawable.getIntrinsicWidth()) * (float)foregroundDrawable.getIntrinsicHeight());
-        int horizontalInset = (TAG_SIZE - newHeight) / 2;
+        int verticalInset = (TAG_SIZE - newHeight) / 2;
 
         LayerDrawable mashDrawable = new LayerDrawable(new Drawable[] {backgroundDrawable, foregroundDrawable});
         mashDrawable.setLayerInset(0,0,0,0, 0);
-        mashDrawable.setLayerInset(1, 0 , horizontalInset, 0, horizontalInset);
+        mashDrawable.setLayerInset(1, 0 , verticalInset, 0, verticalInset);
 
         final Bitmap finalBitmap = Bitmap.createBitmap(TAG_SIZE, TAG_SIZE, Bitmap.Config.ARGB_8888);
         mashDrawable.setBounds(0, 0, TAG_SIZE, TAG_SIZE);
