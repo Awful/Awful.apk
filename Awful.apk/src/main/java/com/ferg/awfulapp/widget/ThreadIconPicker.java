@@ -11,6 +11,7 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -151,7 +152,11 @@ public class ThreadIconPicker extends Fragment {
      */
     private void useIcon(@NonNull AwfulPostIcon icon) {
         currentIcon = icon;
-        selectedIconView.setImageResource(icon.drawableId);
+        if (icon.drawable != null) {
+            selectedIconView.setImageDrawable(icon.drawable);
+        } else {
+            selectedIconView.setImageResource(icon.drawableId);
+        }
     }
 
 
@@ -205,9 +210,13 @@ public class ThreadIconPicker extends Fragment {
         AwfulPostIcon icon;
         for (int i = 0; i < postIcons.size(); i++) {
             icon = postIcons.get(i);
-            menu.add(Menu.NONE, i, i, "")
-                    .setIcon(icon.drawableId)
+            MenuItem item = menu.add(Menu.NONE, i, i, "")
                     .setTitle(icon == BLANK_ICON ? "No icon" : "");
+            if(icon.drawable != null){
+                item.setIcon(icon.drawable);
+            }else {
+                item.setIcon(icon.drawableId);
+            }
         }
         return menu;
     }

@@ -25,7 +25,7 @@
         android:orientation="vertical"
         android:paddingBottom="@dimen/thread_item_tag_layout_padding_bottom">
 
-        <com.ferg.awfulapp.forums.ClassicThreadTag
+        <ImageView
             android:id="@+id/thread_tag"
             android:layout_width="@dimen/thread_item_tag_layout_size"
             android:layout_height="@dimen/thread_item_tag_layout_size"
