@@ -14,7 +14,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
-import android.view.Gravity;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
@@ -43,7 +42,7 @@ public class AwfulPostIcon {
     public static final int BLANK_ICON_DRAWABLE_ID = R.drawable.empty_thread_tag;
     public static final String BLANK_ICON_ID = "0";
     public static final AwfulPostIcon BLANK_ICON = new AwfulPostIcon();
-    private static final int TagSize = 90;
+    private static final int TAG_SIZE = 90;
 
     public final String iconId;
     public final String iconUrl;
@@ -92,20 +91,22 @@ public class AwfulPostIcon {
             return context.getDrawable(R.drawable.empty_thread_tag);
         }
         // make a zoomed version of the tag bitmap that fills the view, and set it as the background
-        Bitmap backgroundBitmap = ThumbnailUtils.extractThumbnail(bitmap, TagSize, TagSize);
+        Bitmap backgroundBitmap = ThumbnailUtils.extractThumbnail(bitmap, TAG_SIZE, TAG_SIZE);
         BitmapDrawable backgroundDrawable = new BitmapDrawable(context.getResources(), backgroundBitmap);
         backgroundDrawable.setColorFilter(BACKGROUND_FILTER);
         backgroundDrawable.setAlpha(128);
 
-        LayerDrawable finalDrawable = new LayerDrawable(new Drawable[] {backgroundDrawable, new BitmapDrawable(context.getResources(), bitmap)});
-        finalDrawable.setLayerGravity(1, Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
-        float newWidth = (TagSize / (float)bitmap.getWidth()) * (float)bitmap.getHeight();;
-        finalDrawable.setLayerHeight(1, Math.round(newWidth));
-        finalDrawable.setLayerWidth(1, TagSize);
+        BitmapDrawable foregroundDrawable = new BitmapDrawable(context.getResources(), bitmap);
+        int newHeight = Math.round(((float) TAG_SIZE / (float)foregroundDrawable.getIntrinsicWidth()) * (float)foregroundDrawable.getIntrinsicHeight());
+        int horizontalInset = (TAG_SIZE - newHeight) / 2;
 
-        final Bitmap finalBitmap = Bitmap.createBitmap(TagSize, TagSize, Bitmap.Config.ARGB_8888);
-        finalDrawable.setBounds(0, 0, 90, TagSize);
-        finalDrawable.draw(new Canvas(finalBitmap));
+        LayerDrawable mashDrawable = new LayerDrawable(new Drawable[] {backgroundDrawable, foregroundDrawable});
+        mashDrawable.setLayerInset(0,0,0,0, 0);
+        mashDrawable.setLayerInset(1, 0 , horizontalInset, 0, horizontalInset);
+
+        final Bitmap finalBitmap = Bitmap.createBitmap(TAG_SIZE, TAG_SIZE, Bitmap.Config.ARGB_8888);
+        mashDrawable.setBounds(0, 0, TAG_SIZE, TAG_SIZE);
+        mashDrawable.draw(new Canvas(finalBitmap));
         return new BitmapDrawable(context.getResources(), finalBitmap);
     }
 
