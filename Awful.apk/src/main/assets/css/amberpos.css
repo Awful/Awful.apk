@@ -35,8 +35,8 @@ body {
     background-color: #1A4000;
 }
 
-.postcontent {
-    border-color: #eacf4c;
+.postseparator {
+    background-color: #eacf4c;
 }
 
 .postcontent .bbc-block {

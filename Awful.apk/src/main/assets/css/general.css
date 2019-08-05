@@ -26,7 +26,7 @@
     display: flex;
     border: 0;
     margin-left: 15px;
-    padding-top: 15px;
+    padding: 15px 0px 5px;
 }
 
 .postmenu {
@@ -48,11 +48,23 @@
     height: 100%;
 }
 
+/*
+    this is the dividing line between the header and the post content
+    I've given it no vertical spacing, so the header and content can define their own padding etc
+    (means that e.g. post content in previews looks right because it controls its spacing)
+*/
+.postseparator {
+    display: block;
+    height: 2px;
+    padding: 0px;
+    margin: 0px 15px;
+    background-color: #eae9ea;
+}
+
 .postcontent {
     word-wrap: break-word;
-    padding: 10px 0;
-    border-top: 2px solid #eae9ea;
-    margin: 5px 15px;
+    padding: 10px 0px;
+    margin: 0px 15px;
 }
 
 .playGif {

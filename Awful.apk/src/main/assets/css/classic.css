@@ -36,6 +36,10 @@ body {
     background-color: #5BA611;
 }
 
+.postseparator {
+    display: none;
+}
+
 .postcontent {
     padding: 5px;
     margin: 5px 5px 0;

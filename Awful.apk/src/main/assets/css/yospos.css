@@ -40,8 +40,8 @@ body {
     padding: 5px;
 }
 
-.postcontent {
-    border-color: #0F0;
+.postseparator {
+    background-color: #0F0;
 }
 
 .postcontent .bbc-block {

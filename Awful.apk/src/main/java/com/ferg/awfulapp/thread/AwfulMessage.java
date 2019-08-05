@@ -30,7 +30,6 @@ package com.ferg.awfulapp.thread;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.view.View;
 import android.widget.ImageView;
@@ -42,7 +41,6 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulTheme;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.util.AwfulError;
-import com.ferg.awfulapp.util.AwfulUtils;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.jsoup.nodes.Document;
@@ -279,7 +277,7 @@ public class AwfulMessage extends AwfulPagedItem {
 				buffer.append("<style type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/").append(pref.preferredFont).append("'); }</style>\n");
 			}
 			buffer.append("</head><body>");
-			buffer.append("<article><section class='postcontent'>");
+			buffer.append("<article class='post'><section class='postcontent'>");
 			buffer.append(content);//babbys first CSS hack
 			buffer.append("</section></article>");
 			buffer.append("</body></html>");
