@@ -34,6 +34,7 @@ import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.PMReplyRequest;
 import com.ferg.awfulapp.task.PMRequest;
 import com.ferg.awfulapp.task.SendPrivateMessageRequest;
+import com.ferg.awfulapp.thread.AwfulHtmlPage;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.webview.AwfulWebView;
 import com.ferg.awfulapp.webview.WebViewJsInterface;
@@ -108,14 +109,14 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
         
         View result = aInflater.inflate(R.layout.private_message_fragment, aContainer, false);
         
-        messageWebView = (AwfulWebView) result.findViewById(R.id.messagebody);
-		mHideButton = (ImageButton) result.findViewById(R.id.hide_message);
+        messageWebView = result.findViewById(R.id.messagebody);
+		mHideButton = result.findViewById(R.id.hide_message);
 		mHideButton.setOnClickListener(this);
-		mRecipient = (EditText) result.findViewById(R.id.message_user);
-		mSubject = (EditText) result.findViewById(R.id.message_subject);
-		mUsername = (TextView) result.findViewById(R.id.username);
-		mPostdate = (TextView) result.findViewById(R.id.post_date);
-		mTitle = (TextView) result.findViewById(R.id.message_title);
+		mRecipient = result.findViewById(R.id.message_user);
+		mSubject = result.findViewById(R.id.message_subject);
+		mUsername = result.findViewById(R.id.username);
+		mPostdate = result.findViewById(R.id.post_date);
+		mTitle = result.findViewById(R.id.message_title);
 
 		messageComposer = (MessageComposer) getChildFragmentManager().findFragmentById(R.id.message_composer_fragment);
 		threadIconPicker = (ThreadIconPicker) getChildFragmentManager().findFragmentById(R.id.thread_icon_picker);
@@ -124,6 +125,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 		mBackground = result;
         updateColors(result, mPrefs);
 		messageWebView.setJavascriptHandler(new WebViewJsInterface());
+		messageWebView.setContent(AwfulHtmlPage.getContainerHtml(mPrefs, null, false));
 
 		if(pmId <=0){
         	messageWebView.setVisibility(GONE);
@@ -316,7 +318,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 		mUsername.setText("");
 		mRecipient.setText("");
 		mPostdate.setText("");
-		messageWebView.setContent(null);
+		messageWebView.setBodyHtml(null);
 		mTitle.setText("New Message");
 		mSubject.setText("");
 	}
@@ -366,11 +368,11 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 			if(aData != null && aData.moveToFirst()){
 				Log.v(TAG,"PM load finished, populating: "+aData.getCount());
 				if(messageWebView != null){
-					messageWebView.setContent(null);
+					messageWebView.setBodyHtml(null);
     			}
         		String title = aData.getString(aData.getColumnIndex(AwfulMessage.TITLE));
         		mTitle.setText(title);
-				messageWebView.setContent(AwfulMessage.getMessageHtml(aData.getString(aData.getColumnIndex(AwfulMessage.CONTENT)),mPrefs));
+				messageWebView.setBodyHtml(AwfulMessage.getMessageHtml(aData.getString(aData.getColumnIndex(AwfulMessage.CONTENT))));
 				mPostdate.setText(aData.getString(aData.getColumnIndex(AwfulMessage.DATE)));
         		String replyTitle = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_TITLE));
         		String replyContent = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_CONTENT));
@@ -428,9 +430,5 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 		return true;
 	}
 
-
-	private String getBlankPage(){
-		return "<html><head></head><body style='{background-color:#"+ ColorProvider.convertToRGB(ColorProvider.BACKGROUND.getColor()) +";'></body></html>";
-	}
 
 }

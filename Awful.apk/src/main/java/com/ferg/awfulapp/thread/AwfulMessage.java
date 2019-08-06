@@ -38,7 +38,6 @@ import android.widget.TextView;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.provider.AwfulTheme;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.util.AwfulError;
 
@@ -258,32 +257,8 @@ public class AwfulMessage extends AwfulPagedItem {
 		return reply;
 	}
 
-	public static String getMessageHtml(String content, AwfulPreferences pref){
-		if(content!=null){
-			StringBuilder buffer = new StringBuilder("<!DOCTYPE html>\n<html>\n<head>\n");
-			buffer.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0 maximum-scale=1.0 minimum-scale=1.0, user-scalable=no\" />\n");
-			buffer.append("<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" />\n");
-			buffer.append("<meta name='format-detection' content='telephone=no' />\n");
-			buffer.append("<meta name='format-detection' content='address=no' />\n");
-			for (String scriptName : ThreadDisplay.JS_FILES) {
-				buffer.append("<script src='file:///android_asset/")
-						.append(scriptName)
-						.append("' type='text/javascript'></script>\n");
-			}
 
-			buffer.append("<link rel='stylesheet' href='").append(AwfulTheme.forForum(null).getCssPath()).append("'>");
-
-			if(!pref.preferredFont.contains("default")){
-				buffer.append("<style type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/").append(pref.preferredFont).append("'); }</style>\n");
-			}
-			buffer.append("</head><body>");
-			buffer.append("<article class='post'><section class='postcontent'>");
-			buffer.append(content);//babbys first CSS hack
-			buffer.append("</section></article>");
-			buffer.append("</body></html>");
-
-			return buffer.toString();
-		}
-		return "";
+	public static String getMessageHtml(String content){
+		return String.format("<article class='post'><section class='postcontent'>%s</section></article>", content == null ? "" : content);
 	}
 }

@@ -100,13 +100,13 @@ import com.ferg.awfulapp.task.SinglePostRequest;
 import com.ferg.awfulapp.task.ThreadLockUnlockRequest;
 import com.ferg.awfulapp.task.ThreadPageRequest;
 import com.ferg.awfulapp.task.VoteRequest;
+import com.ferg.awfulapp.thread.AwfulHtmlPage;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPagedItem;
 import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
 import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
-import com.ferg.awfulapp.thread.ThreadDisplay;
 import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.webview.AwfulWebView;
@@ -1049,7 +1049,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 
         try {
             Timber.d("populateThreadView: displaying %d posts", aPosts.size());
-            String html = ThreadDisplay.getHtml(aPosts, AwfulPreferences.getInstance(getActivity()), getPageNumber(), mLastPage);
+            String html = AwfulHtmlPage.getThreadHtml(aPosts, AwfulPreferences.getInstance(getActivity()), getPageNumber(), mLastPage);
             refreshSessionCookie();
 			mThreadView.setBodyHtml(html);
 			displayingFullPage = aPosts.size() >= getPrefs().postPerPage; // shouldn't ever be > but just to be safe
@@ -1347,7 +1347,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	 * @return	The basic page HTML, with no post content
      */
 	private String getBlankPage(){
-		return ThreadDisplay.getContainerHtml(getPrefs(), getParentForumId());
+		return AwfulHtmlPage.getContainerHtml(getPrefs(), getParentForumId(), true);
 	}
 
     private int getLastPage() {

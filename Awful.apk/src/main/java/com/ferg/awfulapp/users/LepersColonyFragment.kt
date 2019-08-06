@@ -20,8 +20,8 @@ import com.ferg.awfulapp.provider.AwfulTheme
 import com.ferg.awfulapp.provider.ColorProvider
 import com.ferg.awfulapp.task.AwfulRequest
 import com.ferg.awfulapp.task.LepersColonyRequest
+import com.ferg.awfulapp.thread.AwfulHtmlPage
 import com.ferg.awfulapp.thread.AwfulURL
-import com.ferg.awfulapp.thread.ThreadDisplay
 import com.ferg.awfulapp.util.bind
 import com.ferg.awfulapp.util.tryGetInt
 import com.ferg.awfulapp.webview.AwfulWebView
@@ -250,7 +250,7 @@ class LepersColonyFragment : AwfulFragment(), SwipyRefreshLayout.OnRefreshListen
                 return true
             }
         }
-        setContent(ThreadDisplay.getContainerHtml(prefs, null))
+        setContent(AwfulHtmlPage.getContainerHtml(prefs, null, false))
     }
 }
 

@@ -38,7 +38,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
-import com.ferg.awfulapp.thread.ThreadDisplay;
+import com.ferg.awfulapp.thread.AwfulHtmlPage;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.webview.AwfulWebView;
 import com.ferg.awfulapp.webview.WebViewJsInterface;
@@ -69,7 +69,7 @@ public class PreviewFragment extends DialogFragment {
     }
 
     private String getBlankPage() {
-        return ThreadDisplay.getContainerHtml(AwfulPreferences.getInstance(), 0);
+        return AwfulHtmlPage.getContainerHtml(AwfulPreferences.getInstance(), 0, false);
     }
 
 

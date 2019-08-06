@@ -20,8 +20,8 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulTheme;
 import com.ferg.awfulapp.task.AnnouncementsRequest;
 import com.ferg.awfulapp.task.AwfulRequest;
+import com.ferg.awfulapp.thread.AwfulHtmlPage;
 import com.ferg.awfulapp.thread.AwfulPost;
-import com.ferg.awfulapp.thread.ThreadDisplay;
 import com.ferg.awfulapp.webview.AwfulWebView;
 import com.ferg.awfulapp.webview.WebViewJsInterface;
 import com.ferg.awfulapp.widget.StatusFrog;
@@ -39,7 +39,7 @@ import timber.log.Timber;
  * <p>
  * This is basically a butchered thread view since that's kind of what the announcements page is.
  * Most of that happens in the request (not setting certain fields), here we just throw in some
- * meaningless constants in the {@link ThreadDisplay#getHtml} call, and hope it doesn't break. Seems to work! Fix later!
+ * meaningless constants in the {@link AwfulHtmlPage#getThreadHtml} call, and hope it doesn't break. Seems to work! Fix later!
  * <p>
  * Also this also assumes the announcements page won't ever have more than one page.
  * Whatever it's not even a thread
@@ -104,7 +104,7 @@ public class AnnouncementsFragment extends AwfulFragment {
                 return true;
             }
         });
-        webView.setContent(ThreadDisplay.getContainerHtml(getPrefs(), -1));
+        webView.setContent(AwfulHtmlPage.getContainerHtml(getPrefs(), -1, false));
     }
 
 
@@ -133,7 +133,7 @@ public class AnnouncementsFragment extends AwfulFragment {
                             webView.setVisibility(View.VISIBLE);
                             // these page params don't mean anything in the context of the announcement page
                             // we just want it to a) display ok, and b) not let the user click anything bad
-                            String bodyHtml = ThreadDisplay.getHtml(result, AwfulPreferences.getInstance(), 1, 1);
+                            String bodyHtml = AwfulHtmlPage.getThreadHtml(result, AwfulPreferences.getInstance(), 1, 1);
                             if (webView != null) {
                                 webView.setBodyHtml(bodyHtml);
                             }
