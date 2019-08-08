@@ -49,7 +49,6 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
@@ -77,7 +76,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.VolleyError;
-import com.crashlytics.android.Crashlytics;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.CookieController;
 import com.ferg.awfulapp.network.NetworkUtils;
@@ -1171,6 +1169,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 			Timber.w("showUrlMenu called but can't get FragmentManager!");
 			return;
 		}
+		if (fragmentManager.isStateSaved()) {
+			// probably got a javascript callback after the fragment was stopped,
+			// easiest to just let them tap for the menu again when they come back
+			return;
+		}
 
 		boolean isImage = false;
 		boolean isGif = false;
@@ -1182,34 +1185,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 		if (lastSegment != null) {
 			lastSegment = lastSegment.toLowerCase();
 			// using 'contains' instead of 'ends with' in case of any url suffix shenanigans, like twitter's ".jpg:large"
+            // TODO: 08/08/2019 make general functions for identifying images etc since we need to do this in multiple places
 			isImage = (StringUtils.indexOfAny(lastSegment, ".jpg", ".jpeg", ".png", ".gif", ".webp") != -1
 					&& !StringUtils.contains(lastSegment, ".gifv"))
 					|| (lastSegment.equals("attachment.php") && path.getHost().equals("forums.somethingawful.com"));
 			isGif = StringUtils.contains(lastSegment, ".gif")
 					&& !StringUtils.contains(lastSegment, ".gifv");
 		}
-
-		////////////////////////////////////////////////////////////////////////
-        // TODO: 28/04/2017 remove all this when Crashlytics #717 is fixed
-		if (AwfulApplication.crashlyticsEnabled()) {
-			Crashlytics.setString("Menu for URL:", url);
-			Crashlytics.setInt("Thread ID", getThreadId());
-			Crashlytics.setInt("Page", getPageNumber());
-
-			FragmentActivity activity = getActivity();
-			Crashlytics.setBool("Activity exists", activity != null);
-			if (activity != null) {
-				String state = "Activity:";
-				state += (activity.isDestroyed()) ? "IS_DESTROYED " : "";
-				state += (activity.isFinishing()) ? "IS_FINISHING" : "";
-				state += (activity.isChangingConfigurations()) ? "IS_CHANGING_CONFIGURATIONS" : "";
-				Crashlytics.setString("Activity state:", state);
-			}
-			Crashlytics.setBool("Thread display fragment resumed", isResumed());
-			Crashlytics.setBool("Thread display fragment attached", isAdded());
-			Crashlytics.setBool("Thread display fragment removing", isRemoving());
-		}
-        ////////////////////////////////////////////////////////////////////////
 
 		UrlContextMenu linkActions = UrlContextMenu.newInstance(url, isImage, isGif, isGif ? "Getting file size" : null);
 

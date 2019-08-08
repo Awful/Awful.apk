@@ -1,5 +1,6 @@
 package com.ferg.awfulapp;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -39,6 +40,8 @@ import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.webview.AwfulWebView;
 import com.ferg.awfulapp.webview.WebViewJsInterface;
 import com.ferg.awfulapp.widget.ThreadIconPicker;
+
+import timber.log.Timber;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -180,11 +183,17 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 
 
 	private void syncPM() {
-        queueRequest(new PMRequest(getActivity(), pmId).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
+		// TODO: rework this so we don't hold onto the activity - AwfulRequest wants to make a Toast so we can't just pass in the app context
+		final Activity activity = getActivity();
+		if (activity == null) {
+			Timber.i("Activity unavailable - abandoning PM load");
+			return;
+		}
+		queueRequest(new PMRequest(activity, pmId).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
             @Override
             public void success(Void result) {
                 restartLoader(pmId, null, mPMDataCallback);
-                queueRequest(new PMReplyRequest(getActivity(), pmId).build(MessageFragment.this, new AwfulRequest.AwfulResultCallback<Void>() {
+                queueRequest(new PMReplyRequest(activity, pmId).build(MessageFragment.this, new AwfulRequest.AwfulResultCallback<Void>() {
                     @Override
                     public void success(Void result) {
                         restartLoader(pmId, null, mPMDataCallback);
