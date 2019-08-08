@@ -40,6 +40,14 @@ body {
     background-color: #ECFFD9;
 }
 
+.postheader {
+    padding-bottom: 0px;
+}
+
+.postseparator {
+    display: none;
+}
+
 .postcontent {
     background-color: #FFFFFF;
     border: 3px solid #000000;

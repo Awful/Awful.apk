@@ -28,7 +28,8 @@
 package com.ferg.awfulapp;
 
 import android.os.Bundle;
-import android.view.KeyEvent;
+import android.support.annotation.NonNull;
+import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,13 +38,14 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
-import com.ferg.awfulapp.thread.ThreadDisplay;
+import com.ferg.awfulapp.thread.AwfulHtmlPage;
+import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.webview.AwfulWebView;
 import com.ferg.awfulapp.webview.WebViewJsInterface;
 
 import java.util.HashMap;
 
-public class PreviewFragment extends AwfulDialogFragment {
+public class PreviewFragment extends DialogFragment {
 
     private AwfulWebView postPreView;
     private ProgressBar progressBar;
@@ -51,33 +53,31 @@ public class PreviewFragment extends AwfulDialogFragment {
     HashMap<String, String> preferences;
     WebViewJsInterface jsInterface = new WebViewJsInterface();
 
-    @Override
-    public void onActivityCreated(Bundle aSavedState) {
-        super.onActivityCreated(aSavedState);
-    }
+
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View dialogView = inflateView(R.layout.post_preview, container, inflater);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View dialogView = inflater.inflate(R.layout.post_preview, container);
         progressBar = dialogView.findViewById(R.id.preview_progress);
-        postPreView = dialogView.findViewById(R.id.post_pre_view);
+        postPreView = dialogView.findViewById(R.id.preview_webview);
         configureWebView();
 
         getDialog().setCanceledOnTouchOutside(true);
-
         postPreView.setContent(getBlankPage());
+
         return dialogView;
     }
 
     private String getBlankPage() {
-        return ThreadDisplay.getContainerHtml(prefs, 0);
+        return AwfulHtmlPage.getContainerHtml(AwfulPreferences.getInstance(), 0, false);
     }
 
 
     protected void setContent(String content) {
         jsInterface.updatePreferences();
-
-        String wrappedContent = "<style>iframe{height: auto !important;} </style><article><section class='postcontent'>" + content + "</section></article>";
+        // add the basic template HTML structure so this displays as a post, with the correct CSS styling etc
+        String wrappedContent = "<style>iframe{height: auto !important;} </style><article class='post'><section class='postcontent'>"
+                + content + "</section></article>";
         progressBar.setVisibility(View.GONE);
         postPreView.setVisibility(View.VISIBLE);
         postPreView.setBodyHtml(wrappedContent);
@@ -100,14 +100,4 @@ public class PreviewFragment extends AwfulDialogFragment {
         postPreView.setJavascriptHandler(jsInterface);
     }
 
-
-    @Override
-    public String getTitle() {
-        return "Post Preview";
-    }
-
-    @Override
-    public boolean volumeScroll(KeyEvent event) {
-        return false;
-    }
 }
