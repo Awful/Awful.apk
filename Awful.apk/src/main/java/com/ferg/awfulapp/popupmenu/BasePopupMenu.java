@@ -21,8 +21,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static butterknife.ButterKnife.findById;
-
 /**
  * Created by baka kaba on 22/05/2017.
  * <p>
@@ -46,20 +44,22 @@ public abstract class BasePopupMenu<T extends AwfulAction> extends DialogFragmen
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        init(getArguments());
+        if (getArguments() != null) {
+            init(getArguments());
+        }
         menuItems = generateMenuItems();
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View result = inflater.inflate(layoutResId, container, false);
         ButterKnife.bind(this, result);
 
-        TextView actionTitle = findById(result, R.id.actionTitle);
+        TextView actionTitle = result.findViewById(R.id.actionTitle);
         actionTitle.setMovementMethod(new ScrollingMovementMethod());
         actionTitle.setText(getTitle());
 
-        RecyclerView actionsView = findById(result, R.id.post_actions);
+        RecyclerView actionsView = result.findViewById(R.id.post_actions);
         actionsView.setAdapter(new ActionHolderAdapter());
         actionsView.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -129,14 +129,15 @@ public abstract class BasePopupMenu<T extends AwfulAction> extends DialogFragmen
 
     private class ActionHolderAdapter extends RecyclerView.Adapter<ActionHolder> {
 
+        @NonNull
         @Override
-        public ActionHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public ActionHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.action_item, parent, false);
             return new ActionHolder(view);
         }
 
         @Override
-        public void onBindViewHolder(ActionHolder holder, final int position) {
+        public void onBindViewHolder(@NonNull ActionHolder holder, final int position) {
             final T action = menuItems.get(position);
             holder.actionText.setText(getMenuLabel(action));
             holder.actionText.setTextColor(ColorProvider.PRIMARY_TEXT.getColor());

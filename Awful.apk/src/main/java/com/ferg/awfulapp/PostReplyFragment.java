@@ -50,6 +50,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
@@ -448,7 +449,8 @@ public class PostReplyFragment extends AwfulFragment {
                             submitPost();
                         })
                 .setNeutralButton(R.string.preview, (dialog, button) -> previewPost())
-                .setNegativeButton(R.string.cancel, (dialog, button) -> {})
+                .setNegativeButton(R.string.cancel, (dialog, button) -> {
+                })
                 .show();
     }
 
@@ -499,28 +501,35 @@ public class PostReplyFragment extends AwfulFragment {
      */
     private void previewPost() {
         ContentValues cv = prepareCV();
-        if (cv == null) {
+        Activity activity = getActivity();
+        FragmentManager fragmentManager = getFragmentManager();
+        if (cv == null || activity == null || fragmentManager == null) {
             return;
         }
+
         final PreviewFragment previewFrag = new PreviewFragment();
         previewFrag.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
-        previewFrag.show(getFragmentManager(), "Post Preview");
-        // TODO: 12/02/2017 this result should already be on the UI thread?
+        previewFrag.show(fragmentManager, "Post Preview");
+
         AwfulRequest.AwfulResultCallback<String> previewCallback = new AwfulRequest.AwfulResultCallback<String>() {
             @Override
             public void success(final String result) {
-                getAwfulActivity().runOnUiThread(() -> previewFrag.setContent(result));
+                previewFrag.setContent(result);
             }
 
             @Override
             public void failure(VolleyError error) {
-                previewFrag.dismiss();
+                // love dialogs and callbacks very elegant
+                if (!previewFrag.isStateSaved() && previewFrag.getActivity() != null && !previewFrag.getActivity().isFinishing()) {
+                    previewFrag.dismiss();
+                }
                 if (getView() != null) {
                     Snackbar.make(getView(), "Preview failed.", Snackbar.LENGTH_LONG)
                             .setAction("Retry", v -> previewPost()).show();
                 }
             }
         };
+
         if (mReplyType == TYPE_EDIT) {
             queueRequest(new PreviewEditRequest(getActivity(), cv).build(this, previewCallback));
         } else {

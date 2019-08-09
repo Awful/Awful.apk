@@ -138,7 +138,7 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
         NetworkUtils.queueRequest(SearchRequest(this.context!!, mSearchQuery.text.toString().toLowerCase(), searchForumsPrimitive)
                 .build(null, object : AwfulRequest.AwfulResultCallback<AwfulSearchResult> {
                     override fun success(result: AwfulSearchResult) {
-                        removeDialog()
+                        removeLoadingDialog()
                         with(result) {
                             if (queryId != 0) {
                                 mSearchResults = resultList
@@ -154,11 +154,17 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
                     }
 
                     override fun failure(error: VolleyError?) {
-                        removeDialog()
+                        removeLoadingDialog()
                         Snackbar.make(view!!, R.string.search_forums_failure_message, Snackbar.LENGTH_LONG).setAction("Retry") { search() }.show()
                     }
 
-                    private fun removeDialog() = mDialog?.let { it.dismiss(); mDialog = null }
+                    private fun removeLoadingDialog() {
+                        // since this is called from network callbacks, need to check the dialog is attached to the window - hopefully this works!
+                        mDialog?.run {
+                            if (ownerActivity?.isDestroyed != false) dismiss()
+                            mDialog = null
+                        }
+                    }
                 }))
     }
 
