@@ -323,7 +323,8 @@ public class AwfulThread extends AwfulPagedItem  {
                     NetworkUtils.getImageLoader().get(url, new ImageLoader.ImageListener() {
                         @Override
                         public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
-                            threadTag.setImageBitmap(response.getBitmap());
+                            Drawable classicTag = AwfulPostIcon.getClassicIconDrawable(response.getBitmap(), threadTag.getContext());
+                            threadTag.setImageDrawable(classicTag);
                         }
 
                         @Override

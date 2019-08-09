@@ -14,7 +14,6 @@ import android.widget.TextView;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.ThreadDisplayFragment;
 import com.ferg.awfulapp.provider.ColorProvider;
-import com.ferg.awfulapp.util.AwfulUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,7 +91,7 @@ public class UrlContextMenu extends BasePopupMenu<UrlContextMenu.UrlMenuAction> 
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
         // tiny title text for long URLs - need to reapply the colour set in the xml
         titleText.setTextAppearance(getContext(), R.style.TextAppearance_AppCompat_Small);

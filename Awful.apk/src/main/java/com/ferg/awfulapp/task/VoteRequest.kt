@@ -11,7 +11,7 @@ import org.jsoup.nodes.Document
  * A request that submits a rating for a thread.
  */
 class VoteRequest(context: Context, threadId: Int, vote: Int)
-    : AwfulRequest<Void?>(context, FUNCTION_RATE_THREAD) {
+    : AwfulRequest<Void?>(context, FUNCTION_RATE_THREAD, isPostRequest = true) {
     init {
         with(parameters) {
             add(PARAM_THREAD_ID, threadId.toString())

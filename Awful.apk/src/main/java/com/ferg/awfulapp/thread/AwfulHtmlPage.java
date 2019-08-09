@@ -26,10 +26,28 @@ import java.util.Map;
 /**
  * Created by baka kaba on 04/06/2017.
  * <p>
- * Contains methods used to construct an actual thread page.
+ * Contains methods used to produce the HTML required to display site content like posts and
+ * threads.
+ *
+ * Typically you'll want to call {@link #getContainerHtml(AwfulPreferences, Integer, boolean)}
+ * to generate the basic template HTML to use as webview content. This template will contain all
+ * the scripts and styling used to produce the content we scrape from the site, it will handle
+ * embedding etc.
+ *
+ * Once you have this template, you can add content to the container class (usually by calling
+ * {@link com.ferg.awfulapp.webview.AwfulWebView#setBodyHtml(String)}) - most content involves some
+ * CSS markup though, so if it's not parsed directly from the site, you will probably want to add
+ * some markup yourself, e.g. styling it as a post (see the mustache files for the format those take)
+ * so it looks correct.
+ *
+ * The {@link #getThreadHtml(List, AwfulPreferences, int, int)} method specifically allows you to
+ * create a view of a thread by passing it a set of posts and some details about what part of the
+ * thread it represents. This handles things like styling read/unread posts and hiding previously
+ * read ones on the page.
+ *
  * Extracted from {@link AwfulThread}
  */
-public abstract class ThreadDisplay {
+public abstract class AwfulHtmlPage {
 
     // TODO: 16/08/2017 generate this automatically from the folder contents
     /**
@@ -48,13 +66,17 @@ public abstract class ThreadDisplay {
      * Get the main HTML for the containing page.
      * <p>
      * This contains no post data, but sets up the basic template with the required JS scripts,
-     * CSS etc., and a container element to insert post data into.
+     * CSS etc., and a container class element to insert post data into. If you want to display
+     * site content in a WebView, use this and put the content in the container.
      *
      * @param aPrefs  used to customise the template to the user's preferences
-     * @param forumId the ID of the forum this thread belongs to, used for themeing
-     * @return the template containing a container class
+     * @param forumId the ID of the forum this thread belongs to, used for theming
+     * @param padForFab whether this HTML is for a layout where you might need to make space for
+     *                 the FAB (e.g. viewing a thread in the viewpager) or not (e.g. previewing a
+     *                 post in a popup dialog). The method will check if the FAB is actually enabled,
+     *                 you just need to define whether that requires padding.
      */
-    public static String getContainerHtml(AwfulPreferences aPrefs, @Nullable Integer forumId) {
+    public static String getContainerHtml(AwfulPreferences aPrefs, @Nullable Integer forumId, boolean padForFab) {
         StringBuilder buffer = new StringBuilder("<!DOCTYPE html>\n<html>\n<head>\n");
         buffer.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0 maximum-scale=1.0 minimum-scale=1.0, user-scalable=no\" />\n");
         buffer.append("<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" />\n");
@@ -79,7 +101,7 @@ public abstract class ThreadDisplay {
         }
 
         buffer.append("</head><body><div id='container' class='container' ")
-                .append((!aPrefs.noFAB ? "style='padding-bottom:75px'" : ""))
+                .append((padForFab && !aPrefs.noFAB ? "style='padding-bottom:75px'" : ""))
                 .append("></div><script type='text/javascript'>containerInit();</script></body></html>");
         return buffer.toString();
     }
@@ -89,7 +111,7 @@ public abstract class ThreadDisplay {
      * Generates post content HTML for a list of posts.
      * <p>
      * This method produces the content that should be inserted into the container template that
-     * {@link #getContainerHtml(AwfulPreferences, Integer)} produces.
+     * {@link #getContainerHtml(AwfulPreferences, Integer, boolean)} produces.
      *
      * @param aPosts   the list of posts to generate HTML for
      * @param aPrefs   used to customise the post content to the user's preferences
@@ -97,7 +119,7 @@ public abstract class ThreadDisplay {
      * @param lastPage the number of the last page in this thread
      * @return the generated content, ready for insertion into the template
      */
-    public static String getHtml(List<AwfulPost> aPosts, AwfulPreferences aPrefs, int page, int lastPage) {
+    public static String getThreadHtml(List<AwfulPost> aPosts, AwfulPreferences aPrefs, int page, int lastPage) {
         StringBuilder buffer = new StringBuilder(1024);
         buffer.append("<div class='content'>\n");
 

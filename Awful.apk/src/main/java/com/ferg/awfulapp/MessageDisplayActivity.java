@@ -15,7 +15,7 @@ public class MessageDisplayActivity extends AwfulActivity implements MessageFrag
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.private_message_activity);
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         setUpActionBar();
         setActionbarTitle("Message");
