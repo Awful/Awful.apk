@@ -85,7 +85,14 @@ body {
     border: none;
 }
 
+/* compensating for the smaller padding in .postheader */
+.postmenu {
+    margin-top: -9px;
+}
+
+/*
+    square dots for... classic look?
+*/
 .postmenu:after {
     content: "\e901";
-    padding-right: 2px;
 }

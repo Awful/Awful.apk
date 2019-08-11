@@ -29,24 +29,40 @@
     padding: 15px 0px 5px;
 }
 
+
+/*
+    .postmenu acts as the touch target for the menu button (added with the :after pseudo-element)
+    it's positioned to align basically in the top-right corner, with some adjustments to the
+    margins so full-width themes line up the menu icon with the one in the toolbar (it looks
+    messy when they're just slightly unaligned)
+*/
+
 .postmenu {
-    font-weight: bolder;
-    font-size: 1.7em;
     width: 24px;
     height: 24px;
-    margin-right: 5px;
-    margin-top: -4px;
+    margin-right: 2px;
+    margin-top: -13px;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
+
+/*a
+    the :after element holds the ... menu glyph, but doesn't reliably handle onClick events - so
+    the main element above defines the touch area, and this sits in it. The font size is fixed
+    since it's an icon and shouldn't adjust based on the user's font size, and it sits in the
+    middle of the .postmenu element.
+*/
 .postmenu:after {
     font-family: 'icons' !important;
     content: "\e902";
     font-weight: normal;
+    font-size: 13pt; !important
     -webkit-font-smoothing: antialiased;
     -webkit-user-select: none;
     user-select: none;
-    padding: 4px;
-    display:block;
 }
 
 /*
