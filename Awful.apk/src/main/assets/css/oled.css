@@ -89,6 +89,11 @@ body {
     padding-right: 0;
 }
 
+/* compensating for the smaller padding in .postheader */
+.postmenu {
+    margin-top: -9px;
+}
+
 .postseparator {
     height: 1px;
     background-color: #e7e7e7;

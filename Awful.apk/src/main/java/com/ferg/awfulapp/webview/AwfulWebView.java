@@ -33,7 +33,7 @@ import static com.ferg.awfulapp.constants.Constants.DEBUG;
  * call {@link #onPause()} and {@link #onResume()} to handle those lifecycle events.
  * <p>
  * Most of the time you'll want to use {@link #setContent(String)} to add the template from
- * {@link AwfulHtmlPage#getContainerHtml(AwfulPreferences, int)}, which
+ * {@link AwfulHtmlPage#getContainerHtml(AwfulPreferences, Integer, boolean)}, which
  * loads the HTML, CSS and JS for displaying thread content, and then use {@link #setBodyHtml(String)}
  * to add and display that content. {@link #setJavascriptHandler(WebViewJsInterface)} needs to be
  * called, since the thread JS relies on it.

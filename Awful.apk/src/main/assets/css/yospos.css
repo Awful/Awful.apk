@@ -80,6 +80,9 @@ body {
     border-top: 2px solid #0F0;
 }
 
+/*
+    square dots for computers
+*/
 .postmenu:after {
     content: "\e901";
 }
