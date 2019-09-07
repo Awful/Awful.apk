@@ -252,7 +252,6 @@
         <provider android:name="com.ferg.awfulapp.provider.AwfulProvider" android:authorities="${applicationId}.provider" />
         <meta-data android:name="com.google.android.backup.api_key"
 		    android:value="AEdPqrEAAAAIs68d9wLw6rnLPrSwTf193dR5QGZMSB3jsMhfBg" />
-        <provider android:label="@string/awful_web_provider" android:name="com.ferg.awfulapp.provider.AwfulWebProvider" android:authorities="${applicationId}.webprovider" />
         <uses-library android:required="false" android:name="com.sec.android.app.multiwindow"> </uses-library>
         <meta-data android:name="com.sec.android.support.multiwindow" android:value="true" />
         <meta-data android:name="com.sec.android.multiwindow.DEFAULT_SIZE_W" android:resource="@dimen/app_defaultsize_w" />
