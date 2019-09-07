@@ -49,7 +49,6 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
@@ -77,7 +76,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.VolleyError;
-import com.crashlytics.android.Crashlytics;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.CookieController;
 import com.ferg.awfulapp.network.NetworkUtils;
@@ -100,13 +98,13 @@ import com.ferg.awfulapp.task.SinglePostRequest;
 import com.ferg.awfulapp.task.ThreadLockUnlockRequest;
 import com.ferg.awfulapp.task.ThreadPageRequest;
 import com.ferg.awfulapp.task.VoteRequest;
+import com.ferg.awfulapp.thread.AwfulHtmlPage;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPagedItem;
 import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
 import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
-import com.ferg.awfulapp.thread.ThreadDisplay;
 import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.webview.AwfulWebView;
@@ -141,6 +139,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	private static final String THREAD_ID_KEY = "thread_id";
 	private static final String THREAD_PAGE_KEY = "thread_page";
 	private static final String SCROLL_POSITION_KEY = "scroll_position";
+	private static final String KEEP_SCREEN_ON_KEY = "screen_stays_on";
 	private PostLoaderManager mPostLoaderCallback;
     private ThreadDataCallback mThreadLoaderCallback;
 
@@ -246,6 +245,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 		});
 		getAwfulActivity().setPreferredFont(pageBar.getTextView());
 
+		if (savedInstanceState != null) {
+			// setting this before the thread view is initialised, so it will reflect the stored state
+			keepScreenOn = savedInstanceState.getBoolean(KEEP_SCREEN_ON_KEY);
+		}
 		mThreadView = view.findViewById(R.id.thread);
 		initThreadViewProperties();
 
@@ -388,6 +391,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
         refreshSessionCookie();
 		Timber.d("Setting up WebView container HTML");
 		mThreadView.setContent(getBlankPage());
+		mThreadView.setKeepScreenOn(keepScreenOn);
 
 		mThreadView.setDownloadListener(new DownloadListener() {
 			@Override
@@ -763,7 +767,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	}
 	
     @Override
-    public void onSaveInstanceState(Bundle outState){
+    public void onSaveInstanceState(@NonNull Bundle outState){
     	super.onSaveInstanceState(outState);
     	Timber.d("onSaveInstanceState - storing thread ID, page number and scroll position");
         outState.putInt(THREAD_ID_KEY, getThreadId());
@@ -771,6 +775,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
     	if(mThreadView != null){
     		outState.putInt(SCROLL_POSITION_KEY, mThreadView.getScrollY());
     	}
+    	outState.putBoolean(KEEP_SCREEN_ON_KEY, keepScreenOn);
     }
 
 
@@ -1042,7 +1047,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 
         try {
             Timber.d("populateThreadView: displaying %d posts", aPosts.size());
-            String html = ThreadDisplay.getHtml(aPosts, AwfulPreferences.getInstance(getActivity()), getPageNumber(), mLastPage);
+            String html = AwfulHtmlPage.getThreadHtml(aPosts, AwfulPreferences.getInstance(getActivity()), getPageNumber(), mLastPage);
             refreshSessionCookie();
 			mThreadView.setBodyHtml(html);
 			displayingFullPage = aPosts.size() >= getPrefs().postPerPage; // shouldn't ever be > but just to be safe
@@ -1164,6 +1169,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 			Timber.w("showUrlMenu called but can't get FragmentManager!");
 			return;
 		}
+		if (fragmentManager.isStateSaved()) {
+			// probably got a javascript callback after the fragment was stopped,
+			// easiest to just let them tap for the menu again when they come back
+			return;
+		}
 
 		boolean isImage = false;
 		boolean isGif = false;
@@ -1175,34 +1185,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 		if (lastSegment != null) {
 			lastSegment = lastSegment.toLowerCase();
 			// using 'contains' instead of 'ends with' in case of any url suffix shenanigans, like twitter's ".jpg:large"
-			isImage = (StringUtils.indexOfAny(lastSegment, ".jpg", ".jpeg", ".png", ".gif") != -1
+            // TODO: 08/08/2019 make general functions for identifying images etc since we need to do this in multiple places
+			isImage = (StringUtils.indexOfAny(lastSegment, ".jpg", ".jpeg", ".png", ".gif", ".webp") != -1
 					&& !StringUtils.contains(lastSegment, ".gifv"))
 					|| (lastSegment.equals("attachment.php") && path.getHost().equals("forums.somethingawful.com"));
 			isGif = StringUtils.contains(lastSegment, ".gif")
 					&& !StringUtils.contains(lastSegment, ".gifv");
 		}
-
-		////////////////////////////////////////////////////////////////////////
-        // TODO: 28/04/2017 remove all this when Crashlytics #717 is fixed
-		if (AwfulApplication.crashlyticsEnabled()) {
-			Crashlytics.setString("Menu for URL:", url);
-			Crashlytics.setInt("Thread ID", getThreadId());
-			Crashlytics.setInt("Page", getPageNumber());
-
-			FragmentActivity activity = getActivity();
-			Crashlytics.setBool("Activity exists", activity != null);
-			if (activity != null) {
-				String state = "Activity:";
-				state += (activity.isDestroyed()) ? "IS_DESTROYED " : "";
-				state += (activity.isFinishing()) ? "IS_FINISHING" : "";
-				state += (activity.isChangingConfigurations()) ? "IS_CHANGING_CONFIGURATIONS" : "";
-				Crashlytics.setString("Activity state:", state);
-			}
-			Crashlytics.setBool("Thread display fragment resumed", isResumed());
-			Crashlytics.setBool("Thread display fragment attached", isAdded());
-			Crashlytics.setBool("Thread display fragment removing", isRemoving());
-		}
-        ////////////////////////////////////////////////////////////////////////
 
 		UrlContextMenu linkActions = UrlContextMenu.newInstance(url, isImage, isGif, isGif ? "Getting file size" : null);
 
@@ -1340,7 +1329,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	 * @return	The basic page HTML, with no post content
      */
 	private String getBlankPage(){
-		return ThreadDisplay.getContainerHtml(getPrefs(), getParentForumId());
+		return AwfulHtmlPage.getContainerHtml(getPrefs(), getParentForumId(), true);
 	}
 
     private int getLastPage() {

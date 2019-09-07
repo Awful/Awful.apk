@@ -40,8 +40,8 @@ body {
     padding: 5px;
 }
 
-.postcontent {
-    border-color: #0F0;
+.postseparator {
+    background-color: #0F0;
 }
 
 .postcontent .bbc-block {
@@ -80,6 +80,9 @@ body {
     border-top: 2px solid #0F0;
 }
 
+/*
+    square dots for computers
+*/
 .postmenu:after {
     content: "\e901";
 }

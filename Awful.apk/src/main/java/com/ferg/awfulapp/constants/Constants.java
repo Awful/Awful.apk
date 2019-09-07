@@ -55,6 +55,7 @@ public class Constants {
 	public static final String FUNCTION_MISC 			= BASE_URL + "/misc.php";
     public static final String FUNCTION_REPORT 			= BASE_URL + "/modalert.php";
     public static final String FUNCTION_POSTINGS 		= BASE_URL + "/postings.php";
+    public static final String FUNCTION_NEW_THREAD 		= BASE_URL + "/newthread.php";
 
 	public static final String PATH_FORUM 				= "forumdisplay.php";
     public static final String PATH_THREAD          	= "showthread.php";
@@ -64,6 +65,7 @@ public class Constants {
     public static final String ACTION_PROFILE             = "getinfo";
     public static final String ACTION_SEARCH_POST_HISTORY = "do_search_posthistory";
     public static final String ACTION_NEW_MESSAGE         = "newmessage";
+    public static final String ACTION_NEW_THREAD          = "newthread";
 	public static final String ACTION_SHOWPOST 			  = "showpost";
     public static final String ACTION_ADDLIST 			  = "addlist";
     public static final String ACTION_QUERY 			  = "query";
@@ -216,5 +218,7 @@ public class Constants {
     public static final int AWFUL_PERMISSION_READ_EXTERNAL_STORAGE = 123;
     public static final int AWFUL_PERMISSION_WRITE_EXTERNAL_STORAGE = 124;
 
-
+    public enum POST_ICON_REQUEST_TYPES {
+        FORUM_POST, PM
+    }
 }

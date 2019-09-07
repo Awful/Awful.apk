@@ -30,7 +30,6 @@ package com.ferg.awfulapp.thread;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.view.View;
 import android.widget.ImageView;
@@ -39,10 +38,8 @@ import android.widget.TextView;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.provider.AwfulTheme;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.util.AwfulError;
-import com.ferg.awfulapp.util.AwfulUtils;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.jsoup.nodes.Document;
@@ -74,6 +71,7 @@ public class AwfulMessage extends AwfulPagedItem {
 	public static final String UNREAD = "unread_message";
 	public static final String RECIPIENT = "recipient";
 	public static final String REPLY_CONTENT = "reply_content";
+	public static final String REPLY_ICON = "reply_icon";
 	public static final String REPLY_TITLE = "reply_title";
 	public static final String REPLY_ATTACHMENT = "attachment";
 	public static final String REPLY_SIGNATURE = "signature";
@@ -259,32 +257,8 @@ public class AwfulMessage extends AwfulPagedItem {
 		return reply;
 	}
 
-	public static String getMessageHtml(String content, AwfulPreferences pref){
-		if(content!=null){
-			StringBuilder buffer = new StringBuilder("<!DOCTYPE html>\n<html>\n<head>\n");
-			buffer.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0 maximum-scale=1.0 minimum-scale=1.0, user-scalable=no\" />\n");
-			buffer.append("<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" />\n");
-			buffer.append("<meta name='format-detection' content='telephone=no' />\n");
-			buffer.append("<meta name='format-detection' content='address=no' />\n");
-			for (String scriptName : ThreadDisplay.JS_FILES) {
-				buffer.append("<script src='file:///android_asset/")
-						.append(scriptName)
-						.append("' type='text/javascript'></script>\n");
-			}
 
-			buffer.append("<link rel='stylesheet' href='").append(AwfulTheme.forForum(null).getCssPath()).append("'>");
-
-			if(!pref.preferredFont.contains("default")){
-				buffer.append("<style type='text/css'>@font-face { font-family: userselected; src: url('file:///android_asset/").append(pref.preferredFont).append("'); }</style>\n");
-			}
-			buffer.append("</head><body>");
-			buffer.append("<article><section class='postcontent'>");
-			buffer.append(content);//babbys first CSS hack
-			buffer.append("</section></article>");
-			buffer.append("</body></html>");
-
-			return buffer.toString();
-		}
-		return "";
+	public static String getMessageHtml(String content){
+		return String.format("<article class='post'><section class='postcontent'>%s</section></article>", content == null ? "" : content);
 	}
 }

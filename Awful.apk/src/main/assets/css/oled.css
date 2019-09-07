@@ -36,7 +36,6 @@ body {
 }
 
 .postcontent {
-    border-top: none;
     margin: 5px 10px;
 }
 
@@ -84,9 +83,19 @@ body {
     vertical-align: top;
     clear: left;
     border: 0;
-    border-bottom: 1px solid #e7e7e7;
     border-top: 1px solid #e7e7e7;
     margin: 0;
     padding: 10px;
     padding-right: 0;
+}
+
+/* compensating for the smaller padding in .postheader */
+.postmenu {
+    margin-top: -9px;
+}
+
+.postseparator {
+    height: 1px;
+    background-color: #e7e7e7;
+    margin: 0px;
 }

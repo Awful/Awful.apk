@@ -35,8 +35,8 @@ body {
     background-color: #1A4000;
 }
 
-.postcontent {
-    border-color: #eacf4c;
+.postseparator {
+    background-color: #eacf4c;
 }
 
 .postcontent .bbc-block {
@@ -75,6 +75,10 @@ body {
     border-top: 2px solid #eacf4c;
 }
 
+
+/*
+    square dots for computers
+*/
 .postmenu:after {
     content: "\e901";
 }
