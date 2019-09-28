@@ -2,7 +2,6 @@ package com.ferg.awfulapp.preferences;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -20,7 +19,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.WebView;
+import android.webkit.WebSettings;
 import android.widget.Toast;
 
 import com.ferg.awfulapp.AwfulActivity;
@@ -299,63 +298,20 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
         }
     }
 
-
     @Override
     protected Dialog onCreateDialog(int dialogId) {
         if (dialogId == DIALOG_ABOUT)
-            return getAboutDialog();
+            return new AboutDialogBuilder(this)
+                    .add(getString(R.string.about_contributors_title), getStringArray(R.array.about_contributors_array))
+                    .add(getString(R.string.about_libraries_title), getStringArray(R.array.about_libraries_array))
+                    .add(WebSettings.getDefaultUserAgent(this))
+                    .build();
         else
             return super.onCreateDialog(dialogId);
     }
 
-    private Dialog getAboutDialog() {
-        return new AlertDialog.Builder(this)
-                .setTitle(getAboutDialogTitle())
-                .setMessage(getAboutDialogText())
-                .setNeutralButton(android.R.string.ok, (dialog, which) -> {
-                })
-                .create();
-    }
-
-    private String getAboutDialogTitle() {
-        String result = getText(R.string.app_name).toString();
-
-        try {
-            result += " " +
-                    getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            // rather unlikely, just return app_name without version
-        }
-
-        return result;
-    }
-
-    private String getAboutDialogText() {
-        StringBuilder stringBuilder = new StringBuilder();
-
-        stringBuilder.append(getString(R.string.about_contributors_title)).append("\n");
-
-        for (String s : getStringArray(R.array.about_contributors_array)) {
-            stringBuilder.append("- ").append(s).append('\n');
-        }
-
-        stringBuilder.append("\n").append(getString(R.string.about_libraries_title)).append("\n");
-
-        for (String s : getStringArray(R.array.about_libraries_array)) {
-            stringBuilder.append("- ").append(s).append('\n');
-        }
-
-        stringBuilder.append('\n').append(getWebViewUserAgentString());
-
-        return stringBuilder.toString();
-    }
-
     private String[] getStringArray(int arrayId) {
         return getResources().getStringArray(arrayId);
-    }
-
-    private String getWebViewUserAgentString() {
-        return new WebView(this).getSettings().getUserAgentString();
     }
 
     @Override
