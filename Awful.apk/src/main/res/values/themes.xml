@@ -67,6 +67,7 @@
         <item name="awfulPopUpTheme">@style/ThemeOverlay.AppCompat.Light</item>
         <item name="windowActionModeOverlay">true</item>
 
+        <item name="android:navigationBarColor">?colorPrimaryDark</item>
     </style>
 
 
@@ -120,6 +121,7 @@
         <item name="awfulPopUpTheme">@style/ThemeOverlay.AppCompat</item>
         <item name="windowActionModeOverlay">true</item>
 
+        <item name="android:navigationBarColor">@android:color/black</item>
     </style>
 
     <!-- OLED-type themes -->
