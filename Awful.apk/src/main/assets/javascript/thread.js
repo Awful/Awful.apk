@@ -70,7 +70,7 @@ function containerInit() {
 			document.addEventListener('touchleave', handleTouchLeave);
 			document.addEventListener('touchcancel', handleTouchLeave);
 		}
-	});
+	}, {passive: true});
 	// Auto-starting of videos
 	if (listener.getPreference('inlineWebm') === 'true' && listener.getPreference('autostartWebm') === 'true') {
 		var debouncedVideosScrollListener = debounce(pauseVideosOutOfView, 250);
@@ -84,8 +84,8 @@ function containerInit() {
 		window.topScrollID = window.requestAnimationFrame(scrollPost.bind(null, null));
 	});
 
-    // trigger a page content load, in case some was sent before the container was ready to handle it
-    loadPageHtml();
+	// trigger a page content load, in case some was sent before the container was ready to handle it
+	loadPageHtml();
 }
 
 /**
@@ -589,11 +589,11 @@ function highlightOwnUsername(scopeElement) {
 	 * Taken from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
 	 */
 	function escapeRegExp(string) {
-      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
-    }
+		return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+	}
 
 	var selector = 'article:not(self) .postcontent';
-    var username = listener.getPreference('username');
+	var username = listener.getPreference('username');
 
 	var regExp = new RegExp('\\b' + escapeRegExp(username) + '\\b', 'g');
 	var styled = '<span class="usernameHighlight">' + username + '</span>';
