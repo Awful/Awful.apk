@@ -1,7 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?><!--
+    Version code uses the format MmmRR following the Major, minor and Revision portions of the version number.
+
+    When a beta is pushed to production, the next beta should increment the minor number. Any updates to that
+    beta (or the production release) should increment the revision number. This means a beta is always one
+    minor number ahead of production, so they can be updated independently, and the beta can be pushed to production when ready.
+-->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.ferg.awfulapp"
-      android:versionCode="10012"
+    android:versionCode="30608"
       android:versionName="3.6.8"
       android:installLocation="auto">
     <supports-screens
