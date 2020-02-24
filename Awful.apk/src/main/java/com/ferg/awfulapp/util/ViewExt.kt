@@ -3,6 +3,7 @@ package com.ferg.awfulapp.util
 import android.app.Activity
 import android.support.v4.app.Fragment
 import android.view.View
+import android.view.ViewGroup
 
 
 fun View.isVisible() = (this.visibility == View.VISIBLE)
@@ -29,3 +30,6 @@ fun <T : View?> Fragment.bind(resId: Int): Lazy<T> =
 
 fun <T : View?> Activity.bind(resId: Int): Lazy<T> =
     lazy(LazyThreadSafetyMode.NONE) { findViewById<T>(resId) }
+
+fun <T : View?> ViewGroup.bind(resId: Int): Lazy<T> =
+        lazy(LazyThreadSafetyMode.NONE) { findViewById<T>(resId) }

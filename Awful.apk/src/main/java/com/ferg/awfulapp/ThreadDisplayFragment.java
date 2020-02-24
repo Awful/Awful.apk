@@ -112,6 +112,7 @@ import com.ferg.awfulapp.webview.LoggingWebChromeClient;
 import com.ferg.awfulapp.webview.WebViewJsInterface;
 import com.ferg.awfulapp.widget.PageBar;
 import com.ferg.awfulapp.widget.PagePicker;
+import com.ferg.awfulapp.widget.WebViewSearchBar;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
@@ -549,9 +550,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
     			copyThreadURL(null);
     			break;
     		case R.id.find:
-				if (mThreadView != null) {
-					this.mThreadView.showFindDialog(null, true);
-				}
+				((WebViewSearchBar) item.getActionView()).setWebView(mThreadView);
 				break;
     		case R.id.keep_screen_on:
     			this.toggleScreenOn();

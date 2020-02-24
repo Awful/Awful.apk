@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:layout_height="?android:attr/actionBarSize">
+
+    <EditText
+        android:id="@+id/web_view_search_text"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:ems="10"
+        android:background="@android:color/transparent"
+        android:hint="@string/web_view_search_box_hint"
+        android:inputType="textPersonName"
+        android:singleLine="true" />
+
+    <TextView
+        android:id="@+id/webview_search_result_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="8dp"
+        android:paddingEnd="16dp"
+        android:textAlignment="textEnd"
+        android:textAllCaps="false"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+        android:textColor="?attr/actionBarFontColor"
+        android:textSize="12sp"
+        android:typeface="normal"
+        tools:text="1000/1000" />
+
+    <View
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="?attr/actionBarDivider" />
+
+    <ImageButton
+        android:id="@+id/web_view_search_prev_result"
+        style="@style/MaterialImageButton.Borderless"
+        android:layout_width="@dimen/material_touch_target_size"
+        android:layout_height="@dimen/material_touch_target_size"
+        android:layout_gravity="center_vertical"
+        android:src="@drawable/ic_expand_less"
+        android:scaleType="centerInside"
+        android:contentDescription="@string/web_view_previous_result_description" />
+
+    <ImageButton
+        android:id="@+id/web_view_search_next_result"
+        style="@style/MaterialImageButton.Borderless"
+        android:layout_width="@dimen/material_touch_target_size"
+        android:layout_height="@dimen/material_touch_target_size"
+        android:layout_gravity="center_vertical"
+        android:src="@drawable/ic_expand_more"
+        android:scaleType="centerInside"
+        android:contentDescription="@string/web_view_next_result_description" />
+
+</LinearLayout>
