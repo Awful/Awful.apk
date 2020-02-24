@@ -504,6 +504,11 @@
     <string name="send_username_in_report_summary">Attach username to crash reports</string>
 
 
+    <string name="web_view_previous_result_description">Previous result</string>
+    <string name="web_view_next_result_description">Next result</string>
+    <string name="web_view_search_box_hint">Search in page</string>
+
+
     <!--
         End of Settings menu strings
     -->
