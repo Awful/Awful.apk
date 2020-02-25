@@ -45,12 +45,13 @@ class WebViewSearchBar @JvmOverloads constructor(
     /** The webview this widget will attempt to search in */
     var webView by Delegates.observable<WebView?>(null) { _, _, new -> new?.setFindListener(this) }
 
+
     init {
-        LayoutInflater.from(context)
-                .inflate(R.layout.webview_search_bar, this, true)
+        LayoutInflater.from(context).inflate(R.layout.webview_search_bar, this, true)
+
         searchBox.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                onTextChanged()
+                onSearchQueryUpdated()
             }
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -62,11 +63,12 @@ class WebViewSearchBar @JvmOverloads constructor(
         prevButton.setOnClickListener { webView?.findNext(false) }
     }
 
-    /** Called when the text in the search box changes */
-    private fun onTextChanged() {
+
+    private fun onSearchQueryUpdated() {
         // don't pass null to #findAllAsync no matter what it claims, those NPEs are why I had to write this
         webView?.findAllAsync(searchBox.text?.toString() ?: "")
     }
+
 
     override fun onFindResultReceived(activeMatchOrdinal: Int, numberOfMatches: Int, isDoneCounting: Boolean) {
         resultCount.text = when {
@@ -76,19 +78,24 @@ class WebViewSearchBar @JvmOverloads constructor(
         }
     }
 
+
     override fun onActionViewExpanded() {
         searchBox.requestFocus()
-        // need to delay this call for... reasons? this makes the keyboard pop up reliably though
+        // show the keyboard - need to delay this for... reasons? But it makes it pop up reliably
         searchBox.postDelayed({
             val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
             imm?.showSoftInput(searchBox, InputMethodManager.SHOW_IMPLICIT)
         }, 100)
     }
 
+
     override fun onActionViewCollapsed() {
         // clean up because we're only getting hidden
         searchBox.text.clear()
         searchBox.clearFocus()
         webView?.clearMatches()
+        // hide the keyboard
+        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
+        imm?.hideSoftInputFromWindow(windowToken, InputMethodManager.HIDE_IMPLICIT_ONLY)
     }
 }
