@@ -64,7 +64,7 @@
     <string name="favourite_forums_title">Favorites</string>
     <string name="show_and_hide_subforums">Show and hide subforums</string>
     <string name="no_forums_data">No forums data</string>
-    <string name="no_favourites">No favorites</string>
+    <string name="no_favourites">Long-press forums to add</string>
     <string name="forums_update_failure_message">Couldn\'t get forums data.\nCheck your connection and restart.</string>
     <string name="updating_forums">Updating forums…</string>
     <string name="forums_list_unset_favorite">Unfavorite</string>
@@ -507,6 +507,7 @@
     <string name="web_view_previous_result_description">Previous result</string>
     <string name="web_view_next_result_description">Next result</string>
     <string name="web_view_search_box_hint">Search in page</string>
+    <string name="getting_forums">Getting forums</string>
 
 
     <!--

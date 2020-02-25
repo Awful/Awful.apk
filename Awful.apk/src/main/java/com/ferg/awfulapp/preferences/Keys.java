@@ -130,7 +130,6 @@ public abstract class Keys {
             FORUM_INDEX_SHOW_SECTIONS,
             FORUM_INDEX_SHOW_SUBTITLES,
             FORUM_INDEX_HIDE_SUBFORUMS,
-            FORUM_INDEX_PREFER_FAVOURITES
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface BooleanPreference {
@@ -209,7 +208,6 @@ public abstract class Keys {
     public static final int FORUM_INDEX_HIDE_SUBFORUMS = R.string.pref_key_forum_index_hide_subforums;
 
     public static final int FAVOURITE_FORUMS = R.string.pref_key_favourite_forums;
-    public static final int FORUM_INDEX_PREFER_FAVOURITES = R.string.pref_key_forum_index_default_show_favourites;
 
     public static final int RECENT_EMOTES = R.string.pref_key_recent_emotes;
 

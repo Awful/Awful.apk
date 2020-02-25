@@ -21,7 +21,6 @@ import com.ferg.awfulapp.forums.Forum;
 import com.ferg.awfulapp.forums.ForumListAdapter;
 import com.ferg.awfulapp.forums.ForumRepository;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.preferences.Keys;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.widget.StatusFrog;
 
@@ -73,7 +72,7 @@ public class ForumsIndexFragment extends AwfulFragment
     /**
      * Current view state - either showing the favourites list, or the full forums list
      */
-    private boolean showFavourites = AwfulPreferences.getInstance().getPreference(Keys.FORUM_INDEX_PREFER_FAVOURITES, false);
+    private boolean showFavourites = AwfulApplication.getAppStatePrefs().getBoolean(KEY_SHOW_FAVOURITES, false);
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -84,16 +83,14 @@ public class ForumsIndexFragment extends AwfulFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState != null) {
-            showFavourites = savedInstanceState.getBoolean(KEY_SHOW_FAVOURITES);
-        }
+//        showFavourites = AwfulApplication.getAppStatePrefs().getBoolean(KEY_SHOW_FAVOURITES, false);
         setHasOptionsMenu(true);
         setRetainInstance(false);
     }
 
 
     @Override
-    public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
+    public View onCreateView(@NonNull LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         View view = inflateView(R.layout.forum_index_fragment, aContainer, aInflater);
         ButterKnife.bind(this, view);
         updateViewColours();
@@ -134,11 +131,6 @@ public class ForumsIndexFragment extends AwfulFragment
         super.onPause();
     }
 
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putBoolean(KEY_SHOW_FAVOURITES, showFavourites);
-    }
 
     ///////////////////////////////////////////////////////////////////////////
     // Menus
@@ -160,6 +152,7 @@ public class ForumsIndexFragment extends AwfulFragment
             case R.id.toggle_list_fav_forums:
                 // flip the view mode and refresh everything that needs to update
                 showFavourites = !showFavourites;
+                AwfulApplication.getAppStatePrefs().edit().putBoolean(KEY_SHOW_FAVOURITES, showFavourites).apply();
                 invalidateOptionsMenu();
                 refreshForumList();
                 ((ForumsIndexActivity) getActivity()).onPageContentChanged();
@@ -190,8 +183,16 @@ public class ForumsIndexFragment extends AwfulFragment
      * Show/hide the 'no data' view as appropriate, and show/hide the updating state
      */
     private void refreshNoDataView() {
-        // adjust the label in the 'no forums' view
-        statusFrog.setStatusText(showFavourites ? R.string.no_favourites : R.string.no_forums_data);
+        statusFrog.showSpinner(false);
+        if (showFavourites) {
+            statusFrog.setStatusText(R.string.no_favourites);
+        } else if (forumRepo.isUpdating()) {
+            // an update is happening and this is the main forums list, so show the spinner and an active message
+            statusFrog.setStatusText(R.string.getting_forums);
+            statusFrog.showSpinner(true);
+        } else {
+            statusFrog.setStatusText(R.string.no_forums_data);
+        }
 
         // work out if we need to switch the empty view to the forum list, or vice versa
         boolean noData = forumListAdapter.getParentItemList().isEmpty();
@@ -200,8 +201,6 @@ public class ForumsIndexFragment extends AwfulFragment
         } else if (!noData && forumsListSwitcher.getNextView() == forumRecyclerView) {
             forumsListSwitcher.showNext();
         }
-        // show the update spinner if an update is going on
-        statusFrog.showSpinner(forumRepo.isUpdating());
     }
 
 
@@ -270,7 +269,7 @@ public class ForumsIndexFragment extends AwfulFragment
 
 
     @Override
-    public void onPreferenceChange(AwfulPreferences mPrefs, @Nullable String key) {
+    public void onPreferenceChange(@NonNull AwfulPreferences mPrefs, @Nullable String key) {
         super.onPreferenceChange(mPrefs, key);
         if (getString(R.string.pref_key_theme).equals(key)) {
             updateViewColours();

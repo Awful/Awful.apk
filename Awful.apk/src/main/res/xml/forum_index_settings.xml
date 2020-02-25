@@ -21,13 +21,6 @@
         android:title="@string/forum_index_hide_subforums"
         />
 
-    <SwitchPreference
-        android:defaultValue="false"
-        android:key="@string/pref_key_forum_index_default_show_favourites"
-        android:summary="@string/forum_index_default_show_favourites_summary"
-        android:title="@string/forum_index_default_show_favourites"
-        />
-
     <Preference
         android:key="@string/pref_key_update_forums_menu_item"
         android:summary="@string/forum_index_update_forums_summary_not_updating"
