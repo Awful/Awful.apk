@@ -8,8 +8,6 @@ import android.support.v4.content.CursorLoader
 import android.support.v4.content.Loader
 import android.support.v4.view.ViewPager
 import android.text.Editable
-import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +22,9 @@ import com.ferg.awfulapp.service.AwfulCursorAdapter
 import com.ferg.awfulapp.task.AwfulRequest
 import com.ferg.awfulapp.task.EmoteRequest
 import com.ferg.awfulapp.thread.AwfulEmote
+import com.ferg.awfulapp.util.PassiveTextWatcher
+import com.ferg.awfulapp.util.bind
+import timber.log.Timber
 
 /**
  * Created by baka kaba on 28/12/2017.
@@ -48,7 +49,7 @@ private object EmoteHistory {
     const val SEPARATOR = " "
     private val recentList: MutableList<String> by lazy {
         AwfulPreferences.getInstance().getPreference(Keys.RECENT_EMOTES, "")!!.split(SEPARATOR)
-            .toMutableList()
+                .toMutableList()
     }
 
     /**
@@ -67,7 +68,7 @@ private object EmoteHistory {
         with(recentList) {
             remove(emoteCode)
             plus(emoteCode).takeLast(MAX_RECENT_EMOTES)
-                .let { newRecent -> clear(); addAll(newRecent) }
+                    .let { newRecent -> clear(); addAll(newRecent) }
         }
         AwfulPreferences.getInstance().setPreference(Keys.RECENT_EMOTES, getRecent())
     }
@@ -82,9 +83,9 @@ private object EmoteHistory {
 class EmotePicker : DialogFragment() {
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.emote_picker_container_fragment, container, false)
     }
@@ -94,11 +95,12 @@ class EmotePicker : DialogFragment() {
         dialog.setTitle(R.string.reply_emotes)
         val viewPager by bind<ViewPager>(R.id.emote_view_pager)
         val tabLayout by bind<TabLayout>(R.id.tab_layout)
+
         with(EmotePagerAdapter(childFragmentManager)) {
-            viewPager!!.adapter = this
-            tabLayout!!.setupWithViewPager(viewPager)
+            viewPager.adapter = this
+            tabLayout.setupWithViewPager(viewPager)
             pages.forEachIndexed { i, page ->
-                tabLayout!!.getTabAt(i)!!.setIcon(page.iconResId).contentDescription = page.title
+                tabLayout.getTabAt(i)!!.setIcon(page.iconResId).contentDescription = page.title
             }
         }
     }
@@ -116,8 +118,8 @@ private class EmotePagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) 
     data class Page(val fragmentGetter: () -> Fragment, val title: String, val iconResId: Int)
 
     val pages = arrayOf(
-        Page({ EmoteFragment() }, "Search", R.drawable.ic_search_dark),
-        Page({ EmoteHistoryFragment() }, "Recent", R.drawable.ic_history_dark_24dp)
+            Page({ EmoteFragment() }, "Search", R.drawable.ic_search_dark),
+            Page({ EmoteHistoryFragment() }, "Recent", R.drawable.ic_history_dark_24dp)
     )
 
     override fun getCount() = pages.size
@@ -126,38 +128,31 @@ private class EmotePagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) 
 //    override fun getPageTitle(position: Int) = pages[position].title
 }
 
+
 /**
  * A fragment that displays all the site emotes, with a live search box to filter them.
  */
 class EmoteFragment : EmoteGridFragment() {
 
     override val layoutId = R.layout.emote_picker_main_fragment
-    private val emoteGrid: GridView? by bind(R.id.emote_grid)
-    private val filterText: EditText? by bind(R.id.filter_text)
+    private val emoteGrid: GridView by bind(R.id.emote_grid)
+    private val filterText: EditText by bind(R.id.filter_text)
+    private val deleteButton: ImageButton by bind(R.id.delete_button)
 
     override fun getTitle() = "Emotes"
 
     override fun onActivityCreated(aSavedState: Bundle?) {
         super.onActivityCreated(aSavedState)
-        emoteGrid?.setUpEmoteGrid()
+        emoteGrid.setUpEmoteGrid()
 
         // set up the delete button to clear the filter field - which triggers its text change callback
-        bind<ImageButton>(R.id.delete_button).value?.setOnClickListener { filterText!!.setText("") }
+        deleteButton.setOnClickListener { filterText.setText("") }
 
-        filterText?.apply {
+        filterText.apply {
             setTextColor(ColorProvider.PRIMARY_TEXT.color)
-            addTextChangedListener(object : TextWatcher {
-                override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
-                override fun beforeTextChanged(
-                    s: CharSequence,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) {
-                }
-
-                override fun afterTextChanged(s: Editable) {
-                    emoteLoader.currentFilter = (filterText!!.text.toString().trim())
+            addTextChangedListener(object : PassiveTextWatcher() {
+                override fun afterTextChanged(s: Editable?) {
+                    emoteLoader.currentFilter = (text.toString().trim())
                 }
             })
         }
@@ -171,13 +166,13 @@ class EmoteFragment : EmoteGridFragment() {
 class EmoteHistoryFragment : EmoteGridFragment() {
 
     override val layoutId = R.layout.emote_picker_history_fragment
-    private val emoteGrid: GridView? by bind(R.id.emote_grid)
+    private val emoteGrid: GridView by bind(R.id.emote_grid)
 
     override fun getTitle() = "Emote history"
 
     override fun onActivityCreated(aSavedState: Bundle?) {
         super.onActivityCreated(aSavedState)
-        emoteGrid?.setUpEmoteGrid()
+        emoteGrid.setUpEmoteGrid()
         with(emoteLoader) {
             filterExactCode = true
             currentFilter = EmoteHistory.getRecent().let { recent ->
@@ -194,7 +189,7 @@ class EmoteHistoryFragment : EmoteGridFragment() {
  */
 abstract class EmoteGridFragment : AwfulFragment() {
 
-    abstract protected val layoutId: Int
+    protected abstract val layoutId: Int
 
     private val cursorAdapter by lazy { AwfulCursorAdapter(activity as AwfulActivity, null, null) }
     val emoteLoader by lazy { EmoteDataCallback(cursorAdapter) }
@@ -202,11 +197,11 @@ abstract class EmoteGridFragment : AwfulFragment() {
     var loadFailed = false
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? =
-        inflater.inflate(layoutId, container, false)
+            inflater.inflate(layoutId, container, false)
 
 
     /**
@@ -236,24 +231,24 @@ abstract class EmoteGridFragment : AwfulFragment() {
     fun syncEmotes() {
         activity?.let { activity ->
             queueRequest(
-                EmoteRequest(activity).build(
-                    this,
-                    object : AwfulRequest.AwfulResultCallback<Void?> {
-                        override fun success(result: Void?) {
-                            loadFailed = false
-                            awfulActivity?.run { restartLoader() }
-                        }
+                    EmoteRequest(activity).build(
+                            this,
+                            object : AwfulRequest.AwfulResultCallback<Void?> {
+                                override fun success(result: Void?) {
+                                    loadFailed = false
+                                    awfulActivity?.run { restartLoader() }
+                                }
 
-                        override fun failure(error: VolleyError?) {
-                            loadFailed = true
-                        }
-                    })
+                                override fun failure(error: VolleyError?) {
+                                    loadFailed = true
+                                }
+                            })
             )
         }
     }
 
     inner class EmoteDataCallback(
-        private val adapter: AwfulCursorAdapter
+            private val adapter: AwfulCursorAdapter
     ) : LoaderManager.LoaderCallbacks<Cursor> {
 
         /** when true the filter will only match emote codes exactly, otherwise it searches within codes and the emotes' title subtexts */
@@ -270,18 +265,17 @@ abstract class EmoteGridFragment : AwfulFragment() {
          */
         private fun List<String>.asSelectionAndArgs(): Pair<String, Array<String>> {
             return if (filterExactCode) {
-                // searching for the specific code strings, used to select specific emotes - look in TEXT only, match exactly
-                val selection =
-                    Array(size) { "${AwfulEmote.TEXT}=?" }.joinToString(separator = " OR ")
+                // searching for the specific code strings, used to select specific emotes - look in names only, match exactly
+                val selection = Array(size) { "${AwfulEmote.TEXT}=?" }.joinToString(separator = " OR ")
                 Pair(selection, this.toTypedArray())
             } else {
                 // general search (used for the search view) - search for each term twice, in emote titles and also the subtext (image title attribute)
                 val searchColumns = listOf(AwfulEmote.TEXT, AwfulEmote.SUBTEXT)
                 val selection =
-                    flatMap { searchColumns }.joinToString(separator = " OR ") { "$it  LIKE '%' || ? || '%'" }
+                        flatMap { searchColumns }.joinToString(separator = " OR ") { "$it  LIKE '%' || ? || '%'" }
                 Pair(
-                    selection,
-                    flatMap { term -> List(searchColumns.size) { term } }.toTypedArray()
+                        selection,
+                        flatMap { term -> List(searchColumns.size) { term } }.toTypedArray()
                 )
             }
 
@@ -289,21 +283,20 @@ abstract class EmoteGridFragment : AwfulFragment() {
 
 
         override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
-            Log.v(TAG, "Creating emote cursor")
-            return currentFilter.let { filterText ->
-                // break the filter text into multiple keywords, and create a query that matches any of them
-                val selectionAndArgs =
-                    filterText?.split(EmoteHistory.SEPARATOR)?.filterNot(String::isBlank)?.asSelectionAndArgs()
-                            ?: Pair(null, null)
-                CursorLoader(
+            Timber.v("Creating emote cursor")
+            // break the filter text into multiple keywords, and create a query that matches any of them
+            val selectionAndArgs = currentFilter?.split(EmoteHistory.SEPARATOR)
+                    ?.filterNot(String::isBlank)
+                    ?.asSelectionAndArgs()
+                    ?: Pair(null, null)
+            return CursorLoader(
                     activity!!,
                     AwfulEmote.CONTENT_URI,
                     AwfulProvider.EmoteProjection,
                     selectionAndArgs.first,
                     selectionAndArgs.second,
                     AwfulEmote.INDEX
-                )
-            }
+            )
         }
 
         override fun onLoadFinished(loader: Loader<Cursor>, data: Cursor) {
@@ -320,11 +313,6 @@ abstract class EmoteGridFragment : AwfulFragment() {
 
 }
 
-/**
- * Lets you late-bind views as vals, so long as you only access them after the view has been created
- */
-private fun <T : View> Fragment.bind(resId: Int): Lazy<T?> =
-    lazy(LazyThreadSafetyMode.NONE) { view!!.findViewById<T>(resId) }
 
 interface EmotePickerListener {
     fun onEmoteChosen(emoteCode: String)

@@ -2,6 +2,8 @@ package com.ferg.awfulapp.util
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 
 /**
  * Created by baka kaba on 28/10/2018.
@@ -45,3 +47,17 @@ val Boolean.toSqlBoolean: Int
 /** This Int's Boolean equivalent, when treated as a SQLite boolean */
 val Int.fromSqlBoolean: Boolean
     get() = this >= 1
+
+
+/*
+    Utility classes
+ */
+
+/** A TextWatcher that does nothing - override whichever methods you actually need */
+open class PassiveTextWatcher : TextWatcher {
+    override fun afterTextChanged(s: Editable?) {}
+
+    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+}

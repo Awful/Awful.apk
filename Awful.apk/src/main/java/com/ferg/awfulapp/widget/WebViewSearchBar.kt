@@ -3,7 +3,6 @@ package com.ferg.awfulapp.widget
 import android.content.Context
 import android.support.v7.view.CollapsibleActionView
 import android.text.Editable
-import android.text.TextWatcher
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.inputmethod.InputMethodManager
@@ -13,6 +12,7 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.ferg.awfulapp.R
+import com.ferg.awfulapp.util.PassiveTextWatcher
 import com.ferg.awfulapp.util.bind
 import kotlin.properties.Delegates
 
@@ -49,15 +49,8 @@ class WebViewSearchBar @JvmOverloads constructor(
     init {
         LayoutInflater.from(context).inflate(R.layout.webview_search_bar, this, true)
 
-        searchBox.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-                onSearchQueryUpdated()
-            }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-
+        searchBox.addTextChangedListener(object : PassiveTextWatcher() {
+            override fun afterTextChanged(s: Editable?) = onSearchQueryUpdated()
         })
         nextButton.setOnClickListener { webView?.findNext(true) }
         prevButton.setOnClickListener { webView?.findNext(false) }
