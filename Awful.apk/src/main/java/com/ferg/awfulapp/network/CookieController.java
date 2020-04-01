@@ -153,6 +153,9 @@ public class CookieController {
         Date expires = null;
         Integer version = null;
 
+        Timber.d("Saving cookies - here's what we got:");
+        logCookies();
+
         for (HttpCookie cookie : cookieManager.getCookieStore().get(uri)) {
             switch (cookie.getName()) {
                 case Constants.COOKIE_NAME_USERID:
@@ -167,6 +170,9 @@ public class CookieController {
                 case Constants.COOKIE_NAME_SESSIONHASH:
                     sessionHash = cookie.getValue();
                     break;
+                default:
+                    // unrecognised cookie, ignore it! some cloudflare ones have a real short expiry
+                    continue;
             }
 
             // keep the soonest valid expiry in case they don't match
@@ -196,6 +202,7 @@ public class CookieController {
             edit.putString(Constants.COOKIE_PREF_SESSIONHASH, sessionHash);
         }
         if (expires != null) {
+            Timber.i("Storing login cookie, expires: %s", expires.toString());
             edit.putLong(Constants.COOKIE_PREF_EXPIRY_DATE, expires.getTime());
         }
         edit.putInt(Constants.COOKIE_PREF_VERSION, version);
@@ -218,7 +225,8 @@ public class CookieController {
             Timber.i("---BEGIN COOKIE DUMP---");
             List<HttpCookie> cookies = cookieManager.getCookieStore().getCookies();
             for (HttpCookie c : cookies) {
-                Timber.i(c.toString());
+                Timber.d("Name: %s\nSecure only: %b, expired: %b, max age: %d\nContent: %s\n",
+                        c.getName(), c.getSecure(), c.hasExpired(), c.getMaxAge(), c.toString());
             }
             Timber.i("---END COOKIE DUMP---");
         }
