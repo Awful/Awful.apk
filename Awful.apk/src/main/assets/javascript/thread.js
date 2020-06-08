@@ -204,6 +204,7 @@ function processPosts(scopeElement) {
  * @param {Element} scopeElement The element containing videos to pause
  */
 function pauseVideosOutOfView(scopeElement) {
+    scopeElement = scopeElement || document;
 	scopeElement.querySelectorAll('video').forEach(function eachVideo(video) {
 		if (isElementInViewport(video) && video.parentElement.tagName !== 'BLOCKQUOTE' && video.firstElementChild.src.indexOf('webm') === -1) {
 			video.play();
