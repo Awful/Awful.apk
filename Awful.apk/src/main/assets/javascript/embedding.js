@@ -194,8 +194,12 @@ function processThreadEmbeds(replacementArea) {
 				hasThumbnail = videoURL.substring(0, videoURL.lastIndexOf('.')) + 'm.jpg';
 				videoURL = videoURL.replace('.webm', '.mp4');
 			} else if (videoURL.indexOf('gfycat.com') !== -1) {
-				hasThumbnail = 'https://thumbs' + videoURL.substring(videoURL.indexOf('.'), videoURL.lastIndexOf('.')) + '-mobile.jpg';
-				videoURL = 'https://thumbs' + videoURL.substring(videoURL.indexOf('.'), videoURL.lastIndexOf('.')) + '-mobile.mp4';
+			    var gfycatURL =  'https://thumbs' + videoURL.substring(videoURL.indexOf('.'), videoURL.lastIndexOf('.'));
+			    if (!gfycatURL.endsWith('-mobile')) {
+			        gfycatURL += '-mobile';
+			    }
+				hasThumbnail = gfycatURL + '.jpg';
+				videoURL = gfycatURL + '.mp4';
 			}
 
 			var videoContainer = document.createElement('div');
