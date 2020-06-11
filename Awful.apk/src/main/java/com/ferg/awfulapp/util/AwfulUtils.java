@@ -5,7 +5,7 @@ import android.content.Context;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Build;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -25,7 +25,6 @@ import com.ToxicBakery.viewpager.transforms.TabletTransformer;
 import com.ToxicBakery.viewpager.transforms.ZoomInTransformer;
 import com.ToxicBakery.viewpager.transforms.ZoomOutSlideTransformer;
 import com.ToxicBakery.viewpager.transforms.ZoomOutTransformer;
-import com.crashlytics.android.Crashlytics;
 import com.ferg.awfulapp.AwfulApplication;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
@@ -33,6 +32,7 @@ import com.ferg.awfulapp.provider.DatabaseHelper;
 import com.ferg.awfulapp.thread.AwfulEmote;
 import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.HashMap;
 
@@ -162,7 +162,8 @@ public class AwfulUtils {
     public static void failSilently(@NonNull Exception e) {
         Timber.e(e);
         if (AwfulApplication.crashlyticsEnabled()) {
-            Crashlytics.logException(e);
+            FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
+            crashlytics.log(e.getMessage());
         }
         if (Constants.DEBUG) {
             throw new RuntimeException(e);

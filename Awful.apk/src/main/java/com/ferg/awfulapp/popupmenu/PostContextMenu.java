@@ -1,8 +1,8 @@
 package com.ferg.awfulapp.popupmenu;
 
 import android.os.Bundle;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.NonNull;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
 import android.util.Log;
 
 import com.ferg.awfulapp.AwfulActivity;

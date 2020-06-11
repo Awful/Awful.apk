@@ -2,7 +2,7 @@ package com.ferg.awfulapp.network;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.ferg.awfulapp.constants.Constants;

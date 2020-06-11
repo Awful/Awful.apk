@@ -3,7 +3,7 @@ package com.ferg.awfulapp.reply;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.graphics.Typeface;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.view.View;
 import android.widget.EditText;
 

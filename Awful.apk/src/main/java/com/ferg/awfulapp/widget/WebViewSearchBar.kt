@@ -1,7 +1,7 @@
 package com.ferg.awfulapp.widget
 
 import android.content.Context
-import android.support.v7.view.CollapsibleActionView
+import androidx.appcompat.view.CollapsibleActionView
 import android.text.Editable
 import android.util.AttributeSet
 import android.view.LayoutInflater

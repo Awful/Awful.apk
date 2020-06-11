@@ -6,7 +6,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.StrictMode;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.ferg.awfulapp.announcements.AnnouncementsManager;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
@@ -17,7 +17,6 @@ import com.jakewharton.threetenabp.AndroidThreeTen;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
-import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;
 
 public class AwfulApplication extends Application {
@@ -48,10 +47,13 @@ public class AwfulApplication extends Application {
         crashlyticsEnabled = !BuildConfig.DEBUG || hoursSinceInstall > 4;
 
         if (crashlyticsEnabled) {
-            Fabric.with(this, new Crashlytics());
+            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true);
+            FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
 
             if (mPref.sendUsernameInReport)
-                Crashlytics.setUserName(mPref.username);
+                crashlytics.setUserId(mPref.username);
+        } else {
+            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false);
         }
 
         Timber.plant(crashlyticsEnabled ? new CrashlyticsReportingTree() : new Timber.DebugTree());

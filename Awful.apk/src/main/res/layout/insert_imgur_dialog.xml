@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true">
@@ -65,7 +65,7 @@
         app:layout_constraintBaseline_toBaselineOf="@+id/upload_type"
         app:layout_constraintLeft_toLeftOf="@+id/guideline"/>
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/upload_image_section"
         android:layout_width="0dp"
         android:layout_height="96dp"
@@ -123,9 +123,9 @@
             app:srcCompat="@drawable/ic_photo_dark"
             tools:srcCompat="@drawable/frog_icon"/>
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/upload_url_text_input_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -140,7 +140,7 @@
         app:layout_constraintRight_toLeftOf="@+id/guideline2"
         app:layout_constraintTop_toBottomOf="@+id/upload_image_section">
 
-        <android.support.design.widget.TextInputEditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/upload_url_edittext"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -150,7 +150,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             />
 
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
         android:id="@+id/imgur_disclaimer"
@@ -204,14 +204,14 @@
         android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@+id/upload_url_text_input_layout"/>
 
-    <android.support.constraint.Guideline
+    <androidx.constraintlayout.widget.Guideline
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/guideline"
         android:orientation="vertical"
         app:layout_constraintGuide_begin="24dp"/>
 
-    <android.support.constraint.Guideline
+    <androidx.constraintlayout.widget.Guideline
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/guideline2"
@@ -228,5 +228,5 @@
         app:layout_constraintLeft_toLeftOf="@+id/guideline"
         app:layout_constraintTop_toBottomOf="@+id/use_thumbnail"/>
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

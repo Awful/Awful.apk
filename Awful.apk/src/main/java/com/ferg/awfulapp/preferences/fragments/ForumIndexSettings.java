@@ -1,8 +1,8 @@
 package com.ferg.awfulapp.preferences.fragments;
 
 import android.preference.Preference;
-import android.support.annotation.NonNull;
-import android.support.annotation.UiThread;
+import androidx.annotation.NonNull;
+import androidx.annotation.UiThread;
 
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;

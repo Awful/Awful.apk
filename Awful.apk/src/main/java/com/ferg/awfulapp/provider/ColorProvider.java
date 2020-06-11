@@ -2,12 +2,12 @@ package com.ferg.awfulapp.provider;
 
 import android.content.res.Resources;
 import android.content.res.TypedArray;
-import android.support.annotation.ArrayRes;
-import android.support.annotation.AttrRes;
-import android.support.annotation.ColorInt;
-import android.support.annotation.ColorRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.ArrayRes;
+import androidx.annotation.AttrRes;
+import androidx.annotation.ColorInt;
+import androidx.annotation.ColorRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.util.TypedValue;
 
 import com.ferg.awfulapp.R;
