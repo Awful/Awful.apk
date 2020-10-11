@@ -75,7 +75,20 @@
         <androidx.legacy.widget.Space
             android:layout_width="match_parent"
             android:layout_height="@dimen/material_space_between_content_areas"/>
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/message_user"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Recipient"
+                android:inputType="text|textAutoCorrect|textCapSentences"
+                android:maxLines="1"
+                android:textColor="@color/default_post_font"
+                android:textCursorDrawable="@null" />
 
+        </com.google.android.material.textfield.TextInputLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -110,20 +123,7 @@
         </LinearLayout>
 
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/message_user"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Recipient"
-            android:inputType="text|textAutoCorrect|textCapSentences"
-            android:maxLines="1"
-            android:textColor="@color/default_post_font"
-            android:textCursorDrawable="@null" />
 
-        </com.google.android.material.textfield.TextInputLayout>
 
         <fragment
             android:id="@+id/message_composer_fragment"
