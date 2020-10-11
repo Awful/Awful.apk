@@ -176,7 +176,7 @@ public class AwfulError extends VolleyError {
             if (m.find()) {
                 String date = m.group(2);
                 //for example January 11, 2013 10:35 AM CST
-                SimpleDateFormat probationFormat = new SimpleDateFormat("MMMM d, yyyy hh:mm aa z", Locale.US);
+                SimpleDateFormat probationFormat = new SimpleDateFormat("MMM d, yyyy HH:mm", Locale.US);
                 try {
                     //TODO this might have timezone issues?
                     probTimestamp = probationFormat.parse(date).getTime();
