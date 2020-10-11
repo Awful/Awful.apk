@@ -12,8 +12,8 @@ import android.graphics.drawable.LayerDrawable;
 import android.media.ThumbnailUtils;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.NonNull;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;

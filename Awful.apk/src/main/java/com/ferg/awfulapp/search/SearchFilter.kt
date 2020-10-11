@@ -2,7 +2,7 @@ package com.ferg.awfulapp.search
 
 import android.os.Parcel
 import android.os.Parcelable
-import android.support.v7.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.view.View
 import android.widget.EditText
 import com.ferg.awfulapp.R

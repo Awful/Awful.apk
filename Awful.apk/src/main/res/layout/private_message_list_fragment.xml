@@ -13,7 +13,7 @@
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/pm_swipe"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -25,8 +25,8 @@
                 android:cacheColorHint="?attr/background"
                 android:divider="#8c8c8c"
                 android:dividerHeight="1px" />
-        </android.support.v4.widget.SwipeRefreshLayout>
-        <android.support.design.widget.FloatingActionButton
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/just_pm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -39,6 +39,6 @@
             app:srcCompat="@drawable/ic_create"
             android:tint="?attr/justPostButtonFontColor">
 
-        </android.support.design.widget.FloatingActionButton>
+        </com.google.android.material.floatingactionbutton.FloatingActionButton>
     </RelativeLayout>
 </LinearLayout>

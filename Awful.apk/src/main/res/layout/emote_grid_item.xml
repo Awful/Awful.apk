@@ -18,7 +18,7 @@
         android:scaleType="fitCenter"
         android:src="@drawable/frog_icon"/>
 
-    <android.support.v7.widget.AppCompatTextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/emote_text"
         android:layout_width="match_parent"
         android:layout_height="22dp"

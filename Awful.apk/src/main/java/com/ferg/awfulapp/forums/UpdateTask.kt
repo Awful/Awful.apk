@@ -1,7 +1,7 @@
 package com.ferg.awfulapp.forums
 
 import android.content.Context
-import android.support.annotation.WorkerThread
+import androidx.annotation.WorkerThread
 import com.ferg.awfulapp.constants.Constants.DEBUG
 import com.ferg.awfulapp.forums.UpdateTask.ResultListener
 import com.ferg.awfulapp.network.NetworkUtils

@@ -33,10 +33,10 @@ package com.ferg.awfulapp.search
 
 import android.app.ProgressDialog
 import android.os.Bundle
-import android.support.design.widget.Snackbar
-import android.support.v4.app.DialogFragment
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
+import androidx.fragment.app.DialogFragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.text.Html
 import android.view.*
 import android.widget.EditText
@@ -77,7 +77,8 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
         (view!!.findViewById(R.id.search_results) as RecyclerView)
                 .apply {
                     adapter = SearchResultAdapter()
-                    layoutManager = LinearLayoutManager(context)
+                    layoutManager =
+                        LinearLayoutManager(context)
                 }
     }
     private var mSearchResults: MutableList<AwfulSearch> = mutableListOf()
@@ -168,16 +169,15 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
                 }))
     }
 
-
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater!!.inflate(R.menu.search, menu)
         val filterMenu = menu?.findItem(R.id.search_terms)!!.subMenu
         SearchFilter.FilterType.values().forEach { filterMenu.add(it.label) }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         Timber.v("onOptionsItemSelected")
-        if (item == null) return super.onOptionsItemSelected(null)
+        if (item == null) return super.onOptionsItemSelected(item)
         // check if it's one of our filters
         SearchFilter.FilterType.values().firstOrNull { it.label == item.title }?.run {
             showDialog(this@SearchFragment)

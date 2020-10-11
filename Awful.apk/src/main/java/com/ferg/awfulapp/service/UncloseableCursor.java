@@ -7,7 +7,7 @@ import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * <p>Created by baka kaba on 19/03/2016.</p>

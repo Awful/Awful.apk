@@ -143,7 +143,7 @@ class LepersColonyFragment : AwfulFragment(), SwipyRefreshLayout.OnRefreshListen
 
     override fun getTitle(): String? = if (isRapSheet) "Rap Sheet" else "Leper's Colony"
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item?.itemId == android.R.id.home) {
             return true.also { goUp() }
         }
@@ -235,7 +235,7 @@ class LepersColonyFragment : AwfulFragment(), SwipyRefreshLayout.OnRefreshListen
                         User(adminId.toInt(), adminUsername),
                         badPostUrl.takeIf(String::isNotEmpty), // treat empty urls as a missing (null) value, the context menu handles this case
                         isRapSheet
-                ).show(fragmentManager, "Post Actions")
+                ).show(fragmentManager!!, "Post Actions")
             }
 
             @JavascriptInterface

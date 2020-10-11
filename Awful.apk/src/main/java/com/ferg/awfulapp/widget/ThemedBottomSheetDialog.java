@@ -2,9 +2,9 @@ package com.ferg.awfulapp.widget;
 
 import android.app.Activity;
 import android.content.res.TypedArray;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.BottomSheetBehavior;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import android.view.Menu;
 
 import com.ferg.awfulapp.R;
