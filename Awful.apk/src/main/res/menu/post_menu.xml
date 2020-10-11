@@ -32,7 +32,7 @@
         app:showAsAction="never"
         />
     <item
-        app:actionProviderClass="android.support.v7.widget.ShareActionProvider"
+        app:actionProviderClass="androidx.appcompat.widget.ShareActionProvider"
         android:id="@+id/share_thread"
         android:icon="@drawable/ic_share_dark"
         android:title="@string/share_thread"

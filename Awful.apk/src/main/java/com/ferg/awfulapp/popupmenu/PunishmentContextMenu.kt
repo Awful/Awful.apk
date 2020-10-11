@@ -1,7 +1,7 @@
 package com.ferg.awfulapp.popupmenu
 
 import android.os.Bundle
-import android.support.annotation.DrawableRes
+import androidx.annotation.DrawableRes
 import com.ferg.awfulapp.AwfulActivity
 import com.ferg.awfulapp.NavigationEvent
 import com.ferg.awfulapp.R

@@ -2,16 +2,21 @@ package com.ferg.awfulapp
 
 import android.database.Cursor
 import android.os.Bundle
-import android.support.design.widget.TabLayout
-import android.support.v4.app.*
-import android.support.v4.content.CursorLoader
-import android.support.v4.content.Loader
-import android.support.v4.view.ViewPager
+import com.google.android.material.tabs.TabLayout
+import androidx.core.app.*
+import androidx.loader.content.CursorLoader
+import androidx.loader.content.Loader
+import androidx.viewpager.widget.ViewPager
 import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.loader.app.LoaderManager
 import com.android.volley.VolleyError
 import com.ferg.awfulapp.constants.Constants
 import com.ferg.awfulapp.preferences.AwfulPreferences
@@ -92,7 +97,7 @@ class EmotePicker : DialogFragment() {
 
     override fun onActivityCreated(aSavedState: Bundle?) {
         super.onActivityCreated(aSavedState)
-        dialog.setTitle(R.string.reply_emotes)
+        dialog?.setTitle(R.string.reply_emotes)
         val viewPager by bind<ViewPager>(R.id.emote_view_pager)
         val tabLayout by bind<TabLayout>(R.id.tab_layout)
 
@@ -290,12 +295,12 @@ abstract class EmoteGridFragment : AwfulFragment() {
                     ?.asSelectionAndArgs()
                     ?: Pair(null, null)
             return CursorLoader(
-                    activity!!,
-                    AwfulEmote.CONTENT_URI,
-                    AwfulProvider.EmoteProjection,
-                    selectionAndArgs.first,
-                    selectionAndArgs.second,
-                    AwfulEmote.INDEX
+                activity!!,
+                AwfulEmote.CONTENT_URI,
+                AwfulProvider.EmoteProjection,
+                selectionAndArgs.first,
+                selectionAndArgs.second,
+                AwfulEmote.INDEX
             )
         }
 

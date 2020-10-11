@@ -1,7 +1,7 @@
 package com.ferg.awfulapp.dialog
 
 import android.content.Context
-import android.support.v7.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.text.Html
 import com.ferg.awfulapp.R
 import org.jsoup.Jsoup

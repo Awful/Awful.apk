@@ -5,11 +5,10 @@ import android.content.Context
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
-import android.support.annotation.UiThread
 import android.widget.Toast
+import androidx.annotation.UiThread
 import com.android.volley.*
 import com.android.volley.toolbox.HttpHeaderParser
-import com.crashlytics.android.Crashlytics
 import com.ferg.awfulapp.AwfulApplication
 import com.ferg.awfulapp.R
 import com.ferg.awfulapp.constants.Constants.BASE_URL
@@ -20,6 +19,7 @@ import com.ferg.awfulapp.preferences.AwfulPreferences
 import com.ferg.awfulapp.task.AwfulRequest.Parameters.GetParams
 import com.ferg.awfulapp.task.AwfulRequest.Parameters.PostParams
 import com.ferg.awfulapp.util.AwfulError
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import org.apache.http.HttpEntity
 import org.apache.http.entity.ContentType
 import org.apache.http.entity.mime.MultipartEntityBuilder
@@ -260,8 +260,10 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
                 return Response.error(ae)
             } catch (e: OutOfMemoryError) {
                 if (AwfulApplication.crashlyticsEnabled()) {
-                    Crashlytics.setString("Response URL", url)
-                    Crashlytics.setLong("Response data size", response.data.size.toLong())
+                    val crashlytics: FirebaseCrashlytics = FirebaseCrashlytics.getInstance()
+
+                    crashlytics.setCustomKey("Response URL", url)
+                    crashlytics.setCustomKey("Response data size", response.data.size.toLong())
                 }
                 throw e
             } catch (e: Exception) {

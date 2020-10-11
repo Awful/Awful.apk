@@ -1,11 +1,12 @@
 package com.ferg.awfulapp.popupmenu;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -69,7 +70,7 @@ public abstract class BasePopupMenu<T extends AwfulAction> extends DialogFragmen
 
 
     /**
-     * Called during onCreate, passing in the arguments set with {@link android.support.v4.app.Fragment#setArguments(Bundle)}.
+     * Called during onCreate, passing in the arguments set with {@link Fragment#setArguments(Bundle)}.
      * <p>
      * Fragments can be recreated, losing all their state, so set the arguments when creating a new
      * fragment instance, and unpack them and build your state here.

@@ -7,8 +7,8 @@ import android.content.pm.ActivityInfo.*
 import android.graphics.Typeface
 import android.net.http.HttpResponseCache
 import android.os.Bundle
-import android.support.annotation.CallSuper
-import android.support.v7.app.AppCompatActivity
+import androidx.annotation.CallSuper
+import androidx.appcompat.app.AppCompatActivity
 import android.text.method.ScrollingMovementMethod
 import android.view.View
 import android.widget.TextView

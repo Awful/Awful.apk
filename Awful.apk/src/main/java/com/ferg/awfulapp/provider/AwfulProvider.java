@@ -39,11 +39,10 @@ import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
 import com.ferg.awfulapp.AwfulApplication;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.thread.AwfulEmote;
@@ -51,6 +50,7 @@ import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -454,7 +454,9 @@ public class AwfulProvider extends ContentProvider {
             String msg = String.format("Unrecognised query Uri!\nUri: %s\nProjection: %s\nSelection: %s\nSelection args: %s\nSort order: %s",
                     aUri, Arrays.toString(aProjection), aSelection, Arrays.toString(aSelectionArgs), aSortOrder);
             if (AwfulApplication.crashlyticsEnabled()) {
-                Crashlytics.log(Log.WARN, TAG, msg);
+                FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
+
+                crashlytics.log("WARN/" + TAG+ ": "+msg);
             } else {
                 Log.w(TAG, msg);
             }
@@ -531,7 +533,8 @@ public class AwfulProvider extends ContentProvider {
         } catch (Exception e) {
             String msg = String.format("aUri:\n%s\nQuery tables string:\n%s", aUri, builder.getTables());
             if (AwfulApplication.crashlyticsEnabled()){
-                Crashlytics.log(Log.WARN, TAG, msg);
+                FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
+                crashlytics.log("WARN/" + TAG+ ": "+msg);
             } else{
                 Log.w(TAG, msg, e);
             }
