@@ -5,6 +5,8 @@ import com.ferg.awfulapp.constants.Constants.*
 import com.ferg.awfulapp.preferences.AwfulPreferences
 import com.ferg.awfulapp.preferences.Keys.IGNORE_FORMKEY
 import com.ferg.awfulapp.preferences.Keys.USER_AVATAR_URL
+import com.ferg.awfulapp.preferences.Keys.USER_ID
+import com.ferg.awfulapp.preferences.Keys.USERNAME
 import com.ferg.awfulapp.util.AwfulError
 import org.jsoup.nodes.Document
 
@@ -35,7 +37,13 @@ class RefreshUserProfileRequest(context: Context) : AwfulRequest<Void?>(context,
                 ?: throw AwfulError("Couldn't read profile page")
         preferences.setPreference(IGNORE_FORMKEY, formKey.`val`())
 
-        // TODO: set the username here, and have any "update username" actions use this request to do it
+        val userId = doc.selectFirst("[name=userId]")
+                ?: throw AwfulError("Couldn't read profile page")
+        preferences.setPreference(USER_ID, userId.`val`().toInt())
+        val username = doc.getElementById("loggedinusername")
+                ?: throw AwfulError("Couldn't read profile page")
+        preferences.setPreference(USERNAME, username.text().trim())
+
         // the user's avatar (if any) is the image before the first <br> tag -
         // any images after that are gang tags, extra images to make the avatar longer, etc
         val avatarUrl = doc.selectFirst(".title")
