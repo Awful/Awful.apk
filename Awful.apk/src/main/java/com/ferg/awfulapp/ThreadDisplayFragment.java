@@ -562,6 +562,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 			case R.id.yospos:
 				toggleYospos();
 				break;
+			case R.id.show_self:
+				showUsersPosts(getPrefs().userId, getPrefs().username);
+				break;
     		default:
     			return super.onOptionsItemSelected(item);
     		}

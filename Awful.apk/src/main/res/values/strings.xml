@@ -96,6 +96,7 @@
     <string name="yospos">YOSPOS</string>
     <string name="thread_lock">Lock thread</string>
     <string name="thread_unlock">Unlock thread</string>
+    <string name="show_self">Admire your posts</string>
 
     <string name="next_page">Next page</string>
     <string name="mark_last_read_progress">Marking Last-Read</string>
@@ -508,6 +509,7 @@
     <string name="web_view_next_result_description">Next result</string>
     <string name="web_view_search_box_hint">Search in page</string>
     <string name="getting_forums">Getting forums</string>
+    <string name="imgur_api_client_id">test</string>
 
 
     <!--

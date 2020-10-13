@@ -175,10 +175,11 @@ public class AwfulError extends VolleyError {
             Matcher m = PROBATION_MESSAGE_REGEX.matcher(probation.text());
             if (m.find()) {
                 String date = m.group(2);
-                //for example January 11, 2013 10:35 AM CST
-                SimpleDateFormat probationFormat = new SimpleDateFormat("MMM d, yyyy HH:mm", Locale.US);
+                // Jan 11, 2013 10:35 AM  vs  Jan 11, 2013 22:35
+                String pattern = date.endsWith("m") ? "MMM d, yyyy hh:mm aa" : "MMM d, yyyy HH:mm";
+                SimpleDateFormat probationFormat = new SimpleDateFormat(pattern, Locale.US);
+
                 try {
-                    //TODO this might have timezone issues?
                     probTimestamp = probationFormat.parse(date).getTime();
                 } catch (ParseException e) {
                     Timber.w(e, "checkPageErrors: couldn't parse probation date text: %s", date);
