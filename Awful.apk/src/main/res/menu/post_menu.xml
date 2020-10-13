@@ -34,7 +34,7 @@
     <item
         app:actionProviderClass="androidx.appcompat.widget.ShareActionProvider"
         android:id="@+id/share_thread"
-        android:icon="@drawable/ic_share_dark"
+        android:icon="@drawable/ic_baseline_favorite_border"
         android:title="@string/share_thread"
         app:showAsAction="never"
         />
@@ -44,6 +44,12 @@
         android:title="@string/find"
         app:showAsAction="never|collapseActionView"
         app:actionViewClass="com.ferg.awfulapp.widget.WebViewSearchBar"
+        />
+    <item
+        android:id="@+id/show_self"
+        android:icon="@drawable/ic_find_in_page_dark"
+        android:title="@string/show_self"
+        app:showAsAction="never"
         />
     <item
         android:id="@+id/keep_screen_on"

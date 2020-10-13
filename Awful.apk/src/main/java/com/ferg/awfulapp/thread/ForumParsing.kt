@@ -119,7 +119,7 @@ class PostParseTask(
             put(USERNAME, textForClass("author"))
             put(REGDATE, textForClass("registered"))
             put(IS_PLAT, postData.hasDescendantWithClass("platinum").sqlBool)
-            put(IS_MOD, postData.hasDescendantWithClass("role-mod").sqlBool)
+            put(IS_MOD, postData.hasDescendantWithClass("role-mod, .role-supermod, .role-ik").sqlBool)
             put(IS_ADMIN, postData.hasDescendantWithClass("role-admin").sqlBool)
 
             // grab the custom title, and also the avatar if there is one
