@@ -179,7 +179,6 @@ public class AwfulError extends VolleyError {
                 // Jan 11, 2013 10:35 AM  vs  Jan 11, 2013 22:35
                 String pattern = date.endsWith("m") ? "MMM d, yyyy hh:mm aa" : "MMM d, yyyy HH:mm";
                 SimpleDateFormat probationFormat = new SimpleDateFormat(pattern, Locale.US);
-
                 try {
                     probTimestamp = probationFormat.parse(date).getTime();
                 } catch (ParseException e) {
