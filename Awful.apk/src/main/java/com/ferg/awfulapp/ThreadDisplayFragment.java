@@ -547,7 +547,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
     			rateThread();
     			break;
     		case R.id.copy_url:
-    			copyThreadURL(null);
+    			copyThreadURL(null, postFilterUserId);
     			break;
     		case R.id.find:
 				((WebViewSearchBar) item.getActionView()).setWebView(mThreadView);
@@ -577,14 +577,18 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	 * Get a URL that links to a particular thread.
 	 *
 	 * @param postId An optional post ID, appended as the URL's fragment
+	 * @param userId An optional user ID, appended as a query parameter
 	 * @return the full URL
 	 */
 	@NonNull
-	private String generateThreadUrl(@Nullable Integer postId) {
+	private String generateThreadUrl(@Nullable Integer postId, @Nullable Integer userId) {
 		Uri.Builder builder = Uri.parse(Constants.FUNCTION_THREAD).buildUpon()
 				.appendQueryParameter(Constants.PARAM_THREAD_ID, String.valueOf(getThreadId()))
 				.appendQueryParameter(Constants.PARAM_PAGE, String.valueOf(getPageNumber()))
 				.appendQueryParameter(Constants.PARAM_PER_PAGE, String.valueOf(getPrefs().postPerPage));
+		if (userId != null) {
+			builder.appendQueryParameter(Constants.PARAM_USER_ID, String.valueOf(userId));
+		}
 		if (postId != null) {
 			builder.fragment("post" + postId);
 		}
@@ -620,7 +624,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 		if (url == null) {
 			// we're sharing the current thread - we can add the title in here
 			intent.putExtra(Intent.EXTRA_SUBJECT, mTitle);
-			url = generateThreadUrl(null);
+			url = generateThreadUrl(null, postFilterUserId);
 		}
 		return intent.putExtra(Intent.EXTRA_TEXT, url);
 	}
@@ -630,10 +634,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	/**
 	 * Copy a thread's URL to the clipboard
 	 * @param postId    An optional post ID, used as the url's fragment
+	 * @param userId    An optional user ID, appended to the url as a parameter
 	 */
-	public void copyThreadURL(@Nullable Integer postId) {
+	public void copyThreadURL(@Nullable Integer postId, @Nullable Integer userId) {
 		String clipLabel = getString(R.string.copy_url) + getPageNumber();
-		String clipText  = generateThreadUrl(postId);
+		String clipText  = generateThreadUrl(postId, userId);
 		safeCopyToClipboard(clipLabel, clipText, R.string.copy_url_success);
 	}
 
@@ -1091,7 +1096,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
         @JavascriptInterface
         public void onMoreClick(final String aPostId, final String aUsername, final String aUserId, final String lastReadUrl, final boolean editable, final boolean isAdminOrMod, final boolean isPlat) {
 			PostContextMenu postActions = PostContextMenu.newInstance(getThreadId(), Integer.parseInt(aPostId),
-					Integer.parseInt(lastReadUrl), editable, aUsername, Integer.parseInt(aUserId), isPlat, isAdminOrMod);
+					Integer.parseInt(lastReadUrl), editable, aUsername, Integer.parseInt(aUserId), isPlat, isAdminOrMod, postFilterUserId);
 			postActions.setTargetFragment(ThreadDisplayFragment.this, -1);
 			postActions.show(mSelf.getFragmentManager(), "Post Actions");
 		}
