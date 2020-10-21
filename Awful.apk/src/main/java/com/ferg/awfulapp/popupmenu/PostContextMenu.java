@@ -138,7 +138,7 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
         }
         awfulActions.add(COPY_URL);
         awfulActions.add(RAP_SHEET);
-        if (!ownPost) {
+        if (!ownPost && !posterIsAdminOrMod) {
             awfulActions.add(IGNORE_USER);
         }
         return awfulActions;

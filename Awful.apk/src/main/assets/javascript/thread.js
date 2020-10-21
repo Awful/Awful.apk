@@ -486,7 +486,7 @@ function showPostMenu(postMenu) {
 		postMenu.getAttribute('userid'),
 		postMenu.getAttribute('lastreadurl'),
 		postMenu.hasAttribute('editable'),
-		postMenu.hasAttribute('isMod') || postMenu.hasAttribute('isAdmin'),
+		postMenu.hasAttribute('has-role'),
 		postMenu.hasAttribute('isPlat')
 	);
 }
