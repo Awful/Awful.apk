@@ -48,6 +48,8 @@ import android.os.Environment;
 import android.os.Handler;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.ferg.awfulapp.search.SearchFilter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.fragment.app.FragmentManager;
 import androidx.loader.app.LoaderManager;
@@ -565,6 +567,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 			case R.id.show_self:
 				showUsersPosts(getPrefs().userId, getPrefs().username);
 				break;
+			case R.id.search_this_thread:
+				SearchFilter threadFilter = new SearchFilter(SearchFilter.FilterType.ThreadId, Integer.toString(currentThreadId));
+				navigate(new NavigationEvent.SearchForums(threadFilter));
+				return true;
     		default:
     			return super.onOptionsItemSelected(item);
     		}
