@@ -299,6 +299,9 @@ class ForumParseTask(
                 star.hasClass("bm0") -> 1
                 star.hasClass("bm1") -> 2
                 star.hasClass("bm2") -> 3
+                star.hasClass("bm3") -> 4
+                star.hasClass("bm4") -> 5
+                star.hasClass("bm5") -> 6
                 else -> 0
             }
         }
