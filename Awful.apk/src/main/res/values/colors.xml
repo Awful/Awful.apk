@@ -39,11 +39,17 @@
     <color name="bookmark_orange">#e28d00</color>
     <color name="bookmark_red">#b4171f</color>
     <color name="bookmark_yellow">#dfdd6d</color><!--darker alternative: #bdbc2a-->
+    <color name="bookmark_cyan">#2ab8ce</color>
+    <color name="bookmark_green">#67ae35</color>
+    <color name="bookmark_purple">#7553a3</color>
 
     <color name="bookmark_default_dim">#7f356693</color>
     <color name="bookmark_orange_dim">#7fe28d00</color>
     <color name="bookmark_red_dim">#7fb4171f</color>
     <color name="bookmark_yellow_dim">#7fdfdd6d</color><!--darker alternative: #bdbc2a-->
+    <color name="bookmark_cyan_dim">#7f2ab8ce</color>
+    <color name="bookmark_green_dim">#7f67ae35</color>
+    <color name="bookmark_purple_dim">#7f7553a3</color>
 
     <color name="default_srl_background_color">#FFFAFAFA</color>
 
@@ -54,6 +60,9 @@
         <item>@color/bookmark_orange</item>
         <item>@color/bookmark_red</item>
         <item>@color/bookmark_yellow</item>
+        <item>@color/bookmark_cyan</item>
+        <item>@color/bookmark_green</item>
+        <item>@color/bookmark_purple</item>
     </integer-array>
 
     <integer-array name="bookmarkDimColors">
@@ -61,6 +70,9 @@
         <item>@color/bookmark_orange_dim</item>
         <item>@color/bookmark_red_dim</item>
         <item>@color/bookmark_yellow_dim</item>
+        <item>@color/bookmark_cyan_dim</item>
+        <item>@color/bookmark_green_dim</item>
+        <item>@color/bookmark_purple_dim</item>
     </integer-array>
 
 

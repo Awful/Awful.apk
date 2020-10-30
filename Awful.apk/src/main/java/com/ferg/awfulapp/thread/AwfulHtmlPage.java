@@ -20,6 +20,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -61,6 +62,30 @@ public abstract class AwfulHtmlPage {
             "embedding.js",
             "thread.js"
     };
+
+    /**
+     * All user roles we have icons for
+     */
+    static final String[] ROLES = {
+            "admin",
+            "supermod",
+            "mod",
+            "coder",
+            "ik"
+    };
+
+    /**
+     * parses the user role and returns it if it is a known role. Null otherwise
+     * @param role the user role
+     * @return the role as a string or null
+     */
+    private static String parseRole(String role) {
+        if (role.length() > 0 && Arrays.asList(ROLES).contains(role)) {
+                return role;
+        }
+
+        return null;
+    }
 
     /**
      * Get the main HTML for the containing page.
@@ -191,8 +216,7 @@ public abstract class AwfulHtmlPage {
             postData.put("userID", post.getUserId());
             postData.put("postDate", post.getDate());
             postData.put("regDate", post.getRegDate());
-            postData.put("mod", post.isMod() ? "mod" : null);
-            postData.put("admin", post.isAdmin() ? "admin" : null);
+            postData.put("role", parseRole(post.getRole()));
             postData.put("plat", post.isPlat() ? "plat" : null);
             postData.put("avatarText", "" + post.getAvatarText());
             postData.put("lastReadUrl", post.getLastReadUrl());

@@ -44,6 +44,7 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
     private static final String ARG_POST_ID = "postId";
     private static final String ARG_LAST_READ_CODE = "lastReadCode";
     private static final String ARG_POSTER_USERNAME = "posterUsername";
+    private static final String ARG_POST_FILTER_USER_ID = "postFilterUserId";
 
     private int posterUserId;
     private boolean editable;
@@ -52,6 +53,7 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
     private int threadId;
     private int postId;
     private int lastReadCode;
+    private int postFilterUserId;
     private String posterUsername = null;
 
 
@@ -75,7 +77,8 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
                                               @NonNull String posterUsername,
                                               int posterUserId,
                                               boolean posterHasPlat,
-                                              boolean posterIsAdminOrMod) {
+                                              boolean posterIsAdminOrMod,
+                                              Integer postFilterUserId) {
         Bundle args = new Bundle();
         PostContextMenu fragment = new PostContextMenu();
 
@@ -87,6 +90,9 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
         args.putInt(ARG_POST_ID, postId);
         args.putInt(ARG_LAST_READ_CODE, lastReadCode);
         args.putString(ARG_POSTER_USERNAME, posterUsername);
+        if (postFilterUserId != null) {
+            args.putInt(ARG_POST_FILTER_USER_ID, postFilterUserId);
+        }
         fragment.setArguments(args);
         return fragment;
     }
@@ -102,6 +108,7 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
         postId = args.getInt(ARG_POST_ID);
         lastReadCode = args.getInt(ARG_LAST_READ_CODE);
         posterUsername = args.getString(ARG_POSTER_USERNAME);
+        postFilterUserId = args.getInt(ARG_POST_FILTER_USER_ID);
     }
 
 
@@ -131,7 +138,7 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
         }
         awfulActions.add(COPY_URL);
         awfulActions.add(RAP_SHEET);
-        if (!ownPost) {
+        if (!ownPost && !posterIsAdminOrMod) {
             awfulActions.add(IGNORE_USER);
         }
         return awfulActions;
@@ -162,7 +169,7 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
                 parent.markLastRead(lastReadCode);
                 break;
             case COPY_URL:
-                parent.copyThreadURL(postId);
+                parent.copyThreadURL(postId, postFilterUserId);
                 break;
             case YOUR_POSTS:
             case USER_POSTS:
