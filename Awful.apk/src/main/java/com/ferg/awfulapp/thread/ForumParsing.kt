@@ -119,8 +119,7 @@ class PostParseTask(
             put(USERNAME, textForClass("author"))
             put(REGDATE, textForClass("registered"))
             put(IS_PLAT, postData.hasDescendantWithClass("platinum").sqlBool)
-            put(IS_MOD, postData.hasDescendantWithClass("role-mod, .role-supermod, .role-ik").sqlBool)
-            put(IS_ADMIN, postData.hasDescendantWithClass("role-admin").sqlBool)
+            put(ROLE, getRole())
 
             // grab the custom title, and also the avatar if there is one
             postData.selectFirst(".title")!!
@@ -190,6 +189,9 @@ class PostParseTask(
 
     private fun textForClass(cssClass: String): String =
         postData.selectFirst(".$cssClass")?.text() ?: "data missing"
+
+    private fun getRole(): String =
+        postData.selectFirst(".author")?.classNames()?.find { it.startsWith("role-") }?.substring(5) ?: ""
 
     private fun Element.hasDescendantWithClass(cssClass: String): Boolean =
         this.selectFirst(".$cssClass") != null
@@ -297,6 +299,9 @@ class ForumParseTask(
                 star.hasClass("bm0") -> 1
                 star.hasClass("bm1") -> 2
                 star.hasClass("bm2") -> 3
+                star.hasClass("bm3") -> 4
+                star.hasClass("bm4") -> 5
+                star.hasClass("bm5") -> 6
                 else -> 0
             }
         }

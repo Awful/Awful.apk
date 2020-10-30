@@ -34,7 +34,7 @@ android {
     defaultConfig {
         applicationId = "com.ferg.awfulapp"
         minSdkVersion 21
-        targetSdkVersion 28
+        targetSdkVersion 29
         resConfigs "en"
 
         // Stops the Gradle plugin’s automatic rasterization of vectors
@@ -162,5 +162,5 @@ dependencies {
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.hamcrest:hamcrest-library:1.3'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.2'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.3'
 }

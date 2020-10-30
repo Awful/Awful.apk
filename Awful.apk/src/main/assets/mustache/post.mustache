@@ -1,20 +1,20 @@
-<article class="post {{seen}} {{#isMarked}}marked{{/isMarked}} {{#isOP}}op{{/isOP}} {{#isSelf}}self{{/isSelf}}"  id="post{{ postID }}">
+<article class="post {{seen}} {{#isMarked}}marked{{/isMarked}} {{#isOP}}op{{/isOP}} {{#isSelf}}self{{/isSelf}}"  id="post{{postID}}">
 	<header class="postheader">
         <div class="posterinfo">
-            {{# avatarURL }}
+            {{#avatarURL}}
             <img class="avatar" src="{{.}}" title="{{username}}'s avatar" />
             {{/avatarURL }}
             <section class="postinfo">
-                <aside class="postinfo-poster"><span class="postinfo-poster-name">{{username}} {{#mod}}<img src="file:///android_asset/images/ic_star_blue.png" />{{/mod}} {{#admin}}<img src="file:///android_asset/images/ic_star_red.png" />{{/admin}} </span> {{^admin }}{{^mod}}{{#plat}}<span class="icon-gren"></span>{{/plat}}{{/mod}}{{/admin}}</aside>
+                <aside class="postinfo-poster"><span class="postinfo-poster-name">{{username}} {{#role}}<img src="file:///android_asset/images/ic_star_{{role}}.png" />{{/role}}</span> {{^role}}{{#plat}}<span class="icon-gren"></span>{{/plat}}{{/role}}</aside>
                 <time class="postinfo-postdate">{{ postDate }}</time>
                 {{#regDate}}<time class="postinfo-regdate">Reg Date: {{regDate}}</time>{{/regDate}}
-                <aside class="postinfo-title">{{{ avatarText }}}</aside>
+                <aside class="postinfo-title">{{{avatarText}}}</aside>
             </section >
         </div>
-		<nav class="postmenu" username="{{username}}" userid="{{userID}}" lastreadurl="{{lastReadUrl}}" {{#editable}}editable{{/editable}} {{#mod}}isMod{{/mod}} {{#admin}}isAdmin{{/admin}} {{#plat}}isPlat{{/plat}} ></nav>
+		<nav class="postmenu" username="{{username}}" userid="{{userID}}" lastreadurl="{{lastReadUrl}}" {{#editable}}editable{{/editable}} {{#role}}has-role {{role}}{{/role}} {{#plat}}isPlat{{/plat}} ></nav>
 		</header>
     <div class="postseparator"></div>
-	<section  class="postcontent">
+	<section class="postcontent">
 		{{{postcontent}}}
 	</section >
 </article>
