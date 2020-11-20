@@ -356,7 +356,7 @@ class ThreadPageParseTask(
             title = page.selectFirst(".bclast")?.text() ?: "UNKNOWN TITLE"
             // look for a real reply button - if there isn't one, this thread is locked
             isLocked = page.selectFirst("[alt=Reply]:not([src*='forum-closed'])") == null
-            canOpenClose = page.selectFirst("[alt='Close thread']") != null
+            canOpenClose = page.selectFirst("[alt='Close thread'],[alt='Open thread']") != null
 
             val bookmarkButton = page.selectFirst(".thread_bookmark")
             archived = bookmarkButton == null
