@@ -8,7 +8,7 @@ import org.jsoup.nodes.Document
  * Attempts to toggle the locked/unlocked state of a thread.
  */
 class ThreadLockUnlockRequest(context: Context, private val threadId: Int)
-    : AwfulRequest<Void?>(context, FUNCTION_POSTINGS) {
+    : AwfulRequest<Void?>(context, FUNCTION_POSTINGS, isPostRequest = true) {
 
     init {
         with(parameters) {

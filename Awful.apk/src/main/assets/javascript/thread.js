@@ -64,11 +64,11 @@ function containerInit() {
 			return;
 		}
 		var bbcBlock = findInPath(event, 'bbc-block', true);
-		if (bbcBlock && (bbcBlock.classList.contains('pre') || bbcBlock.classList.contains('code') || bbcBlock.classList.contains('php'))) {
-			listener.haltSwipe();
-			document.addEventListener('touchend', handleTouchLeave);
-			document.addEventListener('touchleave', handleTouchLeave);
-			document.addEventListener('touchcancel', handleTouchLeave);
+		if (bbcBlock && !!bbcBlock.className.match(/pre|code|php/ig)) {
+            listener.haltSwipe();
+            document.addEventListener('touchend', handleTouchLeave);
+            document.addEventListener('touchleave', handleTouchLeave);
+            document.addEventListener('touchcancel', handleTouchLeave);
 		}
 	}, {passive: true});
 	// Auto-starting of videos
