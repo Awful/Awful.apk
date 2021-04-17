@@ -21,7 +21,7 @@ class ImageSizeRequest
 (url: String, private val listener: Response.Listener<Int>) : Request<Int>(Request.Method.HEAD, url, null) {
 
     override fun parseNetworkResponse(response: NetworkResponse): Response<Int>? {
-        val length = response.headers["Content-Length"] ?: return null
+        val length = response.headers?.get("Content-Length") ?: return null
         return try {
             Response.success(Integer.parseInt(length), HttpHeaderParser.parseCacheHeaders(response))
         } catch (e: NumberFormatException) {

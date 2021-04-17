@@ -325,7 +325,7 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
         }
 
         return try {
-            clipboard.primaryClip = clip
+            clipboard.setPrimaryClip(clip)
             successMessageId?.let {
                 alertView.setTitle(successMessageId).setIcon(R.drawable.ic_insert_link_dark).show()
             }

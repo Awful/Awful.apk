@@ -65,7 +65,7 @@ class SearchFilter(val type: FilterType, val param: String) : Parcelable {
 
     constructor(parcel: Parcel) : this(
             FilterType.values()[parcel.readInt()],
-            parcel.readString()
+            parcel.readString()!!
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {

@@ -39,8 +39,9 @@ class BasicActivity : AwfulActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.basic_activity)
+        val extras = intent.extras;
 
-        val fragmentName = intent.extras.getString(FRAGMENT_CLASS)
+        val fragmentName = extras?.getString(FRAGMENT_CLASS)
                 ?: throw RuntimeException("No content fragment specified!")
         val fragment = Class.forName(fragmentName).newInstance() as Fragment
         supportFragmentManager
@@ -50,7 +51,7 @@ class BasicActivity : AwfulActivity() {
 
         setSupportActionBar(findViewById<View>(R.id.toolbar) as Toolbar)
         setUpActionBar()
-        setActionbarTitle(intent.extras.getString(TITLE, "No title"))
+        setActionbarTitle(extras.getString(TITLE, "No title"))
     }
 
 
