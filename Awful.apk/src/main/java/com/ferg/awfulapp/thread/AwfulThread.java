@@ -388,11 +388,6 @@ public class AwfulThread extends AwfulPagedItem  {
         ImageView threadSticky = item.findViewById(R.id.thread_sticky);
         threadSticky.setVisibility(thread.isSticky ? VISIBLE : GONE);
         threadLocked.setVisibility(thread.isLocked && !thread.isSticky ? VISIBLE : GONE);
-        if (thread.isLocked && !thread.isSticky) {
-            // TODO: 03/06/2017 what's this about?
-            item.setBackgroundColor(ColorProvider.BACKGROUND.getColor(forumId));
-        }
-
 
         // unread counter
         TextView unread = item.findViewById(R.id.unread_count);
