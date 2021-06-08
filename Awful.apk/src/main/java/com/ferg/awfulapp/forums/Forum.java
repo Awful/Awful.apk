@@ -127,9 +127,14 @@ public class Forum {
      * @return the result, or an empty string if it couldn't be abbreviated
      */
     private String abbreviateTitle() {
+        String cleanTitle = title.replaceAll("[^A-Za-z0-9/ :&]", "");
+        // maybe someone did the work for us
+        if (cleanTitle.contains(":")) {
+            return cleanTitle.split(":")[0];
+        }
         // really basic version - just split on spaces and use the first char,
         // works with punctuation like in 'Debate & Discussion'
-        String[] words = title.split(" ");
+        String[] words = cleanTitle.split(" ");
         StringBuilder sb = new StringBuilder("");
         for (String word : words) {
             if (word.length() > 0) {
