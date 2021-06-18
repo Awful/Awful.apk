@@ -31,6 +31,7 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:theme="@style/Theme.AwfulTheme.Launcher"
         android:usesCleartextTraffic="true"
+        android:requestLegacyExternalStorage="true"
         >
         <uses-library android:name="org.apache.http.legacy" android:required="false" />
 
