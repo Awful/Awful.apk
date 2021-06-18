@@ -100,7 +100,7 @@ public class RootSettings extends SettingsFragment {
             if (AwfulUtils.isMarshmallow()) {
                 int permissionCheck = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
                 if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-                    getActivity().requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, Constants.AWFUL_PERMISSION_WRITE_EXTERNAL_STORAGE);
+                    requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, Constants.AWFUL_PERMISSION_WRITE_EXTERNAL_STORAGE);
                 } else {
                     exportSettings();
                 }
