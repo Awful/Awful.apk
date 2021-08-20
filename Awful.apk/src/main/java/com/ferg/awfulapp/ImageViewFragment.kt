@@ -60,8 +60,8 @@ class ImageViewFragment : AwfulFragment() {
 
     override fun onActivityCreated(aSavedState: Bundle?) {
         super.onActivityCreated(aSavedState)
-        val mImageView = activity!!.findViewById<View>(R.id.iv_photo) as ImageView
-        val imageUrl = activity!!.intent.getStringExtra(EXTRA_IMAGE_URL);
+        val mImageView = requireActivity().findViewById<View>(R.id.iv_photo) as ImageView
+        val imageUrl = requireActivity().intent.getStringExtra(EXTRA_IMAGE_URL);
 
         Glide
             .with(mImageView)
@@ -70,7 +70,7 @@ class ImageViewFragment : AwfulFragment() {
 
 
 
-        setActionBarTitle(imageUrl)
+        setActionBarTitle(imageUrl!!)
     }
 
     override fun getTitle(): String = imageUrl

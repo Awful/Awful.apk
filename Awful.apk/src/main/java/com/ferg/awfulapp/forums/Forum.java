@@ -169,6 +169,7 @@ public class Forum {
 
         forumAbbreviations.append(44, "GAMES");
         forumAbbreviations.append(46, "D&D");
+        forumAbbreviations.append(269, "C-SPAM");
         forumAbbreviations.append(167, "PYF");
         forumAbbreviations.append(158, "A/T");
         forumAbbreviations.append(22, "SH/SC");
