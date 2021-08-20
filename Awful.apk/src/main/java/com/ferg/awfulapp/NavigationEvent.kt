@@ -177,7 +177,7 @@ sealed class NavigationEvent(private val extraTypeId: String) {
                 TYPE_RE_AUTHENTICATE -> NavigationEvent.ReAuthenticate
                 TYPE_SETTINGS -> Settings
                 TYPE_SEARCH_FORUMS -> SearchForums(
-                        *getParcelableArrayListExtra<SearchFilter>(KEY_SEARCH_FILTERS).toTypedArray()
+                        *getParcelableArrayListExtra<SearchFilter>(KEY_SEARCH_FILTERS)!!.toTypedArray()
                 )
                 TYPE_SHOW_PRIVATE_MESSAGES -> ShowPrivateMessages(
                         messageUri = data
