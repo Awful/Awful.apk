@@ -254,7 +254,7 @@ class ForumParseTask(
             }
             canOpenClose = author == username
 
-            lastPoster = threadElement.selectFirst(".lastpost .author").text()
+            lastPoster = threadElement.selectFirst(".lastpost .author")!!.text()
             isLocked = threadElement.hasClass("closed")
             isSticky = threadElement.selectFirst(".title_sticky") != null
 
@@ -296,7 +296,7 @@ class ForumParseTask(
             // Bookmarks can only be detected now by the presence of a "bmX" class - no star image
             val star = threadElement.selectFirst(".star")
             bookmarkType = when {
-                star.hasClass("bm0") -> 1
+                star!!.hasClass("bm0") -> 1
                 star.hasClass("bm1") -> 2
                 star.hasClass("bm2") -> 3
                 star.hasClass("bm3") -> 4

@@ -31,8 +31,8 @@ class IndexIconRequest(context: Context) : AwfulRequest<Void?>(context, BASE_URL
         val pmBlock = doc.getElementsByAttributeValue("id", "pm")
         try {
             if (pmBlock.size > 0) {
-                val bolded = pmBlock.first().getElementsByTag("b")
-                if (bolded.size > 1) {
+                val bolded = pmBlock.first()?.getElementsByTag("b")
+                if (bolded != null && bolded.size > 1) {
                     val name = bolded.first()?.text()?.split("'".toRegex())?.dropLastWhile { it.isEmpty() }?.toTypedArray()?.get(0)
                     val unread = bolded[1].text()
                     val findUnread = Pattern.compile("(\\d+)\\s+unread")
