@@ -441,7 +441,9 @@ function handleQuoteLink(link, event) {
  * @param {Element} info The HTMLElement of the postinfo
  */
 function toggleInfo(info) {
-	if (info.querySelector('.postinfo-title').classList.contains('extended')) {
+    var posterTitle = info.querySelector('.postinfo-title');
+    var posterRegDate = info.querySelector('.postinfo-regdate');
+	if (posterTitle.classList.contains('extended')) {
 		if (info.querySelector('.avatar') !== null) {
 			if (listener.getPreference('disableGifs') === 'true' && info.querySelector('.avatar').src.endsWith('.gif')) {
 				freezeGif(info.querySelector('.avatar'));
@@ -451,8 +453,10 @@ function toggleInfo(info) {
 				info.querySelector('.avatar').classList.remove('extended');
 			});
 		}
-		info.querySelector('.postinfo-title').classList.remove('extended');
-		info.querySelector('.postinfo-regdate').classList.remove('extended');
+		posterTitle.classList.remove('extended');
+		posterTitle.setAttribute('aria-hidden', 'true')
+		posterRegDate.classList.remove('extended');
+		posterRegDate.setAttribute('aria-hidden', 'true')
 	} else {
 		if (info.querySelector('.avatar') !== null) {
 			if (info.querySelector('canvas') !== null) {
@@ -465,8 +469,10 @@ function toggleInfo(info) {
 				info.querySelector('.avatar').classList.add('extended');
 			});
 		}
-		info.querySelector('.postinfo-title').classList.add('extended');
-		info.querySelector('.postinfo-regdate').classList.add('extended');
+		posterTitle.classList.add('extended');
+		posterTitle.setAttribute('aria-hidden', 'false')
+		posterRegDate.classList.add('extended');
+		posterRegDate.setAttribute('aria-hidden', 'false')
 	}
 }
 

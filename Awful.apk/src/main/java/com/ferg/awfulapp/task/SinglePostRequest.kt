@@ -30,8 +30,8 @@ class SinglePostRequest(context: Context, private val postId: String)
     override fun handleResponse(doc: Document): String {
         val prefs = AwfulPreferences.getInstance();
         val postBody = doc.selectFirst(".postbody")
-        val fyadPostBody = postBody?.selectFirst(".complete_shit") ?: throw AwfulError("Couldn't find post content")
-        (fyadPostBody ?: postBody).apply {
+        val fyadPostBody = postBody?.selectFirst(".complete_shit")
+        (fyadPostBody ?: postBody ?: throw AwfulError("Couldn't find post content")).apply {
             AwfulPost.convertVideos(this, prefs.inlineYoutube)
             getElementsByTag("img").forEach {
                 AwfulPost.processPostImage(

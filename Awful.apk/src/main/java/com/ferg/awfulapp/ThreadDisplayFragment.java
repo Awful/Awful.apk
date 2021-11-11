@@ -32,6 +32,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.app.DownloadManager.Request;
+import android.content.ActivityNotFoundException;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -1258,19 +1259,17 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	}
 
 	public void startUrlIntent(String url){
-		Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-		PackageManager pacMan = getActivity().getPackageManager();
-		List<ResolveInfo> res = pacMan.queryIntentActivities(browserIntent,
-				PackageManager.MATCH_DEFAULT_ONLY);
-		if (res.size() > 0) {
+		Uri intentUri = Uri.parse(url);
+		try {
+			Intent browserIntent = new Intent(Intent.ACTION_VIEW, intentUri);
 			browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			getActivity().startActivity(browserIntent);
-		} else {
-			String[] split = url.split(":");
+		} catch (ActivityNotFoundException error) {
 			getAlertView().setTitle("Cannot open link:")
-					.setSubtitle("No application found for protocol" + (split.length > 0 ? ": " + split[0] : "."))
+					.setSubtitle("None of your apps want to open this " + intentUri.getScheme() + ":\\\\ link. Try installing an app that is less picky")
 					.show();
 		}
+
 	}
 
 	public void displayImage(String url){

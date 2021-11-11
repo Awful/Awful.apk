@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <style name="Theme.AwfulTheme.Launcher" parent="Theme.AwfulTheme">
-        <item name="android:windowBackground">@drawable/launch_screen</item>
-        <item name="android:navigationBarColor">@color/forums_blue</item>
-    </style>
-
     <!--
     base themes
 
@@ -219,4 +213,17 @@
         <item name="android:textColorPrimary">?attr/iconColor</item>
         <item name="colorControlNormal">?attr/iconColor</item>
     </style>
+
+    <style name="Theme.AwfulTheme.Launcher" parent="Theme.SplashScreen">
+        // Set the splash screen background, animated icon, and animation duration.
+        <item name="windowSplashScreenBackground">@color/forums_blue</item>
+
+        // Use windowSplashScreenAnimatedIcon to add either a drawable or an
+        // animated drawable. One of these is required.
+        <item name="windowSplashScreenAnimatedIcon">@drawable/awful</item>
+
+        // Set the theme of the Activity that directly follows your splash screen.
+        <item name="postSplashScreenTheme">@style/Theme.AwfulTheme</item>  # Required.
+    </style>
+
 </resources>

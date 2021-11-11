@@ -12,14 +12,11 @@ body {
 }
 
 .post {
+    border: 1px solid #e0e0e0;
     border-radius: 2px;
     background-color: #FFF;
     color: #828282;
-    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.26);
     margin: 10px 0;
-    transform: translate3d(0, 0, 0);
-    -webkit-transform: translate3d(0, 0, 0) !important;
-    backface-visibility: hidden;
 }
 
 .read {
@@ -74,11 +71,10 @@ body {
 
 .postcontent .bbc-spoiler {
     background: #555;
-    color: #555;
 }
 
 .postcontent .bbc-spoiler a {
-    color: #555;
+    color: transparent;
 }
 
 .postcontent .bbc-spoiler.spoiled a {
