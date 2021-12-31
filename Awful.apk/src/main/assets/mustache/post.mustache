@@ -7,11 +7,11 @@
             <section class="postinfo">
                 <aside class="postinfo-poster"><span class="postinfo-poster-name">{{username}} {{#role}}<img src="file:///android_asset/images/ic_star_{{role}}.png" />{{/role}}</span> {{^role}}{{#plat}}<span class="icon-gren"></span>{{/plat}}{{/role}}</aside>
                 <time class="postinfo-postdate">{{ postDate }}</time>
-                {{#regDate}}<time class="postinfo-regdate">Reg Date: {{regDate}}</time>{{/regDate}}
-                <aside class="postinfo-title">{{avatarText}}</aside>
+                {{#regDate}}<time aria-hidden="true" class="postinfo-regdate">Reg Date: {{regDate}}</time>{{/regDate}}
+                <aside aria-hidden="true" class="postinfo-title">{{avatarText}}</aside>
             </section >
         </div>
-		<nav class="postmenu" username="{{username}}" userid="{{userID}}" lastreadurl="{{lastReadUrl}}" {{#editable}}editable{{/editable}} {{#role}}has-role {{role}}{{/role}} {{#plat}}isPlat{{/plat}} ></nav>
+		<nav aria-label="post menu" role="button" class="postmenu" username="{{username}}" userid="{{userID}}" lastreadurl="{{lastReadUrl}}" {{#editable}}editable{{/editable}} {{#role}}has-role {{role}}{{/role}} {{#plat}}isPlat{{/plat}} ></nav>
 		</header>
     <div class="postseparator"></div>
 	<section class="postcontent">

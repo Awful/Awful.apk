@@ -65,6 +65,12 @@
     user-select: none;
 }
 
+@media speech {
+    .postmenu:after {
+        display: none;
+    }
+}
+
 /*
     this is the dividing line between the header and the post content
     I've given it no vertical spacing, so the header and content can define their own padding etc
@@ -257,8 +263,16 @@ video.playing ~ .video-link {
     margin: 0;
 }
 
+.postcontent .bbc-spoiler {
+    color: transparent;
+}
+
 .postcontent .bbc-spoiler * {
     visibility: hidden;
+}
+
+.postcontent .bbc-spoiler *:not(.spoiled) {
+    display: inline-block;
 }
 
 .postcontent .bbc-spoiler:not(.spoiled) .bbc-block,
@@ -268,6 +282,7 @@ video.playing ~ .video-link {
 
 .postcontent .bbc-spoiler.spoiled {
     background: transparent;
+    color: inherit;
 }
 
 .postcontent .bbc-spoiler.spoiled * {

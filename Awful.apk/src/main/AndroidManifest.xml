@@ -7,8 +7,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.ferg.awfulapp"
-    android:versionCode="30804"
-    android:versionName="3.8.4"
+    android:versionCode="30807"
+    android:versionName="3.8.7"
       android:installLocation="auto">
     <supports-screens
         android:smallScreens="true"
@@ -41,7 +41,8 @@
         -->
         <activity android:name="com.ferg.awfulapp.ForumsIndexActivity"
                   android:configChanges="orientation|keyboardHidden|screenSize"
-                  android:launchMode="singleTask">
+                  android:launchMode="singleTask"
+                  android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
@@ -52,7 +53,8 @@
                         android:roundIcon="@mipmap/ic_launcher_round"
                         android:name="com.ferg.awfulapp.ForumsIndexActivity.frog"
                         android:enabled="true"
-                        android:targetActivity="com.ferg.awfulapp.ForumsIndexActivity">
+                        android:targetActivity="com.ferg.awfulapp.ForumsIndexActivity"
+                        android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -77,6 +79,7 @@
                         android:roundIcon="@mipmap/ic_launcher_dog"
                         android:name="com.ferg.awfulapp.ForumsIndexActivity.dog"
                         android:enabled="false"
+                        android:exported="true"
                         android:targetActivity="com.ferg.awfulapp.ForumsIndexActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -103,6 +106,7 @@
                         android:roundIcon="@mipmap/ic_launcher_dead_dog"
                         android:name="com.ferg.awfulapp.ForumsIndexActivity.dead.dog"
                         android:enabled="false"
+                        android:exported="true"
                         android:targetActivity="com.ferg.awfulapp.ForumsIndexActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -129,6 +133,7 @@
                         android:roundIcon="@mipmap/ic_launcher_green"
                         android:name="com.ferg.awfulapp.ForumsIndexActivity.green"
                         android:enabled="false"
+                        android:exported="true"
                         android:targetActivity="com.ferg.awfulapp.ForumsIndexActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -155,6 +160,7 @@
                         android:roundIcon="@mipmap/ic_launcher_ghost_rounded"
                         android:name="com.ferg.awfulapp.ForumsIndexActivity.ghost"
                         android:enabled="false"
+                        android:exported="true"
                         android:targetActivity="com.ferg.awfulapp.ForumsIndexActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -181,6 +187,7 @@
                         android:roundIcon="@mipmap/ic_launcher_v"
                         android:name="com.ferg.awfulapp.ForumsIndexActivity.v"
                         android:enabled="false"
+                        android:exported="true"
                         android:targetActivity="com.ferg.awfulapp.ForumsIndexActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -204,7 +211,8 @@
         <!--
         This handles share intents, and is meant to run invisibly and separately in its own task (singleInstance)
         -->
-        <activity android:name=".ShareHandlerActivity" android:launchMode="singleInstance" android:theme="@android:style/Theme.Translucent.NoTitleBar">
+        <activity android:name=".ShareHandlerActivity" android:launchMode="singleInstance" android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -235,7 +243,7 @@
         <activity 
             android:name="com.ferg.awfulapp.UserCPShortcutActivity"
             android:label="@string/usercp"
-            >
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.CREATE_SHORTCUT" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -244,7 +252,8 @@
         <activity android:name="com.ferg.awfulapp.MessageDisplayActivity"
                   android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity android:name="com.ferg.awfulapp.PrivateMessageActivity"
-                  android:configChanges="orientation|keyboardHidden|screenSize">
+                  android:configChanges="orientation|keyboardHidden|screenSize"
+            android:exported="true">
         	<intent-filter>
             	<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
@@ -255,7 +264,6 @@
                 <data android:pathPrefix="/private.php" />
         	</intent-filter>
         </activity>
-
         <provider android:name="com.ferg.awfulapp.provider.AwfulProvider" android:authorities="${applicationId}.provider" />
         <meta-data android:name="com.google.android.backup.api_key"
 		    android:value="AEdPqrEAAAAIs68d9wLw6rnLPrSwTf193dR5QGZMSB3jsMhfBg" />

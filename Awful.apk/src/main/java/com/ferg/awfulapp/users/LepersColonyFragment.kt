@@ -144,7 +144,7 @@ class LepersColonyFragment : AwfulFragment(), SwipyRefreshLayout.OnRefreshListen
     override fun getTitle(): String? = if (isRapSheet) "Rap Sheet" else "Leper's Colony"
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item?.itemId == android.R.id.home) {
+        if (item.itemId == android.R.id.home) {
             return true.also { goUp() }
         }
         return super.onOptionsItemSelected(item)
@@ -231,11 +231,11 @@ class LepersColonyFragment : AwfulFragment(), SwipyRefreshLayout.OnRefreshListen
             @JavascriptInterface
             fun onMoreClick(username: String, userId: String, badPostUrl: String, adminUsername: String, adminId: String) {
                 PunishmentContextMenu.newInstance(
-                        User(userId.toInt(), username),
-                        User(adminId.toInt(), adminUsername),
-                        badPostUrl.takeIf(String::isNotEmpty), // treat empty urls as a missing (null) value, the context menu handles this case
-                        isRapSheet
-                ).show(fragmentManager!!, "Post Actions")
+                    User(userId.toInt(), username),
+                    User(adminId.toInt(), adminUsername),
+                    badPostUrl.takeIf(String::isNotEmpty), // treat empty urls as a missing (null) value, the context menu handles this case
+                    isRapSheet
+                ).show(parentFragmentManager, "Post Actions")
             }
 
             @JavascriptInterface
