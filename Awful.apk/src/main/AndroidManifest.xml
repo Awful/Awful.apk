@@ -7,8 +7,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.ferg.awfulapp"
-    android:versionCode="30807"
-    android:versionName="3.8.7"
+    android:versionCode="30808"
+    android:versionName="3.8.8"
       android:installLocation="auto">
     <supports-screens
         android:smallScreens="true"
@@ -276,4 +276,13 @@
 		<meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_H" android:resource="@dimen/app_minimumsize_h" />
         <meta-data android:name="com.crashlytics.ApiKey" android:value="08483e697e0df7808be6159d08f88e4aae312157"/>
     </application>
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT" />
+            <data android:mimeType="text/plain" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+        </intent>
+    </queries>
 </manifest>
