@@ -186,8 +186,9 @@ function processPosts(scopeElement) {
 		highlightOwnQuotes(scopeElement);
 	}
 
+    // handle all GIFs that are not avatars
 	if (listener.getPreference('disableGifs') === 'true') {
-		scopeElement.querySelectorAll('img[title][src$=".gif"]').forEach(function each(gif) {
+		scopeElement.querySelectorAll('img[title][src$=".gif"]:not(.avatar)').forEach(function each(gif) {
 			if (!gif.complete) {
 				gif.addEventListener('load', function freezeLoadHandler() {
 					freezeGif(this);
@@ -197,6 +198,36 @@ function processPosts(scopeElement) {
 			}
 		});
 	}
+
+    // this handles all avatar processing, meaning if the avatar is a GIF we need to handle freezing as well
+    scopeElement.querySelectorAll("img[title].avatar").forEach(function each(img) {
+        img.addEventListener('load', processSecondaryAvatar);
+    });
+    function processSecondaryAvatar() {
+        var newSrc = this.src;
+        // when people want to use gangtags as avatars, etc., they often use a 1x1 image as their primary avatar.
+        // if this is the case, we change over to a "secondary" avatar, which is probably what's intended.
+        if (this.naturalWidth === 1 && this.naturalHeight === 1 && this.dataset.avatarSecondSrc && this.dataset.avatarSecondSrc.length) {
+            newSrc = this.dataset.avatarSecondSrc;
+        }
+
+        // prepare to freeze GIFs
+        if (listener.getPreference('disableGifs') === 'true' && newSrc.slice(-4) === ".gif") {
+            if (newSrc === this.src && this.complete) {
+                // no reloading happening, final image is loaded.
+                freezeGif(this);
+            } else {
+                // the final image is not loaded, whether a new source is used or not.
+                this.addEventListener('load', function freezeLoadHandler() {
+                    freezeGif(this);
+                });
+            }
+        }
+
+        if (newSrc !== this.src) {
+            this.src = this.dataset.avatarSecondSrc;
+        }
+    }
 }
 
 /**

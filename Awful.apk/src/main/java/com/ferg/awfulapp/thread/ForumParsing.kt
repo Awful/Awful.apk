@@ -121,13 +121,20 @@ class PostParseTask(
             put(IS_PLAT, postData.hasDescendantWithClass("platinum").sqlBool)
             put(ROLE, getRole())
 
-            // grab the custom title, and also the avatar if there is one
+            // grab the custom title, and also avatar and alternate avatar if there are any
             postData.selectFirst(".title")!!
                 .also { put(AVATAR_TEXT, it.text()) }
-                .selectFirst("img")
-                ?.let {
-                    tryConvertToHttps(it)
-                    put(AVATAR, it.attr("src"))
+                .select("img")
+                .forEachIndexed { index, image ->
+                    if (index < 2) {
+                        image.let {
+                            tryConvertToHttps(it)
+                            put(
+                                if (index == 0) { AVATAR } else { AVATAR_SECOND },
+                                it.attr("src")
+                            )
+                        }
+                    }
                 }
 
             // FYAD has its post contents inside the .complete_shit element, so we just grab that instead of the full .postbody
