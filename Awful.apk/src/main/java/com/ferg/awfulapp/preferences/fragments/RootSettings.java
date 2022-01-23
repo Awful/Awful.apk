@@ -1,19 +1,20 @@
 package com.ferg.awfulapp.preferences.fragments;
 
-import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.preference.Preference;
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-import android.widget.Toast;
 
 import com.ferg.awfulapp.NavigationEvent;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.Changelog;
 import com.ferg.awfulapp.preferences.SettingsActivity;
-import com.ferg.awfulapp.util.AwfulUtils;
+
+import java.util.Calendar;
+import java.util.Locale;
 
 /**
  * Created by baka kaba on 04/05/2015.
@@ -97,23 +98,26 @@ public class RootSettings extends SettingsFragment {
     private class ExportListener implements Preference.OnPreferenceClickListener {
         @Override
         public boolean onPreferenceClick(Preference preference) {
-            if (AwfulUtils.isMarshmallow()) {
-                int permissionCheck = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-                    requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, Constants.AWFUL_PERMISSION_WRITE_EXTERNAL_STORAGE);
-                } else {
-                    exportSettings();
-                }
-            } else {
-                exportSettings();
+            Activity context = getActivity();
+            PackageInfo pInfo;
+            try {
+                pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+            } catch (PackageManager.NameNotFoundException e) {
+                // super unlikely
+                e.printStackTrace();
+                return false;
             }
+            Calendar date = Calendar.getInstance();
+
+            Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT)
+                    .setType("*/*")
+                    .addCategory(Intent.CATEGORY_OPENABLE)
+                    .putExtra(Intent.EXTRA_TITLE, String.format(Locale.US, "awful-%d-%d-%d-%d.settings",
+                            pInfo.versionCode, date.get(Calendar.DATE), date.get(Calendar.MONTH) + 1, date.get(Calendar.YEAR)));
+
+            getActivity().startActivityForResult(Intent.createChooser(intent, getString(R.string.export_settings_chooser_title)), SettingsActivity.SETTINGS_EXPORT);
             return true;
         }
-    }
-
-    private void exportSettings() {
-        String message = mPrefs.exportSettings() ? "Settings exported" : "Failed to export!";
-        Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
     }
 
     /**
@@ -122,28 +126,15 @@ public class RootSettings extends SettingsFragment {
     private class ImportListener implements Preference.OnPreferenceClickListener {
         @Override
         public boolean onPreferenceClick(Preference preference) {
+            // ACTION_GET_CONTENT may return URIs for deleted content as well,
+            // which is super confusing. workarounds seem like more trouble
+            // than they're worth right now.
+            // see https://stackoverflow.com/questions/55122556
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT)
                     .setType("*/*")
                     .addCategory(Intent.CATEGORY_OPENABLE);
-            getActivity().startActivityForResult(Intent.createChooser(intent, getString(R.string.import_settings_chooser_title)), SettingsActivity.SETTINGS_FILE);
+            getActivity().startActivityForResult(Intent.createChooser(intent, getString(R.string.import_settings_chooser_title)), SettingsActivity.SETTINGS_IMPORT);
             return true;
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case Constants.AWFUL_PERMISSION_WRITE_EXTERNAL_STORAGE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    exportSettings();
-                } else {
-                    Toast.makeText(getActivity(), R.string.no_file_permission_settings_export, Toast.LENGTH_LONG).show();
-                }
-                break;
-            }
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 }
