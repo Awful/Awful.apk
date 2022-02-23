@@ -85,6 +85,8 @@ public class AwfulPost {
     public static final String IS_PLAT               = "is_plat";
     public static final String ROLE                  = "role";
     public static final String AVATAR                = "avatar";
+    // people may be using gangtags, etc. as avatars with a 1x1 primary av
+    public static final String AVATAR_SECOND         = "avatar_second";
 	public static final String AVATAR_TEXT 			 = "avatar_text";
     public static final String CONTENT               = "content";
     public static final String EDITED                = "edited";
@@ -108,6 +110,7 @@ public class AwfulPost {
     private String mUserId = "";
     private String mUsername = "";
     private String mAvatar = "";
+    private String mAvatarSecond = "";
     private String mAvatarText = "";
     private String mContent = "";
     private String mEdited = "";
@@ -127,6 +130,7 @@ public class AwfulPost {
         result.put("user_id", mUserId);
         result.put("username", mUsername);
         result.put("avatar", mAvatar);
+        result.put("avatar_second", mAvatarSecond);
         result.put("content", mContent);
         result.put("edited", mEdited);
         result.put("previouslyRead", Boolean.toString(mPreviouslyRead));
@@ -213,6 +217,12 @@ public class AwfulPost {
         mAvatar = aAvatar;
     }
 
+    public String getAvatarSecond() {
+        return mAvatarSecond;
+    }
+
+    public void setAvatarSecond(String aAvatarSecond) { mAvatarSecond = aAvatarSecond; }
+
     public String getContent() {
         return mContent;
     }
@@ -238,6 +248,7 @@ public class AwfulPost {
             int isPlatIndex = aCursor.getColumnIndex(IS_PLAT);
             int roleIndex = aCursor.getColumnIndex(ROLE);
             int avatarIndex = aCursor.getColumnIndex(AVATAR);
+            int avatarSecondIndex = aCursor.getColumnIndex(AVATAR_SECOND);
             int avatarTextIndex = aCursor.getColumnIndex(AVATAR_TEXT);
             int contentIndex = aCursor.getColumnIndex(CONTENT);
             int editedIndex = aCursor.getColumnIndex(EDITED);
@@ -259,6 +270,7 @@ public class AwfulPost {
                 current.setIsPlat(aCursor.getInt(isPlatIndex) > 0);
                 current.setRole(aCursor.getString(roleIndex));
                 current.setAvatar(aCursor.getString(avatarIndex));
+                current.setAvatarSecond(aCursor.getString(avatarSecondIndex));
                 current.setAvatarText(aCursor.getString(avatarTextIndex));
                 current.setContent(aCursor.getString(contentIndex));
                 current.setEdited(aCursor.getString(editedIndex));

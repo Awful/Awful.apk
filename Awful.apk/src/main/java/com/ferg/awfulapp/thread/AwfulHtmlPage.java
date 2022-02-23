@@ -205,6 +205,7 @@ public abstract class AwfulHtmlPage {
         for (AwfulPost post : aPosts) {
             String username = post.getUsername();
             String avatar = post.getAvatar();
+            String avatarSecond = post.getAvatarSecond();
 
             postData.put("seen", post.isPreviouslyRead() ? "read" : "unread");
             postData.put("isOP", (aPrefs.highlightOP && post.isOp()) ? "op" : null);
@@ -212,6 +213,7 @@ public abstract class AwfulHtmlPage {
             postData.put("postID", post.getId());
             postData.put("isSelf", (aPrefs.highlightSelf && username.equals(aPrefs.username)) ? "self" : null);
             postData.put("avatarURL", (aPrefs.canLoadAvatars() && avatar != null && avatar.length() > 0) ? avatar : null);
+            postData.put("avatarSecondURL", (aPrefs.canLoadAvatars() && avatarSecond != null && avatarSecond.length() > 0) ? avatarSecond : null);
             postData.put("username", username);
             postData.put("userID", post.getUserId());
             postData.put("postDate", post.getDate());
