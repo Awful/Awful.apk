@@ -125,15 +125,14 @@ class PostParseTask(
             postData.selectFirst(".title")!!
                 .also { put(AVATAR_TEXT, it.text()) }
                 .select("img")
+                .take(2)
                 .forEachIndexed { index, image ->
-                    if (index < 2) {
-                        image.let {
-                            tryConvertToHttps(it)
-                            put(
-                                if (index == 0) { AVATAR } else { AVATAR_SECOND },
-                                it.attr("src")
-                            )
-                        }
+                    image.let {
+                        tryConvertToHttps(it)
+                        put(
+                            if (index == 0) { AVATAR } else { AVATAR_SECOND },
+                            it.attr("src")
+                        )
                     }
                 }
 
