@@ -265,6 +265,7 @@ video.playing ~ .video-link {
 
 .postcontent .bbc-spoiler {
     color: transparent;
+    overflow-wrap: anywhere;
 }
 
 .postcontent .bbc-spoiler * {
