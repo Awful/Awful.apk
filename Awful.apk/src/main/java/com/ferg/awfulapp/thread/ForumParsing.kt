@@ -122,11 +122,11 @@ class PostParseTask(
             put(ROLE, getRole())
 
             // grab the custom title, and also avatar and alternate avatar if there are any
-            postData.selectFirst(".title")!!
-                .also { put(AVATAR_TEXT, it.text()) }
-                .select("img")
-                .take(2)
-                .forEachIndexed { index, image ->
+            postData.selectFirst(".title")
+                ?.also { put(AVATAR_TEXT, it.text() ?: "") }
+                ?.select("img")
+                ?.take(2)
+                ?.forEachIndexed { index, image ->
                     image.let {
                         tryConvertToHttps(it)
                         put(
@@ -194,7 +194,7 @@ class PostParseTask(
         get() = if (this) 1 else 0
 
     private fun textForClass(cssClass: String): String =
-        postData.selectFirst(".$cssClass")?.text() ?: "data missing"
+        postData.selectFirst(".$cssClass")?.text() ?: ""
 
     private fun getRole(): String =
         postData.selectFirst(".author")?.classNames()?.find { it.startsWith("role-") }?.substring(5) ?: ""

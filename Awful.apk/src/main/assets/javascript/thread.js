@@ -466,6 +466,8 @@ function handleQuoteLink(link, event) {
 function toggleInfo(info) {
     var posterTitle = info.querySelector('.postinfo-title');
     var posterRegDate = info.querySelector('.postinfo-regdate');
+    if(!posterTitle || !posterRegDate) {return;}
+
 	if (posterTitle.classList.contains('extended')) {
 		if (info.querySelector('.avatar') !== null) {
 			if (listener.getPreference('disableGifs') === 'true' && info.querySelector('.avatar').src.endsWith('.gif')) {
