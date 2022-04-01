@@ -216,11 +216,11 @@ public abstract class AwfulHtmlPage {
             postData.put("avatarSecondURL", (aPrefs.canLoadAvatars() && avatarSecond != null && avatarSecond.length() > 0) ? avatarSecond : null);
             postData.put("username", username);
             postData.put("userID", post.getUserId());
-            postData.put("postDate", post.getDate());
-            postData.put("regDate", post.getRegDate());
+            postData.put("postDate", !post.getDate().equals("") ? post.getDate() : null);
+            postData.put("regDate", !post.getRegDate().equals("") ? post.getRegDate() : null);
             postData.put("role", parseRole(post.getRole()));
             postData.put("plat", post.isPlat() ? "plat" : null);
-            postData.put("avatarText", "" + post.getAvatarText());
+            postData.put("avatarText", post.getAvatarText());
             postData.put("lastReadUrl", post.getLastReadUrl());
             postData.put("editable", post.isEditable() ? "editable" : null);
             postData.put("postcontent", post.getContent());
