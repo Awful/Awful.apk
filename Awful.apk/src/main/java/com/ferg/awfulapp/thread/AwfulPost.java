@@ -66,6 +66,7 @@ public class AwfulPost {
     private static final Pattern fixCharacters_regex = Pattern.compile("([\\r\\f])");
 	private static final Pattern youtubeId_regex = Pattern.compile("/v/([\\w_-]+)&?");
 	private static final Pattern youtubeHDId_regex = Pattern.compile("/embed/([\\w_-]+)&?");
+    private static final Pattern imgurId_regex = Pattern.compile("^(.*\\.imgur\\.com/)([\\w]+)(\\..*)$");
 	private static final Pattern vimeoId_regex = Pattern.compile("clip_id=(\\d+)&?");
     private static final Pattern userid_regex = Pattern.compile("userid=(\\d+)");
 
@@ -594,12 +595,17 @@ public class AwfulPost {
      */
     @NonNull
     private static String imgurAsThumbnail(@NonNull String imgurUrl, @NonNull String thumbnailCode) {
-        int lastDot = imgurUrl.lastIndexOf('.');
-        int lastSlash = imgurUrl.lastIndexOf('/');
-        String imgurImageId = imgurUrl.substring(lastSlash + 1, lastDot);
-        //check if already thumbnails
-        if (imgurImageId.length() != 6 && imgurImageId.length() != 8) {
-            imgurUrl = imgurUrl.substring(0, lastDot) + thumbnailCode + imgurUrl.substring(lastDot);
+
+        Matcher match =  imgurId_regex.matcher(imgurUrl);
+        if(match.find()) {
+            String imgurBase = match.group(1);
+            String imgurImageId = match.group(2);
+            String imgurImageEnd = match.group(3);
+
+            //check if already thumbnails
+            if (imgurImageId.length() != 6 && imgurImageId.length() != 8) {
+                imgurUrl = imgurBase + imgurImageId + thumbnailCode + imgurImageEnd;
+            }
         }
         return imgurUrl;
     }
