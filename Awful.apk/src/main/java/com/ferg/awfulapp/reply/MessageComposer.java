@@ -268,7 +268,7 @@ public class MessageComposer extends Fragment implements EmotePickerListener {
 
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                menu.add(Menu.NONE, R.id.show_bbcode_menu, Menu.NONE, R.string.bbcode)
+                menu.add(Menu.NONE, R.id.show_bbcode_menu, Menu.NONE, getString(R.string.bbcode))
                         .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
                         .setIcon(R.drawable.ic_bb);
                 return true;
