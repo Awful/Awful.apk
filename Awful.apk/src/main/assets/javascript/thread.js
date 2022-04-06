@@ -466,7 +466,7 @@ function handleQuoteLink(link, event) {
 function toggleInfo(info) {
     var posterTitle = info.querySelector('.postinfo-title');
     var posterRegDate = info.querySelector('.postinfo-regdate');
-    if(!posterTitle || !posterRegDate) {return;}
+    if (!posterTitle) { return; }
 
 	if (posterTitle.classList.contains('extended')) {
 		if (info.querySelector('.avatar') !== null) {
@@ -479,9 +479,11 @@ function toggleInfo(info) {
 			});
 		}
 		posterTitle.classList.remove('extended');
-		posterTitle.setAttribute('aria-hidden', 'true')
-		posterRegDate.classList.remove('extended');
-		posterRegDate.setAttribute('aria-hidden', 'true')
+		posterTitle.setAttribute('aria-hidden', 'true');
+		if (posterRegDate) {
+            posterRegDate.classList.remove('extended');
+            posterRegDate.setAttribute('aria-hidden', 'true');
+        }
 	} else {
 		if (info.querySelector('.avatar') !== null) {
 			if (info.querySelector('canvas') !== null) {
@@ -495,9 +497,11 @@ function toggleInfo(info) {
 			});
 		}
 		posterTitle.classList.add('extended');
-		posterTitle.setAttribute('aria-hidden', 'false')
-		posterRegDate.classList.add('extended');
-		posterRegDate.setAttribute('aria-hidden', 'false')
+		posterTitle.setAttribute('aria-hidden', 'false');
+		if (posterRegDate) {
+            posterRegDate.classList.add('extended');
+            posterRegDate.setAttribute('aria-hidden', 'false');
+        }
 	}
 }
 
