@@ -55,10 +55,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -130,6 +130,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public boolean hideIgnoredPosts;
     public boolean noFAB;
     public boolean alwaysOpenUrls;
+    public Set<String> blockedAvatarUrls;
 
     //FORUM STUFF
     public boolean newThreadsFirstUCP;
@@ -274,6 +275,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         disableGifs	 			 = getPreference(Keys.DISABLE_GIFS, true);
         hideOldPosts	 	 	 = getPreference(Keys.HIDE_OLD_POSTS, true);
         alwaysOpenUrls	 	 	 = getPreference(Keys.ALWAYS_OPEN_URLS, false);
+        blockedAvatarUrls        = getPreference(Keys.BLOCKED_AVATAR_URLS, Collections.emptySet());
         lockScrolling			 = getPreference(Keys.LOCK_SCROLLING, false);
         disableTimgs			 = getPreference(Keys.DISABLE_TIMGS, false);
         currPrefVersion          = getPreference(Keys.CURR_PREF_VERSION, 0);
@@ -426,6 +428,9 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		return avatarsEnabled && canLoadImages();
 	}
 
+	public boolean isBlockedAvatar(String avatarUrl) {
+		return avatarUrl != null && blockedAvatarUrls.contains(avatarUrl);
+	}
 
 	/**
 	 * Export the app's current preferences to a user-picked location.

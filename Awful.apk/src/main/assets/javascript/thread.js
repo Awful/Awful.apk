@@ -489,6 +489,7 @@ function toggleInfo(info) {
 			if (info.querySelector('canvas') !== null) {
 				var avatar = document.createElement('img');
 				avatar.src = info.querySelector('canvas').getAttribute('src');
+				avatar.setAttribute('style', info.querySelector('canvas').getAttribute('style'));
 				avatar.classList.add('avatar');
 				info.querySelector('canvas').replaceWith(avatar);
 			}
@@ -515,14 +516,17 @@ function showPostMenu(postMenu) {
 		showPunishmentMenu(postMenu);
 		return;
 	}
+	var article = postMenu.closest('article');
+
 	listener.onMoreClick(
-		postMenu.closest('article').getAttribute('id').replace(/post/, ''),
+		article.getAttribute('id').replace(/post/, ''),
 		postMenu.getAttribute('username'),
 		postMenu.getAttribute('userid'),
 		postMenu.getAttribute('lastreadurl'),
 		postMenu.hasAttribute('editable'),
 		postMenu.hasAttribute('has-role'),
-		postMenu.hasAttribute('isPlat')
+		postMenu.hasAttribute('isPlat'),
+		article.querySelector('.avatar')?.getAttribute('src') || null
 	);
 }
 
@@ -702,4 +706,22 @@ function handleTouchLeave() {
 	document.removeEventListener('touchend', handleTouchLeave);
 	document.removeEventListener('touchleave', handleTouchLeave);
 	document.removeEventListener('touchcancel', handleTouchLeave);
+}
+
+/**
+ * Hides all instances of the given avatar on the page
+ */
+function hideAvatar(avatarUrl) {
+    document.querySelectorAll('[src="' + avatarUrl + '"]').forEach(function(avatarTag) {
+        avatarTag.style.display = 'none';
+    });
+}
+
+/**
+ * Shows all instances of the given avatar on the page
+ */
+function showAvatar(avatarUrl) {
+    document.querySelectorAll('[src="' + avatarUrl + '"]').forEach(function(avatarTag) {
+        avatarTag.style.display = 'initial';
+    });
 }

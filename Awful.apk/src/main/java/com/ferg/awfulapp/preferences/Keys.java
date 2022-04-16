@@ -44,7 +44,8 @@ public abstract class Keys {
 
     // string sets
     @IntDef({
-            MARKED_USERS
+            MARKED_USERS,
+            BLOCKED_AVATAR_URLS
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface StringSetPreference {
@@ -212,5 +213,5 @@ public abstract class Keys {
     public static final int RECENT_EMOTES = R.string.pref_key_recent_emotes;
 
     public static final int MARKED_USERS = R.string.pref_key_marked_users;
-
+    public static final int BLOCKED_AVATAR_URLS = R.string.pref_key_blocked_avatar_urls;
 }

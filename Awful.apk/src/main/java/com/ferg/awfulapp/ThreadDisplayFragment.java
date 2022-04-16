@@ -123,10 +123,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import timber.log.Timber;
 
@@ -779,10 +781,28 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 		  .setNegativeButton(R.string.cancel, null)
 		  .show();
 	}
-	
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState){
-    	super.onSaveInstanceState(outState);
+
+	/**
+	 * Toggles whether to display this user's avatar or not
+	 *
+	 * @param avatarUrl		The URL of the avatar to toggle the display of. Ignored if null or empty string.
+	 */
+	public void toggleAvatar(String avatarUrl) {
+		if (TextUtils.isEmpty(avatarUrl)) {
+			return;
+		}
+		Set<String> blocked = getPrefs().getPreference(Keys.BLOCKED_AVATAR_URLS, Collections.emptySet());
+		Set<String> newSet = new HashSet<>(blocked); // not allowed to mutate original set
+
+		if (!newSet.remove(avatarUrl)) {
+			newSet.add(avatarUrl);
+		}
+		getPrefs().setPreference(Keys.BLOCKED_AVATAR_URLS, newSet);
+	}
+
+	@Override
+	public void onSaveInstanceState(@NonNull Bundle outState){
+		super.onSaveInstanceState(outState);
     	Timber.d("onSaveInstanceState - storing thread ID, page number and scroll position");
         outState.putInt(THREAD_ID_KEY, getThreadId());
         outState.putInt(THREAD_PAGE_KEY, getPageNumber());
@@ -1101,10 +1121,36 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	private class ClickInterface extends WebViewJsInterface {
 
         @JavascriptInterface
-        public void onMoreClick(final String aPostId, final String aUsername, final String aUserId, final String lastReadUrl, final boolean editable, final boolean isAdminOrMod, final boolean isPlat) {
-			PostContextMenu postActions = PostContextMenu.newInstance(getThreadId(), Integer.parseInt(aPostId),
-					Integer.parseInt(lastReadUrl), editable, aUsername, Integer.parseInt(aUserId), isPlat, isAdminOrMod, postFilterUserId);
+        public void onMoreClick(
+        		final String aPostId,
+				final String aUsername,
+				final String aUserId,
+				final String lastReadUrl,
+				final boolean editable,
+				final boolean isAdminOrMod,
+				final boolean isPlat,
+				final String avatarUrl) {
+
+			PostContextMenu postActions = PostContextMenu.newInstance(getThreadId(),
+					Integer.parseInt(aPostId),
+					Integer.parseInt(lastReadUrl),
+					editable, aUsername,
+					Integer.parseInt(aUserId),
+					isPlat,
+					isAdminOrMod,
+					postFilterUserId,
+					avatarUrl);
+
 			postActions.setTargetFragment(ThreadDisplayFragment.this, -1);
+			postActions.setOnActionClickedListener(action -> {
+				if (mThreadView != null) {
+					if (action == PostContextMenu.PostMenuAction.HIDE_AVATAR) {
+						mThreadView.evaluateJavascript(String.format("hideAvatar('%s')", avatarUrl), null);
+					} else if (action == PostContextMenu.PostMenuAction.SHOW_AVATAR) {
+						mThreadView.evaluateJavascript(String.format("showAvatar('%s')", avatarUrl), null);
+					}
+				}
+			});
 			postActions.show(mSelf.getFragmentManager(), "Post Actions");
 		}
 
