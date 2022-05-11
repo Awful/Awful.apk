@@ -282,6 +282,9 @@
             <data android:mimeType="text/plain" />
         </intent>
         <intent>
+            <action android:name="android.intent.action.WEB_SEARCH" />
+        </intent>
+        <intent>
             <action android:name="android.intent.action.VIEW" />
         </intent>
     </queries>
