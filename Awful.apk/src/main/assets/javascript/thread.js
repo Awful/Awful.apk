@@ -517,6 +517,7 @@ function showPostMenu(postMenu) {
 		return;
 	}
 	var article = postMenu.closest('article');
+	var avatar = article.querySelector('.avatar');
 
 	listener.onMoreClick(
 		article.getAttribute('id').replace(/post/, ''),
@@ -526,7 +527,7 @@ function showPostMenu(postMenu) {
 		postMenu.hasAttribute('editable'),
 		postMenu.hasAttribute('has-role'),
 		postMenu.hasAttribute('isPlat'),
-		article.querySelector('.avatar')?.getAttribute('src') || null
+		avatar ? avatar.getAttribute('src') : null
 	);
 }
 
@@ -713,7 +714,7 @@ function handleTouchLeave() {
  */
 function hideAvatar(avatarUrl) {
     document.querySelectorAll('[src="' + avatarUrl + '"]').forEach(function(avatarTag) {
-        avatarTag.style.display = 'none';
+        avatarTag.classList.add('hide-avatar');
     });
 }
 
@@ -722,6 +723,6 @@ function hideAvatar(avatarUrl) {
  */
 function showAvatar(avatarUrl) {
     document.querySelectorAll('[src="' + avatarUrl + '"]').forEach(function(avatarTag) {
-        avatarTag.style.display = 'initial';
+        avatarTag.classList.remove('hide-avatar');
     });
 }
