@@ -17,6 +17,10 @@
     max-height: 100px;
 }
 
+.hide-avatar {
+    display: none;
+}
+
 .posterinfo {
     flex: 1;
     display: flex;

@@ -2,7 +2,7 @@
 	<header class="postheader">
         <div class="posterinfo">
             {{#avatarURL}}
-            <img class="avatar" src="{{.}}" title="{{username}}'s avatar" {{#avatarSecondURL}}data-avatar-second-src="{{avatarSecondURL}}"{{/avatarSecondURL}} {{#hideAvatar}}style="display: none"{{/hideAvatar}}/>
+            <img class="avatar {{#hideAvatar}}hide-avatar{{/hideAvatar}}" src="{{.}}" title="{{username}}'s avatar" {{#avatarSecondURL}}data-avatar-second-src="{{avatarSecondURL}}"{{/avatarSecondURL}}/>
             {{/avatarURL }}
             <section class="postinfo">
                 <aside class="postinfo-poster"><span class="postinfo-poster-name">{{username}} {{#role}}<img src="file:///android_asset/images/ic_star_{{role}}.png" />{{/role}}</span> {{^role}}{{#plat}}<span class="icon-gren"></span>{{/plat}}{{/role}}</aside>
