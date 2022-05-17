@@ -34,9 +34,27 @@ import butterknife.ButterKnife;
  */
 public abstract class BasePopupMenu<T extends AwfulAction> extends DialogFragment {
 
+    /**
+     * Can be used to set a callback that is called when an action is clicked.
+     */
+    public interface OnActionClickedListener<T extends AwfulAction> {
+        /**
+         * Called when an action is clicked.
+         * This method is called after {@link BasePopupMenu#onActionClicked} has been called.
+         * @param action    the action that was clicked
+         */
+        void onActionClicked(T action);
+    }
+
     int layoutResId = R.layout.select_url_action_dialog;
 
     private List<T> menuItems = null;
+
+    private OnActionClickedListener<T> onActionClickedListener = null;
+
+    public void setOnActionClickedListener(OnActionClickedListener<T> listener) {
+        this.onActionClickedListener = listener;
+    }
 
     BasePopupMenu() {
         this.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
@@ -145,6 +163,9 @@ public abstract class BasePopupMenu<T extends AwfulAction> extends DialogFragmen
             holder.actionTag.setImageResource(action.getIconId());
             holder.itemView.setOnClickListener(v -> {
                 onActionClicked(action);
+                if (onActionClickedListener != null) {
+                    onActionClickedListener.onActionClicked(action);
+                }
                 // Sometimes this happens after onSaveInstanceState is called, which throws an Exception if we don't allow state loss
                 dismissAllowingStateLoss();
             });

@@ -52,6 +52,7 @@
     <string name="pref_key_disable_gifs">disable_gifs2</string>
     <string name="pref_key_hide_old_posts">hide_old_posts</string>
     <string name="pref_key_always_open_urls">always_open_urls</string>
+    <string name="pref_key_blocked_avatar_urls">blocked_avatar_urls</string>
     <string name="pref_key_lock_scrolling">lock_scrolling</string>
     <string name="pref_key_disable_timgs">disable_timgs</string>
     <string name="pref_key_disable_pull_next">disable_pull_next</string>

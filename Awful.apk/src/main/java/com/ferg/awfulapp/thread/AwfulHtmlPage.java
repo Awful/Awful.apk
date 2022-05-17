@@ -224,6 +224,7 @@ public abstract class AwfulHtmlPage {
             postData.put("lastReadUrl", post.getLastReadUrl());
             postData.put("editable", post.isEditable() ? "editable" : null);
             postData.put("postcontent", post.getContent());
+            postData.put("hideAvatar", aPrefs.isBlockedAvatar(avatar) ? "blockedAvatar" : null);
 
             try {
                 buffer.append(postTemplate.execute(postData));
