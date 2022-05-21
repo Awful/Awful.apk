@@ -32,7 +32,7 @@
         app:showAsAction="never"
         />
     <item
-        app:actionProviderClass="android.support.v7.widget.ShareActionProvider"
+        app:actionProviderClass="androidx.appcompat.widget.ShareActionProvider"
         android:id="@+id/share_thread"
         android:icon="@drawable/ic_share_dark"
         android:title="@string/share_thread"
@@ -44,6 +44,18 @@
         android:title="@string/find"
         app:showAsAction="never|collapseActionView"
         app:actionViewClass="com.ferg.awfulapp.widget.WebViewSearchBar"
+        />
+    <item
+        android:id="@+id/show_self"
+        android:icon="@drawable/ic_baseline_favorite_border"
+        android:title="@string/show_self"
+        app:showAsAction="never"
+        />
+    <item
+        android:id="@+id/search_this_thread"
+        android:icon="@drawable/ic_search_dark"
+        android:title="@string/search_thread"
+        app:showAsAction="never"
         />
     <item
         android:id="@+id/keep_screen_on"

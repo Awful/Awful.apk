@@ -1,11 +1,12 @@
 package com.ferg.awfulapp.popupmenu;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,9 +34,27 @@ import butterknife.ButterKnife;
  */
 public abstract class BasePopupMenu<T extends AwfulAction> extends DialogFragment {
 
+    /**
+     * Can be used to set a callback that is called when an action is clicked.
+     */
+    public interface OnActionClickedListener<T extends AwfulAction> {
+        /**
+         * Called when an action is clicked.
+         * This method is called after {@link BasePopupMenu#onActionClicked} has been called.
+         * @param action    the action that was clicked
+         */
+        void onActionClicked(T action);
+    }
+
     int layoutResId = R.layout.select_url_action_dialog;
 
     private List<T> menuItems = null;
+
+    private OnActionClickedListener<T> onActionClickedListener = null;
+
+    public void setOnActionClickedListener(OnActionClickedListener<T> listener) {
+        this.onActionClickedListener = listener;
+    }
 
     BasePopupMenu() {
         this.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
@@ -69,7 +88,7 @@ public abstract class BasePopupMenu<T extends AwfulAction> extends DialogFragmen
 
 
     /**
-     * Called during onCreate, passing in the arguments set with {@link android.support.v4.app.Fragment#setArguments(Bundle)}.
+     * Called during onCreate, passing in the arguments set with {@link Fragment#setArguments(Bundle)}.
      * <p>
      * Fragments can be recreated, losing all their state, so set the arguments when creating a new
      * fragment instance, and unpack them and build your state here.
@@ -144,6 +163,9 @@ public abstract class BasePopupMenu<T extends AwfulAction> extends DialogFragmen
             holder.actionTag.setImageResource(action.getIconId());
             holder.itemView.setOnClickListener(v -> {
                 onActionClicked(action);
+                if (onActionClickedListener != null) {
+                    onActionClickedListener.onActionClicked(action);
+                }
                 // Sometimes this happens after onSaveInstanceState is called, which throws an Exception if we don't allow state loss
                 dismissAllowingStateLoss();
             });

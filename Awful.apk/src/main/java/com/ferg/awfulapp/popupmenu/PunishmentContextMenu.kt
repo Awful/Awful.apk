@@ -1,7 +1,7 @@
 package com.ferg.awfulapp.popupmenu
 
 import android.os.Bundle
-import android.support.annotation.DrawableRes
+import androidx.annotation.DrawableRes
 import com.ferg.awfulapp.AwfulActivity
 import com.ferg.awfulapp.NavigationEvent
 import com.ferg.awfulapp.R
@@ -55,8 +55,8 @@ class PunishmentContextMenu : BasePopupMenu<PunishmentContextMenu.PunishmentMenu
     }
 
     override fun init(args: Bundle) = with(args) {
-        punishedUser = User(id = getInt(ARG_USER_ID), username = getString(ARG_USERNAME))
-        admin = User(id = getInt(ARG_ADMIN_ID), username = getString(ARG_ADMIN_NAME))
+        punishedUser = User(id = getInt(ARG_USER_ID), username = getString(ARG_USERNAME)!!)
+        admin = User(id = getInt(ARG_ADMIN_ID), username = getString(ARG_ADMIN_NAME)!!)
         badPostUrl = getString(ARG_BAD_POST_URL)
         isRapSheet = getBoolean(ARG_IS_RAP_SHEET)
     }

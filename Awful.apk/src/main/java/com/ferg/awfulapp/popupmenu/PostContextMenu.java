@@ -1,8 +1,10 @@
 package com.ferg.awfulapp.popupmenu;
 
 import android.os.Bundle;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.NonNull;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import android.util.Log;
 
 import com.ferg.awfulapp.AwfulActivity;
@@ -17,12 +19,14 @@ import java.util.List;
 
 import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.COPY_URL;
 import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.EDIT;
+import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.HIDE_AVATAR;
 import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.IGNORE_USER;
 import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.MARK_LAST_SEEN;
 import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.MARK_USER;
 import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.RAP_SHEET;
 import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.REPORT_POST;
 import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.SEND_PM;
+import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.SHOW_AVATAR;
 import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.UNMARK_USER;
 import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.USER_POSTS;
 import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.YOUR_POSTS;
@@ -44,6 +48,8 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
     private static final String ARG_POST_ID = "postId";
     private static final String ARG_LAST_READ_CODE = "lastReadCode";
     private static final String ARG_POSTER_USERNAME = "posterUsername";
+    private static final String ARG_POST_FILTER_USER_ID = "postFilterUserId";
+    private static final String ARG_POSTER_AVATAR_URL = "posterAvatarUrl";
 
     private int posterUserId;
     private boolean editable;
@@ -52,7 +58,9 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
     private int threadId;
     private int postId;
     private int lastReadCode;
+    private int postFilterUserId;
     private String posterUsername = null;
+    private @Nullable String posterAvatarUrl = null;
 
 
     /**
@@ -66,6 +74,7 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
      * @param posterUserId       the user ID of the post creator
      * @param posterHasPlat      true if the post creator has a platinum account
      * @param posterIsAdminOrMod true if the post creator has mod/admin status
+     * @param posterAvatarUrl    the URL of the post creator's avatar
      * @return the configured menu, ready to show
      */
     public static PostContextMenu newInstance(int threadId,
@@ -75,7 +84,9 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
                                               @NonNull String posterUsername,
                                               int posterUserId,
                                               boolean posterHasPlat,
-                                              boolean posterIsAdminOrMod) {
+                                              boolean posterIsAdminOrMod,
+                                              Integer postFilterUserId,
+                                              String posterAvatarUrl) {
         Bundle args = new Bundle();
         PostContextMenu fragment = new PostContextMenu();
 
@@ -87,6 +98,10 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
         args.putInt(ARG_POST_ID, postId);
         args.putInt(ARG_LAST_READ_CODE, lastReadCode);
         args.putString(ARG_POSTER_USERNAME, posterUsername);
+        args.putString(ARG_POSTER_AVATAR_URL, posterAvatarUrl);
+        if (postFilterUserId != null) {
+            args.putInt(ARG_POST_FILTER_USER_ID, postFilterUserId);
+        }
         fragment.setArguments(args);
         return fragment;
     }
@@ -102,6 +117,8 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
         postId = args.getInt(ARG_POST_ID);
         lastReadCode = args.getInt(ARG_LAST_READ_CODE);
         posterUsername = args.getString(ARG_POSTER_USERNAME);
+        postFilterUserId = args.getInt(ARG_POST_FILTER_USER_ID);
+        posterAvatarUrl = args.getString(ARG_POSTER_AVATAR_URL);
     }
 
 
@@ -131,8 +148,12 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
         }
         awfulActions.add(COPY_URL);
         awfulActions.add(RAP_SHEET);
-        if (!ownPost) {
+        if (!ownPost && !posterIsAdminOrMod) {
             awfulActions.add(IGNORE_USER);
+        }
+        if (prefs.avatarsEnabled && posterAvatarUrl != null) {
+            awfulActions.add(prefs.blockedAvatarUrls.contains(posterAvatarUrl) ?
+                    SHOW_AVATAR : HIDE_AVATAR);
         }
         return awfulActions;
     }
@@ -162,7 +183,7 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
                 parent.markLastRead(lastReadCode);
                 break;
             case COPY_URL:
-                parent.copyThreadURL(postId);
+                parent.copyThreadURL(postId, postFilterUserId);
                 break;
             case YOUR_POSTS:
             case USER_POSTS:
@@ -184,6 +205,10 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
             case REPORT_POST:
                 parent.reportUser(postId);
                 break;
+            case SHOW_AVATAR:
+            case HIDE_AVATAR:
+                parent.toggleAvatar(posterAvatarUrl);
+                break;
         }
     }
 
@@ -201,7 +226,7 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
         return "Select an action";
     }
 
-    enum PostMenuAction implements AwfulAction {
+    public enum PostMenuAction implements AwfulAction {
         // the parameters here are for the post owner's username
         QUOTE(R.drawable.ic_format_quote_dark, "Quote Post"),
         EDIT(R.drawable.ic_create_dark, "Edit Post"),
@@ -214,7 +239,9 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
         REPORT_POST(R.drawable.ic_announcement_dark_24dp, "Report Post"),
         COPY_URL(R.drawable.ic_share_dark, "Copy URL"),
         RAP_SHEET(R.drawable.ic_gavel_dark_24dp, "%s's rap sheet"),
-        IGNORE_USER(R.drawable.ic_ignore_dark, "Ignore %s");
+        IGNORE_USER(R.drawable.ic_ignore_dark, "Ignore %s"),
+        SHOW_AVATAR(R.drawable.ic_visibility_dark, "Show avatar of %s"),
+        HIDE_AVATAR(R.drawable.ic_ignore_dark, "Hide avatar of %s");
 
         final int iconId;
         @NonNull

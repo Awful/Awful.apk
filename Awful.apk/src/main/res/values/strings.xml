@@ -96,6 +96,7 @@
     <string name="yospos">YOSPOS</string>
     <string name="thread_lock">Lock thread</string>
     <string name="thread_unlock">Unlock thread</string>
+    <string name="show_self">Admire your posts</string>
 
     <string name="next_page">Next page</string>
     <string name="mark_last_read_progress">Marking Last-Read</string>
@@ -212,8 +213,6 @@
     <string name="alert_ok">@android:string/ok</string>
     <string name="alert_settings">Settings</string>
     <string name="no_file_permission_attachment">Well, you didn\'t allow Awful to access files, so it can\'t add the attachment you just selected. Good job.</string>
-    <string name="no_file_permission_settings_import">You know, you didn\'t allow Awful to access files, so it can\'t import the settings file you just selected. Well done.</string>
-    <string name="no_file_permission_settings_export">You didn\'t allow Awful to access files, so it can\'t export the settings file. Congratulations.</string>
     <string name="no_file_permission_download">Awful doesn\'t have permission to store the download. Welp, guess not then.</string>
     <string name="no_file_permission_theme">Can\'t access custom theme because Awful lacks storage permissions. Reverting to default css.</string>
     <string name="permission_rationale_external_storage">To show custom themes and layouts, Awful needs access to device storage</string>
@@ -332,6 +331,7 @@
     <string name="prefs_misc">Device and navigation</string>
     <string name="export_settings">Export settings</string>
     <string name="export_settings_summary">Save a backup of your Awful choices</string>
+    <string name="export_settings_chooser_title">Select export file</string>
     <string name="import_settings">Import settings</string>
     <string name="import_settings_summary">Restore your backed up settings</string>
     <string name="import_settings_chooser_title">Select settings file</string>
@@ -508,6 +508,7 @@
     <string name="web_view_next_result_description">Next result</string>
     <string name="web_view_search_box_hint">Search in page</string>
     <string name="getting_forums">Getting forums</string>
+    <string name="imgur_api_client_id">test</string>
 
 
     <!--

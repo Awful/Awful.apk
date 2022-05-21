@@ -32,9 +32,9 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.os.Bundle
 import android.os.Handler
-import android.support.annotation.StringRes
-import android.support.v4.app.Fragment
-import android.support.v4.app.LoaderManager
+import androidx.annotation.StringRes
+import androidx.fragment.app.Fragment
+import androidx.loader.app.LoaderManager
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -91,7 +91,7 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
     /** Get this fragment's display title  */
     abstract fun getTitle(): String?
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         if (activity !is AwfulActivity) {
             throw IllegalStateException("AwfulFragment - parent activity must extend AwfulActivity!")
@@ -325,7 +325,7 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
         }
 
         return try {
-            clipboard.primaryClip = clip
+            clipboard.setPrimaryClip(clip)
             successMessageId?.let {
                 alertView.setTitle(successMessageId).setIcon(R.drawable.ic_insert_link_dark).show()
             }

@@ -34,7 +34,6 @@ bin
 /libraries/tree-view-list-android/.hgtags
 /libraries/tree-view-list-android/.pmd
 
-
 /.idea/*
 !/.idea/codeStyleSettings.xml
 *.iml
@@ -42,7 +41,11 @@ bin
 tests
 out
 build/
-gradle/
+# Specifically keep gradle-wrapper.properties so projects can be built from an import.
+gradle/*
+!/gradle/wrapper/
+/gradle/wrapper/*
+!/gradle/wrapper/gradle-wrapper.properties
 
 # Secrets as resources
 **/*/res/values/secrets.xml

@@ -64,11 +64,11 @@ function containerInit() {
 			return;
 		}
 		var bbcBlock = findInPath(event, 'bbc-block', true);
-		if (bbcBlock && (bbcBlock.classList.contains('pre') || bbcBlock.classList.contains('code') || bbcBlock.classList.contains('php'))) {
-			listener.haltSwipe();
-			document.addEventListener('touchend', handleTouchLeave);
-			document.addEventListener('touchleave', handleTouchLeave);
-			document.addEventListener('touchcancel', handleTouchLeave);
+		if (bbcBlock && !!bbcBlock.className.match(/pre|code|php/ig)) {
+            listener.haltSwipe();
+            document.addEventListener('touchend', handleTouchLeave);
+            document.addEventListener('touchleave', handleTouchLeave);
+            document.addEventListener('touchcancel', handleTouchLeave);
 		}
 	}, {passive: true});
 	// Auto-starting of videos
@@ -186,17 +186,26 @@ function processPosts(scopeElement) {
 		highlightOwnQuotes(scopeElement);
 	}
 
+    // handle all GIFs that are not avatars
 	if (listener.getPreference('disableGifs') === 'true') {
-		scopeElement.querySelectorAll('img[title][src$=".gif"]').forEach(function each(gif) {
-			if (!gif.complete) {
-				gif.addEventListener('load', function freezeLoadHandler() {
-					freezeGif(this);
-				});
-			} else {
-				freezeGif(gif);
-			}
-		});
+		scopeElement.querySelectorAll('img[title][src$=".gif"]:not(.avatar)').forEach(prepareFreezeGif);
 	}
+
+    // this handles all avatar processing, meaning if the avatar is a GIF we need to handle freezing as well
+    scopeElement.querySelectorAll("img[title].avatar").forEach(function each(img) {
+        img.addEventListener('load', processSecondaryAvatar);
+    });
+    function processSecondaryAvatar() {
+        // when people want to use gangtags as avatars, etc., they often use a 1x1 image as their primary avatar.
+        // if this is the case, we change over to a "secondary" avatar, which is probably what's intended.
+        if (this.naturalWidth === 1 && this.naturalHeight === 1 && this.dataset.avatarSecondSrc && this.dataset.avatarSecondSrc.length) {
+            this.src = this.dataset.avatarSecondSrc;
+        }
+
+        if (listener.getPreference('disableGifs') === 'true' && this.src.slice(-4) === ".gif") {
+            prepareFreezeGif(this);
+        }
+    }
 }
 
 /**
@@ -206,7 +215,7 @@ function processPosts(scopeElement) {
 function pauseVideosOutOfView(scopeElement) {
     scopeElement = scopeElement || document;
 	scopeElement.querySelectorAll('video').forEach(function eachVideo(video) {
-		if (isElementInViewport(video) && video.parentElement.tagName !== 'BLOCKQUOTE' && video.firstElementChild.src.indexOf('webm') === -1) {
+		if (isElementInViewport(video) && video.parentElement.parentElement.tagName !== 'BLOCKQUOTE' && video.firstElementChild.src.indexOf('webm') === -1) {
 			video.play();
 		} else {
 			video.pause();
@@ -376,6 +385,20 @@ function freezeGif(image) {
 }
 
 /**
+ * Monitors a gif to freeze it when loading's complete.
+ * @param {Element} image Gif image to monitor
+ */
+function prepareFreezeGif(image) {
+    if (!image.complete) {
+        image.addEventListener('load', function freezeLoadHandler() {
+            freezeGif(image);
+        });
+    } else {
+        freezeGif(image);
+    }
+}
+
+/**
  * Updates the background color of all posters that were previously, or are now, marked by the user
  * @param {String} users A string of users separated by commas
  */
@@ -441,7 +464,11 @@ function handleQuoteLink(link, event) {
  * @param {Element} info The HTMLElement of the postinfo
  */
 function toggleInfo(info) {
-	if (info.querySelector('.postinfo-title').classList.contains('extended')) {
+    var posterTitle = info.querySelector('.postinfo-title');
+    var posterRegDate = info.querySelector('.postinfo-regdate');
+    if (!posterTitle) { return; }
+
+	if (posterTitle.classList.contains('extended')) {
 		if (info.querySelector('.avatar') !== null) {
 			if (listener.getPreference('disableGifs') === 'true' && info.querySelector('.avatar').src.endsWith('.gif')) {
 				freezeGif(info.querySelector('.avatar'));
@@ -451,13 +478,18 @@ function toggleInfo(info) {
 				info.querySelector('.avatar').classList.remove('extended');
 			});
 		}
-		info.querySelector('.postinfo-title').classList.remove('extended');
-		info.querySelector('.postinfo-regdate').classList.remove('extended');
+		posterTitle.classList.remove('extended');
+		posterTitle.setAttribute('aria-hidden', 'true');
+		if (posterRegDate) {
+            posterRegDate.classList.remove('extended');
+            posterRegDate.setAttribute('aria-hidden', 'true');
+        }
 	} else {
 		if (info.querySelector('.avatar') !== null) {
 			if (info.querySelector('canvas') !== null) {
 				var avatar = document.createElement('img');
 				avatar.src = info.querySelector('canvas').getAttribute('src');
+				avatar.setAttribute('style', info.querySelector('canvas').getAttribute('style'));
 				avatar.classList.add('avatar');
 				info.querySelector('canvas').replaceWith(avatar);
 			}
@@ -465,8 +497,12 @@ function toggleInfo(info) {
 				info.querySelector('.avatar').classList.add('extended');
 			});
 		}
-		info.querySelector('.postinfo-title').classList.add('extended');
-		info.querySelector('.postinfo-regdate').classList.add('extended');
+		posterTitle.classList.add('extended');
+		posterTitle.setAttribute('aria-hidden', 'false');
+		if (posterRegDate) {
+            posterRegDate.classList.add('extended');
+            posterRegDate.setAttribute('aria-hidden', 'false');
+        }
 	}
 }
 
@@ -480,14 +516,18 @@ function showPostMenu(postMenu) {
 		showPunishmentMenu(postMenu);
 		return;
 	}
+	var article = postMenu.closest('article');
+	var avatar = article.querySelector('.avatar');
+
 	listener.onMoreClick(
-		postMenu.closest('article').getAttribute('id').replace(/post/, ''),
+		article.getAttribute('id').replace(/post/, ''),
 		postMenu.getAttribute('username'),
 		postMenu.getAttribute('userid'),
 		postMenu.getAttribute('lastreadurl'),
 		postMenu.hasAttribute('editable'),
-		postMenu.hasAttribute('isMod') || postMenu.hasAttribute('isAdmin'),
-		postMenu.hasAttribute('isPlat')
+		postMenu.hasAttribute('has-role'),
+		postMenu.hasAttribute('isPlat'),
+		avatar ? avatar.getAttribute('src') : null
 	);
 }
 
@@ -667,4 +707,22 @@ function handleTouchLeave() {
 	document.removeEventListener('touchend', handleTouchLeave);
 	document.removeEventListener('touchleave', handleTouchLeave);
 	document.removeEventListener('touchcancel', handleTouchLeave);
+}
+
+/**
+ * Hides all instances of the given avatar on the page
+ */
+function hideAvatar(avatarUrl) {
+    document.querySelectorAll('[src="' + avatarUrl + '"]').forEach(function(avatarTag) {
+        avatarTag.classList.add('hide-avatar');
+    });
+}
+
+/**
+ * Shows all instances of the given avatar on the page
+ */
+function showAvatar(avatarUrl) {
+    document.querySelectorAll('[src="' + avatarUrl + '"]').forEach(function(avatarTag) {
+        avatarTag.classList.remove('hide-avatar');
+    });
 }

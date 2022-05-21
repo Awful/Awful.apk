@@ -32,7 +32,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
@@ -66,6 +66,7 @@ public class AwfulPost {
     private static final Pattern fixCharacters_regex = Pattern.compile("([\\r\\f])");
 	private static final Pattern youtubeId_regex = Pattern.compile("/v/([\\w_-]+)&?");
 	private static final Pattern youtubeHDId_regex = Pattern.compile("/embed/([\\w_-]+)&?");
+    private static final Pattern imgurId_regex = Pattern.compile("^(.*\\.imgur\\.com/)([\\w]+)(\\..*)$");
 	private static final Pattern vimeoId_regex = Pattern.compile("clip_id=(\\d+)&?");
     private static final Pattern userid_regex = Pattern.compile("userid=(\\d+)");
 
@@ -82,10 +83,11 @@ public class AwfulPost {
     public static final String PREVIOUSLY_READ       = "previously_read";
     public static final String EDITABLE              = "editable";
     public static final String IS_OP                 = "is_op";
-    public static final String IS_ADMIN              = "is_admin";
-    public static final String IS_MOD                = "is_mod";
     public static final String IS_PLAT               = "is_plat";
+    public static final String ROLE                  = "role";
     public static final String AVATAR                = "avatar";
+    // people may be using gangtags, etc. as avatars with a 1x1 primary av
+    public static final String AVATAR_SECOND         = "avatar_second";
 	public static final String AVATAR_TEXT 			 = "avatar_text";
     public static final String CONTENT               = "content";
     public static final String EDITED                = "edited";
@@ -109,6 +111,7 @@ public class AwfulPost {
     private String mUserId = "";
     private String mUsername = "";
     private String mAvatar = "";
+    private String mAvatarSecond = "";
     private String mAvatarText = "";
     private String mContent = "";
     private String mEdited = "";
@@ -117,9 +120,8 @@ public class AwfulPost {
     private String mLastReadUrl = "";
     private boolean mEditable;
     private boolean isOp = false;
-    private boolean isAdmin = false;
-    private boolean isMod = false;
     private boolean isPlat = false;
+    private String mRole = "";
 
 
     public JSONObject toJSON() throws JSONException {
@@ -129,11 +131,13 @@ public class AwfulPost {
         result.put("user_id", mUserId);
         result.put("username", mUsername);
         result.put("avatar", mAvatar);
+        result.put("avatar_second", mAvatarSecond);
         result.put("content", mContent);
         result.put("edited", mEdited);
         result.put("previouslyRead", Boolean.toString(mPreviouslyRead));
         result.put("lastReadUrl", mLastReadUrl);
         result.put("editable", Boolean.toString(mEditable));
+        result.put("role", mRole);
         result.put("isOp", Boolean.toString(isOp()));
         result.put("isPlat", Boolean.toString(isPlat()));
 
@@ -142,14 +146,6 @@ public class AwfulPost {
 
     public boolean isOp() {
     	return isOp;
-    }
-
-    public boolean isAdmin() {
-    	return isAdmin;
-    }
-
-    public boolean isMod() {
-    	return isMod;
     }
 
     public boolean isPlat() {
@@ -208,17 +204,11 @@ public class AwfulPost {
         isOp = aIsOp;
     }
 
-    public void setIsAdmin(boolean aIsAdmin) {
-        isAdmin = aIsAdmin;
-    }
+    public void setIsPlat(boolean plat) { isPlat = plat;}
 
-    public void setIsMod(boolean aIsMod) {
-        isMod = aIsMod;
-    }
+    public String getRole() { return mRole; }
 
-    public void setIsPlat(boolean plat) {
-        isPlat = plat;
-    }
+    public void setRole(String role) { mRole = role; }
 
     public String getAvatar() {
         return mAvatar;
@@ -227,6 +217,12 @@ public class AwfulPost {
     public void setAvatar(String aAvatar) {
         mAvatar = aAvatar;
     }
+
+    public String getAvatarSecond() {
+        return mAvatarSecond;
+    }
+
+    public void setAvatarSecond(String aAvatarSecond) { mAvatarSecond = aAvatarSecond; }
 
     public String getContent() {
         return mContent;
@@ -250,10 +246,10 @@ public class AwfulPost {
             int previouslyReadIndex = aCursor.getColumnIndex(PREVIOUSLY_READ);
             int editableIndex = aCursor.getColumnIndex(EDITABLE);
             int isOpIndex = aCursor.getColumnIndex(IS_OP);
-            int isAdminIndex = aCursor.getColumnIndex(IS_ADMIN);
-            int isModIndex = aCursor.getColumnIndex(IS_MOD);
             int isPlatIndex = aCursor.getColumnIndex(IS_PLAT);
+            int roleIndex = aCursor.getColumnIndex(ROLE);
             int avatarIndex = aCursor.getColumnIndex(AVATAR);
+            int avatarSecondIndex = aCursor.getColumnIndex(AVATAR_SECOND);
             int avatarTextIndex = aCursor.getColumnIndex(AVATAR_TEXT);
             int contentIndex = aCursor.getColumnIndex(CONTENT);
             int editedIndex = aCursor.getColumnIndex(EDITED);
@@ -272,10 +268,10 @@ public class AwfulPost {
                 current.setLastReadUrl(aCursor.getInt(postIndexIndex)+"");
                 current.setEditable(aCursor.getInt(editableIndex) == 1);
                 current.setIsOp(aCursor.getInt(isOpIndex) == 1);
-                current.setIsAdmin(aCursor.getInt(isAdminIndex) > 0);
-                current.setIsMod(aCursor.getInt(isModIndex) > 0);
                 current.setIsPlat(aCursor.getInt(isPlatIndex) > 0);
+                current.setRole(aCursor.getString(roleIndex));
                 current.setAvatar(aCursor.getString(avatarIndex));
+                current.setAvatarSecond(aCursor.getString(avatarSecondIndex));
                 current.setAvatarText(aCursor.getString(avatarTextIndex));
                 current.setContent(aCursor.getString(contentIndex));
                 current.setEdited(aCursor.getString(editedIndex));
@@ -599,12 +595,17 @@ public class AwfulPost {
      */
     @NonNull
     private static String imgurAsThumbnail(@NonNull String imgurUrl, @NonNull String thumbnailCode) {
-        int lastDot = imgurUrl.lastIndexOf('.');
-        int lastSlash = imgurUrl.lastIndexOf('/');
-        String imgurImageId = imgurUrl.substring(lastSlash + 1, lastDot);
-        //check if already thumbnails
-        if (imgurImageId.length() != 6 && imgurImageId.length() != 8) {
-            imgurUrl = imgurUrl.substring(0, lastDot) + thumbnailCode + imgurUrl.substring(lastDot);
+
+        Matcher match =  imgurId_regex.matcher(imgurUrl);
+        if(match.find()) {
+            String imgurBase = match.group(1);
+            String imgurImageId = match.group(2);
+            String imgurImageEnd = match.group(3);
+
+            //check if already thumbnails
+            if (imgurImageId.length() != 6 && imgurImageId.length() != 8) {
+                imgurUrl = imgurBase + imgurImageId + thumbnailCode + imgurImageEnd;
+            }
         }
         return imgurUrl;
     }

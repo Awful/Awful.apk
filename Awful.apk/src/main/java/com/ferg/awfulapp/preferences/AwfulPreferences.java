@@ -32,16 +32,13 @@ package com.ferg.awfulapp.preferences;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.Uri;
-import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import android.util.Log;
 import android.util.TypedValue;
 
@@ -53,17 +50,15 @@ import com.google.gson.reflect.TypeToken;
 import org.jsoup.nodes.Document;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Calendar;
+import java.io.OutputStream;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -135,6 +130,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public boolean hideIgnoredPosts;
     public boolean noFAB;
     public boolean alwaysOpenUrls;
+    public Set<String> blockedAvatarUrls;
 
     //FORUM STUFF
     public boolean newThreadsFirstUCP;
@@ -279,6 +275,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         disableGifs	 			 = getPreference(Keys.DISABLE_GIFS, true);
         hideOldPosts	 	 	 = getPreference(Keys.HIDE_OLD_POSTS, true);
         alwaysOpenUrls	 	 	 = getPreference(Keys.ALWAYS_OPEN_URLS, false);
+        blockedAvatarUrls        = getPreference(Keys.BLOCKED_AVATAR_URLS, Collections.emptySet());
         lockScrolling			 = getPreference(Keys.LOCK_SCROLLING, false);
         disableTimgs			 = getPreference(Keys.DISABLE_TIMGS, false);
         currPrefVersion          = getPreference(Keys.CURR_PREF_VERSION, 0);
@@ -431,45 +428,26 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		return avatarsEnabled && canLoadImages();
 	}
 
+	public boolean isBlockedAvatar(String avatarUrl) {
+		return avatarUrl != null && blockedAvatarUrls.contains(avatarUrl);
+	}
 
 	/**
-	 * Export the app's current preferences to a file in the app folder.
-	 * <p>
-	 * You need to ensure the user has granted write permissions before calling this!
+	 * Export the app's current preferences to a user-picked location.
+	 *
+	 * @param settingsUri the file/location to export to
+	 * @return false if the export failed
+	 * @see #importSettings(Uri) 
 	 */
-	public boolean exportSettings() {
+	public boolean exportSettings(@NonNull Uri settingsUri) {
 		Map settings = mPrefs.getAll();
-		Calendar date = Calendar.getInstance();
 		Gson gson = new Gson();
 		// serialise all SharedPreferences mappings to JSON
 		String settingsJson = gson.toJson(settings);
 
-		if (!Environment.getExternalStorageState().equalsIgnoreCase(Environment.MEDIA_MOUNTED)) {
-			Log.w(TAG, "exportSettings: external storage not mounted");
-			return false;
-		}
-		// TODO: 11/12/2017 the folder name should probably be a global constant, it's referenced elsewhere too e.g. custom themes location
-		// TODO: 17/12/2017 honestly we could probably do with a class that handles the Awful folder and all the storage state checking in one place
-		File awfulFolder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/awful");
-		if (!awfulFolder.isDirectory() && !awfulFolder.mkdir()) {
-			Log.w(TAG, "exportSettings: failed to create missing awful folder!");
-			return false;
-		}
-
-		// build the filename using the current app version and today's date
-		String filename;
-		try {
-			PackageInfo pInfo = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0);
-			filename = String.format(Locale.US, "awful-%d-%d-%d-%d.settings",
-					pInfo.versionCode, date.get(Calendar.DATE), date.get(Calendar.MONTH) + 1, date.get(Calendar.YEAR));
-		} catch (NameNotFoundException e) {
-			Log.w(TAG, "exportSettings: can't get package name for app version code", e);
-			return false;
-		}
-
 		// save the JSON in binary format
-		Log.i(TAG, "exporting settings to file: " + filename);
-		try (FileOutputStream out = new FileOutputStream(new File(awfulFolder.getAbsolutePath(), filename))) {
+		Log.i(TAG, "exporting settings to uri: " + settingsUri.getLastPathSegment());
+		try (OutputStream out = getContext().getContentResolver().openOutputStream(settingsUri)) {
 			out.write(settingsJson.getBytes());
 			return true;
 		} catch (IOException e) {
@@ -484,9 +462,9 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	 *
 	 * @param settingsUri the file to import
 	 * @return false if importing failed completely
-	 * @see #exportSettings()
+	 * @see #exportSettings(Uri)
 	 */
-	boolean importSettings(@NonNull Uri settingsUri) {
+	public boolean importSettings(@NonNull Uri settingsUri) {
 		Log.i(TAG, "importing settings from file: " + settingsUri.getLastPathSegment());
 		BufferedReader br;
 		try {
@@ -502,8 +480,14 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		}
 
 		// read settings JSON file and deserialise into the types SharedPreferences dumps as
-		Map<String, Object> settings = new Gson().fromJson(br, new TypeToken<Map<String, Object>>() {
-		}.getType());
+		Map<String, Object> settings;
+		try {
+			settings = new Gson().fromJson(br, new TypeToken<Map<String, Object>>() {
+			}.getType());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 		SharedPreferences.Editor editor = mPrefs.edit();
 
 		// TODO: 15/12/2017 there's no checking here at all - need to handle any errors safely. What happens when a pref no longer exists, or has its type changed between versions?

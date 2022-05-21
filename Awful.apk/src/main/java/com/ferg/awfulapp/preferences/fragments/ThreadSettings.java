@@ -1,6 +1,6 @@
 package com.ferg.awfulapp.preferences.fragments;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.ferg.awfulapp.R;
 

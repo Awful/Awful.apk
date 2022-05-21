@@ -2,7 +2,7 @@ package com.ferg.awfulapp.search
 
 import android.os.Parcel
 import android.os.Parcelable
-import android.support.v7.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.view.View
 import android.widget.EditText
 import com.ferg.awfulapp.R
@@ -65,7 +65,7 @@ class SearchFilter(val type: FilterType, val param: String) : Parcelable {
 
     constructor(parcel: Parcel) : this(
             FilterType.values()[parcel.readInt()],
-            parcel.readString()
+            parcel.readString()!!
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {

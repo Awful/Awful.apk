@@ -1,8 +1,8 @@
 package com.ferg.awfulapp.forums;
 
-import android.support.annotation.IntDef;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.util.SparseArray;
 
 import java.lang.annotation.Retention;
@@ -127,9 +127,14 @@ public class Forum {
      * @return the result, or an empty string if it couldn't be abbreviated
      */
     private String abbreviateTitle() {
+        String cleanTitle = title.replaceAll("[^A-Za-z0-9/ :&]", "");
+        // maybe someone did the work for us
+        if (cleanTitle.contains(":")) {
+            return cleanTitle.split(":")[0];
+        }
         // really basic version - just split on spaces and use the first char,
         // works with punctuation like in 'Debate & Discussion'
-        String[] words = title.split(" ");
+        String[] words = cleanTitle.split(" ");
         StringBuilder sb = new StringBuilder("");
         for (String word : words) {
             if (word.length() > 0) {
@@ -164,6 +169,7 @@ public class Forum {
 
         forumAbbreviations.append(44, "GAMES");
         forumAbbreviations.append(46, "D&D");
+        forumAbbreviations.append(269, "C-SPAM");
         forumAbbreviations.append(167, "PYF");
         forumAbbreviations.append(158, "A/T");
         forumAbbreviations.append(22, "SH/SC");

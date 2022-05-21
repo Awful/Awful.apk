@@ -3,9 +3,9 @@ package com.ferg.awfulapp.thread;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Environment;
-import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.util.ArrayMap;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.collection.ArrayMap;
 import android.widget.Toast;
 
 import com.ferg.awfulapp.preferences.AwfulPreferences;
@@ -20,6 +20,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -61,6 +62,30 @@ public abstract class AwfulHtmlPage {
             "embedding.js",
             "thread.js"
     };
+
+    /**
+     * All user roles we have icons for
+     */
+    static final String[] ROLES = {
+            "admin",
+            "supermod",
+            "mod",
+            "coder",
+            "ik"
+    };
+
+    /**
+     * parses the user role and returns it if it is a known role. Null otherwise
+     * @param role the user role
+     * @return the role as a string or null
+     */
+    private static String parseRole(String role) {
+        if (role.length() > 0 && Arrays.asList(ROLES).contains(role)) {
+                return role;
+        }
+
+        return null;
+    }
 
     /**
      * Get the main HTML for the containing page.
@@ -180,6 +205,7 @@ public abstract class AwfulHtmlPage {
         for (AwfulPost post : aPosts) {
             String username = post.getUsername();
             String avatar = post.getAvatar();
+            String avatarSecond = post.getAvatarSecond();
 
             postData.put("seen", post.isPreviouslyRead() ? "read" : "unread");
             postData.put("isOP", (aPrefs.highlightOP && post.isOp()) ? "op" : null);
@@ -187,17 +213,18 @@ public abstract class AwfulHtmlPage {
             postData.put("postID", post.getId());
             postData.put("isSelf", (aPrefs.highlightSelf && username.equals(aPrefs.username)) ? "self" : null);
             postData.put("avatarURL", (aPrefs.canLoadAvatars() && avatar != null && avatar.length() > 0) ? avatar : null);
+            postData.put("avatarSecondURL", (aPrefs.canLoadAvatars() && avatarSecond != null && avatarSecond.length() > 0) ? avatarSecond : null);
             postData.put("username", username);
             postData.put("userID", post.getUserId());
-            postData.put("postDate", post.getDate());
-            postData.put("regDate", post.getRegDate());
-            postData.put("mod", post.isMod() ? "mod" : null);
-            postData.put("admin", post.isAdmin() ? "admin" : null);
+            postData.put("postDate", !post.getDate().equals("") ? post.getDate() : null);
+            postData.put("regDate", !post.getRegDate().equals("") ? post.getRegDate() : null);
+            postData.put("role", parseRole(post.getRole()));
             postData.put("plat", post.isPlat() ? "plat" : null);
-            postData.put("avatarText", "" + post.getAvatarText());
+            postData.put("avatarText", post.getAvatarText());
             postData.put("lastReadUrl", post.getLastReadUrl());
             postData.put("editable", post.isEditable() ? "editable" : null);
             postData.put("postcontent", post.getContent());
+            postData.put("hideAvatar", aPrefs.isBlockedAvatar(avatar) ? "blockedAvatar" : null);
 
             try {
                 buffer.append(postTemplate.execute(postData));

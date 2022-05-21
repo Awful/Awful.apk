@@ -17,6 +17,10 @@
     max-height: 100px;
 }
 
+.hide-avatar {
+    display: none;
+}
+
 .posterinfo {
     flex: 1;
     display: flex;
@@ -63,6 +67,12 @@
     -webkit-font-smoothing: antialiased;
     -webkit-user-select: none;
     user-select: none;
+}
+
+@media speech {
+    .postmenu:after {
+        display: none;
+    }
 }
 
 /*
@@ -257,8 +267,17 @@ video.playing ~ .video-link {
     margin: 0;
 }
 
+.postcontent .bbc-spoiler {
+    color: transparent;
+    overflow-wrap: anywhere;
+}
+
 .postcontent .bbc-spoiler * {
     visibility: hidden;
+}
+
+.postcontent .bbc-spoiler *:not(.spoiled) {
+    display: inline-block;
 }
 
 .postcontent .bbc-spoiler:not(.spoiled) .bbc-block,
@@ -268,6 +287,7 @@ video.playing ~ .video-link {
 
 .postcontent .bbc-spoiler.spoiled {
     background: transparent;
+    color: inherit;
 }
 
 .postcontent .bbc-spoiler.spoiled * {

@@ -1,8 +1,8 @@
 package com.ferg.awfulapp.widget
 
-import android.support.annotation.DrawableRes
-import android.support.annotation.StringRes
-import android.support.v4.app.FragmentActivity
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.fragment.app.FragmentActivity
 import android.view.Gravity
 import android.view.ViewGroup
 import android.view.animation.Animation

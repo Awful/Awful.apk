@@ -119,16 +119,21 @@ class PostParseTask(
             put(USERNAME, textForClass("author"))
             put(REGDATE, textForClass("registered"))
             put(IS_PLAT, postData.hasDescendantWithClass("platinum").sqlBool)
-            put(IS_MOD, postData.hasDescendantWithClass("role-mod").sqlBool)
-            put(IS_ADMIN, postData.hasDescendantWithClass("role-admin").sqlBool)
+            put(ROLE, getRole())
 
-            // grab the custom title, and also the avatar if there is one
-            postData.selectFirst(".title")!!
-                .also { put(AVATAR_TEXT, it.text()) }
-                .selectFirst("img")
-                ?.let {
-                    tryConvertToHttps(it)
-                    put(AVATAR, it.attr("src"))
+            // grab the custom title, and also avatar and alternate avatar if there are any
+            postData.selectFirst(".title")
+                ?.also { put(AVATAR_TEXT, it.text() ?: "") }
+                ?.select("img")
+                ?.take(2)
+                ?.forEachIndexed { index, image ->
+                    image.let {
+                        tryConvertToHttps(it)
+                        put(
+                            if (index == 0) { AVATAR } else { AVATAR_SECOND },
+                            it.attr("src")
+                        )
+                    }
                 }
 
             // FYAD has its post contents inside the .complete_shit element, so we just grab that instead of the full .postbody
@@ -189,7 +194,10 @@ class PostParseTask(
         get() = if (this) 1 else 0
 
     private fun textForClass(cssClass: String): String =
-        postData.selectFirst(".$cssClass")?.text() ?: "data missing"
+        postData.selectFirst(".$cssClass")?.text() ?: ""
+
+    private fun getRole(): String =
+        postData.selectFirst(".author")?.classNames()?.find { it.startsWith("role-") }?.substring(5) ?: ""
 
     private fun Element.hasDescendantWithClass(cssClass: String): Boolean =
         this.selectFirst(".$cssClass") != null
@@ -252,7 +260,7 @@ class ForumParseTask(
             }
             canOpenClose = author == username
 
-            lastPoster = threadElement.selectFirst(".lastpost .author").text()
+            lastPoster = threadElement.selectFirst(".lastpost .author")!!.text()
             isLocked = threadElement.hasClass("closed")
             isSticky = threadElement.selectFirst(".title_sticky") != null
 
@@ -294,9 +302,12 @@ class ForumParseTask(
             // Bookmarks can only be detected now by the presence of a "bmX" class - no star image
             val star = threadElement.selectFirst(".star")
             bookmarkType = when {
-                star.hasClass("bm0") -> 1
+                star!!.hasClass("bm0") -> 1
                 star.hasClass("bm1") -> 2
                 star.hasClass("bm2") -> 3
+                star.hasClass("bm3") -> 4
+                star.hasClass("bm4") -> 5
+                star.hasClass("bm5") -> 6
                 else -> 0
             }
         }
@@ -351,7 +362,7 @@ class ThreadPageParseTask(
             title = page.selectFirst(".bclast")?.text() ?: "UNKNOWN TITLE"
             // look for a real reply button - if there isn't one, this thread is locked
             isLocked = page.selectFirst("[alt=Reply]:not([src*='forum-closed'])") == null
-            canOpenClose = page.selectFirst("[alt='Close thread']") != null
+            canOpenClose = page.selectFirst("[alt='Close thread'],[alt='Open thread']") != null
 
             val bookmarkButton = page.selectFirst(".thread_bookmark")
             archived = bookmarkButton == null
@@ -388,28 +399,41 @@ class ThreadPageParseTask(
                 firstPostOnPageIndex
             )
             val postsOnPreviousPages = (pageNumber - 1) * postsPerPage
-            // calculate the read total by counting posts on this + preceding pages - only update the read count if it has grown (e.g. going back to an old page will give a lower count)
-            val postsRead = (postsOnPreviousPages + postsOnThisPage).coerceAtLeast(readCount)
+            val minimumPostsRead = postsOnPreviousPages + postsOnThisPage
+            // only update the read count if it has grown (e.g. going back to an old page will give a lower count)
+            val totalPostsRead = minimumPostsRead.coerceAtLeast(readCount)
+
+            // post count is used for pagination (downstream.)
+            //
+            // post count should be an estimate of the total number of posts in our "virtual thread," i.e. even
+            // if we are only viewing posts by a specific user. this function is not aware if we are viewing a
+            // filtered version of the thread, so we detect that and return proper values for pagination.
+            //
+            // because the last page number accounts for a filtered thread, we can calculate minimum and maximum
+            // post ranges to constrain the post count properly.
+            val minPosts = (lastPageNumber - 1) * postsPerPage + 1   // one post on the last page, any preceding pages are full
+            val maxPosts = lastPageNumber * postsPerPage             // all pages full
 
             postCount = if (pageNumber == lastPageNumber) {
-                // this is the last page, so we've read all the posts in the thread
-                postsRead
+                // if total posts are outside of our min/max, we're reading a filtered thread and should constrain the
+                // count accordingly.
+                if (totalPostsRead in minPosts..maxPosts) totalPostsRead else minimumPostsRead
             } else {
-                // not the last page, so we can't tell how many posts the thread has, we have to estimate it
-                // we can calculate a minimum and maximum posts range by looking at the last page number
-                val minPosts =
-                    (lastPageNumber - 1) * postsPerPage + 1   // one post on the last page, any preceding pages are full
-                val maxPosts = lastPageNumber * postsPerPage             // all pages full
-                // if the old post count is within this range, let's just assume it's more accurate than taking the minimum
-                // if it's outside of that range it's obviously a stale value, use the min as our best guess
+                // if we're not on the last page, doesn't matter whether the thread is filtered or unfiltered, we can't tell
+                // exactly how many posts the thread has, we have to estimate it.
+                //
+                // if the old post count is within min/max range, let's just assume it's more accurate than taking the minimum.
+                // if it's outside of that range it's a stale value, use the min as our best guess.
                 if (postCount in minPosts..maxPosts) postCount else minPosts
             }
+
             // TODO: 16/06/2017 would it be better to store postCount and postsRead in the DB, and calculate the unread count from that?
-            unreadCount = postCount - postsRead
+            //
+            unreadCount = postCount - totalPostsRead
 
             Timber.d(
                 "getThreadPosts: Thread ID %d, page %d of %d, %d posts on page%n%d posts total: %d read/%d unread",
-                id, pageNumber, lastPageNumber, postsOnThisPage, postCount, postsRead, unreadCount
+                id, pageNumber, lastPageNumber, postsOnThisPage, postCount, totalPostsRead, unreadCount
             )
 
         }

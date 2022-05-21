@@ -1,8 +1,8 @@
 package com.ferg.awfulapp;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.widget.Toolbar;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.appcompat.widget.Toolbar;
 
 import com.ferg.awfulapp.constants.Constants;
 

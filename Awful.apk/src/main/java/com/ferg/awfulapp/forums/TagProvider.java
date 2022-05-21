@@ -1,7 +1,7 @@
 package com.ferg.awfulapp.forums;
 
 import android.graphics.Bitmap;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;

@@ -32,6 +32,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.app.DownloadManager.Request;
+import android.content.ActivityNotFoundException;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -46,16 +47,18 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.widget.ShareActionProvider;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.ferg.awfulapp.search.SearchFilter;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.fragment.app.FragmentManager;
+import androidx.loader.app.LoaderManager;
+import androidx.core.content.ContextCompat;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
+import androidx.core.view.MenuItemCompat;
+import androidx.appcompat.widget.ShareActionProvider;
 import android.text.TextUtils;
 import android.text.format.Formatter;
 import android.view.InflateException;
@@ -120,10 +123,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import timber.log.Timber;
 
@@ -189,7 +194,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	private String postJump = "";
 	private int savedScrollPosition = 0;
 	/** Whether the currently displayed page represents a full page of posts */
-	private boolean displayingFullPage = false;
+	private boolean displayingLastPage = false;
 	
 	private ShareActionProvider shareProvider;
 
@@ -547,7 +552,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
     			rateThread();
     			break;
     		case R.id.copy_url:
-    			copyThreadURL(null);
+    			copyThreadURL(null, postFilterUserId);
     			break;
     		case R.id.find:
 				((WebViewSearchBar) item.getActionView()).setWebView(mThreadView);
@@ -562,6 +567,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 			case R.id.yospos:
 				toggleYospos();
 				break;
+			case R.id.show_self:
+				showUsersPosts(getPrefs().userId, getPrefs().username);
+				break;
+			case R.id.search_this_thread:
+				SearchFilter threadFilter = new SearchFilter(SearchFilter.FilterType.ThreadId, Integer.toString(currentThreadId));
+				navigate(new NavigationEvent.SearchForums(threadFilter));
+				return true;
     		default:
     			return super.onOptionsItemSelected(item);
     		}
@@ -574,14 +586,18 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	 * Get a URL that links to a particular thread.
 	 *
 	 * @param postId An optional post ID, appended as the URL's fragment
+	 * @param userId An optional user ID, appended as a query parameter
 	 * @return the full URL
 	 */
 	@NonNull
-	private String generateThreadUrl(@Nullable Integer postId) {
+	private String generateThreadUrl(@Nullable Integer postId, @Nullable Integer userId) {
 		Uri.Builder builder = Uri.parse(Constants.FUNCTION_THREAD).buildUpon()
 				.appendQueryParameter(Constants.PARAM_THREAD_ID, String.valueOf(getThreadId()))
 				.appendQueryParameter(Constants.PARAM_PAGE, String.valueOf(getPageNumber()))
 				.appendQueryParameter(Constants.PARAM_PER_PAGE, String.valueOf(getPrefs().postPerPage));
+		if (userId != null) {
+			builder.appendQueryParameter(Constants.PARAM_USER_ID, String.valueOf(userId));
+		}
 		if (postId != null) {
 			builder.fragment("post" + postId);
 		}
@@ -617,7 +633,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 		if (url == null) {
 			// we're sharing the current thread - we can add the title in here
 			intent.putExtra(Intent.EXTRA_SUBJECT, mTitle);
-			url = generateThreadUrl(null);
+			url = generateThreadUrl(null, postFilterUserId);
 		}
 		return intent.putExtra(Intent.EXTRA_TEXT, url);
 	}
@@ -627,10 +643,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	/**
 	 * Copy a thread's URL to the clipboard
 	 * @param postId    An optional post ID, used as the url's fragment
+	 * @param userId    An optional user ID, appended to the url as a parameter
 	 */
-	public void copyThreadURL(@Nullable Integer postId) {
+	public void copyThreadURL(@Nullable Integer postId, @Nullable Integer userId) {
 		String clipLabel = getString(R.string.copy_url) + getPageNumber();
-		String clipText  = generateThreadUrl(postId);
+		String clipText  = generateThreadUrl(postId, userId);
 		safeCopyToClipboard(clipLabel, clipText, R.string.copy_url_success);
 	}
 
@@ -764,10 +781,28 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 		  .setNegativeButton(R.string.cancel, null)
 		  .show();
 	}
-	
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState){
-    	super.onSaveInstanceState(outState);
+
+	/**
+	 * Toggles whether to display this user's avatar or not
+	 *
+	 * @param avatarUrl		The URL of the avatar to toggle the display of. Ignored if null or empty string.
+	 */
+	public void toggleAvatar(String avatarUrl) {
+		if (TextUtils.isEmpty(avatarUrl)) {
+			return;
+		}
+		Set<String> blocked = getPrefs().getPreference(Keys.BLOCKED_AVATAR_URLS, Collections.emptySet());
+		Set<String> newSet = new HashSet<>(blocked); // not allowed to mutate original set
+
+		if (!newSet.remove(avatarUrl)) {
+			newSet.add(avatarUrl);
+		}
+		getPrefs().setPreference(Keys.BLOCKED_AVATAR_URLS, newSet);
+	}
+
+	@Override
+	public void onSaveInstanceState(@NonNull Bundle outState){
+		super.onSaveInstanceState(outState);
     	Timber.d("onSaveInstanceState - storing thread ID, page number and scroll position");
         outState.putInt(THREAD_ID_KEY, getThreadId());
         outState.putInt(THREAD_PAGE_KEY, getPageNumber());
@@ -1049,7 +1084,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
             String html = AwfulHtmlPage.getThreadHtml(aPosts, AwfulPreferences.getInstance(getActivity()), getPageNumber(), mLastPage);
             refreshSessionCookie();
 			mThreadView.setBodyHtml(html);
-			displayingFullPage = aPosts.size() >= getPrefs().postPerPage; // shouldn't ever be > but just to be safe
+			displayingLastPage = getPageNumber() == getLastPage();
             setProgress(100);
         } catch (Exception e) {
             // If we've already left the activity the webview may still be working to populate,
@@ -1064,7 +1099,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 		if (swipyRefreshLayoutDirection == SwipyRefreshLayoutDirection.TOP) {
 			// no page turn when swiping at the top of the page
 			refresh();
-		} else if (!displayingFullPage) {
+		} else if (displayingLastPage) {
 			// always refresh if there could be more posts
 			refresh();
 		} else {
@@ -1086,10 +1121,36 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	private class ClickInterface extends WebViewJsInterface {
 
         @JavascriptInterface
-        public void onMoreClick(final String aPostId, final String aUsername, final String aUserId, final String lastReadUrl, final boolean editable, final boolean isAdminOrMod, final boolean isPlat) {
-			PostContextMenu postActions = PostContextMenu.newInstance(getThreadId(), Integer.parseInt(aPostId),
-					Integer.parseInt(lastReadUrl), editable, aUsername, Integer.parseInt(aUserId), isPlat, isAdminOrMod);
+        public void onMoreClick(
+        		final String aPostId,
+				final String aUsername,
+				final String aUserId,
+				final String lastReadUrl,
+				final boolean editable,
+				final boolean isAdminOrMod,
+				final boolean isPlat,
+				final String avatarUrl) {
+
+			PostContextMenu postActions = PostContextMenu.newInstance(getThreadId(),
+					Integer.parseInt(aPostId),
+					Integer.parseInt(lastReadUrl),
+					editable, aUsername,
+					Integer.parseInt(aUserId),
+					isPlat,
+					isAdminOrMod,
+					postFilterUserId,
+					avatarUrl);
+
 			postActions.setTargetFragment(ThreadDisplayFragment.this, -1);
+			postActions.setOnActionClickedListener(action -> {
+				if (mThreadView != null) {
+					if (action == PostContextMenu.PostMenuAction.HIDE_AVATAR) {
+						mThreadView.evaluateJavascript(String.format("hideAvatar('%s')", avatarUrl), null);
+					} else if (action == PostContextMenu.PostMenuAction.SHOW_AVATAR) {
+						mThreadView.evaluateJavascript(String.format("showAvatar('%s')", avatarUrl), null);
+					}
+				}
+			});
 			postActions.show(mSelf.getFragmentManager(), "Post Actions");
 		}
 
@@ -1244,19 +1305,17 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	}
 
 	public void startUrlIntent(String url){
-		Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-		PackageManager pacMan = getActivity().getPackageManager();
-		List<ResolveInfo> res = pacMan.queryIntentActivities(browserIntent,
-				PackageManager.MATCH_DEFAULT_ONLY);
-		if (res.size() > 0) {
+		Uri intentUri = Uri.parse(url);
+		try {
+			Intent browserIntent = new Intent(Intent.ACTION_VIEW, intentUri);
 			browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			getActivity().startActivity(browserIntent);
-		} else {
-			String[] split = url.split(":");
+		} catch (ActivityNotFoundException error) {
 			getAlertView().setTitle("Cannot open link:")
-					.setSubtitle("No application found for protocol" + (split.length > 0 ? ": " + split[0] : "."))
+					.setSubtitle("None of your apps want to open this " + intentUri.getScheme() + ":\\\\ link. Try installing an app that is less picky")
 					.show();
 		}
+
 	}
 
 	public void displayImage(String url){

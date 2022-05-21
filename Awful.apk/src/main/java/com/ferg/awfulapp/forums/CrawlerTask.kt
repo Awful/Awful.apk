@@ -50,7 +50,7 @@ internal class CrawlerTask(context: Context, priority: Priority) : UpdateTask(co
 
         // parse each section to get its data, and add a 'forum' to the top level list
         sections.map { it.selectFirst("a") }.forEach { link ->
-            forumSections.addForum(parentId = ForumRepository.TOP_LEVEL_PARENT_ID, url = link.attr("abs:href"), title = link.text())
+            forumSections.addForum(parentId = ForumRepository.TOP_LEVEL_PARENT_ID, url = link!!.attr("abs:href"), title = link.text())
         }
     }
 
@@ -70,7 +70,7 @@ internal class CrawlerTask(context: Context, priority: Priority) : UpdateTask(co
         for (element in subforumElements) {
             val link = element.selectFirst("a")
             val subtitle = element.select("dd").text().removePrefix("- ") // strip leading junk on subtitles
-            forum.subforums.addForum(parentId = forum.id, url = link.attr("abs:href"), title = link.text(), subtitle = subtitle)
+            forum.subforums.addForum(parentId = forum.id, url = link!!.attr("abs:href"), title = link.text(), subtitle = subtitle)
         }
     }
 

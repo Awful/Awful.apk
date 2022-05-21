@@ -34,11 +34,11 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -523,7 +523,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 	 */
     private void toggleBookmarkColor(final int id, final int bookmarkStatus) {
     	final ContentResolver cr = this.getAwfulApplication().getContentResolver();
-    	if(bookmarkStatus==3){
+    	if(bookmarkStatus==6){
     		queueRequest(new BookmarkColorRequest(getActivity(), id).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
 
 				@Override
@@ -537,7 +537,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
             @Override
             public void success(Void result) {
             	ContentValues cv = new ContentValues();
-                cv.put(AwfulThread.BOOKMARKED, ((bookmarkStatus==3)?bookmarkStatus+2:bookmarkStatus+1)%4);
+                cv.put(AwfulThread.BOOKMARKED, ((bookmarkStatus==6)?bookmarkStatus+2:bookmarkStatus+1)%7);
                 cr.update(AwfulThread.CONTENT_URI, cv, AwfulThread.ID+"=?", AwfulProvider.int2StrArray(id));
             	refreshInfo();
             }

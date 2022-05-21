@@ -72,10 +72,23 @@
 
         <ImageView style="@style/HorizontalSeparator" />
         
-        <android.support.v4.widget.Space
+        <androidx.legacy.widget.Space
             android:layout_width="match_parent"
             android:layout_height="@dimen/material_space_between_content_areas"/>
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/message_user"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Recipient"
+                android:inputType="text|textAutoCorrect|textCapSentences"
+                android:maxLines="1"
+                android:textColor="@color/default_post_font"
+                android:textCursorDrawable="@null" />
 
+        </com.google.android.material.textfield.TextInputLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -89,14 +102,14 @@
                 android:layout_gravity="center_vertical"
                 tools:layout="@layout/icon_picker"/>
 
-            <android.support.design.widget.TextInputLayout
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:counterEnabled="true"
                 app:counterMaxLength="@integer/max_private_message_title_length"
                 >
 
-                <android.support.design.widget.TextInputEditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/message_subject"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -105,25 +118,12 @@
                     android:maxLines="1"
                     android:textColor="@color/default_post_font"
                     android:textCursorDrawable="@null"/>
-            </android.support.design.widget.TextInputLayout>
+            </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>
 
 
-        <android.support.design.widget.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-        <android.support.design.widget.TextInputEditText
-            android:id="@+id/message_user"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Recipient"
-            android:inputType="text|textAutoCorrect|textCapSentences"
-            android:maxLines="1"
-            android:textColor="@color/default_post_font"
-            android:textCursorDrawable="@null" />
 
-        </android.support.design.widget.TextInputLayout>
 
         <fragment
             android:id="@+id/message_composer_fragment"

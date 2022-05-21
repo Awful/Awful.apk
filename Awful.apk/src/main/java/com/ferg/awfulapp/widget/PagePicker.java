@@ -1,7 +1,7 @@
 package com.ferg.awfulapp.widget;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * Created by baka kaba on 22/05/2016.

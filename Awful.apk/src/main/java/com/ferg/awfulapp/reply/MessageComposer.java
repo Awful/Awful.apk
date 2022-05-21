@@ -4,13 +4,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
-import android.support.annotation.ColorInt;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.BottomSheetBehavior;
-import android.support.v4.app.Fragment;
-import android.support.v7.view.SupportMenuInflater;
-import android.support.v7.view.menu.MenuBuilder;
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import androidx.fragment.app.Fragment;
+import androidx.appcompat.view.SupportMenuInflater;
+import androidx.appcompat.view.menu.MenuBuilder;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -268,7 +268,7 @@ public class MessageComposer extends Fragment implements EmotePickerListener {
 
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                menu.add(Menu.NONE, R.id.show_bbcode_menu, Menu.NONE, R.string.bbcode)
+                menu.add(Menu.NONE, R.id.show_bbcode_menu, Menu.NONE, getString(R.string.bbcode))
                         .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
                         .setIcon(R.drawable.ic_bb);
                 return true;
