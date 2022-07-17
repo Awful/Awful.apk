@@ -141,16 +141,16 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
                     override fun success(result: AwfulSearchResult) {
                         removeLoadingDialog()
                         with(result) {
-                            if (queryId != 0) {
+                            if (resultsFound) {
                                 mSearchResults = resultList
                                 mQueryPages = pages
                                 mQueryId = queryId
                                 mSearchResultList.adapter?.notifyDataSetChanged()
 
                                 mMaxPageQueried = 1
-                                if (mMaxPageQueried < pages) mSRL.isEnabled = true
+                                mSRL.isEnabled = (queryId != 0 && mMaxPageQueried < pages)
                             }
-                            Timber.e("mQueryPages: %s\nmQueryId: %s", mQueryPages, mQueryId)
+                            Timber.e("resultsFound: %s\nmQueryPages: %s\nmQueryId: %s", result.resultsFound, mQueryPages, mQueryId)
                         }
                     }
 
