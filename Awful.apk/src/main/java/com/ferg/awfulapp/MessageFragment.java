@@ -386,12 +386,16 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
         		String replyTitle = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_TITLE));
         		String replyContent = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_CONTENT));
         		if(replyContent != null){
-            		messageComposer.setText(replyContent, false);
+					if (!replyContent.equals(messageComposer.getText())) {
+						messageComposer.setText(replyContent, false);
+					}
         		}else{
         			messageComposer.setText(null, false);
         		}
         		if(replyTitle != null){
-        			mSubject.setText(replyTitle);
+					if (!replyTitle.equals(mSubject.getText().toString())) {
+						mSubject.setText(replyTitle);
+					}
         		}else{
         			mSubject.setText(title);
         		}
