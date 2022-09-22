@@ -34,10 +34,11 @@ function containerInit() {
 			loadIgnoredPost(target, event);
 			return;
 		}
-		if (target.tagName === 'IMG' && target.hasAttribute('title') && target.src.endsWith('.gif')) {
+		if (target.tagName === 'IMG' && target.src.endsWith('.gif')) {
 			freezeGif(target);
 			return;
 		}
+		// TODO 2022/09/22: does this get called anymore? images get wrapped in <a> tags upstream, and gif freezing acts on the <a> tags.
 		if (target.tagName === 'CANVAS' && target.hasAttribute('title') && target.getAttribute('src').endsWith('.gif')) {
 			target.outerHTML = '<img src="' + target.getAttribute('src') + '" title="' + target.getAttribute('title') + '" />';
 			return;
@@ -188,11 +189,11 @@ function processPosts(scopeElement) {
 
     // handle all GIFs that are not avatars
 	if (listener.getPreference('disableGifs') === 'true') {
-		scopeElement.querySelectorAll('img[title][src$=".gif"]:not(.avatar)').forEach(prepareFreezeGif);
+		scopeElement.querySelectorAll('img[src$=".gif"]:not(.avatar)').forEach(prepareFreezeGif);
 	}
 
     // this handles all avatar processing, meaning if the avatar is a GIF we need to handle freezing as well
-    scopeElement.querySelectorAll("img[title].avatar").forEach(function each(img) {
+    scopeElement.querySelectorAll("img.avatar").forEach(function each(img) {
         img.addEventListener('load', processSecondaryAvatar);
     });
     function processSecondaryAvatar() {
@@ -309,18 +310,16 @@ function showInlineImage(url) {
 	}
 
 	/**
-	 * Adds an empty Image Element to the Link if the link is not around a gif
+	 * Adds an empty Image Element to the Link
 	 * @param {Element} link Link Element
 	 */
 	function addEmptyImg(link) {
-		// basically treating anything not marked as a frozen gif as a text link
-		if (!link.classList.contains(FROZEN_GIF)) {
-			var image = document.createElement('img');
-			image.src = '';
-			link.appendChild(image);
-		} else {
-			link.classList.add(LOADING);
-		}
+        var image = document.createElement('img');
+        image.src = '';
+        link.appendChild(image);
+        if (link.classList.contains(FROZEN_GIF)) {
+            link.classList.add(LOADING);
+        }
 	}
 
 	/**
@@ -332,6 +331,9 @@ function showInlineImage(url) {
 		image.src = url;
 		image.style.height = 'auto';
 		image.style.width = 'auto';
+		if (link.classList.contains(FROZEN_GIF)) {
+            link.querySelector('canvas').replaceWith(image);
+        }
 		link.classList.remove(LOADING);
 		link.classList.remove(FROZEN_GIF);
 	}
@@ -371,6 +373,8 @@ function changeFontFace(font) {
  * @param {Element} image Gif image that will be turned into a still canvas
  */
 function freezeGif(image) {
+    var FROZEN_GIF = 'playGif';
+
 	var canvas = document.createElement('canvas');
 	var imageWidth = image.naturalWidth;
 	var imageHeight = image.naturalHeight;
@@ -382,6 +386,9 @@ function freezeGif(image) {
 		canvas.setAttribute(image.attributes[i].name, image.attributes[i].value);
 	}
 	image.parentNode.replaceChild(canvas, image);
+	if (canvas.parentNode.tagName === "A") {
+	    canvas.parentNode.classList.add(FROZEN_GIF);
+	}
 }
 
 /**
