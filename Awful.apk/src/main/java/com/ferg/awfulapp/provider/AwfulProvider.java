@@ -179,6 +179,7 @@ public class AwfulProvider extends ContentProvider {
         sPostProjectionMap.put(AwfulPost.REGDATE, AwfulPost.REGDATE);
         sPostProjectionMap.put(AwfulPost.USER_ID, AwfulPost.USER_ID);
         sPostProjectionMap.put(AwfulPost.USERNAME, AwfulPost.USERNAME);
+        sPostProjectionMap.put(AwfulPost.IS_IGNORED, AwfulPost.IS_IGNORED);
         sPostProjectionMap.put(AwfulPost.PREVIOUSLY_READ, AwfulPost.PREVIOUSLY_READ);
         sPostProjectionMap.put(AwfulPost.EDITABLE, AwfulPost.EDITABLE);
         sPostProjectionMap.put(AwfulPost.IS_OP, AwfulPost.IS_OP);

@@ -20,7 +20,7 @@ import com.ferg.awfulapp.thread.AwfulThread;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 35;
+    private static final int DATABASE_VERSION = 36;
 
     static final String TABLE_FORUM    = "forum";
     static final String TABLE_THREADS    = "threads";
@@ -103,6 +103,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 AwfulPost.REGDATE + " VARCHAR," +
                 AwfulPost.USER_ID + " INTEGER," +
                 AwfulPost.USERNAME + " VARCHAR," +
+                AwfulPost.IS_IGNORED + " INTEGER," +
                 AwfulPost.PREVIOUSLY_READ + " INTEGER," +
                 AwfulPost.EDITABLE + " INTEGER," +
                 AwfulPost.IS_OP + " INTEGER," +
@@ -184,6 +185,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 createDraftTable(aDb);
             case 33:
             case 34:
+            case 35:
                 dropTables(aDb, TABLE_POSTS);
                 createPostTable(aDb);
                 break;//make sure to keep this break statement on the last case of this switch

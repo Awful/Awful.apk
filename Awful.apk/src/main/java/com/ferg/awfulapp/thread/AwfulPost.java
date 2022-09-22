@@ -80,6 +80,8 @@ public class AwfulPost {
 	public static final String REGDATE				 = "regdate";
     public static final String USER_ID               = "user_id";
     public static final String USERNAME              = "username";
+    // 2022/09/21 - TODO: the disadvantage of storing this with a post is that it's not automatically refreshed if a user is unblocked
+    public static final String IS_IGNORED            = "is_ignored";
     public static final String PREVIOUSLY_READ       = "previously_read";
     public static final String EDITABLE              = "editable";
     public static final String IS_OP                 = "is_op";
@@ -116,6 +118,7 @@ public class AwfulPost {
     private String mContent = "";
     private String mEdited = "";
 
+    private boolean isIgnored = false;
 	private boolean mPreviouslyRead = false;
     private String mLastReadUrl = "";
     private boolean mEditable;
@@ -134,6 +137,7 @@ public class AwfulPost {
         result.put("avatar_second", mAvatarSecond);
         result.put("content", mContent);
         result.put("edited", mEdited);
+        result.put("isIgnored", Boolean.toString(isIgnored()));
         result.put("previouslyRead", Boolean.toString(mPreviouslyRead));
         result.put("lastReadUrl", mLastReadUrl);
         result.put("editable", Boolean.toString(mEditable));
@@ -243,6 +247,7 @@ public class AwfulPost {
             int regdateIndex = aCursor.getColumnIndex(REGDATE);
             int userIdIndex = aCursor.getColumnIndex(USER_ID);
             int usernameIndex = aCursor.getColumnIndex(USERNAME);
+            int isIgnoredIndex = aCursor.getColumnIndex(IS_IGNORED);
             int previouslyReadIndex = aCursor.getColumnIndex(PREVIOUSLY_READ);
             int editableIndex = aCursor.getColumnIndex(EDITABLE);
             int isOpIndex = aCursor.getColumnIndex(IS_OP);
@@ -264,6 +269,7 @@ public class AwfulPost {
                 current.setRegDate(aCursor.getString(regdateIndex));
                 current.setUserId(aCursor.getString(userIdIndex));
                 current.setUsername(aCursor.getString(usernameIndex));
+                current.setIsIgnored(aCursor.getInt(isIgnoredIndex) == 1);
                 current.setPreviouslyRead(aCursor.getInt(previouslyReadIndex) > 0);
                 current.setLastReadUrl(aCursor.getInt(postIndexIndex)+"");
                 current.setEditable(aCursor.getInt(editableIndex) == 1);
@@ -415,7 +421,11 @@ public class AwfulPost {
         mLastReadUrl = aLastReadUrl;
     }
 
-	public boolean isPreviouslyRead() {
+    public boolean isIgnored() { return isIgnored; }
+
+    public void setIsIgnored(boolean ignored) { isIgnored = ignored; }
+
+    public boolean isPreviouslyRead() {
 		return mPreviouslyRead;
 	}
 
@@ -447,7 +457,6 @@ public class AwfulPost {
      */
     public static int syncPosts(ContentResolver content, Document aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex){
         List<ContentValues> result = AwfulPost.parsePosts(aThread, aThreadId, unreadIndex, opId, prefs, startIndex);
-        // TODO: 02/06/2017 see below, ignored posts are NOT stored!
         int resultCount = content.bulkInsert(CONTENT_URI, result.toArray(new ContentValues[result.size()]));
         Timber.i("Inserted " + resultCount + " posts into DB, threadId:" + aThreadId + " unreadIndex: " + unreadIndex);
         return resultCount;
@@ -461,10 +470,6 @@ public class AwfulPost {
         Elements posts = aThread.getElementsByClass("post");
         List<Callable<ContentValues>> parseTasks = new ArrayList<>(posts.size());
         for(Element postData : posts){
-            // TODO: 02/06/2017 this drops ignored posts completely - fine for a view, bad for actually getting all the posts on a page! Letting them store might break ignore??
-            if (postData.hasClass("ignored") && prefs.hideIgnoredPosts) {
-                continue;
-            }
             parseTasks.add(new PostParseTask(postData, updateTime, index, unreadIndex, aThreadId, opId, prefs));
             index++;
         }
