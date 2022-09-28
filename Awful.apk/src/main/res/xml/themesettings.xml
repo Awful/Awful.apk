@@ -2,10 +2,22 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
         <!-- Theme and Layout list prefs have their entries/values initialised in ThemeSettings -->
         <ListPreference
+            android:key="@string/pref_key_theme_changing"
+            android:title="@string/theme_changing"
+            android:entries="@array/theme_changing"
+            android:entryValues="@array/theme_changing_values"
+            android:defaultValue="follow_system"
+            />
+        <ListPreference
             android:key="@string/pref_key_theme"
             android:title="@string/theme"
             android:defaultValue="default.css"
             />
+        <ListPreference
+                android:key="@string/pref_key_theme_dark_mode"
+                android:title="@string/theme_dark_mode"
+                android:defaultValue="default.css"
+                />
         <SwitchPreference
             android:key="@string/pref_key_force_forum_themes"
             android:title="@string/force_forum_themes"

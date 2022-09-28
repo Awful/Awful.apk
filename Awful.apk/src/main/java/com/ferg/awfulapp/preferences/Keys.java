@@ -25,7 +25,9 @@ public abstract class Keys {
     @IntDef({
             USERNAME,
             USER_AVATAR_URL,
+            THEME_CHANGING,
             THEME,
+            THEME_DARK_MODE,
             LAUNCHER_ICON,
             LAYOUT,
             IMGUR_THUMBNAILS,
@@ -140,7 +142,9 @@ public abstract class Keys {
 
     public static final int USERNAME = R.string.pref_key_username;
     public static final int USER_AVATAR_URL = R.string.pref_key_user_title;
+    public static final int THEME_CHANGING = R.string.pref_key_theme_changing;
     public static final int THEME = R.string.pref_key_theme;
+    public static final int THEME_DARK_MODE = R.string.pref_key_theme_dark_mode;
     public static final int LAUNCHER_ICON = R.string.pref_key_launcher_icon;
     public static final int LAYOUT = R.string.pref_key_layout;
     public static final int IMGUR_THUMBNAILS = R.string.pref_key_imgur_thumbnails;

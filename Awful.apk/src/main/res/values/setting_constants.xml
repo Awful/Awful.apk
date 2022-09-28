@@ -7,6 +7,16 @@
         <item>landscape</item>
     </string-array>
 
+    <string-array name="theme_changing_values">
+        <item>@string/theme_changing_always_light</item>
+        <item>@string/theme_changing_always_dark</item>
+        <item>@string/theme_changing_follow_battery_saver</item>
+        <item>@string/theme_changing_follow_system</item>
+    </string-array>
+    <string name="theme_changing_always_light">always_light</string>
+    <string name="theme_changing_always_dark">always_dark</string>
+    <string name="theme_changing_follow_battery_saver">follow_battery_saver</string>
+    <string name="theme_changing_follow_system">follow_system</string>
     <string-array name="layouts_values">
         <item>default</item>
     </string-array>

@@ -41,7 +41,9 @@ public class ThemeSettings extends SettingsFragment {
     {
         SETTINGS_XML_RES_ID = R.xml.themesettings;
         VALUE_SUMMARY_PREF_KEYS = new int[]{
+                R.string.pref_key_theme_changing,
                 R.string.pref_key_theme,
+                R.string.pref_key_theme_dark_mode,
                 R.string.pref_key_layout,
                 R.string.pref_key_preferred_font
         };
@@ -96,7 +98,8 @@ public class ThemeSettings extends SettingsFragment {
         List<CharSequence> themeNames = new ArrayList<>();
         List<CharSequence> themeValues = new ArrayList<>();
         ListPreference themePref = (ListPreference) findPrefById(R.string.pref_key_theme);
-        if (themePref == null) {
+        ListPreference darkThemePref = (ListPreference) findPrefById(R.string.pref_key_theme_dark_mode);
+        if (themePref == null || darkThemePref == null) {
             throw new RuntimeException("Theme or layout preference is missing!");
         }
 
@@ -127,6 +130,7 @@ public class ThemeSettings extends SettingsFragment {
         }
 
         setListPreferenceChoices(themePref, themeNames, themeValues);
+        setListPreferenceChoices(darkThemePref, themeNames, themeValues);
     }
 
 

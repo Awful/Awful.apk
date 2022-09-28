@@ -2,11 +2,15 @@ package com.ferg.awfulapp
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.ActivityInfo.*
 import android.graphics.Typeface
 import android.net.http.HttpResponseCache
 import android.os.Bundle
+import android.os.PowerManager
 import androidx.annotation.CallSuper
 import androidx.appcompat.app.AppCompatActivity
 import android.text.method.ScrollingMovementMethod
@@ -17,6 +21,7 @@ import com.ferg.awfulapp.constants.Constants
 import com.ferg.awfulapp.constants.Constants.LOGIN_ACTIVITY_REQUEST
 import com.ferg.awfulapp.network.NetworkUtils
 import com.ferg.awfulapp.preferences.AwfulPreferences
+import com.ferg.awfulapp.preferences.Keys
 import com.ferg.awfulapp.provider.AwfulTheme
 import com.ferg.awfulapp.provider.ColorProvider
 import com.ferg.awfulapp.task.AwfulRequest
@@ -39,6 +44,8 @@ import java.io.File
  */
 abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPreferenceUpdate, NavigationEventHandler {
     private var customActivityTitle: TextView? = null
+    private var currentThemeResId: Int = AwfulTheme.forForum(null).themeResId
+    private var powerStateReceiver: PowerStateReceiver = PowerStateReceiver()
     // TODO: this is a var but honestly why does any activity need to replace it with their own copy? It's a singleton - if they're doing it for the callbacks, just use the register method
     var mPrefs: AwfulPreferences = AwfulPreferences.getInstance()
 
@@ -53,6 +60,10 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
         val splashScreen = installSplashScreen()
 
         mPrefs.registerCallback(this)
+
+        val filter = IntentFilter(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED)
+        registerReceiver(powerStateReceiver, filter)
+
         updateTheme()
         super.onCreate(savedInstanceState)
     }
@@ -102,6 +113,7 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
         Timber.i("*** onDestroy")
         super.onDestroy()
         mPrefs.unregisterCallback(this)
+        unregisterReceiver(powerStateReceiver)
     }
 
 
@@ -172,9 +184,8 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
     override fun onPreferenceChange(prefs: AwfulPreferences, key: String?) {
         Timber.i("Key changed: ${key!!}")
         updateOrientation()
-        if ("theme" == key || "page_layout" == key) {
-            updateTheme()
-            afterThemeChange()
+        if ("theme_changing" == key || "theme" == key || "theme_dark_mode" == key || "page_layout" == key) {
+            recreate()
         }
         updateActionbarTheme()
     }
@@ -193,11 +204,10 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
     fun setPreferredFont(view: View?, flags: Int = -1) =
             view?.let { FontManager.getInstance().setTypefaceToCurrentFont(view, flags) }
 
-    protected fun updateTheme() = setTheme(AwfulTheme.forForum(null).themeResId)
-
-    // TODO: see if this can be rolled into updateTheme without causing issues
-    private fun afterThemeChange() = recreate()
-
+    protected fun updateTheme() {
+        currentThemeResId = AwfulTheme.forForum(null).themeResId
+        setTheme(currentThemeResId)
+    }
 
     //
     // Misc
@@ -252,6 +262,17 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
         )
     }
 
+    private class PowerStateReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            Timber.d("Got power save mode event")
+            if (context is AwfulActivity) {
+                if (context.mPrefs.getPreference(Keys.THEME_CHANGING, context.resources.getString(R.string.theme_changing_follow_system)).equals(context.resources.getString(R.string.theme_changing_follow_battery_saver))
+                    && context.currentThemeResId != AwfulTheme.forForum(null).themeResId) {
+                    context.recreate()
+                }
+            }
+        }
+    }
 
     companion object {
         val DEBUG = Constants.DEBUG

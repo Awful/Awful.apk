@@ -32,13 +32,16 @@ package com.ferg.awfulapp.preferences;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.Uri;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+
 import android.util.Log;
 import android.util.TypedValue;
 
@@ -99,7 +102,9 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     public int postFixedFontSizeSp;
     public int postFontSizePx;
     public boolean lockScrolling;
+	public String themeChanging;
 	public String theme;
+	public String themeDarkMode;
 	public String launcherIcon;
     public boolean forceForumThemes;
     public String layout;
@@ -162,7 +167,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     public int alertIDShown;
 	public int lastVersionSeen;
 
-    private static final int PREFERENCES_VERSION = 1;
+    private static final int PREFERENCES_VERSION = 2;
     private int currPrefVersion;
 
     private HashSet<String> longKeys;
@@ -245,7 +250,9 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		postFontSizeSp = getPreference(Keys.POST_FONT_SIZE_SP, Constants.DEFAULT_FONT_SIZE_SP);
         postFixedFontSizeSp = getPreference(Keys.POST_FIXED_FONT_SIZE_SP, Constants.DEFAULT_FIXED_FONT_SIZE_SP);
 		postFontSizePx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, postFontSizeSp, mContext.getResources().getDisplayMetrics());
+		themeChanging            = getPreference(Keys.THEME_CHANGING, "follow_system");
 		theme					 = getPreference(Keys.THEME, "default.css");
+		themeDarkMode            = getPreference(Keys.THEME_DARK_MODE, "default.css");
 		launcherIcon			 = getPreference(Keys.LAUNCHER_ICON, "frog");
 		layout					 = getPreference(Keys.LAYOUT, "default");
         imagesEnabled            = getPreference(Keys.IMAGES_ENABLED, true);
@@ -393,7 +400,11 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 				// transfer the value to the new key
 				setPreference(Keys.NEW_THREADS_FIRST_UCP, newThreadsFirst);
         		newThreadsFirstUCP = newThreadsFirst;
-				break;
+			case 1:
+				setPreference(Keys.THEME_CHANGING, this.getResources().getString(R.string.theme_changing_follow_system));
+				themeChanging = this.getResources().getString(R.string.theme_changing_follow_system);
+				setPreference(Keys.THEME_DARK_MODE, getPreference(Keys.THEME, "default.css"));
+				themeDarkMode = getPreference(Keys.THEME, "default.css");
 			default://make sure to keep this break statement on the last case of this switch
 				break;
 			}
@@ -407,6 +418,21 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 
 	public Resources getResources(){
 		return mContext.getResources();
+	}
+
+	public String getActiveTheme() {
+		Resources res = this.getResources();
+		boolean useDarkTheme;
+		if (themeChanging.equals(res.getString(R.string.theme_changing_always_dark))) {
+			useDarkTheme = true;
+		} else if (themeChanging.equals(res.getString(R.string.theme_changing_follow_battery_saver))) {
+			useDarkTheme = ((PowerManager) mContext.getSystemService(Context.POWER_SERVICE)).isPowerSaveMode();
+		} else if (themeChanging.equals(res.getString(R.string.theme_changing_follow_system))) {
+			useDarkTheme = (res.getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+		} else {
+			useDarkTheme = false;
+		}
+		return (useDarkTheme ? this.themeDarkMode : this.theme);
 	}
 	
 	public boolean isOnProbation(){

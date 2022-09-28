@@ -174,7 +174,7 @@ public enum AwfulTheme {
         if (forumId != null && prefs.forceForumThemes) {
             forumTheme = themeForForumId(forumId, prefs);
         }
-        return (forumTheme != null) ? forumTheme : themeForCssFilename(prefs.theme);
+        return (forumTheme != null) ? forumTheme : themeForCssFilename(prefs.getActiveTheme());
     }
 
     /**

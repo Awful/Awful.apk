@@ -298,7 +298,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 			Timber.i("Restoring fragment - loading cached posts from database");
 			setThreadId(aSavedState.getInt(THREAD_ID_KEY, NULL_THREAD_ID));
 			setPageNumber(aSavedState.getInt(THREAD_PAGE_KEY, FIRST_PAGE));
-			// TODO: 04/05/2017 saved scroll position doesn't seem to actually get used to set the position?
 			savedScrollPosition = aSavedState.getInt(SCROLL_POSITION_KEY, 0);
 			loadFromCache = true;
 		}
@@ -1084,6 +1083,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
             String html = AwfulHtmlPage.getThreadHtml(aPosts, AwfulPreferences.getInstance(getActivity()), getPageNumber(), mLastPage);
             refreshSessionCookie();
 			mThreadView.setBodyHtml(html);
+			if (savedScrollPosition != 0) {
+				// this won't put us exactly where we were, just close. webviews are difficult beasts
+				mThreadView.scrollTo(0, savedScrollPosition);
+				savedScrollPosition = 0;
+			}
 			displayingFullPage = aPosts.size() >= getPrefs().postPerPage; // shouldn't ever be > but just to be safe
             setProgress(100);
         } catch (Exception e) {
@@ -1490,8 +1494,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
         	if(mThreadView != null){
         		populateThreadView(AwfulPost.fromCursor(getActivity(), aData));
         	}
-			// TODO: 04/05/2017 sometimes you don't want this resetting, e.g. restoring fragment state
-			savedScrollPosition = 0;
         }
 
         @Override

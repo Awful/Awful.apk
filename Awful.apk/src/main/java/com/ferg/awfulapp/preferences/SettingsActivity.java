@@ -22,7 +22,6 @@ import android.widget.Toast;
 
 import com.ferg.awfulapp.AwfulActivity;
 import com.ferg.awfulapp.R;
-import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.fragments.RootSettings;
 import com.ferg.awfulapp.preferences.fragments.SettingsFragment;
 
@@ -96,8 +95,7 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         prefs = AwfulPreferences.getInstance(this, this);
-        currentThemeName = prefs.theme;
-        updateTheme();
+        currentThemeName = prefs.getActiveTheme();
         // theme needs to be set BEFORE the super call, or it'll be inconsistent
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
@@ -253,11 +251,11 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
             }
         }
 
-        if (!getMPrefs().theme.equals(this.currentThemeName)) {
-            this.currentThemeName = getMPrefs().theme;
-            updateTheme();
-            recreate();
+        if (!getMPrefs().getActiveTheme().equals(this.currentThemeName)) {
+            this.currentThemeName = getMPrefs().getActiveTheme();
         }
+        // AwfulActivity has a pref change listener that will apply theme change if needed
+        super.onPreferenceChange(preferences, key);
     }
 
 

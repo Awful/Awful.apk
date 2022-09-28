@@ -3,7 +3,9 @@
     <!--keys for preferences that store a value in the SharedPreferences -->
     <string name="pref_key_username">username</string>
     <string name="pref_key_user_title">user_title</string>
+    <string name="pref_key_theme_changing">theme_changing</string>
     <string name="pref_key_theme">theme</string>
+    <string name="pref_key_theme_dark_mode">theme_dark_mode</string>
     <string name="pref_key_layout">layouts</string>
     <string name="pref_key_imgur_thumbnails">imgur_thumbnails</string>
     <string name="pref_key_preferred_font">preferred_font</string>
@@ -82,7 +84,9 @@
     <string name="pref_key_open_thread_menu_item">open_thread</string>
     <string name="pref_key_account_menu_item">account</string>
     <string name="pref_key_forum_index_menu_item">forum_index_menu_item</string>
+    <string name="pref_key_theme_changing_menu_item">theme_changing</string>
     <string name="pref_key_theme_menu_item">theme</string>
+    <string name="pref_key_theme_dark_mode_menu_item">theme_dark_mode</string>
     <string name="pref_key_thread_menu_item">thread</string>
     <string name="pref_key_posts_menu_item">posts</string>
     <string name="pref_key_images_menu_item">images</string>

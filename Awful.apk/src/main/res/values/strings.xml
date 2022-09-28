@@ -434,7 +434,15 @@
     <string name="disable_timgs_summary">Don\'t shrink large images</string>
 
     <!-- Theme Settings page -->
+    <string name="theme_changing">Active theme</string>
+    <string-array name="theme_changing">
+        <item>Light</item>
+        <item>Dark</item>
+        <item>Set by Battery Saver</item>
+        <item>Use system default</item>
+    </string-array>
     <string name="theme">Theme</string>
+    <string name="theme_dark_mode">Dark mode theme</string>
     <string name="force_forum_themes">Force forum themes</string>
     <string name="force_forum_themes_summary">Specific theme in YOSPOS, BYOB and FYAD</string>
     <string name="layouts">Layout</string>
