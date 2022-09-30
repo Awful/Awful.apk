@@ -111,6 +111,8 @@ class PostParseTask(
                 postData.attr("data-idx").replace(POST_ID_GARBAGE, "").toIntOrNull() ?: index
             )
 
+            put(IS_IGNORED, postData.hasClass("ignored").sqlBool)
+
             // Check for "class=seenX", or just rely on unread index
             val markedSeen = postData.selectFirst("[class^=seen]") != null
             val postHasBeenRead = markedSeen || index <= lastReadIndex

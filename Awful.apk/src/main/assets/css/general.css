@@ -3,6 +3,10 @@
     src: url('iconfont.ttf');
 }
 
+.ignored {
+    display: none;
+}
+
 .avatar {
     align-self: baseline;
     object-fit: contain;

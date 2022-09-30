@@ -194,8 +194,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	private String postJump = "";
 	private int savedScrollPosition = 0;
 	/** Whether the currently displayed page represents a full page of posts */
-	private boolean displayingLastPage = false;
-	
+	private boolean displayingFullPage = false;
+
 	private ShareActionProvider shareProvider;
 
     private ForumsIndexActivity parentActivity;
@@ -1084,7 +1084,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
             String html = AwfulHtmlPage.getThreadHtml(aPosts, AwfulPreferences.getInstance(getActivity()), getPageNumber(), mLastPage);
             refreshSessionCookie();
 			mThreadView.setBodyHtml(html);
-			displayingLastPage = getPageNumber() == getLastPage();
+			displayingFullPage = aPosts.size() >= getPrefs().postPerPage; // shouldn't ever be > but just to be safe
             setProgress(100);
         } catch (Exception e) {
             // If we've already left the activity the webview may still be working to populate,
@@ -1099,7 +1099,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 		if (swipyRefreshLayoutDirection == SwipyRefreshLayoutDirection.TOP) {
 			// no page turn when swiping at the top of the page
 			refresh();
-		} else if (displayingLastPage) {
+		} else if (!displayingFullPage) {
 			// always refresh if there could be more posts
 			refresh();
 		} else {

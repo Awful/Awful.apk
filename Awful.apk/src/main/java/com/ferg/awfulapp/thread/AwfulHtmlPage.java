@@ -209,6 +209,7 @@ public abstract class AwfulHtmlPage {
 
             postData.put("seen", post.isPreviouslyRead() ? "read" : "unread");
             postData.put("isOP", (aPrefs.highlightOP && post.isOp()) ? "op" : null);
+            postData.put("isIgnored", (aPrefs.hideIgnoredPosts && post.isIgnored()) ? "ignored" : null);
             postData.put("isMarked", aPrefs.markedUsers.contains(username) ? "marked" : null);
             postData.put("postID", post.getId());
             postData.put("isSelf", (aPrefs.highlightSelf && username.equals(aPrefs.username)) ? "self" : null);
