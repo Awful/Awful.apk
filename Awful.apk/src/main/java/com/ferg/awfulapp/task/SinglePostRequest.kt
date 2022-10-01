@@ -32,7 +32,7 @@ class SinglePostRequest(context: Context, private val postId: String)
         val postBody = doc.selectFirst(".postbody")
         val fyadPostBody = postBody?.selectFirst(".complete_shit")
         (fyadPostBody ?: postBody ?: throw AwfulError("Couldn't find post content")).apply {
-            AwfulPost.convertVideos(this, prefs.inlineYoutube)
+            AwfulPost.convertVideos(this, prefs.inlineYoutube, prefs.inlineTiktoks)
             getElementsByTag("img").forEach {
                 AwfulPost.processPostImage(
                     it,

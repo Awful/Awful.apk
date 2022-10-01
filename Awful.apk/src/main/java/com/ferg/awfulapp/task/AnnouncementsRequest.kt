@@ -75,7 +75,7 @@ class AnnouncementsRequest(context: Context)
             val postBody = announcementSection.selectFirst(".postbody")
             if (postBody != null) {
                 // process videos, images and links and store the resulting post HTML
-                AwfulPost.convertVideos(postBody, prefs.inlineYoutube)
+                AwfulPost.convertVideos(postBody, prefs.inlineYoutube, prefs.inlineTiktoks)
                 for (image in postBody.getElementsByTag("img")) {
                     AwfulPost.processPostImage(image, false, prefs)
                 }

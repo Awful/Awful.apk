@@ -403,6 +403,7 @@
     <string name="inline_soundcloud">Soundcloud</string>
     <string name="post_embedding_divider_videos">Videos</string>
     <string name="inline_youtube">YouTube</string>
+    <string name="inline_tiktoks">TikTok</string>
     <string name="inline_vines">Vine</string>
     <string name="inline_twitch">Twitch</string>
     <string name="inline_twitch_summary">Slow with several on a page</string>
