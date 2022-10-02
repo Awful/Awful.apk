@@ -14,6 +14,8 @@ import android.os.Bundle;
 import android.provider.OpenableColumns;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.ferg.awfulapp.AwfulApplication;
 import com.google.android.material.textfield.TextInputLayout;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -71,6 +73,7 @@ public class ImgurInserter extends DialogFragment {
 
     public static final String TAG = "ImgurInserter";
     private static final int IMGUR_IMAGE_PICKER = 3452;
+    private static final String KEY_IMGUR_LAST_CHOSEN_UPLOAD_OPTION = "imgur_last_chosen_upload_option";
 
     private java.text.DateFormat dateFormat;
     private java.text.DateFormat timeFormat;
@@ -135,6 +138,7 @@ public class ImgurInserter extends DialogFragment {
         uploadButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
         uploadButton.setOnClickListener(view -> startUpload());
         // TODO: 05/06/2017 is that method guaranteed to be fired when the system creates the spinner and sets the first item?
+        uploadTypeSelector.setSelection(AwfulApplication.getAppStatePrefs().getInt(KEY_IMGUR_LAST_CHOSEN_UPLOAD_OPTION, 0));
         updateUploadType();
         updateRemainingUploads();
         return dialog;
@@ -383,6 +387,7 @@ public class ImgurInserter extends DialogFragment {
         if (state != State.READY_TO_UPLOAD) {
             return;
         }
+        AwfulApplication.getAppStatePrefs().edit().putInt(KEY_IMGUR_LAST_CHOSEN_UPLOAD_OPTION, uploadTypeSelector.getSelectedItemPosition()).apply();
         setState(State.UPLOADING);
         cancelUploadTask();
 
