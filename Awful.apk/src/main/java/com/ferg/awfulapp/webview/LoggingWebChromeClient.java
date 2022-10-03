@@ -69,6 +69,34 @@ public class LoggingWebChromeClient extends WebChromeClient {
             callback.onCustomViewHidden();
             return;
         }
+
+        // we lose the scroll position when viewing things fullscreen.
+        //
+        // it appears to work if we store the scroll position, then
+        // immediately catch the scroll events generated when the scroll
+        // position changes, then scroll right back.
+        //
+        // for embedded videos, doesn't work when video is scrolled far
+        // enough down to hide <a class="video-link">. there's a hacky
+        // correction below.
+        // TODO: this doesn't perfectly restore when scrolled down to near the bottom of a page.
+        webView.evaluateJavascript(
+                "(function(){" +
+                    "var scrollPos = window.scrollY;" +
+                    "var restoreTimeout = undefined;" +
+                    "window.addEventListener('scroll', debounceRestoreScroll);" +
+
+                    "function debounceRestoreScroll() {" +
+                        "clearTimeout(restoreTimeout);" +
+                        "restoreTimeout = setTimeout(restore, 100);" +
+                        "function restore() {" +
+                            "window.scrollTo({top: scrollPos});" +
+                            "window.removeEventListener('scroll', debounceRestoreScroll);" +
+                        "}" +
+                    "}" +
+                "})();",
+                null);
+
         view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         fullscreenContentDialog = new AlertDialog.Builder(webView.getContext(), android.R.style.Theme_Black_NoTitleBar_Fullscreen)
                 .setView(view).show();
@@ -81,6 +109,21 @@ public class LoggingWebChromeClient extends WebChromeClient {
         super.onHideCustomView();    //To change body of overridden methods use File | Settings | File Templates.
         if (fullscreenContentDialog == null)
             return;
+
+        // see above: scroll position may be off by the video's height-ish
+        // if embedded video is scrolled far enough down to not have
+        // the <a class="video-link"> visible anymore.
+        webView.evaluateJavascript(
+        "(function(){" +
+                "var fullscreenElement = document.fullscreenElement;" +
+                "setTimeout(function(){" +
+                    // assume we overshot the scroll position because of the above :cry:
+                    "if (fullscreenElement.getBoundingClientRect().bottom < 0) {" +
+                        "window.scrollBy({top: -fullscreenElement.clientHeight});" +
+                    "}" +
+                "}, 250);" +
+            "})();",
+        null);
 
         // Hide the custom view.
         fullscreenContentDialog.dismiss();
