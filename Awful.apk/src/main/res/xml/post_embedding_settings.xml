@@ -35,6 +35,12 @@
 
         <SwitchPreference
             android:defaultValue="false"
+            android:key="@string/pref_key_inline_tiktoks"
+            android:title="@string/inline_tiktoks"
+            />
+
+        <SwitchPreference
+            android:defaultValue="false"
             android:key="@string/pref_key_inline_vines"
             android:title="@string/inline_vines"
             />

@@ -51,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -66,6 +67,7 @@ public class AwfulPost {
     private static final Pattern fixCharacters_regex = Pattern.compile("([\\r\\f])");
 	private static final Pattern youtubeId_regex = Pattern.compile("/v/([\\w_-]+)&?");
 	private static final Pattern youtubeHDId_regex = Pattern.compile("/embed/([\\w_-]+)&?");
+    private static final Pattern tiktokId_regex = Pattern.compile("([\\d]+)$");
     private static final Pattern imgurId_regex = Pattern.compile("^(.*\\.imgur\\.com/)([\\w]+)(\\..*)$");
 	private static final Pattern vimeoId_regex = Pattern.compile("clip_id=(\\d+)&?");
     private static final Pattern userid_regex = Pattern.compile("userid=(\\d+)");
@@ -299,10 +301,11 @@ public class AwfulPost {
      * This mutates the supplied Element's structure.
      * @param contentNode       the Element to search and edit
      * @param inlineYouTubes    whether YouTube videos should be displayed inline, or replaced with a link
+     * @param inlineTiktoks     whether TikTok videos should be displayed inline, or replaced with a link
      */
-    public static void convertVideos(Element contentNode, boolean inlineYouTubes){
+    public static void convertVideos(Element contentNode, boolean inlineYouTubes, boolean inlineTiktoks){
 
-			Elements youtubeNodes = contentNode.getElementsByClass("youtube-player");
+        Elements youtubeNodes = contentNode.getElementsByClass("youtube-player");
 
         for (Element youTube : youtubeNodes) {
             try {
@@ -315,15 +318,12 @@ public class AwfulPost {
                     String link = "http://www.youtube.com/watch?v=" + videoId;
                     String image = "http://img.youtube.com/vi/" + videoId + "/0.jpg";
 
-                    if (!inlineYouTubes) {
-                        Element youtubeLink = new Element(Tag.valueOf("a"), "");
-                        youtubeLink.text(link);
-                        youtubeLink.attr("href", link);
+                    Element youtubeLink = new Element(Tag.valueOf("a"), "");
+                    youtubeLink.text(link);
+                    youtubeLink.attr("href", link);
+                    if (!inlineYouTubes || postElementIsNMWSOrSpoilered(youTube)) {
                         youTube.replaceWith(youtubeLink);
                     } else {
-                        Element youtubeLink = new Element(Tag.valueOf("a"), "");
-                        youtubeLink.text(link);
-                        youtubeLink.attr("href", link);
                         youTube.after(youtubeLink);
                         youtubeLink.before(new Element(Tag.valueOf("br"), ""));
 
@@ -337,6 +337,40 @@ public class AwfulPost {
             } catch (Exception e) {
                 Timber.e(e, "Failed youtube conversion:");
                 continue; //if we fail to convert the video tag, we can still display the rest.
+            }
+        }
+
+        /*
+         * TikTok URL forms seem to be:
+         * https://www.tiktok.com/embed/[video id = \d+]
+         * https://www.tiktok.com/@[username]/video/[video id]
+         * there are more but they don't relate to embedding and don't appear to have video IDs associated
+        */
+        Elements tiktokNodes = contentNode.getElementsByClass("tiktok-player");
+
+        for (Element tiktok : tiktokNodes) {
+            try {
+                String src = tiktok.attr("src");
+                Matcher tiktokMatcher = tiktokId_regex.matcher(src);
+                if (tiktokMatcher.find()) {
+                    String videoId = tiktokMatcher.group(1);
+                    // usernames aren't included in the embed link format, thankfully they don't matter
+                    String linkURLPrefix = "https://www.tiktok.com/@/video/";
+                    String link = linkURLPrefix + videoId;
+
+                    Element tiktokLink = new Element(Tag.valueOf("a"), "");
+                    tiktokLink.text(link);
+                    tiktokLink.attr("href", link);
+                    if (!inlineTiktoks || postElementIsNMWSOrSpoilered(tiktok)) {
+                        tiktok.replaceWith(tiktokLink);
+                    } else {
+                        tiktok.after(tiktokLink);
+                        tiktokLink.before(new Element(Tag.valueOf("br"), ""));
+                    }
+                }
+            } catch (Exception e) {
+                Timber.e(e, "Failed TikTok conversion:");
+                continue;
             }
         }
 
@@ -394,6 +428,16 @@ public class AwfulPost {
                 continue;//if we fail to convert the video tag, we can still display the rest.
             }
         }
+    }
+
+    /**
+     * Duplicates logic from embedding.js. Make changes in both locations!
+     * @param postElement Must have a containing .postbody element
+     * @return boolean
+     */
+    private static boolean postElementIsNMWSOrSpoilered(Element postElement) {
+        return (Objects.requireNonNull(postElement.closest(".postbody")).selectFirst("img[title=':nws:'], img[title=':nms:']") != null)
+                || Objects.requireNonNull(postElement.parent()).hasClass("bbc-spoiler");
     }
 
 	public String getEdited() {

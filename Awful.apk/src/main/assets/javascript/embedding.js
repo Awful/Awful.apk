@@ -235,7 +235,9 @@ function processThreadEmbeds(replacementArea) {
 	}
 
 	/**
-	 * Checks whether an element should be embedded depending on whether there are NWS/NMS emoticons in the post or if it is spoilered
+	 * Checks whether an element should be embedded depending on whether there are NWS/NMS emoticons in the post or if it is spoilered.
+	 *
+	 * Duplicate logic for YouTube/TikTok embeds is in AwfulPost.java (postElementIsNMWSOrSpoilered). Make changes in both locations!
 	 * @param {Element} element The element that might be NWS or spoilered
 	 * @returns {Boolean} False if the element is spoilered or possibly NWS/NMS
 	 */

@@ -142,7 +142,7 @@ class PostParseTask(
             val postBody = postData.selectFirst(".postbody")
             val fyadPostBody = postBody!!.selectFirst(".complete_shit")
             (fyadPostBody ?: postBody).apply {
-                convertVideos(this, prefs.inlineYoutube)
+                convertVideos(this, prefs.inlineYoutube, prefs.inlineTiktoks)
                 getElementsByTag("img").forEach { processPostImage(it, postHasBeenRead, prefs) }
                 getElementsByTag("a").forEach(::tryConvertToHttps)
                 if (this == fyadPostBody) {
