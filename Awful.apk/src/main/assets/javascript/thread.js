@@ -187,26 +187,26 @@ function processPosts(scopeElement) {
 		highlightOwnQuotes(scopeElement);
 	}
 
-    // handle all GIFs that are not avatars
+	// handle all GIFs that are not avatars
 	if (listener.getPreference('disableGifs') === 'true') {
 		scopeElement.querySelectorAll('img[src$=".gif"]:not(.avatar)').forEach(prepareFreezeGif);
 	}
 
-    // this handles all avatar processing, meaning if the avatar is a GIF we need to handle freezing as well
-    scopeElement.querySelectorAll("img.avatar").forEach(function each(img) {
-        img.addEventListener('load', processSecondaryAvatar);
-    });
-    function processSecondaryAvatar() {
-        // when people want to use gangtags as avatars, etc., they often use a 1x1 image as their primary avatar.
-        // if this is the case, we change over to a "secondary" avatar, which is probably what's intended.
-        if (this.naturalWidth === 1 && this.naturalHeight === 1 && this.dataset.avatarSecondSrc && this.dataset.avatarSecondSrc.length) {
-            this.src = this.dataset.avatarSecondSrc;
-        }
+	// this handles all avatar processing, meaning if the avatar is a GIF we need to handle freezing as well
+	scopeElement.querySelectorAll("img.avatar").forEach(function each(img) {
+		img.addEventListener('load', processSecondaryAvatar);
+	});
+	function processSecondaryAvatar() {
+		// when people want to use gangtags as avatars, etc., they often use a 1x1 image as their primary avatar.
+		// if this is the case, we change over to a "secondary" avatar, which is probably what's intended.
+		if (this.naturalWidth === 1 && this.naturalHeight === 1 && this.dataset.avatarSecondSrc && this.dataset.avatarSecondSrc.length) {
+			this.src = this.dataset.avatarSecondSrc;
+		}
 
-        if (listener.getPreference('disableGifs') === 'true' && this.src.slice(-4) === ".gif") {
-            prepareFreezeGif(this);
-        }
-    }
+		if (listener.getPreference('disableGifs') === 'true' && this.src.slice(-4) === ".gif") {
+			prepareFreezeGif(this);
+		}
+	}
 }
 
 /**
@@ -214,7 +214,7 @@ function processPosts(scopeElement) {
  * @param {Element} scopeElement The element containing videos to pause
  */
 function pauseVideosOutOfView(scopeElement) {
-    scopeElement = scopeElement || document;
+	scopeElement = scopeElement || document;
 	scopeElement.querySelectorAll('video').forEach(function eachVideo(video) {
 		if (isElementInViewport(video) && video.parentElement.parentElement.tagName !== 'BLOCKQUOTE' && video.firstElementChild.src.indexOf('webm') === -1) {
 			video.play();
@@ -314,12 +314,12 @@ function showInlineImage(url) {
 	 * @param {Element} link Link Element
 	 */
 	function addEmptyImg(link) {
-        var image = document.createElement('img');
-        image.src = '';
-        link.appendChild(image);
-        if (link.classList.contains(FROZEN_GIF)) {
-            link.classList.add(LOADING);
-        }
+		var image = document.createElement('img');
+		image.src = '';
+		link.appendChild(image);
+		if (link.classList.contains(FROZEN_GIF)) {
+			link.classList.add(LOADING);
+		}
 	}
 
 	/**
@@ -332,8 +332,8 @@ function showInlineImage(url) {
 		image.style.height = 'auto';
 		image.style.width = 'auto';
 		if (link.classList.contains(FROZEN_GIF)) {
-            link.querySelector('canvas').replaceWith(image);
-        }
+			link.querySelector('canvas').replaceWith(image);
+		}
 		link.classList.remove(LOADING);
 		link.classList.remove(FROZEN_GIF);
 	}
@@ -373,7 +373,7 @@ function changeFontFace(font) {
  * @param {Element} image Gif image that will be turned into a still canvas
  */
 function freezeGif(image) {
-    var FROZEN_GIF = 'playGif';
+	var FROZEN_GIF = 'playGif';
 
 	var canvas = document.createElement('canvas');
 	var imageWidth = image.naturalWidth;
@@ -387,7 +387,7 @@ function freezeGif(image) {
 	}
 	image.parentNode.replaceChild(canvas, image);
 	if (canvas.parentNode.tagName === "A") {
-	    canvas.parentNode.classList.add(FROZEN_GIF);
+		canvas.parentNode.classList.add(FROZEN_GIF);
 	}
 }
 
@@ -396,13 +396,13 @@ function freezeGif(image) {
  * @param {Element} image Gif image to monitor
  */
 function prepareFreezeGif(image) {
-    if (!image.complete) {
-        image.addEventListener('load', function freezeLoadHandler() {
-            freezeGif(image);
-        });
-    } else {
-        freezeGif(image);
-    }
+	if (!image.complete) {
+		image.addEventListener('load', function freezeLoadHandler() {
+			freezeGif(image);
+		});
+	} else {
+		freezeGif(image);
+	}
 }
 
 /**
@@ -471,9 +471,9 @@ function handleQuoteLink(link, event) {
  * @param {Element} info The HTMLElement of the postinfo
  */
 function toggleInfo(info) {
-    var posterTitle = info.querySelector('.postinfo-title');
-    var posterRegDate = info.querySelector('.postinfo-regdate');
-    if (!posterTitle) { return; }
+	var posterTitle = info.querySelector('.postinfo-title');
+	var posterRegDate = info.querySelector('.postinfo-regdate');
+	if (!posterTitle) { return; }
 
 	if (posterTitle.classList.contains('extended')) {
 		if (info.querySelector('.avatar') !== null) {
@@ -482,15 +482,15 @@ function toggleInfo(info) {
 				info.querySelector('canvas').classList.add('avatar');
 			}
 			window.requestAnimationFrame(function shrinkAvatar() {
-				info.querySelector('.avatar').classList.remove('extended');
+			info.querySelector('.avatar').classList.remove('extended');
 			});
 		}
 		posterTitle.classList.remove('extended');
 		posterTitle.setAttribute('aria-hidden', 'true');
 		if (posterRegDate) {
-            posterRegDate.classList.remove('extended');
-            posterRegDate.setAttribute('aria-hidden', 'true');
-        }
+			posterRegDate.classList.remove('extended');
+			posterRegDate.setAttribute('aria-hidden', 'true');
+		}
 	} else {
 		if (info.querySelector('.avatar') !== null) {
 			if (info.querySelector('canvas') !== null) {
@@ -507,9 +507,9 @@ function toggleInfo(info) {
 		posterTitle.classList.add('extended');
 		posterTitle.setAttribute('aria-hidden', 'false');
 		if (posterRegDate) {
-            posterRegDate.classList.add('extended');
-            posterRegDate.setAttribute('aria-hidden', 'false');
-        }
+			posterRegDate.classList.add('extended');
+			posterRegDate.setAttribute('aria-hidden', 'false');
+		}
 	}
 }
 
@@ -720,16 +720,16 @@ function handleTouchLeave() {
  * Hides all instances of the given avatar on the page
  */
 function hideAvatar(avatarUrl) {
-    document.querySelectorAll('[src="' + avatarUrl + '"]').forEach(function(avatarTag) {
-        avatarTag.classList.add('hide-avatar');
-    });
+	document.querySelectorAll('[src="' + avatarUrl + '"]').forEach(function(avatarTag) {
+		avatarTag.classList.add('hide-avatar');
+	});
 }
 
 /**
  * Shows all instances of the given avatar on the page
  */
 function showAvatar(avatarUrl) {
-    document.querySelectorAll('[src="' + avatarUrl + '"]').forEach(function(avatarTag) {
-        avatarTag.classList.remove('hide-avatar');
-    });
+	document.querySelectorAll('[src="' + avatarUrl + '"]').forEach(function(avatarTag) {
+		avatarTag.classList.remove('hide-avatar');
+	});
 }
