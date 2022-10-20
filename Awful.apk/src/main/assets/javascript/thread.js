@@ -96,7 +96,10 @@ function containerInit() {
  * @returns {Element|undefined} The requested Element or undefined if the Element is not found
  */
 function findInPath(event, cssClass, returnElement) {
-	var search = Array.prototype.filter.call(event.path, function filter(node) {
+	// Standards-compliant approach is event.composedPath(), but it was added in Chromium 53 and
+	// Android 5 (API level 21) could still be using Chromium 37. So we check for the deprecated
+	// event.path and use the standard approach if the older approach fails.
+	var search = Array.prototype.filter.call(event.path || event.composedPath(), function filter(node) {
 		return node.classList && node.classList.contains(cssClass);
 	});
 	return returnElement ? search[0] : search.length > 0;
