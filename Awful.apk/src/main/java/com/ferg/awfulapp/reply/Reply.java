@@ -68,6 +68,7 @@ public class Reply {
         newReply.put(AwfulMessage.TYPE, AwfulMessage.TYPE_NEW_REPLY);
         getReplyData(page, newReply);
         newReply.put(AwfulPost.FORM_BOOKMARK, getBookmarkOption(page));
+        newReply.put(AwfulPost.FORM_SIGNATURE, getSignatureOption(page));
         return newReply;
     }
 
@@ -77,6 +78,7 @@ public class Reply {
         quote.put(AwfulMessage.TYPE, AwfulMessage.TYPE_QUOTE);
         getReplyData(response, quote);
         quote.put(AwfulPost.FORM_BOOKMARK, getBookmarkOption(response));
+        quote.put(AwfulPost.FORM_SIGNATURE, getSignatureOption(response));
         quote.put(AwfulMessage.REPLY_CONTENT, getMessageContent(response));
         quote.put(AwfulPost.REPLY_ORIGINAL_CONTENT, quote.getAsString(AwfulMessage.REPLY_CONTENT));
         return quote;
