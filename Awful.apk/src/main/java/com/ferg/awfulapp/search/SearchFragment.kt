@@ -172,7 +172,7 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater!!.inflate(R.menu.search, menu)
         val filterMenu = menu?.findItem(R.id.search_terms)!!.subMenu
-        SearchFilter.FilterType.values().forEach { filterMenu.add(it.label) }
+        SearchFilter.FilterType.values().forEach { filterMenu?.add(it.label) }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
