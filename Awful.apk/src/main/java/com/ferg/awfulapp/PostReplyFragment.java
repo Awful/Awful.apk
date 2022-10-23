@@ -297,11 +297,11 @@ public class PostReplyFragment extends AwfulFragment {
                     } else {
                         messageComposer.setText(null, false);
                     }
-                    // set any options and update the menu
-                    postSignature = getCheckedAndRemove(REPLY_SIGNATURE, result);
-                    disableEmotes = getCheckedAndRemove(REPLY_DISABLE_SMILIES, result);
-                    invalidateOptionsMenu();
                 }
+                // set any options and update the menu
+                postSignature = getCheckedAndRemove(REPLY_SIGNATURE, result);
+                disableEmotes = getCheckedAndRemove(REPLY_DISABLE_SMILIES, result);
+                invalidateOptionsMenu();
                 dismissProgressDialog();
                 handleDraft();
             }
