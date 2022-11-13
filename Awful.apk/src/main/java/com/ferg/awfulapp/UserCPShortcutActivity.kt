@@ -3,6 +3,9 @@ package com.ferg.awfulapp
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import androidx.core.content.pm.ShortcutInfoCompat
+import androidx.core.content.pm.ShortcutManagerCompat
+import androidx.core.graphics.drawable.IconCompat
 import com.ferg.awfulapp.preferences.AwfulPreferences
 
 /**
@@ -19,22 +22,24 @@ class UserCPShortcutActivity : Activity() {
         finish()
     }
 
-
     /**
      * Builds the Intent to create the Bookmarks widget, containing the app's "show the bookmarks"
      * Intent (for when it's clicked) and an icon and title for the widget.
      */
     private fun setupShortcut() {
         val shortcutIntent = NavigationEvent.Bookmarks.getIntent(this)
-        val iconResource = Intent.ShortcutIconResource.fromContext(this, getLauncherIcon())
-        // Then, set up the container intent (the response to the caller)
-        with(Intent()) {
-            putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent)
-            putExtra(Intent.EXTRA_SHORTCUT_NAME, getString(R.string.usercp))
-            putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, iconResource)
-            // Now, return the result to the launcher
-            setResult(Activity.RESULT_OK, this)
-        }
+        shortcutIntent.action = Intent.ACTION_DEFAULT
+        val name = getString(R.string.usercp)
+        val launcherIcon = IconCompat.createWithResource(this, getLauncherIcon())
+
+        val shortcut = ShortcutInfoCompat.Builder(this, getString(R.string.awful_bookmarks_shortcut_id))
+            .setIntent(shortcutIntent)
+            .setShortLabel(name)
+            // TODO: doesn't support themed icons in this configuration. Unable to find a workaround right now.
+            .setIcon(launcherIcon)
+            .build()
+
+        setResult(RESULT_OK, ShortcutManagerCompat.createShortcutResultIntent(this, shortcut))
     }
 
     private fun getLauncherIcon(): Int {
