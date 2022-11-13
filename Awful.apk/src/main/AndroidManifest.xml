@@ -73,6 +73,8 @@
 				<data android:pathPrefix="/bookmarkthreads.php"/>
 				<data android:pathPrefix="/showthread.php"/>
             </intent-filter>
+            <meta-data android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts"/>
         </activity-alias>
         <activity-alias android:label="@string/app_name"
                         android:icon="@mipmap/ic_launcher_dog"
@@ -99,6 +101,8 @@
                 <data android:pathPrefix="/bookmarkthreads.php"/>
                 <data android:pathPrefix="/showthread.php"/>
             </intent-filter>
+            <meta-data android:name="android.app.shortcuts"
+                       android:resource="@xml/shortcuts"/>
         </activity-alias>
 
         <activity-alias android:label="@string/app_name"
@@ -126,6 +130,8 @@
                 <data android:pathPrefix="/bookmarkthreads.php"/>
                 <data android:pathPrefix="/showthread.php"/>
             </intent-filter>
+            <meta-data android:name="android.app.shortcuts"
+                       android:resource="@xml/shortcuts"/>
         </activity-alias>
 
         <activity-alias android:label="@string/app_name"
@@ -153,6 +159,8 @@
                 <data android:pathPrefix="/bookmarkthreads.php"/>
                 <data android:pathPrefix="/showthread.php"/>
             </intent-filter>
+            <meta-data android:name="android.app.shortcuts"
+                       android:resource="@xml/shortcuts"/>
         </activity-alias>
 
         <activity-alias android:label="@string/app_name"
@@ -180,6 +188,8 @@
                 <data android:pathPrefix="/bookmarkthreads.php"/>
                 <data android:pathPrefix="/showthread.php"/>
             </intent-filter>
+            <meta-data android:name="android.app.shortcuts"
+                       android:resource="@xml/shortcuts"/>
         </activity-alias>
 
         <activity-alias android:label="@string/app_name"
@@ -207,6 +217,8 @@
                 <data android:pathPrefix="/bookmarkthreads.php"/>
                 <data android:pathPrefix="/showthread.php"/>
             </intent-filter>
+            <meta-data android:name="android.app.shortcuts"
+                       android:resource="@xml/shortcuts"/>
         </activity-alias>
         <!--
         This handles share intents, and is meant to run invisibly and separately in its own task (singleInstance)

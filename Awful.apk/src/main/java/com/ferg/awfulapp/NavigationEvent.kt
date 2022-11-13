@@ -146,10 +146,12 @@ sealed class NavigationEvent(private val extraTypeId: String) {
 
         // the identifiers for each navigation type, added to and read from the app's intents, and the key used to store them
 
+        /** This is baked into shortcuts.xml, if you change the value here, change the value there */
         private const val EVENT_EXTRA_KEY = "navigation event"
         private const val TYPE_RE_AUTHENTICATE = "nav_re-auth"
         private const val TYPE_MAIN_ACTIVITY = "nav_main_activity"
         /** This one gets baked into the bookmarks widget when it's created, so if you change the value they'll have to be remade */
+        /** This is baked into shortcuts.xml, if you change the value here, change the value there */
         private const val TYPE_BOOKMARKS = "nav_bookmarks"
         private const val TYPE_FORUM_INDEX = "nav_forum_index"
         private const val TYPE_THREAD = "nav_thread"
