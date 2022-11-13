@@ -3,6 +3,12 @@
     src: url('iconfont.ttf');
 }
 
+.post {
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0) !important;
+    backface-visibility: hidden;
+}
+
 .ignored {
     display: none;
 }
