@@ -252,15 +252,20 @@
             android:windowSoftInputMode="adjustResize"
             android:configChanges="orientation|keyboardHidden|screenSize"
             />
-        <activity 
+
+        <!-- Legacy activity for API 24 and below, to create bookmarks shortcut.
+             Isn't enabled until first launch on appropriate device. -->
+        <activity
             android:name="com.ferg.awfulapp.UserCPShortcutActivity"
             android:label="@string/usercp"
+            android:enabled="@bool/legacy_shortcut_creation"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.CREATE_SHORTCUT" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
         <activity android:name="com.ferg.awfulapp.MessageDisplayActivity"
                   android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity android:name="com.ferg.awfulapp.PrivateMessageActivity"
