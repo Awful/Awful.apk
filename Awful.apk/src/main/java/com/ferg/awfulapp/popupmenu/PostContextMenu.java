@@ -143,7 +143,7 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
         if (!ownPost) {
             awfulActions.add(prefs.markedUsers.contains(posterUsername) ? UNMARK_USER : MARK_USER);
         }
-        if (!ownPost && youHavePlat && !posterIsAdminOrMod) {
+        if (!ownPost && !posterIsAdminOrMod) {
             awfulActions.add(REPORT_POST);
         }
         awfulActions.add(COPY_URL);
