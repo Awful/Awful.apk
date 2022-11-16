@@ -35,7 +35,6 @@ class UserCPShortcutActivity : Activity() {
         val shortcut = ShortcutInfoCompat.Builder(this, getString(R.string.awful_bookmarks_shortcut_id))
             .setIntent(shortcutIntent)
             .setShortLabel(name)
-            // TODO: doesn't support themed icons in this configuration. Unable to find a workaround right now.
             .setIcon(launcherIcon)
             .build()
 

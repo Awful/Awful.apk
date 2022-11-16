@@ -4,4 +4,5 @@
         <attr name="status_message" format="string"/>
         <attr name="show_spinner" format="boolean"/>
     </declare-styleable>
+    <bool name="legacy_shortcut_creation">true</bool>
 </resources>
