@@ -1,4 +1,4 @@
-<?xml-v25 version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
     <shortcut
         android:shortcutId="bookmarks"
@@ -6,7 +6,7 @@
         android:icon="@drawable/ic_baseline_bookmarks_24">
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetPackage="com.ferg.awfulapp"
+            android:targetPackage="com.ferg.awfulapp.debug"
             android:targetClass="com.ferg.awfulapp.ForumsIndexActivity">
             <!-- Must match values in NavigationEvent.kt for EVENT_EXTRA_KEY and TYPE_BOOKMARKS -->
             <extra android:name="navigation event" android:value="nav_bookmarks" />
