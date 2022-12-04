@@ -33,11 +33,13 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
+import android.text.method.LinkMovementMethod;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -63,6 +65,8 @@ public class AwfulLoginActivity extends AwfulActivity {
     private Button mLogin;
     private EditText mUsername;
     private EditText mPassword;
+    private CheckBox mAccept;
+    private TextView mTerms;
 
     private ProgressDialog mDialog;
 
@@ -77,9 +81,14 @@ public class AwfulLoginActivity extends AwfulActivity {
         mLogin = (Button) findViewById(R.id.login);
         mUsername = (EditText) findViewById(R.id.username);
         mPassword = (EditText) findViewById(R.id.password);
+        mAccept = (CheckBox) findViewById(R.id.login_accept);
+        mTerms = (TextView) findViewById(R.id.login_terms);
         mPassword.setOnEditorActionListener(new OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (!mAccept.isChecked()) {
+                    return false;
+                }
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     loginClick();
                 }
@@ -99,6 +108,15 @@ public class AwfulLoginActivity extends AwfulActivity {
             @Override
             public void onClick(View v) {
                 ((AnimationDrawable) image.getDrawable()).start();
+            }
+        });
+
+        mTerms.setMovementMethod(LinkMovementMethod.getInstance());
+
+        mAccept.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mLogin.setEnabled(mAccept.isChecked());
             }
         });
     }

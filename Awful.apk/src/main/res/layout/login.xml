@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
@@ -62,6 +63,26 @@
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 
+    <CheckBox
+        android:id="@+id/login_accept"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/login_text_container"
+        android:layout_alignParentLeft="true"
+        android:layout_marginRight="5dip"
+        android:layout_marginTop="5dip" />
+
+
+    <TextView
+        android:id="@+id/login_terms"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/login_text_container"
+        android:layout_toLeftOf="@id/login"
+        android:layout_toRightOf="@id/login_accept"
+        android:layout_marginRight="15dip"
+        android:text="@string/terms_and_conditions" />
+
     <Button
         android:id="@+id/login"
         android:layout_width="wrap_content"
@@ -71,6 +92,7 @@
         android:background="#AAFFFFFF"
         android:drawablePadding="15dip"
         android:padding="15dip"
+        android:enabled="false"
         android:text="@string/login" />
 
 </RelativeLayout>
