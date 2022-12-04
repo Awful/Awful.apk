@@ -514,6 +514,7 @@
     <string name="web_view_search_box_hint">Search in page</string>
     <string name="getting_forums">Getting forums</string>
     <string name="imgur_api_client_id">test</string>
+    <string name="terms_and_conditions">I accept the <a href="https://www.somethingawful.com/forum-rules/forum-rules/">terms and conditions of the forum rules</a></string>
 
 
     <!--
