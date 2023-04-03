@@ -198,7 +198,7 @@ public class Constants {
     public static final int DEFAULT_FIXED_FONT_SIZE_SP = 13;
     public static final int MINIMUM_FONT_SIZE_SP = 5;
 	
-	public static final double TABLET_MIN_SIZE = 6.5; //everything above this is considered tablet layout
+	public static final double TABLET_MIN_SIZE = 7; //everything above this is considered tablet layout
 
     public static final String REPLY_POST_ID = "reply_post_id";
     public static final String REPLY_THREAD_ID = "reply_thread_id";
