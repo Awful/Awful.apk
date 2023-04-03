@@ -224,7 +224,7 @@ public class PostReplyFragment extends AwfulFragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == ADD_ATTACHMENT) {
-                if (AwfulUtils.isMarshmallow()) {
+                if (AwfulUtils.isMarshmallow23()) {
                     int permissionCheck = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE);
                     if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
                         this.attachmentData = data;

@@ -62,7 +62,7 @@ public class ThemeSettings extends SettingsFragment {
         findPrefById(R.string.pref_key_launcher_icon).setOnPreferenceChangeListener(new IconListener());
         Activity activity = getActivity();
         // TODO: 25/04/2017 a separate permissions class would probably be good, keep all this garbage in one place
-        if (AwfulUtils.isMarshmallow()) {
+        if (AwfulUtils.isMarshmallow23()) {
             int permissionCheck = ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE);
             if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
                 if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.READ_EXTERNAL_STORAGE)) {
