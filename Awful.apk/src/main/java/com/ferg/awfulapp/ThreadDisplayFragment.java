@@ -38,7 +38,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -129,6 +128,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import timber.log.Timber;
 
@@ -1252,11 +1253,18 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 			isGif = StringUtils.contains(lastSegment, ".gif")
 					&& !StringUtils.contains(lastSegment, ".gifv");
 		}
+		String linkUrl = url;
+		Matcher youtube = Pattern.compile("youtube\\.com/watch\\?v=([a-zA-Z0-9]+).*").matcher(linkUrl);
+		if (youtube.find()) {
+			linkUrl = path.getScheme() + "://" + path.getAuthority() + path.getPath() + "?v="+youtube.group(1);
+		} else if(StringUtils.contains(path.getHost(), "twitter.com")) {
+			linkUrl = path.getScheme() + "://" + path.getAuthority() + path.getPath();
+		}
 
-		UrlContextMenu linkActions = UrlContextMenu.newInstance(url, isImage, isGif, isGif ? "Getting file size" : null);
+		UrlContextMenu linkActions = UrlContextMenu.newInstance(linkUrl, isImage, isGif, isGif ? "Getting file size" : null);
 
 		if (isGif || !AwfulPreferences.getInstance().canLoadImages()) {
-			queueRequest(new ImageSizeRequest(url, result -> {
+			queueRequest(new ImageSizeRequest(linkUrl, result -> {
 				if (linkActions == null) {
 					return;
 				}
@@ -1275,7 +1283,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	}
 
 	public void enqueueDownload(Uri link) {
-		if(AwfulUtils.isMarshmallow()){
+		if(AwfulUtils.isMarshmallow23() && !AwfulUtils.isTiramisu33()){
 			int permissionCheck = ContextCompat.checkSelfPermission(this.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
 			if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
 				downloadLink = link;

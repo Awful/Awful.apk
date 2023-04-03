@@ -250,7 +250,7 @@ public abstract class AwfulHtmlPage {
 
         // user has a custom template selected (nobody uses this I bet)
         if (!"default".equals(aPrefs.layout)) {
-            if (AwfulUtils.isMarshmallow()) {
+            if (AwfulUtils.isMarshmallow23()) {
                 int permissionCheck = ContextCompat.checkSelfPermission(aPrefs.getContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
 
                 if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
