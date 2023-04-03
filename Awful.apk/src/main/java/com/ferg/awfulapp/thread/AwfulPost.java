@@ -331,6 +331,7 @@ public class AwfulPost {
                         youtubeContainer.addClass("videoWrapper");
                         youTube.before(youtubeContainer);
                         youtubeContainer.appendChild(youTube);
+                        youTube.attr("sandbox", youTube.attr("sandbox") + " allow-top-navigation");
                     }
                 }
 
