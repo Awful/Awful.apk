@@ -1254,7 +1254,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 					&& !StringUtils.contains(lastSegment, ".gifv");
 		}
 		String linkUrl = url;
-		Matcher youtube = Pattern.compile("youtube\\.com/watch\\?v=([a-zA-Z0-9]+).*").matcher(linkUrl);
+		Matcher youtube = Pattern.compile("youtube\\.com/watch\\?v=([a-zA-Z0-9-_]+).*").matcher(linkUrl);
 		if (youtube.find()) {
 			linkUrl = path.getScheme() + "://" + path.getAuthority() + path.getPath() + "?v="+youtube.group(1);
 		} else if(StringUtils.contains(path.getHost(), "twitter.com")) {
