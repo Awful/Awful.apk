@@ -560,7 +560,7 @@ public class AwfulPost {
         if (img.hasAttr("title")) {
             if (!prefs.showSmilies) {
                 String name = img.attr("title");
-                img.replaceWith(new Element(Tag.valueOf("p"), "").text(name));
+                img.replaceWith(new Element(Tag.valueOf("span"), "").text(name));
             }
             return;
         }
@@ -569,16 +569,19 @@ public class AwfulPost {
         // if image is wrapped in an <a>, make a link to image and the <a>
         if (isOldImage && prefs.hideOldImages || !prefs.canLoadImages()) {
             if (!linkOk) {
-                img.replaceWith(new Element(Tag.valueOf("p"), "").text(originalUrl));
+                img.replaceWith(new Element(Tag.valueOf("span"), "").text(originalUrl).attr("class","link-no-ok"));
             } else if (alreadyLinked) {
+                Element newParent = new Element(Tag.valueOf("span"), "").attr("class", "converted-to-link");
                 Element parent = img.parent();
 
-                parent.appendText(parent.attr("href"));
-                parent.attr("class", "a-link");
+                parent.appendText(parent.attr("href")).attr("class", "a-link");
 
-                parent.wrap("<div class='converted-to-link'></div>");
-                parent.parent().insertChildren(0, img);  // set the image as the first child of the div
-                img.replaceWith(new Element(Tag.valueOf("a"), "").attr("href", originalUrl).text(originalUrl)
+                parent.parent().insertChildren(parent.elementSiblingIndex(), newParent);  // set the image as the first child of the div
+                newParent.appendChild(parent);
+                newParent.appendChild(img);
+                img.replaceWith(new Element(Tag.valueOf("a"), "")
+                        .attr("href", originalUrl)
+                        .text(originalUrl)
                         .attr("class", "img-link"));
             } else {
                 // switch out for a link with the url
