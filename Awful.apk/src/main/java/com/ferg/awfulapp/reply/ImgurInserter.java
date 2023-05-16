@@ -69,6 +69,13 @@ import static butterknife.ButterKnife.bind;
  * image is inserted as BBcode. Use {@link DialogFragment#setTargetFragment(Fragment, int)} to pass
  * the {@link MessageComposer} where the code will be inserted.
  */
+
+/**  This is Dead Code as of 16/05/2023, Imgur no longer supports anonymous uploads and will be
+ * purging anonymously uploaded images (probably) starting in mid-May 2023
+ */
+
+//TODO: delete this code and/or update it to support logged-in users
+
 public class ImgurInserter extends DialogFragment {
 
     public static final String TAG = "ImgurInserter";

@@ -128,12 +128,7 @@ public class MessageComposer extends Fragment implements EmotePickerListener {
             case R.id.bbcode_image:
                 insertWith(ImageInserter::smartInsert);
                 break;
-            case R.id.bbcode_imgur:
-                ImgurInserter imgurInserter = new ImgurInserter();
-                imgurInserter.setTargetFragment(this, -1);
-                // TODO: 29/12/2017 switch this to childFragmentManager and test
-                imgurInserter.show(getFragmentManager(), "imgur uploader");
-                break;
+            // removed imgur inserter due to change in Imgur TOS
             case R.id.bbcode_video:
                 insertWith(VideoInserter::smartInsert);
                 break;
