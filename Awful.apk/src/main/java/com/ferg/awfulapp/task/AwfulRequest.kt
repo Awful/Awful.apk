@@ -10,6 +10,7 @@ import androidx.annotation.UiThread
 import com.android.volley.*
 import com.android.volley.toolbox.HttpHeaderParser
 import com.ferg.awfulapp.AwfulApplication
+import com.ferg.awfulapp.CaptchaActivity
 import com.ferg.awfulapp.R
 import com.ferg.awfulapp.constants.Constants.BASE_URL
 import com.ferg.awfulapp.constants.Constants.SITE_HTML_ENCODING
@@ -317,8 +318,15 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
 
         @Throws(AuthFailureError::class)
         override fun getHeaders(): Map<String, String> {
-            return mutableMapOf<String, String>().apply(CookieController::setCookieHeaders)
-                    .also { Timber.i("getHeaders: %s", this) }
+            val headers = mutableMapOf<String, String>()
+                .apply(CookieController::setCookieHeaders)
+
+            CaptchaActivity.captchaUserAgent?.let {
+                headers.put("User-Agent", it)
+            }
+
+            return headers
+                .also { Timber.i("getHeaders: %s", this) };
         }
 
 
