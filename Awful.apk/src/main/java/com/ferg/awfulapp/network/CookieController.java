@@ -243,7 +243,7 @@ public class CookieController {
      * If the Cloudflare captcha cookie is set, return it so that it can be appended to the provided
      * cookies.
      */
-    private static Optional<String> getCaptchaCookie() {
+    public static Optional<String> getCaptchaCookie() {
         // It seems like there is no direct accessor for a specific cookie, so this little dance has
         // to be done all the time to find the right one.
         for (HttpCookie c : cookieManager.getCookieStore().get(uri)) {
