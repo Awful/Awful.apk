@@ -481,6 +481,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
         	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, CookieController.getCookieString(Constants.COOKIE_NAME_SESSIONHASH));
         	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, CookieController.getCookieString(Constants.COOKIE_NAME_USERID));
         	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, CookieController.getCookieString(Constants.COOKIE_NAME_PASSWORD));
+
+			// Add the captcha cookie if it is present.
+			final String captchaCookie = CookieController.getCookieString(Constants.COOKIE_NAME_CAPTCHA);
+			if (!captchaCookie.isEmpty()) {
+				cookieMonster.setCookie(Constants.COOKIE_DOMAIN_CAPTCHA, captchaCookie);
+			}
+
         	cookieMonster.setAcceptThirdPartyCookies(mThreadView, true);
         	CookieSyncManager.getInstance().sync();
         }
