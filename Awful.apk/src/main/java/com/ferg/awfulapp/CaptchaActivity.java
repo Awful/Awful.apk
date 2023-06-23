@@ -1,5 +1,7 @@
 package com.ferg.awfulapp;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.webkit.CookieManager;
@@ -7,6 +9,8 @@ import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.android.volley.NetworkResponse;
+import com.android.volley.VolleyError;
 import com.ferg.awfulapp.network.CookieController;
 
 import static com.ferg.awfulapp.constants.Constants.BASE_URL;
@@ -103,6 +107,24 @@ public class CaptchaActivity extends AwfulActivity /* truly */ {
         }
 
         return null;
+    }
+
+    /**
+     * Helper method to be called by activities that receive an error response. If the error was due
+     * to a captcha, the CaptchActivity will be invoked. Otherwise this does nothing.
+     */
+    public static void handleCaptchaChallenge(Activity sourceActivity, VolleyError error) {
+        NetworkResponse response = error.networkResponse;
+        if (response != null
+                && response.statusCode == 403
+                && response.headers != null
+                && response.headers.containsKey("cf-mitigated")) {
+            Log.i(TAG, "found captcha challenge, launching captcha activity");
+
+            final Intent captchaIntent = new Intent(sourceActivity, CaptchaActivity.class);
+            captchaIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            sourceActivity.startActivity(captchaIntent);
+        }
     }
 
     @Override

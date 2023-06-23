@@ -837,6 +837,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 
 				@Override
 				public void failure(VolleyError error) {
+					CaptchaActivity.handleCaptchaChallenge(activity, error);
 					Timber.w("Failed to sync thread! Error: %s", error.getMessage());
 					refreshInfo();
 					refreshPosts();

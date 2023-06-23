@@ -172,6 +172,8 @@ public class AwfulLoginActivity extends AwfulActivity {
 
             @Override
             public void failure(VolleyError error) {
+                CaptchaActivity.handleCaptchaChallenge(self, error);
+
                 // Volley sometimes generates NetworkErrors with no response set, or wraps them
                 NetworkResponse response = error.networkResponse;
                 if (response == null) {
@@ -182,12 +184,12 @@ public class AwfulLoginActivity extends AwfulActivity {
                 }
                 if (response != null && response.statusCode == HttpStatus.SC_MOVED_TEMPORARILY) {
                     Boolean result = CookieController.saveLoginCookies(getApplicationContext());
-                    if(result){
+                    if (result) {
                         // TODO: this should probably be handled by firing a ProfileRequest and getting the username from there, maybe through SyncManager
                         AwfulPreferences prefs = AwfulPreferences.getInstance(getApplicationContext());
                         prefs.setPreference(Keys.USERNAME, username);
                         onLoginSuccess();
-                    }else{
+                    } else {
                         onLoginFailed();
                     }
                 } else {
@@ -201,7 +203,8 @@ public class AwfulLoginActivity extends AwfulActivity {
                 setResult(Activity.RESULT_OK);
                 self.finish();
             }
-            private  void onLoginFailed(){
+
+            private void onLoginFailed() {
                 mDialog.dismiss();
                 Toast.makeText(AwfulLoginActivity.this, R.string.login_failed, Toast.LENGTH_SHORT).show();
                 setResult(Activity.RESULT_CANCELED);
