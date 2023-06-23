@@ -46,18 +46,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.ferg.awfulapp.search.SearchFilter;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import androidx.fragment.app.FragmentManager;
-import androidx.loader.app.LoaderManager;
-import androidx.core.content.ContextCompat;
-import androidx.loader.content.CursorLoader;
-import androidx.loader.content.Loader;
-import androidx.core.view.MenuItemCompat;
-import androidx.appcompat.widget.ShareActionProvider;
 import android.text.TextUtils;
 import android.text.format.Formatter;
 import android.view.InflateException;
@@ -68,7 +56,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
 import android.webkit.DownloadListener;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
@@ -88,6 +75,7 @@ import com.ferg.awfulapp.preferences.Keys;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.AwfulTheme;
 import com.ferg.awfulapp.provider.ColorProvider;
+import com.ferg.awfulapp.search.SearchFilter;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.BookmarkRequest;
 import com.ferg.awfulapp.task.IgnoreRequest;
@@ -115,6 +103,7 @@ import com.ferg.awfulapp.webview.WebViewJsInterface;
 import com.ferg.awfulapp.widget.PageBar;
 import com.ferg.awfulapp.widget.PagePicker;
 import com.ferg.awfulapp.widget.WebViewSearchBar;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
@@ -131,6 +120,15 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.ShareActionProvider;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.MenuItemCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
 import timber.log.Timber;
 
 /**
@@ -471,16 +469,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
         getLoaderManager().destroyLoader(Constants.POST_LOADER_ID);
     }
 
-    // TODO: fix deprecated warnings
-    private synchronized void refreshSessionCookie(){
-        if(mThreadView != null){
-        	CookieSyncManager.createInstance(getActivity());
-        	CookieManager cookieMonster = CookieManager.getInstance();
-        	cookieMonster.removeAllCookie();
-        	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, CookieController.getCookieString(Constants.COOKIE_NAME_SESSIONID));
-        	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, CookieController.getCookieString(Constants.COOKIE_NAME_SESSIONHASH));
-        	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, CookieController.getCookieString(Constants.COOKIE_NAME_USERID));
-        	cookieMonster.setCookie(Constants.COOKIE_DOMAIN, CookieController.getCookieString(Constants.COOKIE_NAME_PASSWORD));
+	private synchronized void refreshSessionCookie(){
+		if(mThreadView != null){
+			CookieManager cookieMonster = CookieManager.getInstance();
+			cookieMonster.removeAllCookies(null /* status not interesting/actionable */);
+			cookieMonster.setCookie(Constants.COOKIE_DOMAIN, CookieController.getCookieString(Constants.COOKIE_NAME_SESSIONID));
+			cookieMonster.setCookie(Constants.COOKIE_DOMAIN, CookieController.getCookieString(Constants.COOKIE_NAME_SESSIONHASH));
+			cookieMonster.setCookie(Constants.COOKIE_DOMAIN, CookieController.getCookieString(Constants.COOKIE_NAME_USERID));
+			cookieMonster.setCookie(Constants.COOKIE_DOMAIN, CookieController.getCookieString(Constants.COOKIE_NAME_PASSWORD));
 
 			// Add the captcha cookie if it is present.
 			final String captchaCookie = CookieController.getCookieString(Constants.COOKIE_NAME_CAPTCHA);
@@ -488,10 +484,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 				cookieMonster.setCookie(Constants.COOKIE_DOMAIN_CAPTCHA, captchaCookie);
 			}
 
-        	cookieMonster.setAcceptThirdPartyCookies(mThreadView, true);
-        	CookieSyncManager.getInstance().sync();
-        }
-    }
+			cookieMonster.setAcceptThirdPartyCookies(mThreadView, true);
+			cookieMonster.flush();
+		}
+	}
  
     
     @Override
