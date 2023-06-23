@@ -141,6 +141,10 @@ public class Constants {
 	public static final String COOKIE_PREF_EXPIRY_DATE = "expiration";
 	public static final String COOKIE_PREF_VERSION     = "version";
 
+    // Cloudflare cookie which is set after completing captcha challenges.
+    public static final String COOKIE_NAME_CAPTCHA = "cf_clearance";
+    public static final String COOKIE_DOMAIN_CAPTCHA = "somethingawful.com";
+
 	// Content provider
     public static final String AUTHORITY = BuildConfig.APPLICATION_ID + ".provider";
 

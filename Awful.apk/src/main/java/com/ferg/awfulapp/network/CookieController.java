@@ -2,7 +2,6 @@ package com.ferg.awfulapp.network;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import androidx.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.ferg.awfulapp.constants.Constants;
@@ -17,10 +16,14 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import androidx.annotation.NonNull;
 import timber.log.Timber;
 
 import static android.content.SharedPreferences.Editor;
+import static com.ferg.awfulapp.constants.Constants.COOKIE_DOMAIN_CAPTCHA;
+import static com.ferg.awfulapp.constants.Constants.COOKIE_NAME_CAPTCHA;
 
 /**
  * Handles all interactions with cookies
@@ -49,8 +52,15 @@ public class CookieController {
             Timber.w("Cookie was empty for some reason, trying to restore cookie");
             restoreLoginCookies(AwfulPreferences.getInstance().getContext());
         }
-        if (!cookie.isEmpty()) {
-            headers.put(COOKIE_HEADER, cookie);
+
+        String finalCookies = getCaptchaCookie().orElse("")
+                + Optional.ofNullable(cookie).orElse("");
+
+        if (!finalCookies.isEmpty()) {
+            headers.put(
+                    COOKIE_HEADER,
+                    finalCookies
+            );
         }
     }
 
@@ -126,8 +136,8 @@ public class CookieController {
     public static synchronized void clearLoginCookies(@NonNull Context context) {
         // First clear out the persistent preferences...
         context.getSharedPreferences(
-                Constants.COOKIE_PREFERENCE,
-                Context.MODE_PRIVATE)
+                        Constants.COOKIE_PREFERENCE,
+                        Context.MODE_PRIVATE)
                 .edit().clear().apply();
 
         // Then the memory store
@@ -218,6 +228,31 @@ public class CookieController {
         }
         Timber.w("getCookieString couldn't find type: %s", type);
         return "";
+    }
+
+    /**
+     * Set the Cloudflare captcha cookie after it was retrieved in a CaptchaActivity web view.
+     */
+    public static void setCaptchaCookie(String cookie) {
+        final HttpCookie httpCookie = new HttpCookie(COOKIE_NAME_CAPTCHA, cookie);
+        httpCookie.setDomain(COOKIE_DOMAIN_CAPTCHA); // applies to subdomains as well
+        cookieManager.getCookieStore().add(uri, httpCookie);
+    }
+
+    /**
+     * If the Cloudflare captcha cookie is set, return it so that it can be appended to the provided
+     * cookies.
+     */
+    private static Optional<String> getCaptchaCookie() {
+        // It seems like there is no direct accessor for a specific cookie, so this little dance has
+        // to be done all the time to find the right one.
+        for (HttpCookie c : cookieManager.getCookieStore().get(uri)) {
+            if (c.getName().equals(COOKIE_NAME_CAPTCHA)) {
+                return Optional.of(COOKIE_NAME_CAPTCHA + "=" + c.getValue() + ";");
+            }
+        }
+
+        return Optional.empty();
     }
 
     public static void logCookies() {
