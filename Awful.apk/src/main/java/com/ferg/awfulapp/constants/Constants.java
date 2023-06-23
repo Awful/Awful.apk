@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2011, Scott Ferguson
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of the software nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY SCOTT FERGUSON ''AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -34,11 +34,10 @@ public class Constants {
 
     public static final String SITE_HTML_ENCODING = "CP1252";
 
-    //public static final String BASE_URL = "http://forums.somethingawful.com";
     public static final String BASE_URL = "https://forums.somethingawful.com";
 
     public static final String FUNCTION_LOGIN           = BASE_URL + "/account.php";
-    public static final String FUNCTION_LOGIN_SSL       = "https://forums.somethingawful.com/account.php";
+    public static final String FUNCTION_INDEX           = BASE_URL + "/index.php";
     public static final String FUNCTION_BOOKMARK        = BASE_URL + "/bookmarkthreads.php";
     public static final String FUNCTION_ANNOUNCEMENTS   = BASE_URL + "/announcement.php";
     public static final String FUNCTION_USERCP          = BASE_URL + "/usercp.php";
@@ -52,12 +51,12 @@ public class Constants {
     public static final String FUNCTION_PRIVATE_MESSAGE = BASE_URL + "/private.php";
     public static final String FUNCTION_BANLIST         = BASE_URL + "/banlist.php";
     public static final String FUNCTION_RATE_THREAD     = BASE_URL + "/threadrate.php";
-	public static final String FUNCTION_MISC 			= BASE_URL + "/misc.php";
+    public static final String FUNCTION_MISC            = BASE_URL + "/misc.php";
     public static final String FUNCTION_REPORT 			= BASE_URL + "/modalert.php";
     public static final String FUNCTION_POSTINGS 		= BASE_URL + "/postings.php";
     public static final String FUNCTION_NEW_THREAD 		= BASE_URL + "/newthread.php";
 
-	public static final String PATH_FORUM 				= "forumdisplay.php";
+    public static final String PATH_FORUM 				= "forumdisplay.php";
     public static final String PATH_THREAD          	= "showthread.php";
     public static final String PATH_BOOKMARKS          	= "bookmarkthreads.php";
     public static final String PATH_USERCP          	= "usercp.php";
@@ -71,7 +70,7 @@ public class Constants {
     public static final String ACTION_QUERY 			  = "query";
     public static final String ACTION_RESULTS 			  = "results";
     public static final String ACTION_TOGGLE_THREAD_LOCKED = "openclosethread";
-    
+
     public static final String PARAM_USER_ID   = "userid";
     public static final String PARAM_USERNAME  = "username";
     public static final String PARAM_PASSWORD  = "password";
@@ -101,11 +100,11 @@ public class Constants {
 
 	public static final String USERLIST_IGNORE = "ignore";
 	public static final String USERLIST_BUDDY  = "buddy";
-	
+
 	public static final String VALUE_POST 	   = "post";
 	public static final String VALUE_NEWPOST   = "newpost";
 	public static final String VALUE_LASTPOST  = "lastpost";
-    
+
     public static final String FRAGMENT_PTI    = "pti";
 
     // Intent parameters
@@ -126,14 +125,14 @@ public class Constants {
     public static final String FORMKEY  = "formkey";
 
     public static final String PREFERENCES = "prefs";
-    
+
 	public static final String COOKIE_DOMAIN        = "forums.somethingawful.com";
 	public static final String COOKIE_PATH          = "/";
 	public static final String COOKIE_NAME_USERID   = "bbuserid";
 	public static final String COOKIE_NAME_PASSWORD = "bbpassword";
 	public static final String COOKIE_NAME_SESSIONID = "sessionid";
 	public static final String COOKIE_NAME_SESSIONHASH = "sessionhash";
-	
+
 	public static final String COOKIE_PREFERENCE       = "awful_cookie_pref";
 	public static final String COOKIE_PREF_USERID      = "bbuserid";
 	public static final String COOKIE_PREF_PASSWORD    = "bbpassword";
@@ -144,7 +143,7 @@ public class Constants {
 
 	// Content provider
     public static final String AUTHORITY = BuildConfig.APPLICATION_ID + ".provider";
-    
+
     //default per-page, user configurable
     public static final int ITEMS_PER_PAGE = 40;
     //we can have up to 80 threads per forum page (SAMart)
@@ -186,7 +185,7 @@ public class Constants {
     public static final String PREVIEW_REPLY = "Preview Reply";
 
 	public static final String YES = "yes";//heh
-	
+
 	//NOT FOR NETWORK USE
 	public static final String FORUM_PAGE = "forum_page";
 	//NOT FOR NETWORK USE
@@ -197,12 +196,12 @@ public class Constants {
 	public static final int DEFAULT_FONT_SIZE_SP = 16;
     public static final int DEFAULT_FIXED_FONT_SIZE_SP = 13;
     public static final int MINIMUM_FONT_SIZE_SP = 5;
-	
+
 	public static final double TABLET_MIN_SIZE = 7; //everything above this is considered tablet layout
 
     public static final String REPLY_POST_ID = "reply_post_id";
     public static final String REPLY_THREAD_ID = "reply_thread_id";
-    
+
     public static final int AWFUL_THREAD_ID = 3571717;
     public static final int FORUM_ID_SHSC = 22;
     public static final int FORUM_ID_YOSPOS = 219;

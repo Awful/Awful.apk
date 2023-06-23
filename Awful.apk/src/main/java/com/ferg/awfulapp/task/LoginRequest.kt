@@ -13,7 +13,7 @@ import org.jsoup.nodes.Document
  * the current username if successful.
  */
 class LoginRequest(context: Context, private val username: String, password: String)
-    : AwfulRequest<Boolean>(context, FUNCTION_LOGIN_SSL, isPostRequest = true) {
+    : AwfulRequest<Boolean>(context, FUNCTION_LOGIN, isPostRequest = true) {
 
     init {
         with(parameters) {
