@@ -1,0 +1,113 @@
+package com.ferg.awfulapp;
+
+import android.os.Bundle;
+import android.util.Log;
+import android.webkit.CookieManager;
+import android.webkit.ValueCallback;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+
+import com.ferg.awfulapp.network.CookieController;
+
+import static com.ferg.awfulapp.constants.Constants.BASE_URL;
+import static com.ferg.awfulapp.constants.Constants.COOKIE_NAME_CAPTCHA;
+import static com.ferg.awfulapp.constants.Constants.FUNCTION_INDEX;
+
+
+/**
+ * Handles interactions with Cloudflare captchas. This is essentially a web view which displays the
+ * catpcha to the user, and upon receiving a successful response persists the relevant session
+ * cookie.
+ *
+ * Cloudflare responds with a `cf_clearance` cookie which authenticates the current combination of
+ * User-Agent and IP when a captcha is solved. This is then persisted in the CookieController.
+ */
+public class CaptchaActivity extends AwfulActivity /* truly */ {
+    /**
+     * User agent used by web views in the application.
+     *
+     * If the user is affected by Cloudflare captchas, the user-agents of the captcha web view and
+     * all AwfulRequests must be synchronised. Setting a custom user-agent does not work, because
+     * Cloudflare only allows mainstream browser user-agents.
+     *
+     * As a workaround, this class sets the captcha user agent when presenting a challenge to the
+     * user, and `AwfulRequest` then uses this user agent if it is present.
+     */
+    public static String captchaUserAgent = null;
+
+    /**
+     * Informs other part of the application that captcha handling is in progress, which can be
+     * used to suppress things like showing the login activity while the captcha handler is active.
+     */
+    private static boolean isActive = false;
+
+    public static boolean isCaptchaBeingHandled() {
+        return CaptchaActivity.isActive;
+    }
+
+    private WebView captchaView;
+
+    private static final String TAG = "CaptchaActivity";
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        Log.i(TAG, "loading captcha web view");
+        super.onCreate(savedInstanceState);
+        CaptchaActivity.isActive = true;
+        setContentView(R.layout.captcha_activity);
+
+        captchaView = (WebView) findViewById(R.id.captchaView);
+        captchaView.getSettings().setJavaScriptEnabled(true);
+        captchaUserAgent = captchaView.getSettings().getUserAgentString();
+
+        final CaptchaActivity activity = this;
+        captchaView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                if (url.equals(FUNCTION_INDEX)) {
+                    // The Android web view provides absolutely no reasonable way to check
+                    // whether we received a successful response. A workaround is checking
+                    // whether markup that should be present on the index is there.
+                    view.evaluateJavascript(
+                            "(function() { return document.body.id == 'something_awful'; })();",
+                            new ValueCallback<String>() {
+                                @Override
+                                public void onReceiveValue(String s) {
+                                    if (s.equals("true")) {
+                                        Log.d(TAG, "captcha finished successfully");
+                                        final String allCookies = CookieManager.getInstance().getCookie(BASE_URL);
+                                        final String captchaCookie = parseCaptchaCookie(allCookies);
+
+                                        if (captchaCookie != null) {
+                                            CookieController.setCaptchaCookie(captchaCookie);
+                                        } else {
+                                            Log.w(TAG, "captcha finished, but captcha cookie not set");
+                                        }
+
+                                        activity.finish();
+                                    }
+                                }
+                            });
+                }
+            }
+        });
+
+        captchaView.loadUrl(FUNCTION_INDEX);
+    }
+
+    private static String parseCaptchaCookie(String allCookies) {
+        for (String cookie : allCookies.split("; ")) {
+            if (cookie.startsWith(COOKIE_NAME_CAPTCHA)) {
+                return cookie.substring(COOKIE_NAME_CAPTCHA.length() + 1 /* for the '=' */);
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        CaptchaActivity.isActive = false;
+    }
+}
