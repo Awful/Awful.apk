@@ -7,6 +7,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.ImageRequest;
+import com.ferg.awfulapp.AwfulApplication;
 import com.ferg.awfulapp.CaptchaActivity;
 
 import java.util.HashMap;
@@ -38,10 +39,7 @@ public class AwfulImageLoader extends ImageLoader {
             @Override
             public Map<String, String> getHeaders() {
                 final Map<String, String> headers = new HashMap<>();
-
-                if (CaptchaActivity.captchaUserAgent != null) {
-                    headers.put("User-Agent", CaptchaActivity.captchaUserAgent);
-                }
+                headers.put("User-Agent", AwfulApplication.getAwfulUserAgent());
 
                 final Optional<String> captchaCookie = CookieController.getCaptchaCookie();
                 if (captchaCookie.isPresent()) {

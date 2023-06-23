@@ -28,18 +28,6 @@ import static com.ferg.awfulapp.constants.Constants.FUNCTION_INDEX;
  */
 public class CaptchaActivity extends AwfulActivity /* truly */ {
     /**
-     * User agent used by web views in the application.
-     *
-     * If the user is affected by Cloudflare captchas, the user-agents of the captcha web view and
-     * all AwfulRequests must be synchronised. Setting a custom user-agent does not work, because
-     * Cloudflare only allows mainstream browser user-agents.
-     *
-     * As a workaround, this class sets the captcha user agent when presenting a challenge to the
-     * user, and `AwfulRequest` then uses this user agent if it is present.
-     */
-    public static String captchaUserAgent = null;
-
-    /**
      * Informs other part of the application that captcha handling is in progress, which can be
      * used to suppress things like showing the login activity while the captcha handler is active.
      */
@@ -62,7 +50,6 @@ public class CaptchaActivity extends AwfulActivity /* truly */ {
 
         captchaView = (WebView) findViewById(R.id.captchaView);
         captchaView.getSettings().setJavaScriptEnabled(true);
-        captchaUserAgent = captchaView.getSettings().getUserAgentString();
 
         final CaptchaActivity activity = this;
         captchaView.setWebViewClient(new WebViewClient() {

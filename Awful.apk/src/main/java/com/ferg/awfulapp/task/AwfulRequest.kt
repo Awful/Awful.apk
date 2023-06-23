@@ -318,17 +318,10 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
 
         @Throws(AuthFailureError::class)
         override fun getHeaders(): Map<String, String> {
-            val headers = mutableMapOf<String, String>()
+            return mutableMapOf<String, String>("User-Agent" to AwfulApplication.getAwfulUserAgent())
                 .apply(CookieController::setCookieHeaders)
-
-            CaptchaActivity.captchaUserAgent?.let {
-                headers.put("User-Agent", it)
-            }
-
-            return headers
                 .also { Timber.i("getHeaders: %s", this) };
         }
-
 
         @Throws(AuthFailureError::class)
         override fun getBody(): ByteArray {
