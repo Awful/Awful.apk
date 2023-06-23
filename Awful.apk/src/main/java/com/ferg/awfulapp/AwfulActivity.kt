@@ -73,8 +73,14 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
                 if (ignoreFormkey == null || userAvatarUrl == null) RefreshUserProfileRequest(this@AwfulActivity).sendBlind()
                 if (ignoreFormkey == null) FeatureRequest(this@AwfulActivity).sendBlind()
             }
-        // TODO: this interferes with the code in AwfulFragment#reAuthenticate - i.e. it forces "return to this activity" behaviour, but fragments may want to return to the main activity.
-        // And the activity isn't always the authority, e.g. using BasicActivity which is a plain container where all the specific behaviour is handled by its fragment. It's awkward
+
+            // When a captcha is being handled, the login screen should be suppressed. Solving
+            // captchas is required for logging in, so overriding the captcha view makes the app
+            // unusuable otherwise.
+            CaptchaActivity.isCaptchaBeingHandled() -> { /* do nothing */ }
+
+            // TODO: this interferes with the code in AwfulFragment#reAuthenticate - i.e. it forces "return to this activity" behaviour, but fragments may want to return to the main activity.
+            // And the activity isn't always the authority, e.g. using BasicActivity which is a plain container where all the specific behaviour is handled by its fragment. It's awkward
             this !is AwfulLoginActivity -> showLogIn(returnToMainActivity = false)
         }
     }
