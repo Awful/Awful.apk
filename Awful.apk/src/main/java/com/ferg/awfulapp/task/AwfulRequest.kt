@@ -284,7 +284,13 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
                         append("(null VolleyError)")
                     } else {
                         Timber.e(volleyError)
-                        append(cause?.message ?: "unknown cause")
+
+                        if (networkResponse?.headers?.get("cf-mitigated") == "challenge") {
+                            append("captcha requested")
+                        } else {
+                            append(cause?.message ?: "unknown cause")
+                        }
+
                         networkResponse?.let { append("\nStatus code: ${networkResponse.statusCode}") }
                     }
                     Timber.e(toString())
