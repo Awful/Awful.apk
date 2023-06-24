@@ -60,29 +60,32 @@ public class CaptchaActivity extends AwfulActivity /* truly */ {
                     // whether we received a successful response. A workaround is checking
                     // whether markup that should be present on the index is there.
                     view.evaluateJavascript(
-                            "(function() { return document.body.id == 'something_awful'; })();",
-                            new ValueCallback<String>() {
-                                @Override
-                                public void onReceiveValue(String s) {
-                                    if (s.equals("true")) {
-                                        Log.d(TAG, "captcha finished successfully");
-                                        final String allCookies = CookieManager.getInstance().getCookie(BASE_URL);
-                                        final String captchaCookie = parseCaptchaCookie(allCookies);
+                            "(function() { return (document.body && document.body.id == 'something_awful'); })();",
+                            s -> {
+                                if (s.equals("true")) {
+                                    Log.d(TAG, "captcha finished successfully");
+                                    final String allCookies = CookieManager.getInstance().getCookie(BASE_URL);
+                                    final String captchaCookie = parseCaptchaCookie(allCookies);
 
-                                        if (captchaCookie != null) {
-                                            CookieController.setCaptchaCookie(captchaCookie);
-                                        } else {
-                                            Log.w(TAG, "captcha finished, but captcha cookie not set");
-                                        }
-
-                                        activity.finish();
+                                    if (captchaCookie != null) {
+                                        CookieController.setCaptchaCookie(captchaCookie);
+                                    } else {
+                                        Log.w(TAG, "captcha finished, but captcha cookie not set");
                                     }
+
+                                    activity.finish();
                                 }
                             });
                 }
             }
         });
 
+        captchaView.loadUrl(FUNCTION_INDEX);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
         captchaView.loadUrl(FUNCTION_INDEX);
     }
 
