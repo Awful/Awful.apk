@@ -10,6 +10,7 @@ import androidx.annotation.UiThread
 import com.android.volley.*
 import com.android.volley.toolbox.HttpHeaderParser
 import com.ferg.awfulapp.AwfulApplication
+import com.ferg.awfulapp.CaptchaActivity
 import com.ferg.awfulapp.R
 import com.ferg.awfulapp.constants.Constants.BASE_URL
 import com.ferg.awfulapp.constants.Constants.SITE_HTML_ENCODING
@@ -284,7 +285,13 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
                         append("(null VolleyError)")
                     } else {
                         Timber.e(volleyError)
-                        append(cause?.message ?: "unknown cause")
+
+                        if (networkResponse?.headers?.get("cf-mitigated") == "challenge") {
+                            append("captcha requested")
+                        } else {
+                            append(cause?.message ?: "unknown cause")
+                        }
+
                         networkResponse?.let { append("\nStatus code: ${networkResponse.statusCode}") }
                     }
                     Timber.e(toString())
@@ -311,10 +318,10 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
 
         @Throws(AuthFailureError::class)
         override fun getHeaders(): Map<String, String> {
-            return mutableMapOf<String, String>().apply(CookieController::setCookieHeaders)
-                    .also { Timber.i("getHeaders: %s", this) }
+            return mutableMapOf<String, String>("User-Agent" to AwfulApplication.getAwfulUserAgent())
+                .apply(CookieController::setCookieHeaders)
+                .also { Timber.i("getHeaders: %s", this) };
         }
-
 
         @Throws(AuthFailureError::class)
         override fun getBody(): ByteArray {

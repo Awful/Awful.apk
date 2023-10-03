@@ -462,6 +462,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 
                         @Override
                         public void failure(VolleyError error) {
+                            CaptchaActivity.handleCaptchaChallenge(getActivity(), error);
                             Timber.w("Failed to sync thread list!");
                             refreshInfo();
                             lastRefresh = System.currentTimeMillis();

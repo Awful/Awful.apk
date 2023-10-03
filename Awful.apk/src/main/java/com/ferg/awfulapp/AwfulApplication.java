@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.StrictMode;
+import android.webkit.WebView;
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.ferg.awfulapp.announcements.AnnouncementsManager;
@@ -27,9 +28,36 @@ public class AwfulApplication extends Application {
     private static SharedPreferences appStatePrefs;
     private static boolean crashlyticsEnabled = false;
 
+    /**
+     * Stores the user agent used by web views in this application, which is required to be
+     * initialised early on to correctly handle Cloudflare captcha situations.
+     *
+     * If the user is affected by Cloudflare captchas, the user-agents of all HTTP requests coming
+     * from Awful must be synchronised. Setting a custom user-agent does not work, because
+     * Cloudflare only allows mainstream browser user-agents.
+     */
+    private static String AWFUL_USER_AGENT = null;
+
+    public static String getAwfulUserAgent() {
+        return AWFUL_USER_AGENT;
+    }
+
+    /**
+     * Instantiates an ephemeral WebView which is only used to retrieve the default user agent
+     * of web views on this system.
+     *
+     * @return User-Agent string of WebView instances on this system.
+     */
+    private String getWebViewUserAgent() {
+        WebView view = new WebView(getApplicationContext());
+        return view.getSettings().getUserAgentString();
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
+
+        AWFUL_USER_AGENT = getWebViewUserAgent();
 
         // initialise the AwfulPreferences singleton first since a lot of things rely on it for a Context
         AwfulPreferences mPref = AwfulPreferences.getInstance(this);
