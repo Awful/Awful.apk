@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.ferg.awfulapp.AwfulActivity;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.preferences.fragments.AccountSettings;
 import com.ferg.awfulapp.preferences.fragments.RootSettings;
 import com.ferg.awfulapp.preferences.fragments.SettingsFragment;
 
@@ -106,12 +107,21 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
             isDualPane = true;
         }
 
+        String page = getIntent().getStringExtra(Constants.SETTINGS_PAGE);
+
+        SettingsFragment startFragment = null;
+        if ("account".equals(page)) {
+            startFragment = new AccountSettings();
+        } else {
+            startFragment = new RootSettings();
+        }
+
         FragmentManager fm = getFragmentManager();
         // if there's no previous fragment history being restored, initialise!
         // we need to start with the root fragment, so it's always under the backstack
         if (savedInstanceState == null) {
             fm.beginTransaction()
-                    .replace(R.id.main_fragment_container, new RootSettings(), ROOT_FRAGMENT_TAG)
+                    .replace(R.id.main_fragment_container, startFragment, ROOT_FRAGMENT_TAG)
                     .commit();
             fm.executePendingTransactions();
         }

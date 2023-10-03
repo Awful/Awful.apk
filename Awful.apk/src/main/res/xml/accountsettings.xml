@@ -17,4 +17,9 @@
         android:summary="@string/send_username_in_report_summary"
         android:defaultValue="true"
         />
+    <Preference
+        android:key="@string/pref_key_account_imgur_menu_item"
+        android:title="@string/imgur_account_pref"
+        android:summary="@string/imgur_account_summary"
+        />
 </PreferenceScreen>

@@ -10,7 +10,7 @@ buildscript {
         classpath 'com.android.tools.build:gradle:7.3.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.google.gms:google-services:4.3.14'
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.2'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.9'
 
     }
 }
@@ -116,7 +116,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.8.0'
+    implementation 'com.google.android.material:material:1.9.0'
     // these are all needed to override some old versions that are dependencies... somewhere
     implementation 'androidx.media:media:1.6.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
@@ -151,7 +151,7 @@ dependencies {
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
     kapt 'com.jakewharton:butterknife-compiler:10.2.1'
 
-    implementation 'com.google.firebase:firebase-crashlytics:18.3.6'
+    implementation 'com.google.firebase:firebase-crashlytics:18.4.3'
 
     implementation 'com.github.rubensousa:BottomSheetBuilder:1.5.1'
 

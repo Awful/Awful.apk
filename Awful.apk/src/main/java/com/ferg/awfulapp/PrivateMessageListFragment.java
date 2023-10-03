@@ -219,7 +219,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
         	syncPMs();
         	break;
         case R.id.settings:
-            getAwfulActivity().navigate(NavigationEvent.Settings.INSTANCE);
+            getAwfulActivity().navigate(new NavigationEvent.Settings());
         	break;
             default:
                 return super.onOptionsItemSelected(item);

@@ -217,6 +217,7 @@ public class Constants {
 
     public static final int FORUM_ID_GOLDMINE = 21;
 
+    public static final String SETTINGS_PAGE = "settings_page";
 
     public static final int AWFUL_PERMISSION_READ_EXTERNAL_STORAGE = 123;
     public static final int AWFUL_PERMISSION_WRITE_EXTERNAL_STORAGE = 124;

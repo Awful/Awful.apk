@@ -166,7 +166,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
             	newMessage();
             	return true;
             case R.id.settings:
-            	getAwfulActivity().navigate(NavigationEvent.Settings.INSTANCE);
+            	getAwfulActivity().navigate(new NavigationEvent.Settings());
             	return true;
             default:
                 return super.onOptionsItemSelected(item);

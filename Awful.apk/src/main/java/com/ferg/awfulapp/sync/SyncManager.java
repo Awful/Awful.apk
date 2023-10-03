@@ -15,6 +15,7 @@ import com.ferg.awfulapp.forums.ForumRepository;
 import com.ferg.awfulapp.messages.PmManager;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.preferences.Keys;
 import com.ferg.awfulapp.task.FeatureRequest;
 import com.ferg.awfulapp.task.RefreshUserProfileRequest;
 import com.ferg.awfulapp.util.AwfulUtils;
@@ -47,6 +48,7 @@ public class SyncManager {
         updateAnnouncements(appContext);
         updateForums(appContext);
         trimDatabase(appContext);
+        updateImgur(appContext);
     }
 
 
@@ -109,6 +111,16 @@ public class SyncManager {
 
         // finally, now the handler is set up, start the update task
         forumRepo.updateForums(new CrawlerTask(context, updatePriority));
+    }
+
+    private static void updateImgur(@NonNull final Context context){
+        AwfulPreferences mPrefs = AwfulPreferences.getInstance(context);
+        if ( System.currentTimeMillis() > mPrefs.imgurTokenExpires) {
+            mPrefs.setPreference(Keys.IMGUR_ACCOUNT_TOKEN, (String) null);
+            mPrefs.setPreference(Keys.IMGUR_REFRESH_TOKEN, (String) null);
+            mPrefs.setPreference(Keys.IMGUR_ACCOUNT, (String) null);
+            mPrefs.setPreference(Keys.IMGUR_TOKEN_EXPIRES, 0L);
+        }
     }
 
 

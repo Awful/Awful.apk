@@ -48,7 +48,11 @@ sealed class NavigationEvent(private val extraTypeId: String) {
 
     object ForumIndex : NavigationEvent(TYPE_FORUM_INDEX)
 
-    object Settings : NavigationEvent(TYPE_SETTINGS) {
+    data class  Settings(val page: String? = null) : NavigationEvent(TYPE_SETTINGS) {
+
+        override val addDataToIntent: Intent.() -> Unit = {
+            putExtra(Constants.SETTINGS_PAGE, page)
+        }
 
         override fun activityIntent(context: Context) = context.intentFor(SettingsActivity::class.java)
     }
@@ -158,6 +162,7 @@ sealed class NavigationEvent(private val extraTypeId: String) {
         private const val TYPE_FORUM = "nav_forum"
         private const val TYPE_URL = "nav_url"
         private const val TYPE_SETTINGS = "nav_settings"
+        private const val TYPE_ACCOUNT = "nav_account"
         private const val TYPE_SEARCH_FORUMS = "nav_search_forums"
         private const val TYPE_SHOW_PRIVATE_MESSAGES = "nav_show_private_messages"
         private const val TYPE_COMPOSE_PRIVATE_MESSAGE = "nav_compose_private_message"
@@ -177,7 +182,9 @@ sealed class NavigationEvent(private val extraTypeId: String) {
             //TODO: handle behaviour for missing data, e.g. can't navigate to a thread with no thread ID
             // TODO: might be better to default to null? And let the caller decide what to do when parsing fails - can use the elvis ?: to supply a default event
                 TYPE_RE_AUTHENTICATE -> NavigationEvent.ReAuthenticate
-                TYPE_SETTINGS -> Settings
+                TYPE_SETTINGS -> Settings(
+                        page = getStringExtra(Constants.SETTINGS_PAGE)
+                )
                 TYPE_SEARCH_FORUMS -> SearchForums(
                         *getParcelableArrayListExtra<SearchFilter>(KEY_SEARCH_FILTERS)!!.toTypedArray()
                 )
