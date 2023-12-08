@@ -116,6 +116,35 @@ function processThreadEmbeds(replacementArea) {
 				}
 			});
 		});
+
+        var xhits = replacementArea.querySelectorAll('.postcontent a[href*="x.com"]');
+
+        xhits = Array.prototype.reduce.call(xhits, function reduceTweets(filteredTwoops, twitterURL) {
+            var urlMatch = twitterURL.href.match(/https?:\/\/(?:[\w.]*\.)?x\.com\/[\w_]+\/status(?:es)?\/([\d]+)/);
+            if (urlMatch && filterNwsAndSpoiler(twitterURL)) {
+                twitterURL.href = urlMatch[0];
+                filteredTwoops.push(twitterURL);
+            }
+            return filteredTwoops;
+        }, []);
+
+        xhits.forEach(function eachTweet(tweet) {
+            var tweetUrl = tweet.href;
+            JSONP.get('https://publish.x.com/oembed?omit_script=true&url=' + escape(tweetUrl), {}, function getTworts(data) {
+                var div = document.createElement('div');
+                div.classList.add('tweet');
+                tweet.parentNode.replaceChild(div, tweet);
+                div.innerHTML = data.html;
+                if (document.getElementById('theme-css').dataset.darkTheme === 'true') {
+                    div.querySelector('blockquote').dataset.theme = 'dark';
+                }
+                if (window.twttr.init) {
+                    window.twttr.widgets.load(div);
+                } else {
+                    window.missedEmbeds.push(div);
+                }
+            });
+        });
 	}
 
 	/**
