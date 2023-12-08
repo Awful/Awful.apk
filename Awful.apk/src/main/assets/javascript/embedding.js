@@ -88,10 +88,15 @@ function processThreadEmbeds(replacementArea) {
 	 * Replaces all twitter status links (tweets) with twitter embeds
 	 */
 	function embedTweets() {
-		var tweets = replacementArea.querySelectorAll('.postcontent a[href*="twitter.com"]');
+		replaceTweets("twitter.com", /https?:\/\/(?:[\w.]*\.)?twitter\.com\/[\w_]+\/status(?:es)?\/([\d]+)/)
+		replaceTweets("x.com", /https?:\/\/(?:[\w.]*\.)?x\.com\/[\w_]+\/status(?:es)?\/([\d]+)/)
+	}
+
+	function replaceTweets(twitterDomain, urlMatchRegex) {
+		var tweets = replacementArea.querySelectorAll('.postcontent a[href*="' + twitterDomain + '"]');
 
 		tweets = Array.prototype.reduce.call(tweets, function reduceTweets(filteredTwoops, twitterURL) {
-			var urlMatch = twitterURL.href.match(/https?:\/\/(?:[\w.]*\.)?twitter\.com\/[\w_]+\/status(?:es)?\/([\d]+)/);
+			var urlMatch = twitterURL.href.match(urlMatchRegex);
 			if (urlMatch && filterNwsAndSpoiler(twitterURL)) {
 				twitterURL.href = urlMatch[0];
 				filteredTwoops.push(twitterURL);
@@ -101,7 +106,7 @@ function processThreadEmbeds(replacementArea) {
 
 		tweets.forEach(function eachTweet(tweet) {
 			var tweetUrl = tweet.href;
-			JSONP.get('https://publish.twitter.com/oembed?omit_script=true&url=' + escape(tweetUrl), {}, function getTworts(data) {
+			JSONP.get('https://publish.' + twitterDomain + '/oembed?omit_script=true&url=' + escape(tweetUrl), {}, function getTworts(data) {
 				var div = document.createElement('div');
 				div.classList.add('tweet');
 				tweet.parentNode.replaceChild(div, tweet);
@@ -116,35 +121,6 @@ function processThreadEmbeds(replacementArea) {
 				}
 			});
 		});
-
-        var xhits = replacementArea.querySelectorAll('.postcontent a[href*="x.com"]');
-
-        xhits = Array.prototype.reduce.call(xhits, function reduceTweets(filteredTwoops, twitterURL) {
-            var urlMatch = twitterURL.href.match(/https?:\/\/(?:[\w.]*\.)?x\.com\/[\w_]+\/status(?:es)?\/([\d]+)/);
-            if (urlMatch && filterNwsAndSpoiler(twitterURL)) {
-                twitterURL.href = urlMatch[0];
-                filteredTwoops.push(twitterURL);
-            }
-            return filteredTwoops;
-        }, []);
-
-        xhits.forEach(function eachTweet(tweet) {
-            var tweetUrl = tweet.href;
-            JSONP.get('https://publish.x.com/oembed?omit_script=true&url=' + escape(tweetUrl), {}, function getTworts(data) {
-                var div = document.createElement('div');
-                div.classList.add('tweet');
-                tweet.parentNode.replaceChild(div, tweet);
-                div.innerHTML = data.html;
-                if (document.getElementById('theme-css').dataset.darkTheme === 'true') {
-                    div.querySelector('blockquote').dataset.theme = 'dark';
-                }
-                if (window.twttr.init) {
-                    window.twttr.widgets.load(div);
-                } else {
-                    window.missedEmbeds.push(div);
-                }
-            });
-        });
 	}
 
 	/**
@@ -223,10 +199,10 @@ function processThreadEmbeds(replacementArea) {
 				hasThumbnail = videoURL.substring(0, videoURL.lastIndexOf('.')) + 'm.jpg';
 				videoURL = videoURL.replace('.webm', '.mp4');
 			} else if (videoURL.indexOf('gfycat.com') !== -1) {
-			    var gfycatURL =  'https://thumbs' + videoURL.substring(videoURL.indexOf('.'), videoURL.lastIndexOf('.'));
-			    if (!gfycatURL.endsWith('-mobile')) {
-			        gfycatURL += '-mobile';
-			    }
+				var gfycatURL =  'https://thumbs' + videoURL.substring(videoURL.indexOf('.'), videoURL.lastIndexOf('.'));
+				if (!gfycatURL.endsWith('-mobile')) {
+					gfycatURL += '-mobile';
+				}
 				hasThumbnail = gfycatURL + '.jpg';
 				videoURL = gfycatURL + '.mp4';
 			}
