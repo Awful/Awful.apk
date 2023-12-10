@@ -109,7 +109,7 @@ class NavigationDrawer(val activity: AwfulActivity, toolbar: Toolbar, val prefs:
                 R.id.sidebar_forum -> navigate(NavigationEvent.Forum(id = currentForumId))
                 R.id.sidebar_thread -> navigate(NavigationEvent.Thread(id = currentThreadId))
                 R.id.sidebar_bookmarks -> navigate(NavigationEvent.Bookmarks)
-                R.id.sidebar_settings -> navigate(NavigationEvent.Settings)
+                R.id.sidebar_settings -> navigate(NavigationEvent.Settings())
                 R.id.sidebar_search -> navigate(NavigationEvent.SearchForums())
                 R.id.sidebar_pm -> navigate(NavigationEvent.ShowPrivateMessages())
                 R.id.sidebar_announcements -> navigate(NavigationEvent.Announcements)

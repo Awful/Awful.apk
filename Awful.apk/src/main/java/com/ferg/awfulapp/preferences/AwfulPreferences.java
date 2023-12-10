@@ -119,6 +119,10 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     public boolean highlightSelf;
     public boolean highlightOP;
     public boolean showAllSpoilers;
+	public String imgurAccount;
+	public String imgurAccountToken;
+	public String imgurRefreshToken;
+	public long imgurTokenExpires;
     public String imgurThumbnails;
     public boolean upperNextArrow;
     public boolean disableGifs;
@@ -268,6 +272,10 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         showAllSpoilers			 = getPreference(Keys.SHOW_ALL_SPOILERS, false);
         threadInfo_Rating		 = getPreference(Keys.THREAD_INFO_RATING, true);
         threadInfo_Tag		 	 = getPreference(Keys.THREAD_INFO_TAG, true);
+		imgurAccount			 = getPreference(Keys.IMGUR_ACCOUNT, (String) null);
+		imgurAccountToken		 = getPreference(Keys.IMGUR_ACCOUNT_TOKEN, (String) null);
+		imgurRefreshToken		 = getPreference(Keys.IMGUR_REFRESH_TOKEN, (String) null);
+		imgurTokenExpires		 = getPreference(Keys.IMGUR_TOKEN_EXPIRES, 0L);
         imgurThumbnails			 = getPreference(Keys.IMGUR_THUMBNAILS, "d");
         newThreadsFirstUCP		 = getPreference(Keys.NEW_THREADS_FIRST_UCP, false);
         newThreadsFirstForum	 = getPreference(Keys.NEW_THREADS_FIRST_FORUM, false);
@@ -300,10 +308,10 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		transformer  		     = getPreference(Keys.TRANSFORMER, "Default");
 		amberDefaultPos  		 = getPreference(Keys.AMBER_DEFAULT_POS, false);
 		hideIgnoredPosts  		 = getPreference(Keys.HIDE_IGNORED_POSTS, false);
-		markedUsers = getPreference(Keys.MARKED_USERS, new HashSet<>());
-		forumIndexShowSections = getPreference(Keys.FORUM_INDEX_SHOW_SECTIONS, true);
-		forumIndexShowSubtitles = getPreference(Keys.FORUM_INDEX_SHOW_SUBTITLES, true);
-		forumIndexHideSubforums = getPreference(Keys.FORUM_INDEX_HIDE_SUBFORUMS, true);
+		markedUsers				 = getPreference(Keys.MARKED_USERS, new HashSet<>());
+		forumIndexShowSections	 = getPreference(Keys.FORUM_INDEX_SHOW_SECTIONS, true);
+		forumIndexShowSubtitles	 = getPreference(Keys.FORUM_INDEX_SHOW_SUBTITLES, true);
+		forumIndexHideSubforums	 = getPreference(Keys.FORUM_INDEX_HIDE_SUBFORUMS, true);
 
         //I have never seen this before oh god
     }

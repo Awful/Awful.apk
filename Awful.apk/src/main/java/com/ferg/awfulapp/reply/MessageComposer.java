@@ -7,6 +7,10 @@ import android.os.Bundle;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.ferg.awfulapp.AwfulActivity;
+import com.ferg.awfulapp.NavigationEvent;
+import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.view.SupportMenuInflater;
@@ -129,10 +133,14 @@ public class MessageComposer extends Fragment implements EmotePickerListener {
                 insertWith(ImageInserter::smartInsert);
                 break;
             case R.id.bbcode_imgur:
-                ImgurInserter imgurInserter = new ImgurInserter();
-                imgurInserter.setTargetFragment(this, -1);
-                // TODO: 29/12/2017 switch this to childFragmentManager and test
-                imgurInserter.show(getFragmentManager(), "imgur uploader");
+                if (AwfulPreferences.getInstance().imgurAccount != null) {
+                    ImgurInserter imgurInserter = new ImgurInserter();
+                    imgurInserter.setTargetFragment(this, -1);
+                    // TODO: 29/12/2017 switch this to childFragmentManager and test
+                    imgurInserter.show(getFragmentManager(), "imgur uploader");
+                } else {
+                    ((AwfulActivity) getActivity()).navigate(new NavigationEvent.Settings("account"));
+                }
                 break;
             case R.id.bbcode_video:
                 insertWith(VideoInserter::smartInsert);

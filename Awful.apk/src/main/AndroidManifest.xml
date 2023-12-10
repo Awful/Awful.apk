@@ -7,8 +7,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.ferg.awfulapp"
-    android:versionCode="30820"
-    android:versionName="3.8.20"
+    android:versionCode="30900"
+    android:versionName="3.9.0"
       android:installLocation="auto">
     <supports-screens
         android:smallScreens="true"
@@ -239,6 +239,16 @@
             android:name="com.ferg.awfulapp.preferences.SettingsActivity"
             android:label="@string/settings_activity_title"
             android:configChanges="keyboardHidden" />
+        <activity
+            android:name="com.ferg.awfulapp.AwfulImgurAuthActivity"
+            android:exported="true">
+            <intent-filter>
+                <action   android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="awful" android:host="imgur_oauth_callback" />
+            </intent-filter>
+        </activity>
         <activity
             android:name="com.ferg.awfulapp.PostReplyActivity"
             android:windowSoftInputMode="adjustResize"

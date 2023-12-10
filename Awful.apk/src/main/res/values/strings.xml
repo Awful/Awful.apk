@@ -507,6 +507,8 @@
     <string name="features_summary">Platinum: No | Archives: No | No Ads: No</string>
     <string name="send_username_in_report">Sign reports</string>
     <string name="send_username_in_report_summary">Attach username to crash reports</string>
+    <string name="imgur_account_pref">Imgur account</string>
+    <string name="imgur_account_summary">No account connected</string>
 
 
     <string name="web_view_previous_result_description">Previous result</string>

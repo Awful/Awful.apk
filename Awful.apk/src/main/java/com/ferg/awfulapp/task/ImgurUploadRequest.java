@@ -172,9 +172,9 @@ public class ImgurUploadRequest extends Request<JSONObject> {
 
     @Override
     public Map<String, String> getHeaders() throws AuthFailureError {
-        String clientId = AwfulPreferences.getInstance().getResources().getString(R.string.imgur_api_client_id);
+        String bearer = AwfulPreferences.getInstance().imgurAccountToken;
         Map<String, String> headers = new ArrayMap<>(1);
-        headers.put("Authorization", "Client-ID " + clientId);
+        headers.put("Authorization", "Bearer " + bearer);
         return headers;
     }
 
