@@ -16,11 +16,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.ferg.awfulapp.AwfulApplication;
+import com.ferg.awfulapp.databinding.InsertImgurDialogBinding;
 import com.google.android.material.textfield.TextInputLayout;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.appcompat.app.AlertDialog;
+
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.text.format.Formatter;
 import android.util.Log;
@@ -28,6 +32,7 @@ import android.util.Pair;
 import android.util.Patterns;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -50,14 +55,8 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
-import butterknife.BindView;
-import butterknife.OnClick;
-import butterknife.OnItemSelected;
-import butterknife.OnTextChanged;
-
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static butterknife.ButterKnife.bind;
 
 /**
  * Created by baka kaba on 31/05/2017.
@@ -78,37 +77,7 @@ public class ImgurInserter extends DialogFragment {
     private java.text.DateFormat dateFormat;
     private java.text.DateFormat timeFormat;
 
-    @BindView(R.id.upload_type)
-    Spinner uploadTypeSelector;
-
-    @BindView(R.id.upload_image_section)
-    ViewGroup uploadImageSection;
-    @BindView(R.id.image_preview)
-    ImageView imagePreview;
-    @BindView(R.id.image_name)
-    TextView imageNameLabel;
-    @BindView(R.id.image_details)
-    TextView imageDetailsLabel;
-
-    @BindView(R.id.upload_url_text_input_layout)
-    TextInputLayout uploadUrlTextWrapper;
-    @BindView(R.id.upload_url_edittext)
-    EditText uploadUrlEditText;
-
-    @BindView(R.id.use_thumbnail)
-    CheckBox thumbnailCheckbox;
-    @BindView(R.id.add_gifs_as_video)
-    CheckBox gifsAsVideoCheckbox;
-
-    @BindView(R.id.upload_status)
-    TextView uploadStatus;
-    @BindView(R.id.upload_progress_bar)
-    ProgressBar uploadProgressBar;
-    @BindView(R.id.remaining_uploads)
-    TextView remainingUploads;
-    @BindView(R.id.credits_reset_time)
-    TextView creditsResetTime;
-
+    private InsertImgurDialogBinding binding;
     private Button uploadButton;
 
     Uri imageFile = null;
@@ -126,7 +95,7 @@ public class ImgurInserter extends DialogFragment {
         timeFormat = DateFormat.getTimeFormat(activity);
 
         View layout = activity.getLayoutInflater().inflate(R.layout.insert_imgur_dialog, null);
-        bind(this, layout);
+        binding = InsertImgurDialogBinding.bind(layout);
         AlertDialog dialog = new AlertDialog.Builder(activity)
                 .setTitle(R.string.imgur_uploader_dialog_title)
                 .setView(layout)
@@ -138,9 +107,36 @@ public class ImgurInserter extends DialogFragment {
         uploadButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
         uploadButton.setOnClickListener(view -> startUpload());
         // TODO: 05/06/2017 is that method guaranteed to be fired when the system creates the spinner and sets the first item?
-        uploadTypeSelector.setSelection(AwfulApplication.getAppStatePrefs().getInt(KEY_IMGUR_LAST_CHOSEN_UPLOAD_OPTION, 0));
+        binding.uploadType.setSelection(AwfulApplication.getAppStatePrefs().getInt(KEY_IMGUR_LAST_CHOSEN_UPLOAD_OPTION, 0));
         updateUploadType();
         updateRemainingUploads();
+        binding.uploadType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                updateUploadType();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+        binding.uploadImageSection.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                launchImagePicker();
+            }
+        });
+        binding.uploadUrlEdittext.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                onUrlTextChanged();
+            }
+        });
         return dialog;
     }
 
@@ -167,10 +163,9 @@ public class ImgurInserter extends DialogFragment {
     /**
      * Check the currently selected upload type, and update state as necessary.
      */
-    @OnItemSelected(R.id.upload_type)
     void updateUploadType() {
         // this assumes the first entry in the spinner is URL, and the second is IMAGE
-        int position = uploadTypeSelector.getSelectedItemPosition();
+        int position = binding.uploadType.getSelectedItemPosition();
         uploadSourceIsUrl = (position == 0);
         setState(State.CHOOSING);
     }
@@ -183,13 +178,13 @@ public class ImgurInserter extends DialogFragment {
         Pair<Integer, Long> uploadLimit = ImgurUploadRequest.getCurrentUploadLimit();
         Integer remaining = uploadLimit.first;
         Long resetTime = uploadLimit.second;
-        creditsResetTime.setText(resetTime == null ? "" : getString(R.string.imgur_uploader_remaining_uploads_reset_time, timeFormat.format(resetTime), dateFormat.format(resetTime)));
+        binding.creditsResetTime.setText(resetTime == null ? "" : getString(R.string.imgur_uploader_remaining_uploads_reset_time, timeFormat.format(resetTime), dateFormat.format(resetTime)));
 
         if (remaining == null) {
-            remainingUploads.setText(R.string.imgur_uploader_remaining_uploads_unknown);
-            creditsResetTime.setText("");
+            binding.remainingUploads.setText(R.string.imgur_uploader_remaining_uploads_unknown);
+            binding.creditsResetTime.setText("");
         } else {
-            remainingUploads.setText(getResources().getQuantityString(R.plurals.imgur_uploader_remaining_uploads, remaining, remaining));
+            binding.remainingUploads.setText(getResources().getQuantityString(R.plurals.imgur_uploader_remaining_uploads, remaining, remaining));
             if (remaining < 1) {
                 setState(State.NO_UPLOAD_CREDITS);
             }
@@ -204,7 +199,7 @@ public class ImgurInserter extends DialogFragment {
     /**
      * Display an image chooser to pick a file to upload.
      */
-    @OnClick(R.id.upload_image_section)
+
     void launchImagePicker() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT)
                 .addCategory(Intent.CATEGORY_OPENABLE)
@@ -234,7 +229,7 @@ public class ImgurInserter extends DialogFragment {
         // check if this image looks invalid - if so, complain instead of using it
         String invalidReason = reasonImageIsInvalid(imageUri);
         if (invalidReason != null) {
-            uploadStatus.setText(invalidReason);
+            binding.uploadStatus.setText(invalidReason);
             return;
         }
 
@@ -304,13 +299,13 @@ public class ImgurInserter extends DialogFragment {
     private void displayImageDetails(@NonNull Uri imageUri) {
         Pair<String, Long> nameAndSize = getFileNameAndSize(imageUri);
         if (nameAndSize.first == null && nameAndSize.second == null) {
-            imageNameLabel.setText("");
-            imageDetailsLabel.setText(R.string.imgur_uploader_no_file_details);
+            binding.imageName.setText("");
+            binding.imageDetails.setText(R.string.imgur_uploader_no_file_details);
         } else {
             String name = (nameAndSize.first == null) ? getString(R.string.imgur_uploader_unknown_value) : nameAndSize.first;
-            imageNameLabel.setText(getString(R.string.imgur_uploader_file_name, name));
+            binding.imageName.setText(getString(R.string.imgur_uploader_file_name, name));
             String size = (nameAndSize.second == null) ? getString(R.string.imgur_uploader_unknown_value) : Formatter.formatShortFileSize(getContext(), nameAndSize.second);
-            imageDetailsLabel.setText(getString(R.string.imgur_uploader_file_size, size));
+            binding.imageDetails.setText(getString(R.string.imgur_uploader_file_size, size));
         }
     }
 
@@ -329,7 +324,7 @@ public class ImgurInserter extends DialogFragment {
             options.inSampleSize = 4;
             inputStream = getActivity().getContentResolver().openInputStream(imageUri);
             previewBitmap = BitmapFactory.decodeStream(inputStream, null, options);
-            imagePreview.setImageDrawable(new BitmapDrawable(previewBitmap));
+            binding.imagePreview.setImageDrawable(new BitmapDrawable(previewBitmap));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             // TODO: 05/06/2017 'no preview' or something?
@@ -345,12 +340,12 @@ public class ImgurInserter extends DialogFragment {
     /**
      * Handle changes to the 'image source URL' field, updating state where necessary.
      */
-    @OnTextChanged(R.id.upload_url_edittext)
+
     void onUrlTextChanged() {
         // change state when (and only when) the url contents no longer match the current state
         // this also avoids a circular call when the url is reset in #setState (url becomes empty
         // but state is already set appropriately to CHOOSING)
-        boolean urlIsEmpty = uploadUrlEditText.length() == 0;
+        boolean urlIsEmpty = binding.uploadUrlEdittext.length() == 0;
         if (urlIsEmpty && state == State.READY_TO_UPLOAD) {
             setState(State.CHOOSING);
         } else if (!urlIsEmpty && state == State.CHOOSING) {
@@ -362,7 +357,7 @@ public class ImgurInserter extends DialogFragment {
             return;
         }
 
-        String url = uploadUrlEditText.getText().toString().toLowerCase();
+        String url = binding.uploadUrlEdittext.getText().toString().toLowerCase();
         boolean looksLikeUrl = Patterns.WEB_URL.matcher(url).matches();
         String warningMessage = null;
         if (!StringUtils.startsWithAny(url, "http://", "https://")) {
@@ -371,7 +366,7 @@ public class ImgurInserter extends DialogFragment {
         } else if (!looksLikeUrl) {
             warningMessage = getString(R.string.imgur_uploader_url_validation_warning);
         }
-        uploadUrlTextWrapper.setError(warningMessage);
+        binding.uploadUrlTextInputLayout.setError(warningMessage);
     }
 
 
@@ -387,13 +382,13 @@ public class ImgurInserter extends DialogFragment {
         if (state != State.READY_TO_UPLOAD) {
             return;
         }
-        AwfulApplication.getAppStatePrefs().edit().putInt(KEY_IMGUR_LAST_CHOSEN_UPLOAD_OPTION, uploadTypeSelector.getSelectedItemPosition()).apply();
+        AwfulApplication.getAppStatePrefs().edit().putInt(KEY_IMGUR_LAST_CHOSEN_UPLOAD_OPTION, binding.uploadType.getSelectedItemPosition()).apply();
         setState(State.UPLOADING);
         cancelUploadTask();
 
         // do a url if we have one
         if (uploadSourceIsUrl) {
-            uploadTask = new ImgurUploadRequest(uploadUrlEditText.getText().toString(), this::parseUploadResponse, this::handleUploadError);
+            uploadTask = new ImgurUploadRequest(binding.uploadUrlEdittext.getText().toString(), this::parseUploadResponse, this::handleUploadError);
             NetworkUtils.queueRequest(uploadTask);
         } else {
             ContentResolver contentResolver = getActivity().getContentResolver();
@@ -435,10 +430,10 @@ public class ImgurInserter extends DialogFragment {
                 JSONObject data = response.getJSONObject("data");
                 String videoUrl = StringUtils.defaultIfBlank(data.optString("gifv"), data.optString("mp4"));
                 String imageUrl = data.getString("link");
-                if (gifsAsVideoCheckbox.isChecked() && StringUtils.isNotBlank(videoUrl)) {
+                if (binding.addGifsAsVideo.isChecked() && StringUtils.isNotBlank(videoUrl)) {
                     ((MessageComposer) getTargetFragment()).onHtml5VideoUploaded(videoUrl);
                 } else {
-                    ((MessageComposer) getTargetFragment()).onImageUploaded(imageUrl, thumbnailCheckbox.isChecked());
+                    ((MessageComposer) getTargetFragment()).onImageUploaded(imageUrl, binding.useThumbnail.isChecked());
                 }
                 dismiss();
                 return;
@@ -463,7 +458,7 @@ public class ImgurInserter extends DialogFragment {
     private void onUploadError(@NonNull String errorMessage) {
         // revert back to pre-upload state
         setState(State.READY_TO_UPLOAD);
-        uploadStatus.setText(errorMessage);
+        binding.uploadStatus.setText(errorMessage);
         updateRemainingUploads();
     }
 
@@ -532,45 +527,45 @@ public class ImgurInserter extends DialogFragment {
                 // this intentionally sets the appearing view to visible BEFORE removing the other
                 // which avoids too much weirdness with the layout change animation
                 if (uploadSourceIsUrl) {
-                    uploadUrlTextWrapper.setVisibility(VISIBLE);
-                    uploadImageSection.setVisibility(GONE);
+                    binding.uploadUrlTextInputLayout.setVisibility(VISIBLE);
+                    binding.uploadImageSection.setVisibility(GONE);
                 } else {
-                    uploadImageSection.setVisibility(VISIBLE);
-                    uploadUrlTextWrapper.setVisibility(GONE);
+                    binding.uploadImageSection.setVisibility(VISIBLE);
+                    binding.uploadUrlTextInputLayout.setVisibility(GONE);
                 }
-                imagePreview.setImageResource(R.drawable.ic_photo_dark);
-                imageNameLabel.setText("");
-                imageDetailsLabel.setText(R.string.imgur_uploader_tap_to_choose_file);
-                uploadUrlEditText.setText("");
-                uploadUrlTextWrapper.setError(null);
+                binding.imagePreview.setImageResource(R.drawable.ic_photo_dark);
+                binding.imageName.setText("");
+                binding.imageDetails.setText(R.string.imgur_uploader_tap_to_choose_file);
+                binding.uploadUrlEdittext.setText("");
+                binding.uploadUrlTextInputLayout.setError(null);
 
                 uploadButton.setEnabled(false);
-                uploadStatus.setText(uploadSourceIsUrl ? getString(R.string.imgur_uploader_status_enter_image_url) : getString(R.string.imgur_uploader_status_choose_source_file));
-                uploadProgressBar.setVisibility(GONE);
+                binding.uploadStatus.setText(uploadSourceIsUrl ? getString(R.string.imgur_uploader_status_enter_image_url) : getString(R.string.imgur_uploader_status_choose_source_file));
+                binding.uploadProgressBar.setVisibility(GONE);
                 break;
 
             // upload source selected (either a URL entered, or a source file chosen)
             case READY_TO_UPLOAD:
                 uploadButton.setEnabled(true);
-                uploadStatus.setText(R.string.imgur_uploader_status_ready_to_upload);
-                uploadProgressBar.setVisibility(GONE);
+                binding.uploadStatus.setText(R.string.imgur_uploader_status_ready_to_upload);
+                binding.uploadProgressBar.setVisibility(GONE);
                 break;
 
             // upload request in progress
             case UPLOADING:
                 uploadButton.setEnabled(false);
-                uploadStatus.setText(R.string.imgur_uploader_status_upload_in_progress);
-                uploadProgressBar.setVisibility(VISIBLE);
+                binding.uploadStatus.setText(R.string.imgur_uploader_status_upload_in_progress);
+                binding.uploadProgressBar.setVisibility(VISIBLE);
                 break;
 
             // error state for when we can't upload
             case NO_UPLOAD_CREDITS:
                 // put on the brakes, hide everything and prevent uploads
                 uploadButton.setEnabled(false);
-                uploadStatus.setText(R.string.imgur_uploader_status_no_remaining_uploads);
-                uploadImageSection.setVisibility(GONE);
-                uploadUrlTextWrapper.setVisibility(GONE);
-                uploadProgressBar.setVisibility(GONE);
+                binding.uploadStatus.setText(R.string.imgur_uploader_status_no_remaining_uploads);
+                binding.uploadImageSection.setVisibility(GONE);
+                binding.uploadUrlTextInputLayout.setVisibility(GONE);
+                binding.uploadProgressBar.setVisibility(GONE);
                 break;
         }
     }

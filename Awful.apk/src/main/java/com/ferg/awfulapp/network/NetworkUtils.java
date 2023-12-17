@@ -53,6 +53,7 @@ import java.util.regex.Pattern;
 
 import timber.log.Timber;
 
+@SuppressWarnings({"unchecked", "unsafe"})
 public class NetworkUtils {
     private static final String CHARSET = "windows-1252";
 

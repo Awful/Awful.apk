@@ -57,7 +57,7 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
     AwfulRequest.ProgressListener, ForumsPagerPage, NavigationEventHandler {
     protected var TAG = "AwfulFragment"
 
-    protected val prefs: AwfulPreferences by lazy { AwfulPreferences.getInstance(context!!, this) }
+    protected val prefs: AwfulPreferences by lazy { AwfulPreferences.getInstance(requireContext(), this) }
     protected val handler: Handler by lazy { Handler() }
     protected val alertView: AlertView by lazy { AlertView(activity) }
 

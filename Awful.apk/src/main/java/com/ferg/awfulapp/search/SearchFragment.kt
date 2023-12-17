@@ -64,7 +64,7 @@ import java.util.*
 
 class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout.OnRefreshListener {
 
-    private val mSearchQuery by lazy { view!!.findViewById(R.id.search_query) as EditText }
+    private val mSearchQuery by lazy { requireView().findViewById(R.id.search_query) as EditText }
 
     private var mQueryId: Int = 0
     private var mMaxPageQueried: Int = 0
@@ -74,7 +74,7 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
 
     private var mDialog: ProgressDialog? = null
     private val mSearchResultList: RecyclerView by lazy {
-        (view!!.findViewById(R.id.search_results) as RecyclerView)
+        (requireView().findViewById(R.id.search_results) as RecyclerView)
                 .apply {
                     adapter = SearchResultAdapter()
                     layoutManager =
@@ -84,7 +84,7 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
     private var mSearchResults: MutableList<AwfulSearch> = mutableListOf()
 
     private val mSRL: SwipyRefreshLayout by lazy {
-        (view!!.findViewById(R.id.search_srl) as SwipyRefreshLayout)
+        (requireView().findViewById(R.id.search_srl) as SwipyRefreshLayout)
                 .apply {
                     setOnRefreshListener(this@SearchFragment)
                     setColorSchemeResources(*ColorProvider.getSRLProgressColors(null))
@@ -136,7 +136,7 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
     private fun search() {
         mDialog = ProgressDialog.show(activity, getString(R.string.search_forums_active_dialog_title), getString(R.string.search_forums_active_dialog_message), true, false)
         val searchForumsPrimitive = ArrayUtils.toPrimitive(searchForums.toTypedArray())
-        NetworkUtils.queueRequest(SearchRequest(this.context!!, mSearchQuery.text.toString().toLowerCase(), searchForumsPrimitive)
+        NetworkUtils.queueRequest(SearchRequest(this.requireContext(), mSearchQuery.text.toString().toLowerCase(), searchForumsPrimitive)
                 .build(null, object : AwfulRequest.AwfulResultCallback<AwfulSearchResult> {
                     override fun success(result: AwfulSearchResult) {
                         removeLoadingDialog()
@@ -189,7 +189,7 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
             R.id.select_forums ->
                 SearchForumsFragment(this)
                         .apply { setStyle(DialogFragment.STYLE_NO_TITLE, 0) }
-                        .show(fragmentManager!!, "searchforums")
+                        .show(requireFragmentManager(), "searchforums")
             else -> return super.onOptionsItemSelected(item)
         }
         return true
@@ -218,7 +218,7 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
     override fun onRefresh(direction: SwipyRefreshLayoutDirection) {
         Timber.i("onRefresh: %s", mMaxPageQueried)
         val preItemCount = mSearchResultList.adapter?.itemCount ?: 0
-        NetworkUtils.queueRequest(SearchResultPageRequest(this.context!!, mQueryId, mMaxPageQueried + 1).build(null, object : AwfulRequest.AwfulResultCallback<ArrayList<AwfulSearch>> {
+        NetworkUtils.queueRequest(SearchResultPageRequest(this.requireContext(), mQueryId, mMaxPageQueried + 1).build(null, object : AwfulRequest.AwfulResultCallback<ArrayList<AwfulSearch>> {
 
             // TODO: combine this with #search since they share functionality - maybe a SearchQuery object for the current query that holds this state we're changing
             override fun success(result: ArrayList<AwfulSearch>) {

@@ -83,10 +83,10 @@
             android:layout_height="@dimen/thread_item_sticky_locked_icon_size"
             android:layout_toRightOf="@+id/thread_sticky"
             android:contentDescription="@string/thread_locked_description"
-            android:tint="?attr/iconColorDark"
             android:visibility="gone"
             app:srcCompat="@drawable/ic_https"
-            tools:visibility="visible"/>
+            tools:visibility="visible"
+            app:tint="?attr/iconColorDark" />
 
 
 

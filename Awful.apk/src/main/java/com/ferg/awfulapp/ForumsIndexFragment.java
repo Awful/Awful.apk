@@ -5,6 +5,8 @@ import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.ferg.awfulapp.databinding.ForumIndexFragmentBinding;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,9 +28,6 @@ import com.ferg.awfulapp.widget.StatusFrog;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 import static com.ferg.awfulapp.forums.ForumStructure.FLAT;
 import static com.ferg.awfulapp.forums.ForumStructure.TWO_LEVEL;
@@ -55,11 +54,8 @@ public class ForumsIndexFragment extends AwfulFragment
 
     private static final String KEY_SHOW_FAVOURITES = "show_favourites";
 
-    @BindView(R.id.forum_index_list)
     RecyclerView forumRecyclerView;
-    @BindView(R.id.view_switcher)
     ViewSwitcher forumsListSwitcher;
-    @BindView(R.id.status_frog)
     StatusFrog statusFrog;
 
     private ForumListAdapter forumListAdapter;
@@ -91,8 +87,11 @@ public class ForumsIndexFragment extends AwfulFragment
 
     @Override
     public View onCreateView(@NonNull LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
-        View view = inflateView(R.layout.forum_index_fragment, aContainer, aInflater);
-        ButterKnife.bind(this, view);
+        ForumIndexFragmentBinding binding = ForumIndexFragmentBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        forumRecyclerView = binding.forumIndexList;
+        forumsListSwitcher = binding.viewSwitcher;
+        statusFrog = binding.statusFrog;
         updateViewColours();
         refreshProbationBar();
         forumsListSwitcher.setInAnimation(AnimationUtils.makeInAnimation(getContext(), true));

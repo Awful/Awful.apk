@@ -25,14 +25,12 @@ import com.ToxicBakery.viewpager.transforms.TabletTransformer;
 import com.ToxicBakery.viewpager.transforms.ZoomInTransformer;
 import com.ToxicBakery.viewpager.transforms.ZoomOutSlideTransformer;
 import com.ToxicBakery.viewpager.transforms.ZoomOutTransformer;
-import com.ferg.awfulapp.AwfulApplication;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.DatabaseHelper;
 import com.ferg.awfulapp.thread.AwfulEmote;
 import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.HashMap;
 
@@ -165,10 +163,6 @@ public class AwfulUtils {
      */
     public static void failSilently(@NonNull Exception e) {
         Timber.e(e);
-        if (AwfulApplication.crashlyticsEnabled()) {
-            FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
-            crashlytics.log(e.getMessage());
-        }
         if (Constants.DEBUG) {
             throw new RuntimeException(e);
         }

@@ -48,6 +48,8 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.ferg.awfulapp.databinding.PostReplyActivityBinding;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
@@ -92,11 +94,10 @@ import com.ferg.awfulapp.util.AwfulUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
+import org.w3c.dom.Text;
 
 import java.io.File;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import timber.log.Timber;
 
 import static com.ferg.awfulapp.constants.Constants.ATTACHMENT_MAX_BYTES;
@@ -118,8 +119,6 @@ public class PostReplyFragment extends AwfulFragment {
     private static final String TAG = "PostReplyFragment";
 
     // UI components
-    @BindView(R.id.thread_title)
-    TextView threadTitleView = null;
     private MessageComposer messageComposer;
     @Nullable
     private ProgressDialog progressDialog;
@@ -172,16 +171,15 @@ public class PostReplyFragment extends AwfulFragment {
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
         Timber.v("onCreateView");
-        return inflateView(R.layout.post_reply, aContainer, aInflater);
+        View view = inflateView(R.layout.post_reply, aContainer, aInflater);
+        return view;
     }
-
 
     @Override
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
         Timber.v("onActivityCreated");
         Activity activity = getActivity();
-        ButterKnife.bind(this, activity);
 
         messageComposer = (MessageComposer) getChildFragmentManager().findFragmentById(R.id.message_composer_fragment);
         messageComposer.setBackgroundColor(ColorProvider.BACKGROUND.getColor());
@@ -1042,6 +1040,7 @@ public class PostReplyFragment extends AwfulFragment {
      * Update the title view to show the current thread title, if we have it
      */
     private void updateThreadTitle() {
+        TextView threadTitleView = getActivity().findViewById(R.id.thread_title);
         if (threadTitleView != null) {
             threadTitleView.setText(mThreadTitle == null ? "" : mThreadTitle);
         }

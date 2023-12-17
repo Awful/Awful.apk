@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.os.StrictMode;
 import android.webkit.WebView;
 
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.ferg.awfulapp.announcements.AnnouncementsManager;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
@@ -26,7 +25,6 @@ public class AwfulApplication extends Application {
      * Used for storing misc app data, separate from user preferences, so onPreferenceChange callbacks aren't triggered
      */
     private static SharedPreferences appStatePrefs;
-    private static boolean crashlyticsEnabled = false;
 
     /**
      * Stores the user agent used by web views in this application, which is required to be
@@ -71,21 +69,6 @@ public class AwfulApplication extends Application {
 
         long hoursSinceInstall = getHoursSinceInstall();
 
-        // enable Crashlytics on non-debug builds, or debug builds that have been installed for a while
-        crashlyticsEnabled = !BuildConfig.DEBUG || hoursSinceInstall > 4;
-
-        if (crashlyticsEnabled) {
-            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true);
-            FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
-
-            if (mPref.sendUsernameInReport)
-                crashlytics.setUserId(mPref.username);
-        } else {
-            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false);
-        }
-
-        Timber.plant(crashlyticsEnabled ? new CrashlyticsReportingTree() : new Timber.DebugTree());
-
         Timber.i("App installed %d hours ago", hoursSinceInstall);
 
         if (Constants.DEBUG) {
@@ -118,13 +101,6 @@ public class AwfulApplication extends Application {
             e.printStackTrace();
         }
         return hoursSinceInstall;
-    }
-
-    /**
-     * Returns true if the Crashlytics singleton has been initialised and can be used.
-     */
-    public static boolean crashlyticsEnabled() {
-        return crashlyticsEnabled;
     }
 
     /**

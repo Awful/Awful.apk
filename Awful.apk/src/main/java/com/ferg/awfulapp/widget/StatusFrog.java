@@ -15,8 +15,6 @@ import android.widget.TextView;
 
 import com.ferg.awfulapp.R;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 /**
  * Created by baka kaba on 14/08/2017.
@@ -30,9 +28,9 @@ import butterknife.ButterKnife;
  */
 public class StatusFrog extends RelativeLayout {
 
-    @BindView(R.id.status_message)
+
     TextView statusMessage;
-    @BindView(R.id.status_progress_bar)
+
     ProgressBar progressBar;
 
     public StatusFrog(Context context) {
@@ -59,7 +57,9 @@ public class StatusFrog extends RelativeLayout {
 
     private void init(Context context, @Nullable AttributeSet attrs) {
         View view = LayoutInflater.from(context).inflate(R.layout.status_frog, this, true);
-        ButterKnife.bind(this, view);
+        statusMessage = view.findViewById(R.id.status_message);
+        progressBar = view.findViewById(R.id.status_progress_bar);
+
         // handle any custom XML attributes
         if (attrs != null) {
             TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.StatusFrog, 0, 0);

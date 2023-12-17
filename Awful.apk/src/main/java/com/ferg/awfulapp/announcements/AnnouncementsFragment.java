@@ -16,6 +16,7 @@ import android.webkit.WebViewClient;
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.AwfulFragment;
 import com.ferg.awfulapp.R;
+import com.ferg.awfulapp.databinding.AnnouncementsFragmentBinding;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulTheme;
 import com.ferg.awfulapp.task.AnnouncementsRequest;
@@ -28,8 +29,6 @@ import com.ferg.awfulapp.widget.StatusFrog;
 
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import timber.log.Timber;
 
 /**
@@ -47,23 +46,19 @@ import timber.log.Timber;
 
 public class AnnouncementsFragment extends AwfulFragment {
 
-    @BindView(R.id.announcements_webview)
-    AwfulWebView webView;
-    @BindView(R.id.status_frog)
-    StatusFrog statusFrog;
+    AnnouncementsFragmentBinding binding;
 
     @NonNull
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflateView(R.layout.announcements_fragment, container, inflater);
-        ButterKnife.bind(this, view);
-
+        binding = AnnouncementsFragmentBinding.inflate(inflater, container, false);
+        View view = binding.getRoot();
         initialiseWebView();
         return view;
     }
 
     private void initialiseWebView() {
-        webView.setJavascriptHandler(new WebViewJsInterface() {
+        binding.announcementsWebview.setJavascriptHandler(new WebViewJsInterface() {
 
             @JavascriptInterface
             public String getCSS() {
@@ -93,7 +88,7 @@ public class AnnouncementsFragment extends AwfulFragment {
             }
 
         });
-        webView.setWebViewClient(new WebViewClient() {
+        binding.announcementsWebview.setWebViewClient(new WebViewClient() {
             // this lets links open back in the main activity if we handle them (e.g. 'look at this thread'),
             // and opens them in a browser or whatever if we don't (e.g. 'click here to buy a thing on the site')
             @Override
@@ -104,7 +99,7 @@ public class AnnouncementsFragment extends AwfulFragment {
                 return true;
             }
         });
-        webView.setContent(AwfulHtmlPage.getContainerHtml(getPrefs(), -1, false));
+        binding.announcementsWebview.setContent(AwfulHtmlPage.getContainerHtml(getPrefs(), -1, false));
     }
 
 
@@ -120,7 +115,7 @@ public class AnnouncementsFragment extends AwfulFragment {
      */
     private void showAnnouncements() {
         Context context = getContext().getApplicationContext();
-        statusFrog.setStatusText(R.string.announcements_status_fetching).showSpinner(true);
+        binding.statusFrog.setStatusText(R.string.announcements_status_fetching).showSpinner(true);
         queueRequest(
                 new AnnouncementsRequest(context).build(this, new AwfulRequest.AwfulResultCallback<List<AwfulPost>>() {
                     @Override
@@ -128,22 +123,22 @@ public class AnnouncementsFragment extends AwfulFragment {
                         AnnouncementsManager.getInstance().markAllRead();
                         // update the status frog if there are no announcements, otherwise hide it and display them
                         if (result.size() < 1) {
-                            statusFrog.setStatusText(R.string.announcements_status_none).showSpinner(false);
+                            binding.statusFrog.setStatusText(R.string.announcements_status_none).showSpinner(false);
                         } else {
-                            webView.setVisibility(View.VISIBLE);
+                            binding.announcementsWebview.setVisibility(View.VISIBLE);
                             // these page params don't mean anything in the context of the announcement page
                             // we just want it to a) display ok, and b) not let the user click anything bad
                             String bodyHtml = AwfulHtmlPage.getThreadHtml(result, AwfulPreferences.getInstance(), 1, 1);
-                            if (webView != null) {
-                                webView.setBodyHtml(bodyHtml);
+                            if (binding.announcementsWebview != null) {
+                                binding.announcementsWebview.setBodyHtml(bodyHtml);
                             }
-                            statusFrog.setVisibility(View.INVISIBLE);
+                            binding.statusFrog.setVisibility(View.INVISIBLE);
                         }
                     }
 
                     @Override
                     public void failure(VolleyError error) {
-                        statusFrog.setStatusText(R.string.announcements_status_failed).showSpinner(false);
+                        binding.statusFrog.setStatusText(R.string.announcements_status_failed).showSpinner(false);
                         Timber.w("Announcement get failed!\n" + error.getMessage());
                     }
                 })
@@ -159,28 +154,28 @@ public class AnnouncementsFragment extends AwfulFragment {
 
     @Override
     public void onPause() {
-        if (webView != null) {
-            webView.onPause();
+        if (binding.announcementsWebview != null) {
+            binding.announcementsWebview.onPause();
         }
         super.onPause();
     }
 
     @Override
     public void onResume() {
-        if (webView != null) {
-            webView.onResume();
+        if (binding.announcementsWebview != null) {
+            binding.announcementsWebview.onResume();
         }
         super.onResume();
     }
 
     @Override
     protected boolean doScroll(boolean down) {
-        if (webView == null) {
+        if (binding.announcementsWebview == null) {
             return false;
         } else if (down) {
-            webView.pageDown(false);
+            binding.announcementsWebview.pageDown(false);
         } else {
-            webView.pageUp(false);
+            binding.announcementsWebview.pageUp(false);
         }
         return true;
     }

@@ -14,12 +14,9 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.ferg.awfulapp.R;
+import com.ferg.awfulapp.databinding.PageBarBinding;
 
 import java.util.Locale;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 /**
  * Created by baka kaba on 25/05/2016.
@@ -31,16 +28,7 @@ import butterknife.OnClick;
 public class PageBar extends FrameLayout {
 
     public static final int FIRST_PAGE = 1;
-    @BindView(R.id.page_count_text)
-    TextView mPageCountText;
-    @BindView(R.id.next_page)
-    ImageButton nextPageButton;
-    @BindView(R.id.prev_page)
-    ImageButton prevPageButton;
-    @BindView(R.id.refresh)
-    ImageButton refreshButton;
-    @BindView(R.id.refresh_alt)
-    ImageButton altRefreshButton;
+    PageBarBinding binding;
 
     private PageBarCallbacks listener = null;
 
@@ -67,9 +55,13 @@ public class PageBar extends FrameLayout {
 
 
     private void init() {
-        View pageBar = LayoutInflater.from(getContext()).inflate(R.layout.page_bar, this, true);
-        ButterKnife.bind(pageBar);
+        binding = PageBarBinding.inflate(LayoutInflater.from(getContext()), this, true);
         updatePagePosition(FIRST_PAGE, FIRST_PAGE);
+        onRefreshClicked(binding.refresh);
+        onRefreshClicked(binding.refreshAlt);
+        onNavButtonClicked(binding.nextPage);
+        onNavButtonClicked(binding.prevPage);
+        onPageNumberClicked(binding.pageCountText);
     }
 
     /**
@@ -102,7 +94,7 @@ public class PageBar extends FrameLayout {
 
     private void updateDisplay(int currentPage, int lastPage, @NonNull PageType pageType, boolean hasPageCount) {
         String template = hasPageCount ? "%d / %d" : "%d";
-        mPageCountText.setText(String.format(Locale.getDefault(), template, currentPage, lastPage));
+        binding.pageCountText.setText(String.format(Locale.getDefault(), template, currentPage, lastPage));
         /*
             hide and show the appropriate icons for each state:
             - don't show the prev/next arrow on the first/last page
@@ -112,28 +104,28 @@ public class PageBar extends FrameLayout {
         */
         switch (pageType) {
             case SINGLE:
-                prevPageButton.setVisibility(GONE);
-                nextPageButton.setVisibility(GONE);
-                altRefreshButton.setVisibility(GONE);
-                refreshButton.setVisibility(VISIBLE);
+                binding.prevPage.setVisibility(GONE);
+                binding.nextPage.setVisibility(GONE);
+                binding.refreshAlt.setVisibility(GONE);
+                binding.refresh.setVisibility(VISIBLE);
                 break;
             case FIRST_OF_MANY:
-                prevPageButton.setVisibility(GONE);
-                altRefreshButton.setVisibility(GONE);
-                refreshButton.setVisibility(VISIBLE);
-                nextPageButton.setVisibility(VISIBLE);
+                binding.prevPage.setVisibility(GONE);
+                binding.refreshAlt.setVisibility(GONE);
+                binding.refresh.setVisibility(VISIBLE);
+                binding.nextPage.setVisibility(VISIBLE);
                 break;
             case ONE_OF_MANY:
-                altRefreshButton.setVisibility(GONE);
-                prevPageButton.setVisibility(VISIBLE);
-                refreshButton.setVisibility(VISIBLE);
-                nextPageButton.setVisibility(VISIBLE);
+                binding.refreshAlt.setVisibility(GONE);
+                binding.prevPage.setVisibility(VISIBLE);
+                binding.refresh.setVisibility(VISIBLE);
+                binding.nextPage.setVisibility(VISIBLE);
                 break;
             case LAST_OF_MANY:
-                nextPageButton.setVisibility(GONE);
-                refreshButton.setVisibility(GONE);
-                prevPageButton.setVisibility(VISIBLE);
-                altRefreshButton.setVisibility(VISIBLE);
+                binding.nextPage.setVisibility(GONE);
+                binding.refresh.setVisibility(GONE);
+                binding.prevPage.setVisibility(VISIBLE);
+                binding.refreshAlt.setVisibility(VISIBLE);
         }
     }
 
@@ -145,26 +137,38 @@ public class PageBar extends FrameLayout {
         this.listener = listener;
     }
 
-    @OnClick({R.id.refresh, R.id.refresh_alt})
-    public void onRefreshClicked() {
-        if (listener != null) {
-            listener.onRefreshClicked();
-        }
+    public void onRefreshClicked(ImageButton button) {
+        button.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listener != null) {
+                    listener.onRefreshClicked();
+                }
+            }
+        });
     }
 
-    @OnClick({R.id.next_page, R.id.prev_page})
-    public void onNavButtonClicked(View view) {
-        if (listener != null) {
-            listener.onPageNavigation(view.getId() == R.id.next_page);
-        }
+    public void onNavButtonClicked(ImageButton button) {
+        button.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listener != null) {
+                    listener.onPageNavigation(button.getId() == R.id.next_page);
+                }
+            }
+        });
     }
 
+    public void onPageNumberClicked(TextView pageNumber) {
+        pageNumber.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listener != null) {
+                    listener.onPageNumberClicked();
+                }
+            }
+        });
 
-    @OnClick({R.id.page_count_text})
-    public void onPageNumberClicked() {
-        if (listener != null) {
-            listener.onPageNumberClicked();
-        }
     }
 
     // TODO: probably best to add a setter for the stuff that uses this
@@ -174,11 +178,11 @@ public class PageBar extends FrameLayout {
      */
     @NonNull
     public View getTextView() {
-        return mPageCountText;
+        return binding.pageCountText;
     }
 
     public void setTextColour(@ColorInt int textColour) {
-        mPageCountText.setTextColor(textColour);
+        binding.pageCountText.setTextColor(textColour);
     }
 
     private enum PageType {SINGLE, FIRST_OF_MANY, LAST_OF_MANY, ONE_OF_MANY}
