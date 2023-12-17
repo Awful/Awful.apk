@@ -23,7 +23,7 @@ import com.ferg.awfulapp.preferences.AwfulPreferences
 class LogOutDialog : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
-            AlertDialog.Builder(activity!!)
+            AlertDialog.Builder(requireActivity())
                     .setTitle(R.string.logout)
                     .setMessage(R.string.logout_message)
                     .setPositiveButton(R.string.logout, { _, _ ->

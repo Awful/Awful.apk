@@ -31,10 +31,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.OnLongClick;
 
 import static com.ferg.awfulapp.constants.Constants.POST_ICON_REQUEST_TYPES.FORUM_POST;
 import static com.ferg.awfulapp.constants.Constants.POST_ICON_REQUEST_TYPES.PM;
@@ -64,7 +60,6 @@ public class ThreadIconPicker extends Fragment {
     private static final int PM_FORUM_ID = -324546;
 
     private static final SparseArray<List<AwfulPostIcon>> iconsCache = new SparseArray<>();
-    @BindView(R.id.selected_icon)
     ImageView selectedIconView;
     private AwfulPostIcon currentIcon = BLANK_ICON;
     @Nullable
@@ -75,7 +70,20 @@ public class ThreadIconPicker extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.icon_picker, container, true);
-        ButterKnife.bind(this, view);
+        selectedIconView = view.findViewById(R.id.selected_icon);
+        selectedIconView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showPicker();
+            }
+        });
+        selectedIconView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                secretForumCycler();
+                return true;
+            }
+        });
         return view;
     }
 
@@ -118,7 +126,6 @@ public class ThreadIconPicker extends Fragment {
      * If an icon source hasn't been selected through {@link #useForumIcons(int)} or
      * {@link #usePrivateMessageIcons()}, this will do nothing.
      */
-    @OnClick(R.id.selected_icon)
     public void showPicker() {
         if (currentForumId == null) {
             Log.w(TAG, "The user tried to select an icon before a source forum was set!\nYou should prevent this or initialise with one");
@@ -227,7 +234,6 @@ public class ThreadIconPicker extends Fragment {
 
     Iterator<Forum> allTheForums = null;
 
-    @OnLongClick(R.id.selected_icon)
     public boolean secretForumCycler() {
         if (allTheForums == null || !allTheForums.hasNext()) {
             ForumRepository repo = ForumRepository.getInstance(getContext());

@@ -32,21 +32,21 @@ import androidx.fragment.app.FragmentManager;
 import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+import com.ferg.awfulapp.databinding.PostReplyActivityBinding;
 
 
 public class PostReplyActivity extends AwfulActivity {
 
-    @BindView(R.id.toolbar)
+
     Toolbar mToolbar;
     PostReplyFragment replyFragment;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.post_reply_activity);
-        ButterKnife.bind(this);
+        PostReplyActivityBinding binding = PostReplyActivityBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        mToolbar = binding.toolbar;
 
         setSupportActionBar(mToolbar);
         setUpActionBar();

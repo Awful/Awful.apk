@@ -18,7 +18,6 @@ import com.ferg.awfulapp.provider.ColorProvider;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.BindView;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -52,9 +51,8 @@ public class UrlContextMenu extends BasePopupMenu<UrlContextMenu.UrlMenuAction> 
     private boolean isImage;
     private boolean isGif;
 
-    @BindView(R.id.actionTitle)
     TextView titleText;
-    @BindView(R.id.title_subheading)
+
     TextView subheading = null;
     @Nullable
     private String subheadingText = null;
@@ -93,8 +91,10 @@ public class UrlContextMenu extends BasePopupMenu<UrlContextMenu.UrlMenuAction> 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
+        titleText = view.findViewById(R.id.actionTitle);
+        subheading = view.findViewById(R.id.title_subheading);
         // tiny title text for long URLs - need to reapply the colour set in the xml
-        titleText.setTextAppearance(getContext(), R.style.TextAppearance_AppCompat_Small);
+        titleText.setTextAppearance(getContext(), androidx.appcompat.R.style.TextAppearance_AppCompat_Small);
         titleText.setTextColor(ColorProvider.ACTION_BAR_TEXT.getColor());
 
         setSubheading(subheadingText);

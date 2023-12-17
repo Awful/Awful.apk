@@ -11,14 +11,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.ferg.awfulapp.R;
+import com.ferg.awfulapp.databinding.ProbationBarBinding;
 
 import java.text.DateFormat;
 import java.util.Date;
 
-import butterknife.BindString;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 /**
  * Created by baka kaba on 25/05/2016.
@@ -30,10 +27,7 @@ import butterknife.OnClick;
  */
 public class ProbationBar extends LinearLayout {
 
-    @BindView(R.id.probation_message)
-    TextView mProbationMessageView;
-    @BindString(R.string.probation_message)
-    String probationMessage;
+    ProbationBarBinding binding;
 
     @Nullable
     private Callbacks listener = null;
@@ -60,8 +54,15 @@ public class ProbationBar extends LinearLayout {
     }
 
     private void init() {
-        View probationBar = LayoutInflater.from(getContext()).inflate(R.layout.probation_bar, this, true);
-        ButterKnife.bind(probationBar);
+        binding = ProbationBarBinding.inflate(LayoutInflater.from(getContext()));
+        binding.goToLC.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listener != null) {
+                    listener.onProbationButtonClicked();
+                }
+            }
+        });
     }
 
 
@@ -82,19 +83,12 @@ public class ProbationBar extends LinearLayout {
      */
     public void setProbation(@Nullable Long probationTime) {
         if (probationTime == null) {
-            setVisibility(View.GONE);
+            this.setVisibility(View.GONE);
             return;
         }
-        setVisibility(VISIBLE);
+        this.setVisibility(VISIBLE);
         String probeEnd = DateFormat.getDateTimeInstance().format(new Date(probationTime));
-        mProbationMessageView.setText(String.format(probationMessage, probeEnd));
-    }
-
-    @OnClick(R.id.go_to_LC)
-    public void onProbationButtonClicked() {
-        if (listener != null) {
-            listener.onProbationButtonClicked();
-        }
+        binding.probationMessage.setText(String.format(binding.getRoot().getResources().getString(R.string.probation_message), probeEnd));
     }
 
     public interface Callbacks {

@@ -44,10 +44,10 @@
             android:scaleType="fitCenter"
             android:scaleX="1.3"
             android:scaleY="1.3"
-            android:tint="?primaryPostFontColor"
             android:visibility="visible"
             app:srcCompat="@drawable/ic_expand_more"
-            tools:ignore="MissingPrefix" />
+            tools:ignore="MissingPrefix"
+            app:tint="?primaryPostFontColor" />
 
     </LinearLayout>
 

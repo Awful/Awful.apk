@@ -11,9 +11,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:tint="?attr/secondaryPostFontColor"
         app:srcCompat="@drawable/frog_silhouette"
-        tools:ignore="ContentDescription"/>
+        tools:ignore="ContentDescription"
+        app:tint="?attr/secondaryPostFontColor" />
 
     <ProgressBar
         android:id="@+id/status_progress_bar"

@@ -20,7 +20,6 @@ import com.ferg.awfulapp.preferences.AwfulPreferences
 import com.ferg.awfulapp.task.AwfulRequest.Parameters.GetParams
 import com.ferg.awfulapp.task.AwfulRequest.Parameters.PostParams
 import com.ferg.awfulapp.util.AwfulError
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import org.apache.http.HttpEntity
 import org.apache.http.entity.ContentType
 import org.apache.http.entity.mime.MultipartEntityBuilder
@@ -259,14 +258,6 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
                 return Response.success(result, HttpHeaderParser.parseCacheHeaders(response))
             } catch (ae: AwfulError) {
                 return Response.error(ae)
-            } catch (e: OutOfMemoryError) {
-                if (AwfulApplication.crashlyticsEnabled()) {
-                    val crashlytics: FirebaseCrashlytics = FirebaseCrashlytics.getInstance()
-
-                    crashlytics.setCustomKey("Response URL", url)
-                    crashlytics.setCustomKey("Response data size", response.data.size.toLong())
-                }
-                throw e
             } catch (e: Exception) {
                 // TODO: find out what else this is meant to be catching, because it's swallowing every exception
                 Timber.e(e, "Failed parse: $url")

@@ -29,7 +29,7 @@ public enum ColorProvider {
 
     PRIMARY_TEXT(R.attr.primaryPostFontColor),
     ALT_TEXT(R.attr.secondaryPostFontColor),
-    BACKGROUND(R.attr.background),
+    BACKGROUND(androidx.appcompat.R.attr.background),
     UNREAD_BACKGROUND(R.attr.unreadColor),
     UNREAD_BACKGROUND_DIM(R.attr.unreadColorDim),
     UNREAD_TEXT(R.attr.unreadFontColor),

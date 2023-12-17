@@ -17,15 +17,13 @@ import com.bignerdranch.expandablerecyclerview.Model.ParentListItem;
 import com.bignerdranch.expandablerecyclerview.ViewHolder.ChildViewHolder;
 import com.bignerdranch.expandablerecyclerview.ViewHolder.ParentViewHolder;
 import com.ferg.awfulapp.R;
+import com.ferg.awfulapp.databinding.ForumIndexItemBinding;
+import com.ferg.awfulapp.databinding.ForumIndexSubforumItemBinding;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
@@ -239,28 +237,8 @@ public class ForumListAdapter extends ExpandableRecyclerAdapter<ForumListAdapter
 
         // list item sections - overall view, left column (tags etc), right column (details)
         private final View itemView;
-        @BindView(R.id.tag_and_dropdown_arrow)
-        View tagArea;
-        @BindView(R.id.forum_details)
-        View detailsArea;
-        // right column (used for forums)
-        @BindView(R.id.forum_title)
-        TextView title;
-        @BindView(R.id.forum_subtitle)
-        TextView subtitle;
-        @BindView(R.id.forum_favourite_marker)
-        ImageView favouriteMarker;
-        // left column (used for forums)
-        @BindView(R.id.subforums_expand_arrow)
-        ImageView dropdownButton;
-        @BindView(R.id.forum_tag)
-        SquareForumTag forumTag;
-        // section title (used for section headers)
-        @BindView(R.id.section_title)
-        TextView sectionTitle;
-        // the divider line
-        @BindView(R.id.list_divider)
-        View listDivider;
+        private ForumIndexItemBinding binding;
+
 
         private Forum forum;
         private boolean hasSubforums;
@@ -269,8 +247,9 @@ public class ForumListAdapter extends ExpandableRecyclerAdapter<ForumListAdapter
         TopLevelForumHolder(View itemView) {
             super(itemView);
             this.itemView = itemView;
-            ButterKnife.bind(this, itemView);
-            detailsArea.setOnCreateContextMenuListener((contextMenu, view, contextMenuInfo) -> eventListener.onContextMenuCreated(forum, contextMenu));
+            binding = ForumIndexItemBinding.bind(itemView);
+
+            binding.forumDetails.setOnCreateContextMenuListener((contextMenu, view, contextMenuInfo) -> eventListener.onContextMenuCreated(forum, contextMenu));
         }
 
 
@@ -281,20 +260,20 @@ public class ForumListAdapter extends ExpandableRecyclerAdapter<ForumListAdapter
             /* section items hide everything but the section title,
                other forum types hide the section title and show the other components.
                Think of of them as two alternative layouts in the same Layout file */
-            tagArea.setVisibility(forum.isType(SECTION) ? GONE : VISIBLE);
-            detailsArea.setVisibility(forum.isType(SECTION) ? GONE : VISIBLE);
-            sectionTitle.setVisibility(forum.isType(SECTION) ? VISIBLE : GONE);
+            binding.tagAndDropdownArrow.setVisibility(forum.isType(SECTION) ? GONE : VISIBLE);
+            binding.forumDetails.setVisibility(forum.isType(SECTION) ? GONE : VISIBLE);
+            binding.sectionTitle.setVisibility(forum.isType(SECTION) ? VISIBLE : GONE);
 
             // hide the list divider for section titles and expanded parent forums
             boolean hideDivider = forum.isType(SECTION) || forumItem.isInitiallyExpanded();
-            listDivider.setVisibility(hideDivider ? INVISIBLE : VISIBLE);
+            binding.listDivider.setVisibility(hideDivider ? INVISIBLE : VISIBLE);
 
             // sectionTitle is basically a differently formatted version of the title
-            setText(forum, title, subtitle, sectionTitle);
-            setThemeColours(itemView, title, subtitle);
-            handleSubtitles(forum, subtitle);
+            setText(forum, binding.forumTitle, binding.forumSubtitle, binding.sectionTitle);
+            setThemeColours(itemView, binding.forumTitle, binding.forumSubtitle);
+            handleSubtitles(forum, binding.forumSubtitle);
 
-            favouriteMarker.setVisibility(forum.isFavourite() ? VISIBLE : GONE);
+            binding.forumFavouriteMarker.setVisibility(forum.isFavourite() ? VISIBLE : GONE);
 
             /* the left section (potentially) has a tag and a dropdown button, anything missing
                is set to GONE so whatever's there gets vertically centred, and the space remains */
@@ -302,33 +281,38 @@ public class ForumListAdapter extends ExpandableRecyclerAdapter<ForumListAdapter
             // if there's a forum tag then display it, otherwise remove it
             boolean hasForumTag = forum.getTagUrl() != null;
             if (hasForumTag) {
-                TagProvider.setSquareForumTag(forumTag, forum);
-                forumTag.setVisibility(View.VISIBLE);
+                TagProvider.setSquareForumTag(binding.forumTag, forum);
+                binding.forumTag.setVisibility(View.VISIBLE);
             } else {
-                forumTag.setVisibility(View.GONE);
+                binding.forumTag.setVisibility(View.GONE);
             }
 
             // if this item has subforums, show the dropdown and make it work, otherwise remove it
             if (hasSubforums) {
-                rotateDropdown(dropdownButton, !isExpanded(), true);
-                dropdownButton.setVisibility(VISIBLE);
+                rotateDropdown(binding.subforumsExpandArrow, !isExpanded(), true);
+                binding.subforumsExpandArrow.setVisibility(VISIBLE);
             } else {
-                dropdownButton.setVisibility(GONE);
+                binding.subforumsExpandArrow.setVisibility(GONE);
             }
-        }
+            binding.tagAndDropdownArrow.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (hasSubforums) {
+                        if (isExpanded()) {
+                            collapseView();
+                        } else {
+                            expandView();
+                        }
+                    }
+                }
+            });
 
-
-        @OnClick(R.id.tag_and_dropdown_arrow)
-        void toggleExpanded() {
-            if (hasSubforums) {
-                onClick(null);
-            }
-        }
-
-
-        @OnClick(R.id.forum_details)
-        void selectForum() {
-            eventListener.onForumClicked(forum);
+            binding.forumDetails.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    eventListener.onForumClicked(forum);
+                }
+            });
         }
 
 
@@ -341,46 +325,37 @@ public class ForumListAdapter extends ExpandableRecyclerAdapter<ForumListAdapter
         @Override
         public void onExpansionToggled(boolean closing) {
             super.onExpansionToggled(closing);
-            rotateDropdown(dropdownButton, closing, false);
-            listDivider.setVisibility(closing ? VISIBLE : INVISIBLE);
+            rotateDropdown(binding.subforumsExpandArrow, closing, false);
+            binding.listDivider.setVisibility(closing ? VISIBLE : INVISIBLE);
         }
     }
 
     class SubforumHolder extends ChildViewHolder {
 
         Forum forum;
+        ForumIndexSubforumItemBinding binding;
 
-        @BindView(R.id.forum_details)
-        View detailsArea;
-        @BindView(R.id.forum_title)
-        TextView title;
-        @BindView(R.id.forum_subtitle)
-        TextView subtitle;
-        @BindView(R.id.forum_favourite_marker)
-        ImageView favouriteMarker;
-        @BindView(R.id.item_container)
-        View itemLayout;
 
 
         SubforumHolder(View itemView) {
             super(itemView);
-            ButterKnife.bind(this, itemView);
-            detailsArea.setOnCreateContextMenuListener((contextMenu, view, contextMenuInfo) -> eventListener.onContextMenuCreated(forum, contextMenu));
+            binding = ForumIndexSubforumItemBinding.bind(itemView);
+            binding.forumDetails.setOnCreateContextMenuListener((contextMenu, view, contextMenuInfo) -> eventListener.onContextMenuCreated(forum, contextMenu));
         }
 
 
         void bind(final Forum forumItem) {
             forum = forumItem;
-            setText(forum, title, subtitle, null);
-            setThemeColours(itemLayout, title, subtitle);
-            handleSubtitles(forum, subtitle);
-            favouriteMarker.setVisibility(forum.isFavourite() ? VISIBLE : GONE);
-        }
-
-
-        @OnClick(R.id.forum_details)
-        void selectForum() {
-            eventListener.onForumClicked(forum);
+            setText(forum, binding.forumTitle, binding.forumSubtitle, null);
+            setThemeColours(binding.getRoot(), binding.forumTitle, binding.forumSubtitle);
+            handleSubtitles(forum, binding.forumSubtitle);
+            binding.forumFavouriteMarker.setVisibility(forum.isFavourite() ? VISIBLE : GONE);
+            binding.forumDetails.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    eventListener.onForumClicked(forum);
+                }
+            });
         }
     }
 

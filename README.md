@@ -21,13 +21,7 @@ Or take a look at [our issues][issues] and set up your own fork to quash some bu
 2. [Fork Awful.apk on Github][github-fork-howto].
 3. Download your fork's Git repository and open the project in Android Studio.
    * Quick way: from the welcome screen, choose `Get from VCS` and enter the Github URL for your new fork.
-4. Create your own `google-services.json`.
-   1. [Create your own Firebase project][firebase-console] for Awful.
-   2. Add an Android app to your Firebase project.
-   3. For Android package name, enter `com.ferg.awfulapp.debug`.
-   4. Download the `google-services.json` config file.
-   5. Place `google-services.json` in the inner `/Awful.apk/` folder.
-5. __(Optional)__ If you'd like to be able to upload images to Imgur:
+4. __(Optional)__ If you'd like to be able to upload images to Imgur:
    1. [Register a new application for the Imgur API][imgur-api-docs].
    2. Create the file [`secrets.xml`][secrets-example] in `/Awful.apk/src/main/res/values/`.
    3. Place the client ID in `secrets.xml`, like so:

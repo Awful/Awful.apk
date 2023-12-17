@@ -214,7 +214,7 @@ public enum AwfulTheme {
             // initialise the dark theme flag - we're storing this per enum value, so we can avoid heavy processing
             TypedValue isLight = new TypedValue();
             // this should pull the correct attribute from the thene - it's specified in the base platform themes
-            getTheme(AwfulPreferences.getInstance()).resolveAttribute(R.attr.isLightTheme, isLight, true);
+            getTheme(AwfulPreferences.getInstance()).resolveAttribute(androidx.appcompat.R.attr.isLightTheme, isLight, true);
             int FALSE = 0;
             isDark = (isLight.data == FALSE);
         }
