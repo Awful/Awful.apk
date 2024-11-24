@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import android.text.SpannableStringBuilder;
+import android.text.TextPaint;
 import android.text.style.TypefaceSpan;
 import android.view.MenuItem;
 import android.view.View;
@@ -194,9 +195,26 @@ public class FontManager implements AwfulPreferences.AwfulPreferenceUpdate {
             Timber.w("Couldn't set typeface as currentFont is null");
     }
 
+    public class AwfulTypefaceSpan extends TypefaceSpan {
+
+        public AwfulTypefaceSpan() {
+            super("An awful font");
+        }
+
+        @Override
+        public void updateDrawState(TextPaint drawState) {
+            drawState.setTypeface(currentFont);
+        }
+
+        @Override
+        public void updateMeasureState(TextPaint paint) {
+            paint.setTypeface(currentFont);
+        }
+    }
+
     public void setMenuItemFont(MenuItem item) {
         SpannableStringBuilder title = new SpannableStringBuilder(item.getTitle());
-        TypefaceSpan face = new TypefaceSpan(currentFont);
+        TypefaceSpan face = new AwfulTypefaceSpan();
         title.setSpan(face, 0, title.length(), 0);
         item.setTitle(title);
     }
