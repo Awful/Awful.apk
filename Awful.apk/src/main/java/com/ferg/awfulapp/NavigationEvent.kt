@@ -242,6 +242,8 @@ sealed class NavigationEvent(private val extraTypeId: String) {
                         Thread(id.toInt(), page.toInt(), fragment)
                     isForumIndex ->
                         ForumIndex
+                    isBanlist ->
+                        LepersColony(id.toInt())
                     else -> null
                 }
             }

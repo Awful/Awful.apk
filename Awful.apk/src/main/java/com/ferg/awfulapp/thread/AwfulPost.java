@@ -71,6 +71,7 @@ public class AwfulPost {
     private static final Pattern imgurId_regex = Pattern.compile("^(.*\\.imgur\\.com/)([\\w]+)(\\..*)$");
 	private static final Pattern vimeoId_regex = Pattern.compile("clip_id=(\\d+)&?");
     private static final Pattern userid_regex = Pattern.compile("userid=(\\d+)");
+    private static final Pattern badPost_regex = Pattern.compile("^\\(USER WAS (?:BANNED|AUTOBANNED|PERMABANNED|PUT ON PROBATION) FOR THIS POST\\)$");
 
     private static final List<String> HTTPS_SUPPORTED_DOMAINS =
             Collections.unmodifiableList(Arrays.asList("imgur.com", "somethingawful.com", "giphy.com"));
@@ -711,6 +712,25 @@ public class AwfulPost {
                 element.attr(attr, url.replace("http://", "https://"));
                 return;
             }
+        }
+    }
+
+
+    /**
+     * Converts bad post markers to links, when found.
+     * <p>
+     * This mutates the element directly.
+     */
+    public static void setBanlistLinks(@NonNull Element element, @NonNull int userId, @NonNull String postid) {
+        // get the element's url attribute, give up if it doesn't have one
+        Matcher match = badPost_regex.matcher(element.text());
+        if (match.find()) {
+            String url = Constants.FUNCTION_BANLIST + "?userid="+userId+"#from"+postid;
+            String text = element.text();
+            Element link = new Element(Tag.valueOf("a"), "");
+            link.attr("href", url);
+            link.text(text);
+            element.empty().appendChild(link);
         }
     }
 

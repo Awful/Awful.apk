@@ -9,7 +9,7 @@ import com.ferg.awfulapp.util.AwfulUtils;
 
 public class AwfulURL {
 	
-	public enum TYPE{FORUM,THREAD,POST,EXTERNAL,NONE,INDEX}
+	public enum TYPE{FORUM,THREAD,POST,EXTERNAL,NONE,INDEX,BANLIST}
 	private long id;
 	private long pageNum = 1;
 	private int perPage = Constants.ITEMS_PER_PAGE;
@@ -118,6 +118,9 @@ public class AwfulURL {
 					aurl.type = TYPE.POST;
 					aurl.id = AwfulUtils.safeParseLong(uri.getQueryParameter(Constants.PARAM_POST_ID), 0);
 				}
+			}else if(Constants.PATH_BANLIST.equals(uri.getLastPathSegment())){
+				aurl.type = TYPE.BANLIST;
+				aurl.id = AwfulUtils.safeParseLong(uri.getQueryParameter(Constants.PARAM_USER_ID), 0);
 			}else if("index.php".equalsIgnoreCase(uri.getLastPathSegment()) || uri.getPath() == null || uri.getPath().length() < 2){
 				aurl.type = TYPE.INDEX;
 			}else{
@@ -241,6 +244,10 @@ public class AwfulURL {
 
 	public boolean isExternal() {
 		return type == TYPE.EXTERNAL;
+	}
+
+	public boolean isBanlist() {
+		return type == TYPE.BANLIST;
 	}
 
 	public AwfulURL setPerPage(int postPerPage) {

@@ -371,6 +371,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 						showUrlMenu(aUrl);
 					}
 					break;
+				case BANLIST:
+					navigate(new NavigationEvent.LepersColony((int) aLink.getId()));
+					break;
 				case INDEX:
 					navigate(NavigationEvent.ForumIndex.INSTANCE);
 					break;

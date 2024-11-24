@@ -61,6 +61,7 @@ public class Constants {
     public static final String PATH_THREAD          	= "showthread.php";
     public static final String PATH_BOOKMARKS          	= "bookmarkthreads.php";
     public static final String PATH_USERCP          	= "usercp.php";
+    public static final String PATH_BANLIST          	= "banlist.php";
 
     public static final String ACTION_PROFILE             = "getinfo";
     public static final String ACTION_SEARCH_POST_HISTORY = "do_search_posthistory";

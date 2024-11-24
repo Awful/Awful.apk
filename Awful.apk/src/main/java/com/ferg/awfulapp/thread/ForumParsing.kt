@@ -138,6 +138,14 @@ class PostParseTask(
                     }
                 }
 
+
+            // parse user ID - fall back to the profile link if necessary
+            var userId = postData.getElementsByClass("userinfo")
+                .flatMap(Element::classNames)
+                .map { it.substringAfter("userid-", "") }
+                .firstOrNull(String::isNotEmpty)
+                ?.toInt()
+
             // FYAD has its post contents inside the .complete_shit element, so we just grab that instead of the full .postbody
             val postBody = postData.selectFirst(".postbody")
             val fyadPostBody = postBody!!.selectFirst(".complete_shit")
@@ -145,6 +153,9 @@ class PostParseTask(
                 convertVideos(this, prefs.inlineYoutube, prefs.inlineTiktoks)
                 getElementsByTag("img").forEach { processPostImage(it, postHasBeenRead, prefs) }
                 getElementsByTag("a").forEach(::tryConvertToHttps)
+                userId?.let {
+                    getElementsByTag("strong").forEach { setBanlistLinks(it, userId!!, postData.id()) }
+                }
                 if (this == fyadPostBody) {
                     // FYAD sigs are currently a sibling div alongside .complete_shit, so we need to stick them at the end of the content
                     postBody.selectFirst("> .signature")?.appendTo(this)
@@ -156,14 +167,6 @@ class PostParseTask(
             NetworkUtils.unencodeHtml(textForClass("postdate"))
                 .replace(POST_TIMESTAMP_GARBAGE, "").trim()
                 .let { put(DATE, it) }
-
-
-            // parse user ID - fall back to the profile link if necessary
-            var userId = postData.getElementsByClass("userinfo")
-                .flatMap(Element::classNames)
-                .map { it.substringAfter("userid-", "") }
-                .firstOrNull(String::isNotEmpty)
-                ?.toInt()
 
             if (userId == null) {
                 postData.selectFirst(".profilelinks [href*='userid=']")?.let {

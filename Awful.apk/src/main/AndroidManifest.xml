@@ -261,7 +261,18 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             />
 
-        <activity android:name=".users.LepersColonyActivity"/>
+        <activity android:name=".users.LepersColonyActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="forums.somethingawful.com" />
+                <data android:pathPrefix="/banlist.php" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name="com.ferg.awfulapp.BasicActivity"
