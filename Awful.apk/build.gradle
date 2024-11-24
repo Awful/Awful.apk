@@ -25,7 +25,7 @@ android {
     defaultConfig {
         applicationId = "com.ferg.awfulapp"
         minSdkVersion 24
-        targetSdkVersion 35
+        targetSdkVersion 34
         resourceConfigurations += ['en']
 
         // Stops the Gradle plugin’s automatic rasterization of vectors
