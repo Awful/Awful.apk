@@ -104,6 +104,7 @@ public abstract class Keys {
             HIGHLIGHT_OP,
             INLINE_YOUTUBE,
             INLINE_TWEETS,
+            INLINE_BLUESKY,
             INLINE_INSTAGRAM,
             INLINE_SOUNDCLOUD,
             INLINE_TWITCH,
@@ -186,6 +187,7 @@ public abstract class Keys {
     public static final int HIGHLIGHT_OP = R.string.pref_key_highlight_op;
     public static final int INLINE_YOUTUBE = R.string.pref_key_inline_youtube;
     public static final int INLINE_TWEETS = R.string.pref_key_inline_tweets;
+    public static final int INLINE_BLUESKY = R.string.pref_key_inline_bluesky;
     public static final int INLINE_INSTAGRAM = R.string.pref_key_inline_instagram;
     public static final int INLINE_SOUNDCLOUD = R.string.pref_key_inline_soundcloud;
     public static final int INLINE_TWITCH = R.string.pref_key_inline_twitch;

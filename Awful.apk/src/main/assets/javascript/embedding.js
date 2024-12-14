@@ -23,7 +23,8 @@ function processThreadEmbeds(replacementArea) {
 		inlineTweets: embedTweets,
 		inlineVines: embedVines,
 		inlineWebm: embedVideos,
-		inlineSoundcloud: embedSoundcloud
+		inlineSoundcloud: embedSoundcloud,
+		inlineBluesky: embedBluesky
 	};
 
 	// check all embed preference keys - any set to true, run their embed function
@@ -122,6 +123,55 @@ function processThreadEmbeds(replacementArea) {
 			});
 		});
 	}
+
+	/**
+	 * Replaces all Bluesky post links with Bluesky embeds.
+	 */
+    async function embedBluesky() {
+        const blueskyLinks = document.querySelectorAll('.postcontent a[href*="bsky.app/profile"]');
+
+        for (const link of blueskyLinks) {
+            const match = link.href.match(/bsky\.app\/profile\/([\w.]+)\/post\/([\w\d]+)/);
+            if (!match) {
+                continue;
+            }
+
+            const profile = match[1];
+            const postId = match[2];
+
+            const response = await fetch(`https://bsky.social/xrpc/com.atproto.identity.resolveHandle?handle=${profile}`);
+            if (!response.ok) {
+                continue;
+            }
+
+            const data = await response.json();
+            const did = data?.did; // Extract DID from the response
+            if (!did) {
+                continue;
+            }
+
+            const blueskyUri = `at://${did}/app.bsky.feed.post/${postId}`;
+
+            const blockquote = document.createElement('blockquote');
+            blockquote.className = 'bluesky-embed';
+            blockquote.dataset.blueskyUri = blueskyUri;
+
+            const fallbackLink = document.createElement('a');
+            fallbackLink.href = link.href;
+            fallbackLink.textContent = link.href;
+            blockquote.appendChild(fallbackLink);
+
+            link.replaceWith(blockquote);
+        }
+
+        if (!document.getElementById('blueskyEmbedScript')) {
+            const embedScript = document.createElement('script');
+            embedScript.id = 'blueskyEmbedScript';
+            embedScript.src = 'https://embed.bsky.app/static/embed.js';
+            embedScript.async = true;
+            document.body.appendChild(embedScript);
+        }
+    }
 
 	/**
 	 * Replaces all soundcloud links to tracks with embedded players

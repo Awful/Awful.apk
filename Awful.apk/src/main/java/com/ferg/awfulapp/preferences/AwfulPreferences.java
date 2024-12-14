@@ -148,6 +148,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     //EXPERIMENTAL STUFF
     public boolean inlineYoutube;
     public boolean inlineTweets;
+	public boolean inlineBluesky;
 	public boolean inlineTiktoks;
     public boolean inlineVines;
     public boolean inlineWebm;
@@ -267,6 +268,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         highlightOP				 = getPreference(Keys.HIGHLIGHT_OP, true);
 		inlineYoutube            = getPreference(Keys.INLINE_YOUTUBE, true);
 		inlineTweets             = getPreference(Keys.INLINE_TWEETS, true);
+		inlineBluesky            = getPreference(Keys.INLINE_BLUESKY, true);
 		inlineTiktoks            = getPreference(Keys.INLINE_TIKTOKS, false);
 		inlineVines            	 = getPreference(Keys.INLINE_VINES, false);
 		inlineWebm            	 = getPreference(Keys.INLINE_WEBM, true);

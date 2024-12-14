@@ -44,6 +44,7 @@ public class WebViewJsInterface {
         preferences.put("highlightUserQuote", Boolean.toString(aPrefs.highlightUserQuote));
         preferences.put("highlightUsername", Boolean.toString(aPrefs.highlightUsername));
         preferences.put("inlineTweets", Boolean.toString(aPrefs.inlineTweets));
+        preferences.put("inlineBluesky", Boolean.toString(aPrefs.inlineBluesky));
         preferences.put("inlineInstagram", Boolean.toString(aPrefs.getPreference(Keys.INLINE_INSTAGRAM, false)));
         preferences.put("inlineSoundcloud", Boolean.toString(aPrefs.getPreference(Keys.INLINE_SOUNDCLOUD, true)));
         preferences.put("inlineTwitch", Boolean.toString(aPrefs.getPreference(Keys.INLINE_TWITCH, false)));

@@ -18,6 +18,13 @@
     <SwitchPreference
         app:iconSpaceReserved="false"
         android:defaultValue="true"
+        android:key="@string/pref_key_inline_bluesky"
+        android:title="@string/inline_bluesky"
+        />
+
+    <SwitchPreference
+        app:iconSpaceReserved="false"
+        android:defaultValue="true"
         android:key="@string/pref_key_inline_instagram"
         android:title="@string/inline_instagram"
         />
