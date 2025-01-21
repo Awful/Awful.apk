@@ -24,5 +24,8 @@
     <item
         android:id="@+id/copy_url_thread"
         android:title="@string/copy_url" />
+    <item
+        android:id="@+id/toggle_hidden_thread"
+        android:title="@string/toggle_hidden_thread" />
 
 </menu>
