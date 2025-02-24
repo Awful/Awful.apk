@@ -190,7 +190,7 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
         Timber.v("onOptionsItemSelected")
         if (item == null) return super.onOptionsItemSelected(item)
         // check if it's one of our filters
-        SearchFilter.FilterType.values().firstOrNull { it.label == item.title }?.run {
+        SearchFilter.FilterType.values().firstOrNull { it.label == item.title.toString() }?.run {
             showDialog(this@SearchFragment)
             return true
         }

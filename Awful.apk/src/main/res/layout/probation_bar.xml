@@ -45,6 +45,16 @@
         android:visibility="visible"/>
 
     <ImageButton
+        android:id="@+id/close_probation_bar"
+        style="@style/ActionBarButton"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_toLeftOf="@id/go_to_LC"
+        android:layout_marginRight="10dp"
+        android:scaleType="fitCenter"
+        app:srcCompat="@drawable/ic_check_circle" />
+
+    <ImageButton
         android:id="@+id/go_to_LC"
         style="@style/ActionBarButton"
         android:layout_width="wrap_content"

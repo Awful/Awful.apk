@@ -154,7 +154,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     public boolean inlineWebm;
 	public boolean autostartWebm;
     public boolean disablePullNext;
-    public long probationTime;
+	public long probationTime;
+	public boolean probationIgnore;
     public boolean showIgnoreWarning;
     /** some user-specific validation key that's required when sending a request to ignore a user */
     public String ignoreFormkey;
@@ -300,6 +301,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		forceForumThemes		 = getPreference(Keys.FORCE_FORUM_THEMES, true);
 		noFAB					 = getPreference(Keys.NO_FAB, false);
 		probationTime			 = getPreference(Keys.PROBATION_TIME, 0L);
+		probationIgnore			 = getPreference(Keys.PROBATION_IGNORE, false);
         userId					 = getPreference(Keys.USER_ID, 0);
 		showIgnoreWarning		 = getPreference(Keys.SHOW_IGNORE_WARNING, true);
 		ignoreFormkey			 = getPreference(Keys.IGNORE_FORMKEY, (String) null);
@@ -423,7 +425,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	}
 	
 	public boolean isOnProbation(){
-		if(probationTime == 0){
+		if(probationTime == 0 || probationIgnore){
 			return false;
 		}else{
 			if(new Date(probationTime).compareTo(new Date()) < 0){

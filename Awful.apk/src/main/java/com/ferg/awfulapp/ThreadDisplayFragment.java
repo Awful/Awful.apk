@@ -189,8 +189,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
     private final LinkedList<AwfulStackEntry> backStack = new LinkedList<>();
 	private boolean bypassBackStack = false;
 
-	private boolean zoomEnabled = false;
-
     private String mTitle = null;
 	private String postJump = "";
 	private int savedScrollPosition = 0;
@@ -1222,18 +1220,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 		}
 
 		@JavascriptInterface
-		public void setZoomEnabled(boolean zoomOn) {
-			zoomEnabled = zoomOn;
-			if (zoomOn) {
-				haltSwipe();
-				getSwipyLayout().setEnabled(false);
-			} else {
-				resumeSwipe();
-				getSwipyLayout().setEnabled(!getPrefs().disablePullNext);
-			}
-		}
-
-		@JavascriptInterface
 		public void popupText(String text) {
 			Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT).show();
 		}
@@ -1325,6 +1311,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 			request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, link.getLastPathSegment());
 		}
 		request.allowScanningByMediaScanner();
+		request.setTitle(link.getLastPathSegment());
+
 		DownloadManager dlManager = (DownloadManager) getAwfulActivity().getSystemService(AwfulActivity.DOWNLOAD_SERVICE);
 		dlManager.enqueue(request);
 	}
@@ -1351,7 +1339,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	}
 
 	public void displayImage(String url){
-		mThreadView.runJavascript(String.format("showImageZoom('%s')", url));
+		Intent intent = BasicActivity.Companion.intentFor(ZoomViewFragment.class, getActivity(), "");
+		intent.putExtra(ZoomViewFragment.EXTRA_IMAGE_URL, url);
+		startActivity(intent);
 	}
 	
 	@Override
@@ -1776,10 +1766,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	
 	@Override
 	public boolean onBackPressed() {
-		if(zoomEnabled) {
-			mThreadView.runJavascript("exitImageZoom()");
-			return true;
-		}
 		if(backStackCount() > 0){
 			popThread();
 			return true;

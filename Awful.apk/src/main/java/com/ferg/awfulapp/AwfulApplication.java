@@ -11,6 +11,7 @@ import com.ferg.awfulapp.announcements.AnnouncementsManager;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.preferences.Keys;
 import com.ferg.awfulapp.sync.SyncManager;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
@@ -61,6 +62,7 @@ public class AwfulApplication extends Application {
         AwfulPreferences mPref = AwfulPreferences.getInstance(this);
 
         appStatePrefs = this.getSharedPreferences(APP_STATE_PREFERENCES, MODE_PRIVATE);
+        mPref.setPreference(Keys.PROBATION_IGNORE, false);
 
         NetworkUtils.init(this);
         AndroidThreeTen.init(this);

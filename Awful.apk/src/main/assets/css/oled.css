@@ -98,11 +98,3 @@ body {
     background-color: #e7e7e7;
     margin: 0px;
 }
-
-#zoom-close {
-    background: black;
-}
-
-#zoom-close:after {
-    color: #e7e7e7;
-}

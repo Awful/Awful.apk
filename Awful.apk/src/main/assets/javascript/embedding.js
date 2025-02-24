@@ -91,6 +91,10 @@ function processThreadEmbeds(replacementArea) {
 	function embedTweets() {
 		replaceTweets("twitter.com", /https?:\/\/(?:[\w.]*\.)?twitter\.com\/[\w_]+\/status(?:es)?\/([\d]+)/)
 		replaceTweets("x.com", /https?:\/\/(?:[\w.]*\.)?x\.com\/[\w_]+\/status(?:es)?\/([\d]+)/)
+
+        if (window.twttr && !window.twttr.init) {
+            window.twttr.insertTag();
+        }
 	}
 
 	function replaceTweets(twitterDomain, urlMatchRegex) {
@@ -139,22 +143,27 @@ function processThreadEmbeds(replacementArea) {
             const profile = match[1];
             const postId = match[2];
 
-            const response = await fetch(`https://bsky.social/xrpc/com.atproto.identity.resolveHandle?handle=${profile}`);
-            if (!response.ok) {
-                continue;
+            const response = await fetch('https://bsky.social/xrpc/com.atproto.identity.resolveHandle?handle='+profile);
+            if (!response.ok) { continue;
             }
 
             const data = await response.json();
-            const did = data?.did; // Extract DID from the response
+            if (!data) {
+                continue;
+            }
+            const did = data.did; // Extract DID from the response
             if (!did) {
                 continue;
             }
 
-            const blueskyUri = `at://${did}/app.bsky.feed.post/${postId}`;
+            const blueskyUri = 'at://' + did + '/app.bsky.feed.post/' + postId;
 
             const blockquote = document.createElement('blockquote');
             blockquote.className = 'bluesky-embed';
             blockquote.dataset.blueskyUri = blueskyUri;
+            if (document.getElementById('theme-css').dataset.darkTheme === 'true') {
+                blockquote.dataset.blueskyColorMode = 'dark';
+            }
 
             const fallbackLink = document.createElement('a');
             fallbackLink.href = link.href;
@@ -170,6 +179,8 @@ function processThreadEmbeds(replacementArea) {
             embedScript.src = 'https://embed.bsky.app/static/embed.js';
             embedScript.async = true;
             document.body.appendChild(embedScript);
+        } else if(bluesky) {
+            bluesky.scan();
         }
     }
 
