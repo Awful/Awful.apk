@@ -65,6 +65,7 @@ import java.util.Locale;
 import timber.log.Timber;
 
 import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
 public class AwfulThread extends AwfulPagedItem  {
@@ -293,6 +294,11 @@ public class AwfulThread extends AwfulPagedItem  {
             return;
         }
 
+        if (prefs.hiddenThreadIds.contains(String.valueOf(thread.id))) {
+            markThreadAsHidden(item, thread, prefs.threadInfo_Tag);
+            return;
+        }
+
         Resources resources = item.getResources();
         Context context = item.getContext();
         // get the forum ID for getting themed resources
@@ -411,6 +417,25 @@ public class AwfulThread extends AwfulPagedItem  {
         }
 
 	}
+
+    private static void markThreadAsHidden(View item, AwfulThread thread, boolean showTags) {
+        TextView title = item.findViewById(R.id.title);
+        title.setText(R.string.thread_hidden);
+        ImageView threadTag = item.findViewById(R.id.thread_tag);
+        if (showTags) {
+            threadTag.setImageResource(R.drawable.empty_thread_tag);
+        } else {
+            threadTag.setVisibility(GONE);
+        }
+        item.findViewById(R.id.thread_tag_overlay).setVisibility(GONE);
+        item.findViewById(R.id.thread_tag_overlay_optional).setVisibility(GONE);
+        item.findViewById(R.id.thread_info).setVisibility(INVISIBLE);
+        item.findViewById(R.id.thread_rating).setVisibility(GONE);
+        item.findViewById(R.id.thread_rating_optional).setVisibility(GONE);
+        item.findViewById(R.id.thread_sticky).setVisibility(thread.isSticky ? VISIBLE : GONE);
+        item.findViewById(R.id.thread_locked).setVisibility(thread.isLocked && !thread.isSticky ? VISIBLE : GONE);
+        item.findViewById(R.id.unread_count).setVisibility(GONE);
+    }
 
 	/** Utility method to set and show an imageview */
     private static void showImage(ImageView imageView, Drawable drawable) {

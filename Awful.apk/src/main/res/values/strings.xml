@@ -82,6 +82,7 @@
     <string name="thread_sticky_description">This thread is a sticky</string>
     <string name="thread_locked_description">This thread is locked</string>
     <string name="thread_just_post">Post Thread</string>
+    <string name="thread_hidden">This thread is hidden</string>
 
     <!-- Post view -->
     <string name="post_reply">Post reply</string>
@@ -123,6 +124,7 @@
     <string name="mark_unread">Mark thread unread</string>
     <string name="mark_unread_success">Thread Marked Unread</string>
     <string name="search_thread">Search this thread</string>
+    <string name="toggle_hidden_thread">Un/Hide this thread</string>
 
     <!-- Reply view -->
     <string name="filter_emote_hint">Search terms</string>

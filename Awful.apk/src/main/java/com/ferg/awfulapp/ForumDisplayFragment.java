@@ -77,7 +77,10 @@ import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutD
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 import timber.log.Timber;
 
@@ -333,11 +336,28 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
             case R.id.copy_url_thread:
             	copyUrl(threadId);
                 return true;
+            case R.id.toggle_hidden_thread:
+                toggleHiddenThread(threadId);
+                return true;
         }
 
         return false;
     }
 
+    /**
+     * Toggles whether to display this thread or not
+     *
+     * @param threadId  The thread ID to hide or show
+     */
+    private void toggleHiddenThread(int threadId) {
+        Set<String> hiddenThreadIds = getPrefs().getPreference(Keys.HIDDEN_THREAD_IDS, Collections.emptySet());
+        Set<String> newSet = new HashSet<>(hiddenThreadIds); // not allowed to mutate original set
+        String id = String.valueOf(threadId);
+        if (!newSet.remove(id)) {
+            newSet.add(id);
+        }
+        getPrefs().setPreference(Keys.HIDDEN_THREAD_IDS, newSet);
+    }
 
     /**
      * Show the dialog to open a thread at a specific page.
@@ -379,6 +399,9 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
             Cursor row = mCursorAdapter.getRow(aId);
             if(row != null && row.getColumnIndex(AwfulThread.BOOKMARKED)>-1) {
                     Timber.i("Thread ID: " + aId);
+                    if (getPrefs().hiddenThreadIds.contains(String.valueOf(aId))) {
+                        return;
+                    }
                     int unreadPage = AwfulPagedItem.getLastReadPage(row.getInt(row.getColumnIndex(AwfulThread.UNREADCOUNT)),
                     												row.getInt(row.getColumnIndex(AwfulThread.POSTCOUNT)),
                     												getPrefs().postPerPage,
