@@ -60,8 +60,7 @@ public abstract class AwfulHtmlPage {
             "longtap.js",
             "jsonp.js",
             "embedding.js",
-            "thread.js",
-            "hammer.js"
+            "thread.js"
     };
 
     /**

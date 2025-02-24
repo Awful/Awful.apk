@@ -137,7 +137,8 @@ public abstract class Keys {
             FORUM_INDEX_SHOW_SECTIONS,
             FORUM_INDEX_SHOW_SUBTITLES,
             FORUM_INDEX_HIDE_SUBFORUMS,
-            POST_WARNING_ACCEPTED
+            POST_WARNING_ACCEPTED,
+            PROBATION_IGNORE
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface BooleanPreference {
@@ -169,6 +170,7 @@ public abstract class Keys {
     public static final int LAST_VERSION_SEEN = R.string.pref_key_last_version_seen;
 
     public static final int PROBATION_TIME = R.string.pref_key_probation_time;
+    public static final int PROBATION_IGNORE = R.string.pref_key_probation_ignore;
 
     public static final int P2R_DISTANCE = R.string.pref_key_pull_to_refresh_distance;
 

@@ -66,7 +66,7 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
     /** set to configure swiping on a particular fragment */
     protected var allowedSwipeRefreshDirections = TOP
     private var progressBar: AwfulProgressBar? = null
-    private var probationBar: ProbationBar? = null
+    protected var probationBar: ProbationBar? = null
 
     var progressPercent = 100
 
@@ -228,6 +228,7 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
                 with(this@AwfulFragment.resources.displayMetrics) { heightPixels / density }
             setDistanceToTriggerSync(Math.round(prefs.p2rDistance * dpHeight))
         }
+        refreshProbationBar()
     }
 
     open fun onBackPressed() = false

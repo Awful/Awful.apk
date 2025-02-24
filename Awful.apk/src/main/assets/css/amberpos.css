@@ -81,13 +81,3 @@ body {
 .postmenu:after {
     content: "\e901";
 }
-
-
-#zoom-close {
-    background: black;
-    border: 2px solid #eacf4c;
-}
-
-#zoom-close:after {
-    color: #eacf4c;
-}

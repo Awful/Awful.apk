@@ -53,17 +53,9 @@ function containerInit() {
 		// title popup on long-press
 		if ((target.tagName === 'IMG' || target.tagName === 'CANVAS')) {
 			Longtap(function longtap() {
-				if (target.hasAttribute('title')) {
+				if (target.hasAttribute('title') && target.classList.contains('sa-smilie')) {
 					listener.popupText(target.getAttribute('title'));
-				} else {
-					showImageZoom(target.src)
 				}
-			})(event);
-			return;
-		}
-		if (target.tagName === 'VIDEO') {
-			Longtap(function longtap() {
-				listener.openUrlMenu(target.firstElementChild.getAttribute('src'));
 			})(event);
 			return;
 		}
@@ -126,7 +118,6 @@ function loadPageHtml() {
 	if (!html) {
 		return;
 	}
-	exitImageZoom();
 	pageInit();
 	window.topScrollTimeout = window.setTimeout(function hello() {
 		window.dispatchEvent(new Event('awful-scroll-post'));
@@ -159,9 +150,6 @@ function pageInit() {
 	}
 
 	processPosts();
-	if (window.twttr && !window.twttr.init) {
-		window.twttr.insertTag();
-	}
 
 }
 
@@ -304,130 +292,6 @@ function showReadPosts() {
 	window.requestAnimationFrame(scrollLastRead);
 }
 
-/**
- * Creates an overlay to allow zooming an image
- * Based on https://codepen.io/josephmaynard/pen/OjWvNP
- * @param {string} url url to zoom into
- */
-function showImageZoom(url) {
-	listener.setZoomEnabled(true);
-	var zoom = document.createElement('div');
-	zoom.setAttribute('id', 'zoom');
-	zoom.classList.add('zoom-enabled');
-	document.body.appendChild(zoom)
-	var zoomClose = document.createElement('div');
-	zoomClose.setAttribute('id', 'zoom-close');
-	document.body.appendChild(zoomClose)
-	zoomClose.addEventListener('click', exitImageZoom);
-
-    var minScale = 1;
-    let maxScale = 5;
-    let imageWidth;
-    let imageHeight;
-    let containerWidth;
-    let containerHeight;
-    let imageX = 0;
-    let imageY = 0;
-    let imageScale = 1;
-
-    let displayDefaultWidth;
-    let displayDefaultHeight;
-
-    let rangeX = 0;
-    let rangeMaxX = 0;
-    let rangeMinX = 0;
-
-    let rangeY = 0;
-    let rangeMaxY = 0;
-    let rangeMinY = 0;
-
-    let imageRangeY = 0;
-
-    let imageCurrentX = 0;
-    let imageCurrentY = 0;
-    let imageCurrentScale = 1;
-
-
-    function resizeContainer() {
-      containerWidth = zoom.offsetWidth;
-      containerHeight = zoom.offsetHeight;
-    }
-
-    resizeContainer();
-
-    function clamp(value, min, max) {
-      return Math.min(Math.max(min, value), max);
-    }
-
-    function clampScale(newScale) {
-      return clamp(newScale, minScale, maxScale);
-    }
-
-    const image = new Image();
-    image.src = url;
-    image.onload = function () {
-      imageWidth = image.width;
-      imageHeight = image.height;
-      zoom.appendChild(image);
-      image.addEventListener('mousedown', e => e.preventDefault(), false);
-      displayDefaultWidth = image.offsetWidth;
-      displayDefaultHeight = image.offsetHeight;
-      rangeX = Math.max(0, displayDefaultWidth - containerWidth);
-      rangeY = Math.max(0, displayDefaultHeight - containerHeight);
-    }
-
-
-    function updateImage(x, y, scale) {
-      const transform = 'translateX(' + x + 'px) translateY(' + y + 'px) translateZ(0px) scale(' + scale + ',' + scale + ')';
-      image.style.transform = transform;
-    }
-
-    function updateRange() {
-      rangeX = Math.max(0, Math.round(displayDefaultWidth * imageCurrentScale) - containerWidth);
-      rangeY = Math.max(0, Math.round(displayDefaultHeight * imageCurrentScale) - containerHeight);
-
-      rangeMaxX = Math.round(rangeX / 2);
-      rangeMinX = 0 - rangeMaxX;
-
-      rangeMaxY = Math.round(rangeY / 2);
-      rangeMinY = 0 - rangeMaxY;
-    }
-
-    const hammertime = new Hammer(zoom,{ inputClass: Hammer.TouchMouseInput });
-
-    hammertime.get('pinch').set({ enable: true });
-    hammertime.get('pan').set({ direction: Hammer.DIRECTION_ALL });
-
-    hammertime.on('pan', function(ev) {
-      imageCurrentX = clamp(imageX + ev.deltaX, rangeMinX, rangeMaxX);
-      imageCurrentY = clamp(imageY + ev.deltaY, rangeMinY, rangeMaxY);
-      updateImage(imageCurrentX, imageCurrentY, imageScale);
-    });
-
-    hammertime.on('pinch pinchmove',function (ev) {
-      imageCurrentScale = clampScale(ev.scale * imageScale);
-      updateRange();
-      imageCurrentX = clamp(imageX + ev.deltaX, rangeMinX, rangeMaxX);
-      imageCurrentY = clamp(imageY + ev.deltaY, rangeMinY, rangeMaxY);
-      updateImage(imageCurrentX, imageCurrentY, imageCurrentScale);
-    });
-
-    hammertime.on('panend pancancel pinchend pinchcancel', function(){
-      imageScale = imageCurrentScale;
-      imageX = imageCurrentX;
-      imageY = imageCurrentY;
-    });
-}
-
-/**
- * Exists the zoom overlay
- */
-function exitImageZoom() {
-	if(!document.getElementById('zoom')){ return }
-    document.getElementById('zoom').remove();
-    document.getElementById('zoom-close').remove();
-	listener.setZoomEnabled(false);
-}
 
 /**
  * Load an image url and replace links with the image. Handles paused gifs and basic text links.

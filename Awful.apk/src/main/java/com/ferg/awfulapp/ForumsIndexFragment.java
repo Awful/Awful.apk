@@ -92,6 +92,7 @@ public class ForumsIndexFragment extends AwfulFragment
         forumRecyclerView = binding.forumIndexList;
         forumsListSwitcher = binding.viewSwitcher;
         statusFrog = binding.statusFrog;
+        setProbationBar(binding.probationBar);
         updateViewColours();
         refreshProbationBar();
         forumsListSwitcher.setInAnimation(AnimationUtils.makeInAnimation(getContext(), true));

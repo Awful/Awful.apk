@@ -130,7 +130,12 @@ public class Forum {
         String cleanTitle = title.replaceAll("[^A-Za-z0-9/ :&]", "");
         // maybe someone did the work for us
         if (cleanTitle.contains(":")) {
-            return cleanTitle.split(":")[0];
+            String firstPart = cleanTitle.split(":")[0];
+            if (firstPart.length() > 6){
+                cleanTitle = firstPart;
+            } else {
+                return cleanTitle.split(":")[0];
+            }
         }
         // really basic version - just split on spaces and use the first char,
         // works with punctuation like in 'Debate & Discussion'
@@ -138,7 +143,11 @@ public class Forum {
         StringBuilder sb = new StringBuilder("");
         for (String word : words) {
             if (word.length() > 0) {
-                sb.append(word.charAt(0));
+                if (word.matches("^\\d{0,3}$")) {
+                    sb.append(word);
+                } else {
+                    sb.append(Character.toUpperCase(word.charAt(0)));
+                }
             }
         }
         return sb.toString();
@@ -161,6 +170,7 @@ public class Forum {
     private static final SparseArray<String> forumAbbreviations = new SparseArray<>();
 
     static {
+        forumAbbreviations.append(692, "1999");
         forumAbbreviations.append(273, "GBS");
         forumAbbreviations.append(26, "FYAD");
         forumAbbreviations.append(268, "BYOB");
