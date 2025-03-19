@@ -61,6 +61,7 @@
     <string name="pref_key_always_open_urls">always_open_urls</string>
     <string name="pref_key_blocked_avatar_urls">blocked_avatar_urls</string>
     <string name="pref_key_hidden_thread_ids">hidden_thread_ids</string>
+    <string name="pref_key_show_hidden_threads">show_hidden_threads</string>
     <string name="pref_key_lock_scrolling">lock_scrolling</string>
     <string name="pref_key_disable_timgs">disable_timgs</string>
     <string name="pref_key_disable_pull_next">disable_pull_next</string>

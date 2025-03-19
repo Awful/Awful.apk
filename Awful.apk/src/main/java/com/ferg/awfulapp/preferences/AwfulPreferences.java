@@ -136,6 +136,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     public boolean alwaysOpenUrls;
     public Set<String> blockedAvatarUrls;
     public Set<String> hiddenThreadIds;
+    public boolean showHiddenThreads;
 
     //FORUM STUFF
     public boolean newThreadsFirstUCP;
@@ -293,6 +294,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         alwaysOpenUrls	 	 	 = getPreference(Keys.ALWAYS_OPEN_URLS, false);
         blockedAvatarUrls        = getPreference(Keys.BLOCKED_AVATAR_URLS, Collections.emptySet());
         hiddenThreadIds 		 = getPreference(Keys.HIDDEN_THREAD_IDS, Collections.emptySet());
+        showHiddenThreads 		 = getPreference(Keys.SHOW_HIDDEN_THREADS, true);
         lockScrolling			 = getPreference(Keys.LOCK_SCROLLING, false);
         disableTimgs			 = getPreference(Keys.DISABLE_TIMGS, false);
         currPrefVersion          = getPreference(Keys.CURR_PREF_VERSION, 0);

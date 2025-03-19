@@ -23,7 +23,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 37;
 
     static final String TABLE_FORUM    = "forum";
-    static final String TABLE_THREADS    = "threads";
+    public static final String TABLE_THREADS    = "threads";
     // TODO: 06/05/2017 this is only public because a fragment is building selection arguments - move that out of there!
     public static final String TABLE_UCP_THREADS    = "ucp_thread";
     static final String TABLE_POSTS    = "posts";
