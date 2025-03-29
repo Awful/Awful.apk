@@ -639,17 +639,20 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
             if (isBookmarks) {
                 selection = String.format("%s.%s>=? AND %s.%s<?",
                         DatabaseHelper.TABLE_UCP_THREADS, AwfulThread.INDEX, DatabaseHelper.TABLE_UCP_THREADS, AwfulThread.INDEX);
-                selectionArgs = AwfulProvider.int2StrArray(thisPageIndex, nextPageIndex);
             } else {
                 selection = String.format("%s=? AND %s>=? AND %s<?",
                         AwfulThread.FORUM_ID, AwfulThread.INDEX, AwfulThread.INDEX);
-                if (!getPrefs().showHiddenThreads) {
-                    selection += String.format(" AND %s NOT IN (%s)",
-                            DatabaseHelper.TABLE_THREADS + "." + AwfulThread.ID, String.join(",", getPrefs().hiddenThreadIds));
-                }
-                selectionArgs = AwfulProvider.int2StrArray(getForumId(), thisPageIndex, nextPageIndex);
             }
 
+            if (!getPrefs().showHiddenThreads) {
+                selection += String.format(" AND %s NOT IN (%s)",
+                        DatabaseHelper.TABLE_THREADS + "." + AwfulThread.ID, String.join(",", getPrefs().hiddenThreadIds));
+            }
+            if (isBookmarks) {
+                selectionArgs = AwfulProvider.int2StrArray(thisPageIndex, nextPageIndex);
+            } else {
+                selectionArgs = AwfulProvider.int2StrArray(getForumId(), thisPageIndex, nextPageIndex);
+            }
             boolean sortNewFirst = (isBookmarks && getPrefs().newThreadsFirstUCP) || (!isBookmarks && getPrefs().newThreadsFirstForum);
             String sortOrder = sortNewFirst ? AwfulThread.HAS_NEW_POSTS + " DESC, " + AwfulThread.INDEX : AwfulThread.INDEX;
 

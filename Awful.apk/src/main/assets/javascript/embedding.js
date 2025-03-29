@@ -162,9 +162,8 @@ function processThreadEmbeds(replacementArea) {
             blockquote.className = 'bluesky-embed';
             blockquote.dataset.blueskyUri = blueskyUri;
             if (document.getElementById('theme-css').dataset.darkTheme === 'true') {
-                blockquote.dataset.blueskyColorMode = 'dark';
+                blockquote.dataset.blueskyEmbedColorMode = 'dark';
             }
-
             const fallbackLink = document.createElement('a');
             fallbackLink.href = link.href;
             fallbackLink.textContent = link.href;
