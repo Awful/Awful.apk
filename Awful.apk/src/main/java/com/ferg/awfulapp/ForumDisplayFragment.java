@@ -338,6 +338,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
                 return true;
             case R.id.toggle_hidden_thread:
                 toggleHiddenThread(threadId);
+                refreshInfo();
                 return true;
         }
 
@@ -642,6 +643,10 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
             } else {
                 selection = String.format("%s=? AND %s>=? AND %s<?",
                         AwfulThread.FORUM_ID, AwfulThread.INDEX, AwfulThread.INDEX);
+                if (!getPrefs().showHiddenThreads) {
+                    selection += String.format(" AND %s NOT IN (%s)",
+                            DatabaseHelper.TABLE_THREADS + "." + AwfulThread.ID, String.join(",", getPrefs().hiddenThreadIds));
+                }
                 selectionArgs = AwfulProvider.int2StrArray(getForumId(), thisPageIndex, nextPageIndex);
             }
 

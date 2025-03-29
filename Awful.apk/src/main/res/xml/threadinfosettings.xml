@@ -21,7 +21,12 @@
           android:title="@string/threadinfo_rating"
           android:defaultValue="true"
           />
-      <PreferenceCategory
+		<SwitchPreference
+			android:defaultValue="true"
+			android:key="@string/pref_key_show_hidden_threads"
+			android:title="@string/show_hidden_threads"
+			app:iconSpaceReserved="false" />
+	<PreferenceCategory
 		  app:iconSpaceReserved="false"
 		  android:title="@string/new_threads_first_category">
           <SwitchPreference
