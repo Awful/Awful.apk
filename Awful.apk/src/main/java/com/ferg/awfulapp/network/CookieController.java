@@ -12,11 +12,14 @@ import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.HttpCookie;
 import java.net.URI;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TimeZone;
 
 import androidx.annotation.NonNull;
 import timber.log.Timber;
@@ -72,25 +75,48 @@ public class CookieController {
      * @return Whether stored cookie values were found & initialized
      */
     public static synchronized boolean restoreLoginCookies(Context ctx) {
-        SharedPreferences prefs = ctx.getSharedPreferences(
-                Constants.COOKIE_PREFERENCE,
-                Context.MODE_PRIVATE);
-        String useridCookieValue = prefs.getString(Constants.COOKIE_PREF_USERID, null);
-        String passwordCookieValue = prefs.getString(Constants.COOKIE_PREF_PASSWORD, null);
-        String sessionidCookieValue = prefs.getString(Constants.COOKIE_PREF_SESSIONID, null);
-        String sessionhashCookieValue = prefs.getString(Constants.COOKIE_PREF_SESSIONHASH, null);
-        long expiry = prefs.getLong(Constants.COOKIE_PREF_EXPIRY_DATE, -1);
-        int cookieVersion = prefs.getInt(Constants.COOKIE_PREF_VERSION, 0);
+        SharedPreferences prefs = ctx.getSharedPreferences(Constants.COOKIE_PREFERENCE, Context.MODE_PRIVATE);
+        String useridCookieString = prefs.getString(Constants.COOKIE_PREF_USERID, null);
+        String passwordCookieString = prefs.getString(Constants.COOKIE_PREF_PASSWORD, null);
+        String sessionidCookieString = prefs.getString(Constants.COOKIE_PREF_SESSIONID, null);
+        String sessionhashCookieString = prefs.getString(Constants.COOKIE_PREF_SESSIONHASH, null);
+        if (useridCookieString == null || passwordCookieString == null || sessionidCookieString == null || sessionhashCookieString == null) {
+            if (Constants.DEBUG) {
+                Timber.e("Unable to retrieve cookies! Reasons:\n" +
+                        (useridCookieString == null ? "USER_ID is NULL\n" : "") +
+                        (passwordCookieString == null ? "pass is NULL\n" : "") +
+                        (sessionidCookieString == null ? "sessid is NULL\n" : "") +
+                        (sessionhashCookieString == null ? "sesshash is NULL\n" : ""));
+            }
 
-        long maxAge = expiry - System.currentTimeMillis();
-        boolean cookieExpired = maxAge <= 0;
+            cookie = "";
+            return false;
+        }
+
+        if (!useridCookieString.startsWith(Constants.COOKIE_PREF_USERID) || !passwordCookieString.startsWith(Constants.COOKIE_PREF_PASSWORD)) {
+            long expiry = prefs.getLong(Constants.COOKIE_PREF_EXPIRY_DATE, -1);
+            long maxAge = expiry - System.currentTimeMillis();
+            String expires = calculateExpires(maxAge);
+            useridCookieString = String.format("%s=%s; Domain=%s; Path=%s;Max-Age=%s; Expires=%s;",Constants.COOKIE_PREF_USERID, useridCookieString, Constants.COOKIE_DOMAIN, Constants.COOKIE_PATH, maxAge, expires);
+            passwordCookieString = String.format("%s=%s; Domain=%s; Path=%s;Max-Age=%s; Expires=%s;",Constants.COOKIE_PREF_PASSWORD, passwordCookieString, Constants.COOKIE_DOMAIN, Constants.COOKIE_PATH, maxAge, expires);
+        }
+        if (!sessionidCookieString.startsWith(Constants.COOKIE_PREF_SESSIONID) || !sessionhashCookieString.startsWith(Constants.COOKIE_PREF_SESSIONHASH)) {
+            sessionidCookieString = String.format("%s=%s; Domain=%s; Path=%s;",Constants.COOKIE_PREF_SESSIONID, sessionidCookieString, Constants.COOKIE_DOMAIN, Constants.COOKIE_PATH);
+            sessionhashCookieString = String.format("%s=%s; Domain=%s; Path=%s;",Constants.COOKIE_PREF_SESSIONHASH, sessionhashCookieString, Constants.COOKIE_DOMAIN, Constants.COOKIE_PATH);
+        }
+
+        HttpCookie useridCookie = HttpCookie.parse(useridCookieString).get(0);
+        HttpCookie passwordCookie = HttpCookie.parse(passwordCookieString).get(0);
+        HttpCookie sessionidCookie = HttpCookie.parse(sessionidCookieString).get(0);
+        HttpCookie sessionhashCookie = HttpCookie.parse(sessionhashCookieString).get(0);
         // verify the cookie is valid - if not, we need to clear the cookie and return a failure
-        if (useridCookieValue == null || passwordCookieValue == null || cookieExpired) {
+        if (useridCookie.getValue() == null || passwordCookie.getValue() == null || useridCookie.hasExpired() || passwordCookie.hasExpired()) {
             if (Constants.DEBUG) {
                 Timber.w("Unable to restore cookies! Reasons:\n" +
-                        (useridCookieValue == null ? "USER_ID is NULL\n" : "") +
-                        (passwordCookieValue == null ? "PASSWORD is NULL\n" : "") +
-                        (cookieExpired ? "cookie has expired, max age = " + maxAge : ""));
+                        (useridCookie.getValue() == null ? "USER_ID is NULL\n" : "") +
+                        (passwordCookie.getValue() == null ? "PASSWORD is NULL\n" : "") +
+                        (useridCookie.hasExpired() ? "userid cookie has expired, max age = " + useridCookie.getMaxAge() : "") +
+                        (passwordCookie.hasExpired() ? "password cookie has expired, max age = " + passwordCookie.getMaxAge() : ""));
             }
 
             cookie = "";
@@ -98,27 +124,24 @@ public class CookieController {
         }
 
         cookie = String.format("%s=%s;%s=%s;%s=%s;%s=%s;",
-                Constants.COOKIE_NAME_USERID, useridCookieValue,
-                Constants.COOKIE_NAME_PASSWORD, passwordCookieValue,
-                Constants.COOKIE_NAME_SESSIONID, sessionidCookieValue,
-                Constants.COOKIE_NAME_SESSIONHASH, sessionhashCookieValue);
+                Constants.COOKIE_NAME_USERID, useridCookie.getValue(),
+                Constants.COOKIE_NAME_PASSWORD, passwordCookie.getValue(),
+                Constants.COOKIE_NAME_SESSIONID, sessionidCookie.getValue(),
+                Constants.COOKIE_NAME_SESSIONHASH, sessionhashCookie.getValue());
 
 
         HttpCookie[] allCookies = {
-                new HttpCookie(Constants.COOKIE_NAME_USERID, useridCookieValue),
-                new HttpCookie(Constants.COOKIE_NAME_PASSWORD, passwordCookieValue),
-                new HttpCookie(Constants.COOKIE_NAME_SESSIONID, sessionidCookieValue),
-                new HttpCookie(Constants.COOKIE_NAME_SESSIONHASH, sessionhashCookieValue)
+                useridCookie,
+                passwordCookie,
+                sessionidCookie,
+                sessionhashCookie
         };
 
 
         for (HttpCookie tempCookie : allCookies) {
-            tempCookie.setVersion(cookieVersion);
-            tempCookie.setDomain(Constants.COOKIE_DOMAIN);
-            tempCookie.setMaxAge(maxAge);
-            tempCookie.setPath(Constants.COOKIE_PATH);
-
-            cookieManager.getCookieStore().add(uri, tempCookie);
+            if(!tempCookie.hasExpired()){
+                cookieManager.getCookieStore().add(uri, tempCookie);
+            }
         }
 
         if (Constants.DEBUG) {
@@ -169,32 +192,20 @@ public class CookieController {
         for (HttpCookie cookie : cookieManager.getCookieStore().get(uri)) {
             switch (cookie.getName()) {
                 case Constants.COOKIE_NAME_USERID:
-                    useridValue = cookie.getValue();
+                    useridValue = getCookieString(cookie, true);
                     break;
                 case Constants.COOKIE_NAME_PASSWORD:
-                    passwordValue = cookie.getValue();
+                    passwordValue = getCookieString(cookie, true);
                     break;
                 case Constants.COOKIE_NAME_SESSIONID:
-                    sessionId = cookie.getValue();
+                    sessionId = getCookieString(cookie, true);
                     break;
                 case Constants.COOKIE_NAME_SESSIONHASH:
-                    sessionHash = cookie.getValue();
+                    sessionHash = getCookieString(cookie, true);
                     break;
                 default:
                     // unrecognised cookie, ignore it! some cloudflare ones have a real short expiry
                     continue;
-            }
-
-            // keep the soonest valid expiry in case they don't match
-            Calendar c = Calendar.getInstance();
-            c.add(Calendar.SECOND, ((int) cookie.getMaxAge()));
-            Date cookieExpiryDate = c.getTime();
-            if (expires == null || (cookieExpiryDate != null && cookieExpiryDate.before(expires))) {
-                expires = cookieExpiryDate;
-            }
-            // fall back to the lowest cookie spec version
-            if (version == null || cookie.getVersion() < version) {
-                version = cookie.getVersion();
             }
         }
 
@@ -211,20 +222,36 @@ public class CookieController {
         if (sessionHash != null && sessionHash.length() > 0) {
             edit.putString(Constants.COOKIE_PREF_SESSIONHASH, sessionHash);
         }
-        if (expires != null) {
-            Timber.i("Storing login cookie, expires: %s", expires.toString());
-            edit.putLong(Constants.COOKIE_PREF_EXPIRY_DATE, expires.getTime());
-        }
-        edit.putInt(Constants.COOKIE_PREF_VERSION, version);
 
         edit.apply();
         return true;
     }
 
+    public static String calculateExpires(long maxAge) {
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.SECOND, ((int) maxAge));
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return ";expires=" + dateFormat.format(c.getTime());
+    }
+
+    public static synchronized String getCookieString(HttpCookie cookie) {
+        return getCookieString(cookie, false);
+    }
+
+    public static synchronized String getCookieString(HttpCookie cookie, boolean calculateExpires) {
+        String expires = "";
+        if (calculateExpires) {
+            expires = calculateExpires(cookie.getMaxAge());
+
+        }
+        return String.format("%s=%s%s;max-age=%s;domain=%s;path=%s", cookie.getName(), cookie.getValue(), expires, cookie.getMaxAge(), cookie.getDomain(), cookie.getPath());
+    }
+
     public static synchronized String getCookieString(String type) {
         for (HttpCookie cookie : cookieManager.getCookieStore().get(uri)) {
             if (cookie.getName().contains(type))
-                return String.format("%s=%s; domain=%s", type, cookie.getValue(), cookie.getDomain());
+                return getCookieString(cookie);
         }
         Timber.w("getCookieString couldn't find type: %s", type);
         return "";

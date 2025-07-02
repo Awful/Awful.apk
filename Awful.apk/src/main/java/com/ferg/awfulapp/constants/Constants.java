@@ -93,6 +93,7 @@ public class Constants {
     public static final String PARAM_FORM_COOKIE = "form_cookie";
     public static final String PARAM_ATTACHMENT = "attachment";
     public static final String PARAM_FOLDERID 	= "folderid";
+    public static final String PARAM_SHOWALL 	= "showall";
     public static final String PARAM_QUERY 	= "q";
     public static final String PARAM_QID 	= "qid";
     public static final String PARAM_FORUMS 	= "forums[%d]";

@@ -13,10 +13,11 @@
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        <com.ferg.awfulapp.widget.SwipyRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/pm_swipe"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            app:srl_direction="both">
 
             <ListView
                 android:id="@+id/message_listview"
@@ -25,7 +26,7 @@
                 android:cacheColorHint="?attr/background"
                 android:divider="#8c8c8c"
                 android:dividerHeight="1px" />
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        </com.ferg.awfulapp.widget.SwipyRefreshLayout>
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/just_pm"
             android:layout_width="wrap_content"

@@ -57,13 +57,19 @@ class ZoomViewFragment : AwfulFragment() {
         val mImageView = requireActivity().findViewById<View>(R.id.zoom_view) as AwfulWebView
         val imageUrl = requireActivity().intent.getStringExtra(EXTRA_IMAGE_URL);
 
+        val imageHtml = StringBuilder()
+        imageHtml.append("<html><head><meta name=\"viewport\" content=\"width=device-width, maximum-scale=10\"></head>")
+        imageHtml.append("<body style=\"margin: 0px;display:flex;\"><img style=\"max-width: 100%;margin: auto;\" src=\"")
+        imageHtml.append(imageUrl)
+        imageHtml.append("\"></body></html>")
+
         mImageView.getSettings().setSupportZoom(true)
         mImageView.getSettings().setBuiltInZoomControls(true)
         mImageView.getSettings().setDisplayZoomControls(false)
         mImageView.getSettings().setLoadWithOverviewMode(true);
         mImageView.getSettings().setUseWideViewPort(true);
         mImageView.setInitialScale(1);
-        mImageView.loadUrl(imageUrl!!)
+        mImageView.loadDataWithBaseURL(null, imageHtml.toString(), "text/html", "UTF-8", null)
 
         setActionBarTitle(imageUrl!!)
     }

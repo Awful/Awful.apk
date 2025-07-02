@@ -34,6 +34,7 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.loader.app.LoaderManager;
@@ -61,22 +62,24 @@ import com.ferg.awfulapp.task.PMListRequest;
 import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.util.AwfulUtils;
+import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
+import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
 import timber.log.Timber;
 
-public class PrivateMessageListFragment extends AwfulFragment implements SwipeRefreshLayout.OnRefreshListener {
+public class PrivateMessageListFragment extends AwfulFragment implements SwipyRefreshLayout.OnRefreshListener {
 	
 
     private static final String TAG = "PrivateMessageList";
 
     private ListView mPMList;
 
+    private boolean isAllMessages = false;
+
 	private AwfulCursorAdapter mCursorAdapter;
     private PMIndexCallback mPMDataCallback = new PMIndexCallback(getHandler());
 
-    private SwipeRefreshLayout mSRL;
-
-//    private Toolbar mToolbar;
+    private SwipyRefreshLayout mSRL;
 
     private FloatingActionButton mFAB;
     
@@ -93,20 +96,16 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
     }
 
     @Override
-    public void onAttach(Activity aActivity) {
+    public void onAttach(@NonNull Activity aActivity) {
     	super.onAttach(aActivity);
     }
     
     @Override
-    public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
+    public View onCreateView(@NonNull LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
 
         View result = aInflater.inflate(R.layout.private_message_list_fragment, aContainer, false);
 
-//        mToolbar = (Toolbar) result.findViewById(R.id.awful_toolbar_pm);
-//        this.getAwfulActivity().setSupportActionBar(mToolbar);
-//        this.getAwfulActivity().setActionBar();
-//        setTitle(getTitle());
         mPMList = (ListView) result.findViewById(R.id.message_listview);
 
 
@@ -122,10 +121,10 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mSRL = (SwipeRefreshLayout) view.findViewById(R.id.pm_swipe);
+        mSRL = (SwipyRefreshLayout) view.findViewById(R.id.pm_swipe);
         mSRL.setOnRefreshListener(this);
         mSRL.setColorSchemeResources(ColorProvider.getSRLProgressColors(null));
-        mSRL.setProgressBackgroundColorSchemeResource(ColorProvider.getSRLBackgroundColor(null));
+        mSRL.setProgressBackgroundColor(ColorProvider.getSRLBackgroundColor(null));
     }
 
     @Override
@@ -147,11 +146,15 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
         syncPMs();
         setActionBarTitle(getTitle());
     }
-    
+
     private void syncPMs() {
+        syncPMs(isAllMessages);
+    }
+    
+    private void syncPMs(boolean loadAll) {
         mSRL.setRefreshing(true);
     	if(getActivity() != null){
-            queueRequest(new PMListRequest(getActivity(), currentFolder).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
+            queueRequest(new PMListRequest(getActivity(), currentFolder, loadAll).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
                 @Override
                 public void success(Void result) {
                     restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, mPMDataCallback);
@@ -266,7 +269,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
     };
 
 	@Override
-	public void onPreferenceChange(AwfulPreferences mPrefs, String key) {
+	public void onPreferenceChange(@NonNull AwfulPreferences mPrefs, String key) {
         super.onPreferenceChange(mPrefs, key);
         if("no_fab".equals(key)){
             mFAB.setVisibility((mPrefs.noFAB ? View.GONE : View.VISIBLE));
@@ -278,8 +281,9 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
 			super(handler);
 		}
 
-		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
-			Log.i(TAG,"Load PM Cursor.");
+		@NonNull
+        public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
+            Timber.tag(TAG).i("Load PM Cursor.");
 			return new CursorLoader(getActivity(), 
 					AwfulMessage.CONTENT_URI, 
 					AwfulProvider.PMProjection, 
@@ -290,7 +294,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
             if (aData != null) {
-                Log.v(TAG,"PM load finished, populating: "+aData.getCount());
+                Timber.tag(TAG).v("PM load finished, populating: %s", aData.getCount());
             }
         	mCursorAdapter.swapCursor(aData);
         }
@@ -302,7 +306,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
         
         @Override
         public void onChange (boolean selfChange){
-        	Log.i(TAG,"PM Data update.");
+            Timber.tag(TAG).i("PM Data update.");
         	restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, this);
         }
     }
@@ -310,18 +314,19 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
 
 	@Override
 	public String getTitle() {
-        switch (currentFolder){
-            case FOLDER_INBOX:
-                return "Inbox";
-            case FOLDER_SENT:
-                return "Sent";
-        }
-		return "Messages";
-	}
+        return switch (currentFolder) {
+            case FOLDER_INBOX -> "Inbox";
+            case FOLDER_SENT -> "Sent";
+            default -> "Messages";
+        };
+    }
 
 
 	@Override
-	public void onRefresh() {
-    	syncPMs();
+	public void onRefresh(SwipyRefreshLayoutDirection swipyRefreshLayoutDirection) {
+        if (swipyRefreshLayoutDirection == SwipyRefreshLayoutDirection.BOTTOM) {
+            isAllMessages = true;
+        }
+        syncPMs(isAllMessages);
 	}
 }

@@ -198,6 +198,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		
 		longKeys = new HashSet<>();
 		longKeys.add(mResources.getString(R.string.pref_key_probation_time));
+		longKeys.add(mResources.getString(R.string.pref_key_imgur_token_expires));
 	}
 
 	
