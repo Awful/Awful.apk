@@ -38,6 +38,7 @@ class AlertView(private val activity: FragmentActivity?) {
     @DrawableRes
     private var iconResId = 0
     private var animation: Animation? = null
+    private var displayLength = Toast.LENGTH_SHORT;
 
 
     fun setTitle(@StringRes title: Int): AlertView {
@@ -71,6 +72,11 @@ class AlertView(private val activity: FragmentActivity?) {
 
     fun setIconAnimation(animation: Animation?): AlertView {
         this.animation = animation
+        return this
+    }
+
+    fun setDisplayLength(length: Int): AlertView {
+        this.displayLength = length
         return this
     }
 
@@ -139,7 +145,7 @@ class AlertView(private val activity: FragmentActivity?) {
 
         with(Toast(activity)) {
             setGravity(Gravity.CENTER_VERTICAL, 0, 0)
-            duration = Toast.LENGTH_LONG
+            duration = displayLength
             view = root
             show()
         }
@@ -153,6 +159,7 @@ class AlertView(private val activity: FragmentActivity?) {
         subtitle = null
         animation = null
         iconResId = 0
+        displayLength = Toast.LENGTH_SHORT
     }
 
 

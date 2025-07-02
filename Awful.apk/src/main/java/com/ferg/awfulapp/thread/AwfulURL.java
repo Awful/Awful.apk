@@ -132,7 +132,7 @@ public class AwfulURL {
 			aurl.type = TYPE.EXTERNAL;
 			aurl.externalURL = url;
 		}
-		Log.e("AwfulURL","Parsed URL: "+aurl.getURL());
+		Log.i("AwfulURL","Parsed URL: "+aurl.getURL());
 		return aurl;
 	}
 	

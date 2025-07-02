@@ -38,7 +38,7 @@ class LoginRequest(context: Context, private val username: String, password: Str
     private fun validateLoginState(): Boolean {
         return CookieController.saveLoginCookies(context).also { success ->
             if (success) preferences.setPreference(Keys.USERNAME, username)
-        }
+            }
     }
 
 }

@@ -48,6 +48,7 @@ import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.VolleyError;
+import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.CookieController;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
@@ -184,7 +185,7 @@ public class AwfulLoginActivity extends AwfulActivity {
                     }
                 }
                 if (response != null && response.statusCode == HttpStatus.SC_MOVED_TEMPORARILY) {
-                    Boolean result = CookieController.saveLoginCookies(getApplicationContext());
+                    Boolean result = !CookieController.getCookieString(Constants.COOKIE_PREF_PASSWORD).isEmpty();
                     if (result) {
                         // TODO: this should probably be handled by firing a ProfileRequest and getting the username from there, maybe through SyncManager
                         AwfulPreferences prefs = AwfulPreferences.getInstance(getApplicationContext());

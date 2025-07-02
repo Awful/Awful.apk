@@ -2,7 +2,7 @@ buildscript {
     ext.kotlin_version = '1.9.21'
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.7.2'
+        classpath 'com.android.tools.build:gradle:8.10.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -71,7 +71,7 @@ android {
         targetCompatibility JavaVersion.VERSION_21
     }
 
-    task copyThreadTags {
+    tasks.register('copyThreadTags') {
         // Run this Gradle task to import Awful thread tags into the app, renaming as necessary -
         // this is meant to be a quick way to update when tags are added to the repo
         // Call it by passing the path to the folder containing the tag files (other files and
@@ -135,11 +135,11 @@ dependencies {
     implementation 'com.jakewharton.timber:timber:4.7.1'
 
     implementation 'com.github.rubensousa:BottomSheetBuilder:1.5.1'
-    implementation 'androidx.preference:preference:1.2.1'
+    implementation 'androidx.preference:preference-ktx:1.2.1'
 
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.hamcrest:hamcrest-library:1.3'
-    implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
 
     // updating this might cause the status and navigation bar to become blue, test for this
     implementation 'androidx.core:core-splashscreen:1.0.0-alpha02'

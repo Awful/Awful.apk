@@ -2,6 +2,7 @@ package com.ferg.awfulapp.task
 
 import android.content.ContentResolver
 import android.content.Context
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
@@ -12,8 +13,7 @@ import com.android.volley.toolbox.HttpHeaderParser
 import com.ferg.awfulapp.AwfulApplication
 import com.ferg.awfulapp.CaptchaActivity
 import com.ferg.awfulapp.R
-import com.ferg.awfulapp.constants.Constants.BASE_URL
-import com.ferg.awfulapp.constants.Constants.SITE_HTML_ENCODING
+import com.ferg.awfulapp.constants.Constants.*
 import com.ferg.awfulapp.network.CookieController
 import com.ferg.awfulapp.network.NetworkUtils
 import com.ferg.awfulapp.preferences.AwfulPreferences
@@ -32,6 +32,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
+import java.net.HttpCookie
 
 /**
  * Base class for requests to the Something Awful forums site, with HTML response and error handling.
@@ -217,6 +218,31 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
         return handleResponse(document)
     }
 
+    protected fun updateCookies(ctx: Context, headers: List<Header>?) {
+        if (headers != null) {
+            val cookieMap = hashMapOf<String, String>()
+            val importantCookies = arrayOf(COOKIE_PREF_USERID, COOKIE_NAME_PASSWORD, COOKIE_NAME_SESSIONID, COOKIE_NAME_SESSIONHASH)
+            headers.forEach {
+                if (it.name != "Set-Cookie") { return@forEach; }
+                val cookie = HttpCookie.parse(it.value).first();
+                if (importantCookies.contains(cookie.name)){
+                    cookieMap[cookie.name] = it.value
+                }
+            }
+            if(cookieMap.isNotEmpty()){
+                val prefs: SharedPreferences = ctx.getSharedPreferences(
+                    COOKIE_PREFERENCE,
+                    Context.MODE_PRIVATE
+                )
+                val edit = prefs.edit()
+                cookieMap.forEach {
+                    edit.putString(it.key, it.value)
+                }
+                edit.apply()
+            }
+        }
+    }
+
 
     /**
      * Final Volley Request class, created when the AwfulRequest is complete and ready to be queued.
@@ -255,6 +281,7 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
 
                 val result = handleResponseDocument(doc)
                 Timber.d("Successful parse: $url\nTook ${System.currentTimeMillis() - startTime}ms")
+                updateCookies(context, response.allHeaders);
                 return Response.success(result, HttpHeaderParser.parseCacheHeaders(response))
             } catch (ae: AwfulError) {
                 return Response.error(ae)

@@ -9,11 +9,14 @@ import org.jsoup.nodes.Document
 /**
  * A request that gets and updates the stored list of Private Messages in a particular [folder]
  */
-class PMListRequest(context: Context, private val folder: Int = PRIVATE_MESSAGE_DEFAULT_FOLDER)
+class PMListRequest(context: Context, private val folder: Int = PRIVATE_MESSAGE_DEFAULT_FOLDER, loadAll: Boolean = false)
     : AwfulRequest<Void?>(context, FUNCTION_PRIVATE_MESSAGE) {
 
     init {
         parameters.add(PARAM_FOLDERID, folder.toString())
+        if (loadAll) {
+            parameters.add(PARAM_SHOWALL, "1")
+        }
     }
 
 

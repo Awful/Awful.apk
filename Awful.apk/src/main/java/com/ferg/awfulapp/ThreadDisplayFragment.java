@@ -946,7 +946,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
                 if (isCancelled()) {
                     return;
                 } else if (url == null) {
-                    getAlertView().show(new AwfulError());
+                    getAlertView().setDisplayLength(Toast.LENGTH_LONG).show(new AwfulError());
                     return;
                 }
 
@@ -1268,7 +1268,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 		Matcher youtube = Pattern.compile("youtube\\.com/watch\\?v=([a-zA-Z0-9-_]+).*").matcher(linkUrl);
 		if (youtube.find()) {
 			linkUrl = path.getScheme() + "://" + path.getAuthority() + path.getPath() + "?v="+youtube.group(1);
-		} else if(StringUtils.contains(path.getHost(), "twitter.com")) {
+		} else if(StringUtils.contains(path.getHost(), "twitter.com") || StringUtils.contains(path.getHost(), "bsky.app")) {
 			linkUrl = path.getScheme() + "://" + path.getAuthority() + path.getPath();
 		}
 
@@ -1333,6 +1333,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 			getActivity().startActivity(browserIntent);
 		} catch (ActivityNotFoundException error) {
 			getAlertView().setTitle("Cannot open link:")
+					.setDisplayLength(Toast.LENGTH_LONG)
 					.setSubtitle("None of your apps want to open this " + intentUri.getScheme() + ":\\\\ link. Try installing an app that is less picky")
 					.show();
 		}
