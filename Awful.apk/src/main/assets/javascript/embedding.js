@@ -102,7 +102,7 @@ function processThreadEmbeds(replacementArea) {
 
 		tweets = Array.prototype.reduce.call(tweets, function reduceTweets(filteredTwoops, twitterURL) {
 			var urlMatch = twitterURL.href.match(urlMatchRegex);
-			if (urlMatch && filterNwsAndSpoiler(twitterURL)) {
+			if (urlMatch && filterNwsAndSpoiler(twitterURL) && twitterURL.href === twitterURL.textContent.trim()) {
 				twitterURL.href = urlMatch[0];
 				filteredTwoops.push(twitterURL);
 			}
@@ -132,9 +132,13 @@ function processThreadEmbeds(replacementArea) {
 	 * Replaces all Bluesky post links with Bluesky embeds.
 	 */
     async function embedBluesky() {
-        const blueskyLinks = document.querySelectorAll('.postcontent a[href*="bsky.app/profile"]');
+        var skeets = document.querySelectorAll('.postcontent a[href*="bsky.app/profile"]');
 
-        for (const link of blueskyLinks) {
+        skeets = Array.prototype.filter.call(skeets, function filterSkeets(blueskyURL) {
+            return filterNwsAndSpoiler(blueskyURL) && blueskyURL.href === blueskyURL.textContent.trim()
+        });
+
+        for (const link of skeets) {
             const match = link.href.match(/bsky\.app\/profile\/([\w.]+)\/post\/([\w\d]+)/);
             if (!match) {
                 continue;

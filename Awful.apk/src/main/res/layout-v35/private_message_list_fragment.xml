@@ -27,18 +27,20 @@
                 android:divider="#8c8c8c"
                 android:dividerHeight="1px" />
         </com.ferg.awfulapp.widget.SwipyRefreshLayout>
+
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/just_pm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="66dp"
+            android:layout_marginRight="16dp"
+            android:tint="?attr/justPostButtonFontColor"
             app:backgroundTint="?attr/justPostButtonColor"
-            android:layout_margin="16dp"
-            app:elevation="4sp"
             app:borderWidth="0dp"
-            app:srcCompat="@drawable/ic_create"
-            android:tint="?attr/justPostButtonFontColor">
+            app:elevation="4sp"
+            app:srcCompat="@drawable/ic_create">
 
         </com.google.android.material.floatingactionbutton.FloatingActionButton>
     </RelativeLayout>

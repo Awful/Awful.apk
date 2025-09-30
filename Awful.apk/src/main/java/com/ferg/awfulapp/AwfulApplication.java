@@ -1,9 +1,14 @@
 package com.ferg.awfulapp;
 
 import android.app.Application;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ShortcutInfo;
+import android.net.Uri;
+import android.os.Build;
 import android.os.StrictMode;
 import android.webkit.WebView;
 
@@ -12,12 +17,18 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.Keys;
+import com.ferg.awfulapp.search.SearchFragment;
 import com.ferg.awfulapp.sync.SyncManager;
+import com.ferg.awfulapp.util.AwfulUtils;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+import androidx.core.content.pm.ShortcutInfoCompat;
+import androidx.core.content.pm.ShortcutManagerCompat;
+import androidx.core.graphics.drawable.IconCompat;
 import timber.log.Timber;
 
 public class AwfulApplication extends Application {
@@ -68,6 +79,7 @@ public class AwfulApplication extends Application {
         AndroidThreeTen.init(this);
         AnnouncementsManager.init();
         FontManager.createInstance(mPref, getAssets());
+        updatePlatinumShortcuts(this);
 
         long hoursSinceInstall = getHoursSinceInstall();
 
@@ -88,6 +100,32 @@ public class AwfulApplication extends Application {
         }
 
         SyncManager.sync(this);
+    }
+
+    private void updatePlatinumShortcuts(Context context) {
+        if (!AwfulUtils.isAtLeast(Build.VERSION_CODES.N_MR1)) { return; }
+
+        ArrayList<ShortcutInfoCompat> shortcuts = new ArrayList<>();
+        if(!AwfulPreferences.getInstance().hasPlatinum) {
+            ShortcutManagerCompat.setDynamicShortcuts(context, shortcuts);
+            return;
+        }
+        ShortcutInfoCompat pms = new ShortcutInfoCompat.Builder(context, "pms")
+                .setShortLabel(context.getResources().getString(R.string.private_message))
+                .setLongLabel(context.getResources().getString(R.string.private_message))
+                .setIcon(IconCompat.createWithResource(context, R.drawable.ic_inbox_black))
+                .setIntent(new Intent(Intent.ACTION_VIEW, Uri.EMPTY,context, PrivateMessageActivity.class).putExtra("navigation event", "nav_show_private_messages"))
+                .build();
+        shortcuts.add(pms);
+
+        ShortcutInfoCompat search = new ShortcutInfoCompat.Builder(context, "search")
+                .setShortLabel(context.getResources().getString(R.string.search))
+                .setLongLabel(context.getResources().getString(R.string.search))
+                .setIcon(IconCompat.createWithResource(context, R.drawable.ic_search_black))
+                .setIntent(BasicActivity.Companion.intentFor(SearchFragment.class, context, context.getString(R.string.search_forums_activity_title)).setAction(Intent.ACTION_VIEW))
+                .build();
+        shortcuts.add(search);
+        ShortcutManagerCompat.setDynamicShortcuts(context, shortcuts);
     }
 
     /**

@@ -5,4 +5,6 @@
         <attr name="show_spinner" format="boolean"/>
     </declare-styleable>
     <bool name="legacy_shortcut_creation">true</bool>
+    <attr name="pagebarPadding" format="dimension"/>
+    <attr name="navbarPadding" format="dimension"/>
 </resources>

@@ -3,10 +3,10 @@ package com.ferg.awfulapp
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import androidx.appcompat.widget.Toolbar
 import android.view.MenuItem
 import android.view.View
+import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.Fragment
 import com.ferg.awfulapp.BasicActivity.Companion.intentFor
 
 /**
@@ -49,7 +49,7 @@ class BasicActivity : AwfulActivity() {
             .add(R.id.content_frame, fragment, fragmentName)
             .commit()
 
-        setSupportActionBar(findViewById<View>(R.id.toolbar) as Toolbar)
+        setSupportActionBar(findViewById<View>(R.id.awful_toolbar) as Toolbar)
         setUpActionBar()
         setActionbarTitle(extras.getString(TITLE, "No title"))
     }
@@ -58,7 +58,9 @@ class BasicActivity : AwfulActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                finish(); return true
+                finish();
+                navigate(NavigationEvent.MainActivity)
+                return true
             }
         }
         return super.onOptionsItemSelected(item)

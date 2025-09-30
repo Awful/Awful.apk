@@ -118,10 +118,12 @@ class PostParseTask(
             val postHasBeenRead = markedSeen || index <= lastReadIndex
             put(PREVIOUSLY_READ, postHasBeenRead.sqlBool)
 
-            put(USERNAME, textForClass("author"))
+            val author = postData.selectFirst(".author")!!
+            put(USERNAME, author.text())
             put(REGDATE, textForClass("registered"))
             put(IS_PLAT, postData.hasDescendantWithClass("platinum").sqlBool)
-            put(ROLE, getRole())
+            put(ROLE, getRole(author))
+            put(ICON, getCustomIcon(author))
 
             // grab the custom title, and also avatar and alternate avatar if there are any
             postData.selectFirst(".title")
@@ -201,8 +203,16 @@ class PostParseTask(
     private fun textForClass(cssClass: String): String =
         postData.selectFirst(".$cssClass")?.text() ?: ""
 
-    private fun getRole(): String =
-        postData.selectFirst(".author")?.classNames()?.find { it.startsWith("role-") }?.substring(5) ?: ""
+    private fun getRole(author: Element): String =
+        author.classNames().find { it.startsWith("role-") }?.substring(5) ?: ""
+
+    private fun getCustomIcon(author: Element): String? {
+        val iconClass = author.classNames().last();
+        if(!iconClass.startsWith("rule") && !arrayOf("author", "op", "platinum").contains(iconClass)) {
+            return iconClass;
+        }
+        return null;
+    }
 
     private fun Element.hasDescendantWithClass(cssClass: String): Boolean =
         this.selectFirst(".$cssClass") != null

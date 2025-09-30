@@ -46,20 +46,19 @@ abstract class AwfulStrippedRequest<T>(context: Context, apiUrl: String) : Awful
         // grab the data as a string, and match the select blocks
         val html = String(response.data, SITE_CHARSET)
 
-        // try and pull out the useful data before we throw the blocks away
-        pageSelectorRegex.find(html)?.value?.let { selectBlock ->
-            // separate matchers so one can fail without breaking the other
-            selectedPage = selectedPageRegex.find(selectBlock)?.tryParseInt()
-            lastPage = lastPageRegex.find(selectBlock)?.tryParseInt()
-        }
-
         // now dump the select blocks and parse what's left
         val smaller = pageSelectorRegex.replace(html, "")
         Timber.d("Garbage stripped (took ${startTime.elapsed}ms) - starting Jsoup parse")
         val jsoupParseStart = System.currentTimeMillis()
-        return Jsoup.parse(smaller, BASE_URL).also {
+        val jsoupResponse = Jsoup.parse(smaller, BASE_URL).also {
             Timber.d("jsoup parsing finished (took ${jsoupParseStart.elapsed}ms)")
         }
+        val pages = jsoupResponse.getElementsByClass("pages").first()
+        if (pages != null) {
+            selectedPage = pages.dataset().getValue("current-page").toInt()
+            lastPage = pages.dataset().getValue("total-pages").toInt()
+        }
+        return jsoupResponse;
     }
 
     private val Long.elapsed get() = System.currentTimeMillis() - this
@@ -76,10 +75,5 @@ abstract class AwfulStrippedRequest<T>(context: Context, apiUrl: String) : Awful
         // TODO: can/should this be done with the outer <div class="pages"> tag instead?
         // matches a single page select block (usually 2 on a page)
         private val pageSelectorRegex = Regex("""<select data-url="\S*\.php.*</select>""")
-        // matches the "value" attribute of the <option> tag with a "selected" attribute
-        private val selectedPageRegex = Regex("""value="(\d*)"\s*selected""")
-        // matches the inner text of the last <option> tag
-        // (I can't safely get the contents of its "value" attr without the regex exploding over backtracking)
-        private val lastPageRegex = Regex(""">\s*(\d*)\s*</option>\s*</select>""")
     }
 }

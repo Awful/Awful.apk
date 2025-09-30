@@ -33,6 +33,9 @@ import android.view.MenuItem;
 import com.ferg.awfulapp.databinding.PostThreadActivityBinding;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentManager;
 
 
@@ -47,13 +50,31 @@ public class PostThreadActivity extends AwfulActivity {
         super.onCreate(savedInstanceState);
         PostThreadActivityBinding binding = PostThreadActivityBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        mToolbar = binding.toolbar;
+        mToolbar = binding.postThreadToolbar.awfulToolbar;
 
         setSupportActionBar(mToolbar);
         setUpActionBar();
 
         FragmentManager fm = getSupportFragmentManager();
         threadFragment = (PostThreadFragment) fm.findFragmentById(R.id.thread_fragment);
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (view, insets) -> {
+            Insets innerPadding = insets.getInsets(
+                    WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout()
+            );
+
+            boolean imeVisible = insets.isVisible(WindowInsetsCompat.Type.ime());
+            int imeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
+
+            ViewCompat.setPaddingRelative(
+                    binding.getRoot(),
+                    innerPadding.left,
+                    0,
+                    innerPadding.right,
+                    imeVisible ? imeHeight : innerPadding.bottom
+            );
+            return insets;
+        });
     }
 
     @Override

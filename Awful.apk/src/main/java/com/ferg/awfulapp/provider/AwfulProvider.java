@@ -189,6 +189,7 @@ public class AwfulProvider extends ContentProvider {
         sPostProjectionMap.put(AwfulPost.IS_OP, AwfulPost.IS_OP);
         sPostProjectionMap.put(AwfulPost.IS_PLAT, AwfulPost.IS_PLAT);
         sPostProjectionMap.put(AwfulPost.ROLE, AwfulPost.ROLE);
+        sPostProjectionMap.put(AwfulPost.ICON, AwfulPost.ICON);
         sPostProjectionMap.put(AwfulPost.AVATAR, AwfulPost.AVATAR);
         sPostProjectionMap.put(AwfulPost.AVATAR_SECOND, AwfulPost.AVATAR_SECOND);
         sPostProjectionMap.put(AwfulPost.AVATAR_TEXT, AwfulPost.AVATAR_TEXT);

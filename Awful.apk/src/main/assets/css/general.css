@@ -318,3 +318,12 @@ video.playing ~ .video-link {
 .postcontent .signature {
     padding-top: 10px;
 }
+
+dt,dl {
+    margin: 0;
+    display: inline;
+    background-repeat: no-repeat;
+}
+dl.userinfo {
+    margin-left: 5px;
+}
