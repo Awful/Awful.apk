@@ -7,8 +7,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.ferg.awfulapp"
-    android:versionCode="31202"
-    android:versionName="3.12.2"
+    android:versionCode="31203"
+    android:versionName="3.12.3"
       android:installLocation="auto">
     <supports-screens
         android:smallScreens="true"
