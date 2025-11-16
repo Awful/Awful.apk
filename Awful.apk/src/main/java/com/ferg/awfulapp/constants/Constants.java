@@ -100,6 +100,7 @@ public class Constants {
     public static final String PARAM_SUBMIT 	= "submit";
     public static final String PARAM_PREVIEW 	= "preview";
     public static final String PARAM_PARSEURL = "parseurl";
+    public static final String PARAM_ATTACHMENT_ACTION = "attachmentaction";
 
 	public static final String USERLIST_IGNORE = "ignore";
 	public static final String USERLIST_BUDDY  = "buddy";
@@ -161,7 +162,7 @@ public class Constants {
     public static final int PRIVATE_MESSAGE_SENT_FOLDER = -1;
 
     // attachments
-    public static final int ATTACHMENT_MAX_BYTES = 1024 * 1024;
+    public static final int ATTACHMENT_MAX_BYTES = 1024 * 1024 * 2;
     public static final int ATTACHMENT_MAX_WIDTH = 4096;
     public static final int ATTACHMENT_MAX_HEIGHT = 4096;
 
@@ -195,8 +196,10 @@ public class Constants {
     public static final String PREVIEW_POST = "Preview Post";
 
 	public static final String YES = "yes";//heh
+    public static final String DELETE = "delete";//heh
 
-	//NOT FOR NETWORK USE
+
+    //NOT FOR NETWORK USE
 	public static final String FORUM_PAGE = "forum_page";
 	//NOT FOR NETWORK USE
 	public static final String THREAD_PAGE = "thread_page";

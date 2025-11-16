@@ -5,6 +5,7 @@ import com.ferg.awfulapp.constants.Constants
 import com.ferg.awfulapp.util.AwfulParseException
 import org.jsoup.nodes.Element
 import org.jsoup.parser.Tag
+import java.util.Locale.getDefault
 
 /**
  * Created by baka kaba on 28/07/2017.
@@ -51,7 +52,7 @@ class Punishment private constructor(val type: Type, val badPostUrl: String?, va
         }
 
         private fun parseType(name: String): Type =
-                try { Type.valueOf(name.toUpperCase()) } catch (e: IllegalArgumentException) { Type.UNKNOWN }
+                try { Type.valueOf(name.uppercase(getDefault())) } catch (e: IllegalArgumentException) { Type.UNKNOWN }
 
         // TODO: better handling of parse errors? defaulting to an ID of -1 isn't great
         private fun String.userId() = Uri.parse(this).getQueryParameter(Constants.PARAM_USER_ID)?.toIntOrNull() ?: -1

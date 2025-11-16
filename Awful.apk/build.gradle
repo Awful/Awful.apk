@@ -1,8 +1,8 @@
 buildscript {
-    ext.kotlin_version = '1.9.21'
+    ext.kotlin_version = '2.2.21'
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.13.0'
+        classpath 'com.android.tools.build:gradle:8.13.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -15,7 +15,7 @@ plugins {
 
 android {
     namespace "com.ferg.awfulapp"
-    compileSdk 36
+    compileSdk = 36
 
     buildFeatures {
         viewBinding = true
@@ -141,9 +141,8 @@ dependencies {
     testImplementation 'org.hamcrest:hamcrest-library:3.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
 
-    implementation "androidx.core:core:1.17.0"
+    implementation "androidx.core:core-ktx:1.17.0"
     implementation 'androidx.core:core-google-shortcuts:1.1.0'
 
     // updating this might cause the status and navigation bar to become blue, test for this
-    implementation 'androidx.core:core-splashscreen:1.0.0-alpha02'
-}
+    implementation 'androidx.core:core-splashscreen:1.0.0-alpha02'}

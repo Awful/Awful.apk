@@ -131,6 +131,7 @@ public class PostReplyFragment extends AwfulFragment {
     private boolean saveRequired = true;
     @Nullable
     private Intent attachmentData;
+    private boolean removeAttachment = false;
 
     // async stuff
     private ContentResolver mContentResolver;
@@ -299,6 +300,9 @@ public class PostReplyFragment extends AwfulFragment {
                     } else {
                         messageComposer.setText(null, false);
                     }
+                }
+                if (result.containsKey(AwfulMessage.REPLY_ATTACHMENT)) {
+                    mFileAttachment = result.getAsString(AwfulMessage.REPLY_ATTACHMENT);
                 }
                 // set any options and update the menu
                 postSignature = getCheckedAndRemove(REPLY_SIGNATURE, result);
@@ -581,6 +585,8 @@ public class PostReplyFragment extends AwfulFragment {
         }
         if (!TextUtils.isEmpty(mFileAttachment)) {
             cv.put(AwfulMessage.REPLY_ATTACHMENT, mFileAttachment);
+        } else if(mReplyType == TYPE_EDIT && removeAttachment) {
+            cv.put(AwfulMessage.REPLY_ATTACHMENT_ACTION, Constants.DELETE);
         }
         if (postSignature) {
             cv.put(REPLY_SIGNATURE, Constants.YES);
@@ -755,13 +761,16 @@ public class PostReplyFragment extends AwfulFragment {
 
         MenuItem attach = menu.findItem(R.id.add_attachment);
         if (attach != null && getPrefs() != null) {
-            attach.setEnabled(getPrefs().hasPlatinum);
-            attach.setVisible(getPrefs().hasPlatinum);
+            attach.setEnabled(getPrefs().hasPlatinum && mReplyType != TYPE_EDIT);
+            attach.setVisible(getPrefs().hasPlatinum && mReplyType != TYPE_EDIT);
         }
         MenuItem remove = menu.findItem(R.id.remove_attachment);
-        if (remove != null && getPrefs() != null) {
-            remove.setEnabled((getPrefs().hasPlatinum && this.mFileAttachment != null));
-            remove.setVisible(getPrefs().hasPlatinum && this.mFileAttachment != null);
+        if (remove != null && getPrefs() != null && this.mFileAttachment != null) {
+            remove.setEnabled(getPrefs().hasPlatinum);
+            remove.setVisible(getPrefs().hasPlatinum);
+            String[] filepath = this.mFileAttachment.split("/");
+            String filename = filepath[filepath.length-1];
+            remove.setTitle("Remove " + filename);
         }
         MenuItem disableEmoticons = menu.findItem(R.id.disableEmots);
         if (disableEmoticons != null) {
@@ -789,6 +798,9 @@ public class PostReplyFragment extends AwfulFragment {
                 break;
             case R.id.remove_attachment:
                 this.mFileAttachment = null;
+                if (mReplyType == TYPE_EDIT) {
+                    removeAttachment = true;
+                }
                 Toast removeToast = Toast.makeText(getAwfulActivity(), getAwfulActivity().getResources().getText(R.string.file_removed), Toast.LENGTH_SHORT);
                 removeToast.show();
                 invalidateOptionsMenu();
