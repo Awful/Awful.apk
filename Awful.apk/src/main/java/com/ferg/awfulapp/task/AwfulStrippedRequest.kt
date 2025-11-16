@@ -5,6 +5,7 @@ import com.android.volley.NetworkResponse
 import com.ferg.awfulapp.constants.Constants.BASE_URL
 import com.ferg.awfulapp.constants.Constants.SITE_HTML_ENCODING
 import com.ferg.awfulapp.util.AwfulError
+import cz.msebera.android.httpclient.entity.ContentType
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import timber.log.Timber
@@ -42,9 +43,14 @@ abstract class AwfulStrippedRequest<T>(context: Context, apiUrl: String) : Awful
     override fun parseAsHtml(response: NetworkResponse): Document {
         // TODO: fall back to superclass implementation on error, set retry flag
         val startTime = System.currentTimeMillis()
+        val contentType = response.headers?.get("content-type")
+        var charset = SITE_CHARSET;
+        if (contentType != null) {
+            charset = ContentType.parse(contentType).charset
+        }
         Timber.d("Stripping page selectors from HTML to speed up parsing")
         // grab the data as a string, and match the select blocks
-        val html = String(response.data, SITE_CHARSET)
+        val html = String(response.data, charset)
 
         // now dump the select blocks and parse what's left
         val smaller = pageSelectorRegex.replace(html, "")

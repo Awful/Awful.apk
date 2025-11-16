@@ -208,7 +208,7 @@ class PostParseTask(
 
     private fun getCustomIcon(author: Element): String? {
         val iconClass = author.classNames().last();
-        if(!iconClass.startsWith("rule") && !arrayOf("author", "op", "platinum").contains(iconClass)) {
+        if(!iconClass.startsWith("role") && !arrayOf("author", "op", "platinum").contains(iconClass)) {
             return iconClass;
         }
         return null;
