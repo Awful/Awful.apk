@@ -54,7 +54,7 @@ public class PrivateMessageActivity extends AwfulActivity implements MessageFrag
         setContentView(R.layout.private_message_activity);
         setMPrefs(AwfulPreferences.getInstance(this, this));
 
-        Toolbar mToolbar = findViewById(R.id.toolbar);
+        Toolbar mToolbar = findViewById(R.id.awful_toolbar);
         setSupportActionBar(mToolbar);
         setUpActionBar();
 

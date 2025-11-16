@@ -5,7 +5,7 @@
             <img class="avatar {{#hideAvatar}}hide-avatar{{/hideAvatar}}" src="{{.}}" title="{{username}}'s avatar" {{#avatarSecondURL}}data-avatar-second-src="{{avatarSecondURL}}"{{/avatarSecondURL}}/>
             {{/avatarURL }}
             <section class="postinfo">
-                <aside class="postinfo-poster"><span class="postinfo-poster-name">{{username}} {{#role}}<img src="file:///android_asset/images/ic_star_{{role}}.png" />{{/role}}</span> {{^role}}{{#plat}}<span class="icon-gren"></span>{{/plat}}{{/role}}</aside>
+                <aside class="postinfo-poster"><span class="postinfo-poster-name">{{username}} {{#icon}}<dl class="userinfo"><dt class="{{icon}}"></dt></dl>{{/icon}} {{^icon}}{{#role}}<img src="file:///android_asset/images/ic_star_{{role}}.png" />{{/role}}</span> {{^role}}{{#plat}}<span class="icon-gren"></span>{{/plat}}{{/role}}{{/icon}}</aside>
                 {{#postDate}}<time class="postinfo-postdate">{{ postDate }}</time>{{/postDate}}
                 {{#regDate}}<time aria-hidden="true" class="postinfo-regdate">Reg Date: {{regDate}}</time>{{/regDate}}
                 {{#avatarText}}<aside aria-hidden="true" class="postinfo-title">{{avatarText}}</aside>{{/avatarText}}

@@ -90,6 +90,7 @@ public class AwfulPost {
     public static final String IS_OP                 = "is_op";
     public static final String IS_PLAT               = "is_plat";
     public static final String ROLE                  = "role";
+    public static final String ICON                  = "icon";
     public static final String AVATAR                = "avatar";
     // people may be using gangtags, etc. as avatars with a 1x1 primary av
     public static final String AVATAR_SECOND         = "avatar_second";
@@ -128,6 +129,7 @@ public class AwfulPost {
     private boolean isOp = false;
     private boolean isPlat = false;
     private String mRole = "";
+    private String mIcon = "";
 
 
     public JSONObject toJSON() throws JSONException {
@@ -145,6 +147,7 @@ public class AwfulPost {
         result.put("lastReadUrl", mLastReadUrl);
         result.put("editable", Boolean.toString(mEditable));
         result.put("role", mRole);
+        result.put("icon", mIcon);
         result.put("isOp", Boolean.toString(isOp()));
         result.put("isPlat", Boolean.toString(isPlat()));
 
@@ -217,6 +220,10 @@ public class AwfulPost {
 
     public void setRole(String role) { mRole = role; }
 
+    public String getIcon() { return mIcon; }
+
+    public void setIcon(String icon) { mIcon = icon; }
+
     public String getAvatar() {
         return mAvatar;
     }
@@ -256,6 +263,7 @@ public class AwfulPost {
             int isOpIndex = aCursor.getColumnIndex(IS_OP);
             int isPlatIndex = aCursor.getColumnIndex(IS_PLAT);
             int roleIndex = aCursor.getColumnIndex(ROLE);
+            int iconIndex = aCursor.getColumnIndex(ICON);
             int avatarIndex = aCursor.getColumnIndex(AVATAR);
             int avatarSecondIndex = aCursor.getColumnIndex(AVATAR_SECOND);
             int avatarTextIndex = aCursor.getColumnIndex(AVATAR_TEXT);
@@ -279,6 +287,7 @@ public class AwfulPost {
                 current.setIsOp(aCursor.getInt(isOpIndex) == 1);
                 current.setIsPlat(aCursor.getInt(isPlatIndex) > 0);
                 current.setRole(aCursor.getString(roleIndex));
+                current.setIcon(aCursor.getString(iconIndex));
                 current.setAvatar(aCursor.getString(avatarIndex));
                 current.setAvatarSecond(aCursor.getString(avatarSecondIndex));
                 current.setAvatarText(aCursor.getString(avatarTextIndex));

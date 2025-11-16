@@ -203,7 +203,15 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
     @Throws(IOException::class)
     protected open fun parseAsHtml(response: NetworkResponse): Document {
         val jsoupParseStart = System.currentTimeMillis()
-        val doc = Jsoup.parse(ByteArrayInputStream(response.data), SITE_HTML_ENCODING, BASE_URL)
+        val contentType = response.headers?.get("content-type")
+        var charset = SITE_HTML_ENCODING;
+        if (contentType != null) {
+            val requestCharset = cz.msebera.android.httpclient.entity.ContentType.parse(contentType).charset.toString();
+            if(requestCharset == "utf-8"){
+                charset = requestCharset;
+            }
+        }
+        val doc = Jsoup.parse(ByteArrayInputStream(response.data), charset, BASE_URL)
         Timber.d("Jsoup parsing finished (took ${System.currentTimeMillis() - jsoupParseStart}ms)")
         return doc
     }

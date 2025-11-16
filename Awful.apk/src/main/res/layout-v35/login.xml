@@ -5,8 +5,7 @@
     android:layout_height="fill_parent"
     android:orientation="vertical"
     android:padding="10dip"
-    android:background="?attr/background"
-    android:paddingBottom="0dip">
+    android:background="?attr/background">
 
     <ImageView
         android:id="@+id/dealwithit"
@@ -14,6 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:adjustViewBounds="true"
+        android:layout_marginBottom="15dp"
         android:scaleType="fitCenter"
         android:src="@drawable/dealwithit" />
 
@@ -22,6 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
+        android:layout_marginTop="50dp"
         android:drawableLeft="@drawable/emot_goonsay"
         android:drawablePadding="4dp"
         android:text="@string/login_message"

@@ -114,6 +114,7 @@ public abstract class AwfulHtmlPage {
         AwfulTheme theme = AwfulTheme.forForum(forumId);
         buffer.append("<link rel='stylesheet' href='file:///android_asset/css/general.css' />");
         buffer.append(String.format("<link id='theme-css' rel='stylesheet' data-dark-theme='%b' href='%s'>\n", theme.isDark(), theme.getCssPath()));
+        buffer.append("<link rel='stylesheet' type='text/css' href='https://i.somethingawful.com/css/platicons.css' />");
 
 
         if (!aPrefs.preferredFont.contains("default")) {
@@ -146,7 +147,7 @@ public abstract class AwfulHtmlPage {
      */
     public static String getThreadHtml(List<AwfulPost> aPosts, AwfulPreferences aPrefs, int page, int lastPage) {
         StringBuilder buffer = new StringBuilder(1024);
-        buffer.append("<div class='content'>\n");
+        buffer.append("<div id='thread' class='content'>\n");
 
         // if we're hiding read posts, work out how many are read and add the 'show old posts' link
         if (aPrefs.hideOldPosts && aPosts.size() > 0 && !aPosts.get(aPosts.size() - 1).isPreviouslyRead()) {
@@ -220,6 +221,7 @@ public abstract class AwfulHtmlPage {
             postData.put("postDate", !post.getDate().equals("") ? post.getDate() : null);
             postData.put("regDate", !post.getRegDate().equals("") ? post.getRegDate() : null);
             postData.put("role", parseRole(post.getRole()));
+            postData.put("icon", post.getIcon());
             postData.put("plat", post.isPlat() ? "plat" : null);
             postData.put("avatarText", post.getAvatarText());
             postData.put("lastReadUrl", post.getLastReadUrl());

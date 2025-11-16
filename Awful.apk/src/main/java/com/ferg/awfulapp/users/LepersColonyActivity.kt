@@ -16,7 +16,7 @@ import com.ferg.awfulapp.util.bind
  */
 class LepersColonyActivity : AwfulActivity() {
 
-    private val toolbar: Toolbar by bind(R.id.toolbar)
+    private val toolbar: Toolbar by bind(R.id.awful_toolbar)
     private lateinit var fragment: LepersColonyFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {

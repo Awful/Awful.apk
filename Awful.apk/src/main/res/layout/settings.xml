@@ -1,22 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/layout_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/background"
     android:orientation="vertical">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/awful_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        android:theme="@style/ToolBarStyle"
-        app:elevation="4dp"
-        android:elevation="4dp" />
+
+    <include layout="@layout/toolbar" />
 
     <FrameLayout
         android:id="@+id/main_fragment_container"

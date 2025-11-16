@@ -2,6 +2,7 @@ package com.ferg.awfulapp.widget;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.Insets;
 import android.os.Build;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -9,12 +10,14 @@ import androidx.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowInsets;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.databinding.PageBarBinding;
+import com.ferg.awfulapp.util.AwfulUtils;
 
 import java.util.Locale;
 
@@ -62,6 +65,27 @@ public class PageBar extends FrameLayout {
         onNavButtonClicked(binding.nextPage);
         onNavButtonClicked(binding.prevPage);
         onPageNumberClicked(binding.pageCountText);
+        binding.pageBarContainer.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener(){
+            @Override
+            public void onViewAttachedToWindow(@NonNull View view) {
+                checkPadding();
+            }
+            @Override
+            public void onViewDetachedFromWindow(@NonNull View view) {}
+        });
+    }
+
+    public void checkPadding() {
+        //check edge-to-edge
+        if(AwfulUtils.isAtLeast(Build.VERSION_CODES.VANILLA_ICE_CREAM)){
+            Insets inset = binding.getRoot().getRootWindowInsets().getInsets(WindowInsets.Type.systemGestures());
+            // check navigation buttons
+            if (inset.left <= 0) {
+                View container = binding.pageBarContainer;
+                int buttonSpacing = (int) ((20 * getResources().getDisplayMetrics().density) + container.getPaddingBottom());
+                container.setPadding(container.getPaddingLeft(), container.getPaddingTop(), container.getPaddingRight(), buttonSpacing);
+            }
+        }
     }
 
     /**
