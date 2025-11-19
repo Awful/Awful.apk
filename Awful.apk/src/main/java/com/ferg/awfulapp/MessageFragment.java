@@ -10,6 +10,10 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Messenger;
+
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
@@ -137,6 +141,25 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
         }
 
 		getAwfulActivity().setPreferredFont(result);
+
+        ViewCompat.setOnApplyWindowInsetsListener(result.getRootView(), (view, insets) -> {
+            Insets innerPadding = insets.getInsets(
+                    WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout()
+            );
+
+            boolean imeVisible = insets.isVisible(WindowInsetsCompat.Type.ime());
+            int imeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
+
+            ViewCompat.setPaddingRelative(
+                    result.getRootView(),
+                    innerPadding.left,
+                    0,
+                    innerPadding.right,
+                    imeVisible ? imeHeight : innerPadding.bottom
+            );
+            return insets;
+        });
+
         return result;
     }
 
