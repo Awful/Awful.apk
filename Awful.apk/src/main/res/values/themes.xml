@@ -55,6 +55,7 @@
         <item name="srlBackgroundColor">@color/default_srl_background_color</item>
         <item name="srlProgressColors">@array/defaultSrlProgressColors</item>
         <item name="android:listDivider">@color/alt_background</item>
+        <item name="selfThreadBackground">@color/self_thread_default</item>
 
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
         <item name="android:actionOverflowButtonStyle">@style/Base.Widget.AppCompat.ActionButton.Overflow</item>
@@ -108,6 +109,7 @@
         <item name="srlBackgroundColor">@color/dark_alt_background</item>
         <item name="srlProgressColors">@array/darkSrlProgressColors</item>
         <item name="android:listDivider">@color/dark_header_background</item>
+        <item name="selfThreadBackground">@color/self_thread_dark</item>
 
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
         <item name="awfulPopUpTheme">@style/ThemeOverlay.AppCompat</item>
@@ -118,6 +120,7 @@
 
     <style name="Theme.AwfulTheme.OLED" parent="Theme.AwfulTheme.Dark">
         <item name="background">@android:color/black</item>
+        <item name="selfThreadBackground">@color/self_thread_oled</item>
 
         <item name="colorPrimary">?background</item>
         <item name="colorPrimaryDark">?background</item>

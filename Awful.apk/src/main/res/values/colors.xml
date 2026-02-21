@@ -53,6 +53,10 @@
 
     <color name="default_srl_background_color">#FFFAFAFA</color>
 
+    <color name="self_thread_default">#ECFFD9</color>
+    <color name="self_thread_dark">#1A2800</color>
+    <color name="self_thread_oled">#1E0E00</color>
+
 
     <!-- Bookmark colours for stars/unread counters -->
     <integer-array name="bookmarkColors">

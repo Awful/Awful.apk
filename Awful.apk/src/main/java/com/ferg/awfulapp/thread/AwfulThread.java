@@ -308,6 +308,13 @@ public class AwfulThread extends AwfulPagedItem  {
         }
 
 
+        // highlight threads authored by the current user
+        if (prefs.highlightYourThreads && prefs.userId > 0 && thread.authorId == prefs.userId) {
+            item.setBackgroundColor(ColorProvider.SELF_THREAD_BACKGROUND.getColor(forumId));
+        } else {
+            item.setBackgroundColor(ColorProvider.BACKGROUND.getColor(forumId));
+        }
+
         // thread title
         TextView title  = item.findViewById(R.id.title);
         title.setText(thread.title != null ? thread.title : "UNKNOWN");

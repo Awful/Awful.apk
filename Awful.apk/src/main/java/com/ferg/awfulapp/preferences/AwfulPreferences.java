@@ -143,6 +143,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     public boolean newThreadsFirstForum;
     public boolean threadInfo_Rating;
     public boolean threadInfo_Tag;
+    public boolean highlightYourThreads;
     public boolean forumIndexShowSections;
 	public boolean forumIndexShowSubtitles;
 	public boolean forumIndexHideSubforums;
@@ -280,6 +281,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         showAllSpoilers			 = getPreference(Keys.SHOW_ALL_SPOILERS, false);
         threadInfo_Rating		 = getPreference(Keys.THREAD_INFO_RATING, true);
         threadInfo_Tag		 	 = getPreference(Keys.THREAD_INFO_TAG, true);
+		highlightYourThreads	 = getPreference(Keys.HIGHLIGHT_YOUR_THREADS, true);
 		imgurAccount			 = getPreference(Keys.IMGUR_ACCOUNT, (String) null);
 		imgurAccountToken		 = getPreference(Keys.IMGUR_ACCOUNT_TOKEN, (String) null);
 		imgurRefreshToken		 = getPreference(Keys.IMGUR_REFRESH_TOKEN, (String) null);

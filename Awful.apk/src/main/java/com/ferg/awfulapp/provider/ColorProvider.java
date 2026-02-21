@@ -35,7 +35,8 @@ public enum ColorProvider {
     UNREAD_TEXT(R.attr.unreadFontColor),
     ACTION_BAR(R.attr.actionBarColor),
     ACTION_BAR_TEXT(R.attr.actionBarFontColor),
-    PROGRESS_BAR(R.attr.progressBarColor);
+    PROGRESS_BAR(R.attr.progressBarColor),
+    SELF_THREAD_BACKGROUND(R.attr.selfThreadBackground);
 
     private static final int[] BOOKMARK_COLORS = getColorResIds(R.array.bookmarkColors);
     private static final int[] BOOKMARK_COLORS_DIM = getColorResIds(R.array.bookmarkDimColors);
