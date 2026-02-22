@@ -98,6 +98,7 @@ function processThreadEmbeds(replacementArea) {
 	}
 
 	function replaceTweets(twitterDomain, urlMatchRegex) {
+		window._oembedCache = window._oembedCache || {};
 		var tweets = replacementArea.querySelectorAll('.postcontent a[href*="' + twitterDomain + '"]');
 
 		tweets = Array.prototype.reduce.call(tweets, function reduceTweets(filteredTwoops, twitterURL) {
@@ -111,20 +112,82 @@ function processThreadEmbeds(replacementArea) {
 
 		tweets.forEach(function eachTweet(tweet) {
 			var tweetUrl = tweet.href;
-			JSONP.get('https://publish.' + twitterDomain + '/oembed?omit_script=true&url=' + escape(tweetUrl), {}, function getTworts(data) {
+			var isDark = document.getElementById('theme-css').dataset.darkTheme === 'true';
+
+			function insertTweet(html) {
 				var div = document.createElement('div');
 				div.classList.add('tweet');
 				tweet.parentNode.replaceChild(div, tweet);
-				div.innerHTML = data.html;
-				if (document.getElementById('theme-css').dataset.darkTheme === 'true') {
-					div.querySelector('blockquote').dataset.theme = 'dark';
+				div.innerHTML = html;
+				var bq = div.querySelector('blockquote');
+				if (bq && isDark) {
+					bq.dataset.theme = 'dark';
 				}
 				if (window.twttr.init) {
 					window.twttr.widgets.load(div);
 				} else {
 					window.missedEmbeds.push(div);
 				}
-			});
+			}
+
+			function insertErrorEmbed(message) {
+				var bg = isDark ? '#15202b' : '#ffffff';
+				var border = isDark ? '#38444d' : '#cfd9de';
+				var textColor = isDark ? '#8b98a5' : '#536471';
+
+				var link = document.createElement('a');
+				link.href = tweetUrl;
+				link.style.cssText = 'display:block;border:1px solid ' + border + ';border-radius:12px;padding:16px;margin:8px 0;background:' + bg + ';font-family:-apple-system,BlinkMacSystemFont,sans-serif;text-decoration:none';
+
+				var urlLine = document.createElement('span');
+				urlLine.textContent = tweetUrl;
+				urlLine.style.cssText = 'display:block;color:#1d9bf0;font-size:13px;margin-bottom:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+
+				var messageLine = document.createElement('p');
+				messageLine.textContent = message;
+				messageLine.style.cssText = 'color:' + textColor + ';margin:0;font-size:14px';
+
+				link.appendChild(urlLine);
+				link.appendChild(messageLine);
+
+				var div = document.createElement('div');
+				div.classList.add('tweet');
+				tweet.parentNode.replaceChild(div, tweet);
+				div.appendChild(link);
+				window._oembedCache[tweetUrl] = div.innerHTML;
+			}
+
+			if (window._oembedCache[tweetUrl]) {
+				insertTweet(window._oembedCache[tweetUrl]);
+				return;
+			}
+
+			fetch('https://publish.' + twitterDomain + '/oembed?omit_script=true&url=' + escape(tweetUrl))
+				.then(function checkResponse(response) {
+					if (!response.ok) {
+						if (response.status === 404) {
+							insertErrorEmbed('This tweet has been deleted.');
+							return null;
+						}
+						return response.json().then(function(data) {
+							var message = (data && data.error) ? data.error : 'Failed to load tweet (HTTP ' + response.status + ').';
+							insertErrorEmbed(message);
+							return null;
+						}).catch(function() {
+							insertErrorEmbed('Failed to load tweet (HTTP ' + response.status + ').');
+							return null;
+						});
+					}
+					return response.json();
+				})
+				.then(function handleData(data) {
+					if (!data || !data.html) { return; }
+					window._oembedCache[tweetUrl] = data.html;
+					insertTweet(data.html);
+				})
+				.catch(function handleError(error) {
+					insertErrorEmbed('Failed to load tweet (network error).');
+				});
 		});
 	}
 

@@ -131,9 +131,7 @@ function loadPageHtml() {
  * Initializes the newly added posts that have just been added to the container
  */
 function pageInit() {
-	document.head.querySelectorAll('.JSONP').forEach(function removeScripts(script) {
-		script.remove();
-	});
+	window.missedEmbeds = [];
 	var spoilers = document.body.querySelectorAll('.bbc-spoiler');
 	spoilers.forEach(function each(spoiler) {
 		spoiler.removeAttribute('onmouseover');
