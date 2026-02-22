@@ -99,6 +99,8 @@ function processThreadEmbeds(replacementArea) {
 
 	function replaceTweets(twitterDomain, urlMatchRegex) {
 		window._oembedCache = window._oembedCache || {};
+		window._oembedPending = window._oembedPending || {};
+		var isDark = document.getElementById('theme-css').dataset.darkTheme === 'true';
 		var tweets = replacementArea.querySelectorAll('.postcontent a[href*="' + twitterDomain + '"]');
 
 		tweets = Array.prototype.reduce.call(tweets, function reduceTweets(filteredTwoops, twitterURL) {
@@ -112,7 +114,6 @@ function processThreadEmbeds(replacementArea) {
 
 		tweets.forEach(function eachTweet(tweet) {
 			var tweetUrl = tweet.href;
-			var isDark = document.getElementById('theme-css').dataset.darkTheme === 'true';
 
 			function insertTweet(html) {
 				var div = document.createElement('div');
@@ -130,7 +131,7 @@ function processThreadEmbeds(replacementArea) {
 				}
 			}
 
-			function insertErrorEmbed(message) {
+			function buildErrorHtml(message) {
 				var bg = isDark ? '#15202b' : '#ffffff';
 				var border = isDark ? '#38444d' : '#cfd9de';
 				var textColor = isDark ? '#8b98a5' : '#536471';
@@ -149,12 +150,7 @@ function processThreadEmbeds(replacementArea) {
 
 				link.appendChild(urlLine);
 				link.appendChild(messageLine);
-
-				var div = document.createElement('div');
-				div.classList.add('tweet');
-				tweet.parentNode.replaceChild(div, tweet);
-				div.appendChild(link);
-				window._oembedCache[tweetUrl] = div.innerHTML;
+				return link.outerHTML;
 			}
 
 			if (window._oembedCache[tweetUrl]) {
@@ -162,32 +158,44 @@ function processThreadEmbeds(replacementArea) {
 				return;
 			}
 
-			fetch('https://publish.' + twitterDomain + '/oembed?omit_script=true&url=' + escape(tweetUrl))
-				.then(function checkResponse(response) {
-					if (!response.ok) {
-						if (response.status === 404) {
-							insertErrorEmbed('This tweet has been deleted.');
-							return null;
+			if (!window._oembedPending[tweetUrl]) {
+				window._oembedPending[tweetUrl] = fetch('https://publish.' + twitterDomain + '/oembed?omit_script=true&url=' + escape(tweetUrl))
+					.then(function checkResponse(response) {
+						if (!response.ok) {
+							if (response.status === 404) {
+								return buildErrorHtml('This tweet has been deleted.');
+							}
+							return response.json().then(function(data) {
+								var message = (data && data.error) ? data.error : 'Failed to load tweet (HTTP ' + response.status + ').';
+								return buildErrorHtml(message);
+							}).catch(function() {
+								return buildErrorHtml('Failed to load tweet (HTTP ' + response.status + ').');
+							});
 						}
 						return response.json().then(function(data) {
-							var message = (data && data.error) ? data.error : 'Failed to load tweet (HTTP ' + response.status + ').';
-							insertErrorEmbed(message);
-							return null;
-						}).catch(function() {
-							insertErrorEmbed('Failed to load tweet (HTTP ' + response.status + ').');
-							return null;
+							return (data && data.html) ? data.html : null;
 						});
-					}
-					return response.json();
-				})
-				.then(function handleData(data) {
-					if (!data || !data.html) { return; }
-					window._oembedCache[tweetUrl] = data.html;
-					insertTweet(data.html);
-				})
-				.catch(function handleError(error) {
-					insertErrorEmbed('Failed to load tweet (network error).');
-				});
+					})
+					.then(function cacheResult(html) {
+						delete window._oembedPending[tweetUrl];
+						if (html) {
+							window._oembedCache[tweetUrl] = html;
+						}
+						return html;
+					})
+					.catch(function handleError(error) {
+						delete window._oembedPending[tweetUrl];
+						var html = buildErrorHtml('Failed to load tweet (network error).');
+						window._oembedCache[tweetUrl] = html;
+						return html;
+					});
+			}
+
+			window._oembedPending[tweetUrl].then(function(html) {
+				if (html) {
+					insertTweet(html);
+				}
+			});
 		});
 	}
 
