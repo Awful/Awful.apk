@@ -43,7 +43,7 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
     private static final String ARG_POSTER_USER_ID = "posterUserId";
     private static final String ARG_EDITABLE = "editable";
     private static final String ARG_POSTER_HAS_PLAT = "posterHasPlat";
-    private static final String ARG_POSTER_IS_ADMIN_OR_MOD = "posterIsAdminOrMod";
+    private static final String ARG_POSTER_ROLE = "posterRole";
     private static final String ARG_THREAD_ID = "threadId";
     private static final String ARG_POST_ID = "postId";
     private static final String ARG_LAST_READ_CODE = "lastReadCode";
@@ -54,7 +54,8 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
     private int posterUserId;
     private boolean editable;
     private boolean posterHasPlat;
-    private boolean posterIsAdminOrMod;
+    private boolean posterHasRole;
+    private boolean posterIsAdmin;
     private int threadId;
     private int postId;
     private int lastReadCode;
@@ -73,7 +74,7 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
      * @param posterUsername     the username of the post creator
      * @param posterUserId       the user ID of the post creator
      * @param posterHasPlat      true if the post creator has a platinum account
-     * @param posterIsAdminOrMod true if the post creator has mod/admin status
+     * @param posterRole         the role of the post creator (e.g. "admin", "mod"), or empty string if none
      * @param posterAvatarUrl    the URL of the post creator's avatar
      * @return the configured menu, ready to show
      */
@@ -84,7 +85,7 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
                                               @NonNull String posterUsername,
                                               int posterUserId,
                                               boolean posterHasPlat,
-                                              boolean posterIsAdminOrMod,
+                                              @NonNull String posterRole,
                                               Integer postFilterUserId,
                                               String posterAvatarUrl) {
         Bundle args = new Bundle();
@@ -93,7 +94,7 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
         args.putInt(ARG_POSTER_USER_ID, posterUserId);
         args.putBoolean(ARG_EDITABLE, editable);
         args.putBoolean(ARG_POSTER_HAS_PLAT, posterHasPlat);
-        args.putBoolean(ARG_POSTER_IS_ADMIN_OR_MOD, posterIsAdminOrMod);
+        args.putString(ARG_POSTER_ROLE, posterRole);
         args.putInt(ARG_THREAD_ID, threadId);
         args.putInt(ARG_POST_ID, postId);
         args.putInt(ARG_LAST_READ_CODE, lastReadCode);
@@ -112,7 +113,9 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
         posterUserId = args.getInt(ARG_POSTER_USER_ID);
         editable = args.getBoolean(ARG_EDITABLE);
         posterHasPlat = args.getBoolean(ARG_POSTER_HAS_PLAT);
-        posterIsAdminOrMod = args.getBoolean(ARG_POSTER_IS_ADMIN_OR_MOD);
+        String posterRole = args.getString(ARG_POSTER_ROLE, "");
+        posterHasRole = !posterRole.isEmpty();
+        posterIsAdmin = "admin".equals(posterRole);
         threadId = args.getInt(ARG_THREAD_ID);
         postId = args.getInt(ARG_POST_ID);
         lastReadCode = args.getInt(ARG_LAST_READ_CODE);
@@ -136,19 +139,19 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
             awfulActions.add(EDIT);
         }
         awfulActions.add(MARK_LAST_SEEN);
-        if (!ownPost && youHavePlat && (posterHasPlat || posterIsAdminOrMod)) {
+        if (!ownPost && youHavePlat && (posterHasPlat || posterHasRole)) {
             awfulActions.add(SEND_PM);
         }
         awfulActions.add(ownPost ? YOUR_POSTS : USER_POSTS);
         if (!ownPost) {
             awfulActions.add(prefs.markedUsers.contains(posterUsername) ? UNMARK_USER : MARK_USER);
         }
-        if (!ownPost && !posterIsAdminOrMod) {
+        if (!ownPost && !posterIsAdmin) {
             awfulActions.add(REPORT_POST);
         }
         awfulActions.add(COPY_URL);
         awfulActions.add(RAP_SHEET);
-        if (!ownPost && !posterIsAdminOrMod) {
+        if (!ownPost && !posterHasRole) {
             awfulActions.add(IGNORE_USER);
         }
         if (prefs.avatarsEnabled && posterAvatarUrl != null) {
