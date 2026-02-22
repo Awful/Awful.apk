@@ -83,6 +83,7 @@ import com.ferg.awfulapp.task.ImageSizeRequest;
 import com.ferg.awfulapp.task.MarkLastReadRequest;
 import com.ferg.awfulapp.task.RedirectTask;
 import com.ferg.awfulapp.task.RefreshUserProfileRequest;
+import com.ferg.awfulapp.task.ReportCheckRequest;
 import com.ferg.awfulapp.task.ReportRequest;
 import com.ferg.awfulapp.task.SinglePostRequest;
 import com.ferg.awfulapp.task.ThreadLockUnlockRequest;
@@ -768,6 +769,27 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	 * @param postId	The ID of the bad post
      */
 	public void reportUser(int postId){
+		queueRequest(new ReportCheckRequest(getActivity(), postId)
+			.build(ThreadDisplayFragment.this, new AwfulRequest.AwfulResultCallback<Boolean>() {
+				@Override
+				public void success(Boolean alreadyReported) {
+					if (alreadyReported) {
+						getAlertView().setTitle("This post has already been reported recently")
+							.setIcon(R.drawable.ic_mood).show();
+					} else {
+						showReportDialog(postId);
+					}
+				}
+
+				@Override
+				public void failure(VolleyError error) {
+					getAlertView().setTitle("Failed to check report status")
+						.setIcon(R.drawable.ic_mood).show();
+				}
+			}));
+	}
+
+	private void showReportDialog(int postId) {
 		final EditText reportReason = new EditText(this.getActivity());
 
 		new AlertDialog.Builder(this.getActivity())
