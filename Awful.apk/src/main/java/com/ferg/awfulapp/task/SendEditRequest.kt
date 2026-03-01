@@ -26,8 +26,8 @@ class SendEditRequest(context: Context, reply: ContentValues)
             }
             listOf(AwfulMessage.REPLY_SIGNATURE, AwfulMessage.REPLY_DISABLE_SMILIES)
                     .forEach { key -> if (reply.containsKey(key)) add(key, YES) }
-            reply.getAsString(AwfulMessage.REPLY_ATTACHMENT)?.let { filePath ->
-                attachFile(PARAM_ATTACHMENT, filePath)
+            if (reply.getAsString(AwfulMessage.REPLY_ATTACHMENT_ACTION).equals("delete", ignoreCase = true)) {
+                add(PARAM_ATTACHMENT_ACTION, DELETE)
             }
         }
     }

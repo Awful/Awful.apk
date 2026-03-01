@@ -272,7 +272,7 @@ internal abstract class UpdateTask(protected val context: Context, private val t
 
     private fun StringBuilder.appendPadded(message: String, pad: Int) {
         repeat(pad) { append('-') }
-        appendln(message)
+        this.appendLine(message)
     }
 
     companion object {

@@ -89,6 +89,7 @@ public class Reply {
         edit.put(AwfulMessage.ID, threadId);
         edit.put(AwfulMessage.TYPE, AwfulMessage.TYPE_EDIT);
         edit.put(AwfulMessage.REPLY_CONTENT, getMessageContent(response));
+        edit.put(AwfulMessage.REPLY_ATTACHMENT, getAttachment(response));
         edit.put(AwfulPost.FORM_BOOKMARK, getBookmarkOption(response));
         edit.put(AwfulPost.FORM_SIGNATURE, getSignatureOption(response));
         edit.put(AwfulPost.FORM_DISABLE_SMILIES, getDisableEmotesOption(response));
@@ -96,12 +97,24 @@ public class Reply {
         edit.put(AwfulPost.EDIT_POST_ID, postId);
         return edit;
     }
-    
+
     public static final String getMessageContent(Document data) throws AwfulError{
         try{
             Element formContent = data.getElementsByAttributeValue("name", "message").first();
             return formContent.text().trim();
         }catch(Exception e){
+            throw new AwfulError("Failed to load quote");
+        }
+    }
+
+    public static String getAttachment(Document data) throws AwfulError{
+        try{
+            Element attachmentAction = data.getElementsByAttributeValue("name", "attachmentaction").first();
+            if (attachmentAction != null){
+                return attachmentAction.nextElementSibling().text();
+            }
+            return null;
+        } catch (Exception e){
             throw new AwfulError("Failed to load quote");
         }
     }

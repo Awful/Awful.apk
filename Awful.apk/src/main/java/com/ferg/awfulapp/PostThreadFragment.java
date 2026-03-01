@@ -217,13 +217,15 @@ public class PostThreadFragment extends AwfulFragment {
                     int permissionCheck = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE);
                     if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
                         this.attachmentData = data;
-                        requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, Constants.AWFUL_PERMISSION_READ_EXTERNAL_STORAGE);
-                    } else {
-                        addAttachment(data);
+                        if (AwfulUtils.isTiramisu33()) {
+                            requestPermissions(new String[]{Manifest.permission.READ_MEDIA_IMAGES}, Constants.AWFUL_PERMISSION_READ_MEDIA_IMAGES);
+                        } else {
+                            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, Constants.AWFUL_PERMISSION_READ_EXTERNAL_STORAGE);
+                        }
+                        return;
                     }
-                } else {
-                    addAttachment(data);
                 }
+                addAttachment(data);
             }
         }
     }
@@ -233,6 +235,7 @@ public class PostThreadFragment extends AwfulFragment {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case Constants.AWFUL_PERMISSION_READ_EXTERNAL_STORAGE:
+            case Constants.AWFUL_PERMISSION_READ_MEDIA_IMAGES:
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     addAttachment();
@@ -698,9 +701,12 @@ public class PostThreadFragment extends AwfulFragment {
             attach.setVisible(getPrefs().hasPlatinum);
         }
         MenuItem remove = menu.findItem(R.id.remove_attachment);
-        if (remove != null && getPrefs() != null) {
-            remove.setEnabled((getPrefs().hasPlatinum && this.mFileAttachment != null));
-            remove.setVisible(getPrefs().hasPlatinum && this.mFileAttachment != null);
+        if (remove != null && getPrefs() != null && this.mFileAttachment != null) {
+            remove.setEnabled(getPrefs().hasPlatinum);
+            remove.setVisible(getPrefs().hasPlatinum);
+            String[] filepath = this.mFileAttachment.split("/");
+            String filename = filepath[filepath.length-1];
+            remove.setTitle("Remove " + filename);
         }
         MenuItem disableEmoticons = menu.findItem(R.id.disableEmots);
         if (disableEmoticons != null) {

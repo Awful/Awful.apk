@@ -67,6 +67,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection
 import org.apache.commons.lang3.ArrayUtils
 import timber.log.Timber
+import java.util.Locale.getDefault
 
 class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout.OnRefreshListener {
 
@@ -145,7 +146,8 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
     private fun search() {
         mDialog = ProgressDialog.show(activity, getString(R.string.search_forums_active_dialog_title), getString(R.string.search_forums_active_dialog_message), true, false)
         val searchForumsPrimitive = ArrayUtils.toPrimitive(searchForums.toTypedArray())
-        NetworkUtils.queueRequest(SearchRequest(this.requireContext(), mSearchQuery.text.toString().toLowerCase(), searchForumsPrimitive)
+        NetworkUtils.queueRequest(SearchRequest(this.requireContext(),
+            mSearchQuery.text.toString().lowercase(getDefault()), searchForumsPrimitive)
                 .build(null, object : AwfulRequest.AwfulResultCallback<AwfulSearchResult> {
                     override fun success(result: AwfulSearchResult) {
                         removeLoadingDialog()
