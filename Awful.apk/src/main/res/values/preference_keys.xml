@@ -52,6 +52,7 @@
     <string name="pref_key_show_all_spoilers">show_all_spoilers</string>
     <string name="pref_key_thread_info_rating">threadinfo_rating</string>
     <string name="pref_key_thread_info_tag">threadinfo_tag</string>
+    <string name="pref_key_highlight_your_threads">highlight_your_threads</string>
     <string name="pref_key_new_threads_first_ucp">new_threads_first_ucp</string>
     <string name="pref_key_new_threads_first_forum">new_threads_first_forum</string>
     <string name="pref_key_upper_next_arrow">upper_next_arrow</string>

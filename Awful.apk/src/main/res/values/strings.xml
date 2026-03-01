@@ -366,6 +366,8 @@
     <string name="color_bookmarks">Color bookmarks</string>
     <string name="color_bookmarks_summary">Use \'star\' colors for unread post counts</string>
     <string name="threadinfo_rating">Show thread ratings</string>
+    <string name="highlight_your_threads">Highlight your threads</string>
+    <string name="highlight_your_threads_summary">Tint background of threads you created</string>
     <string name="show_hidden_threads">Show hidden threads</string>
     <string name="new_threads_first_category">Sort by unread</string>
     <string name="new_threads_first_ucp">Bookmarks view</string>

@@ -22,6 +22,12 @@
           android:defaultValue="true"
           />
 		<SwitchPreference
+			app:iconSpaceReserved="false"
+			android:key="@string/pref_key_highlight_your_threads"
+			android:title="@string/highlight_your_threads"
+			android:summary="@string/highlight_your_threads_summary"
+			android:defaultValue="true" />
+		<SwitchPreference
 			android:defaultValue="true"
 			android:key="@string/pref_key_show_hidden_threads"
 			android:title="@string/show_hidden_threads"
