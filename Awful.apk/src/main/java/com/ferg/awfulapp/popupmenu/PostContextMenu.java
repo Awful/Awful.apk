@@ -74,7 +74,7 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
      * @param posterUsername     the username of the post creator
      * @param posterUserId       the user ID of the post creator
      * @param posterHasPlat      true if the post creator has a platinum account
-     * @param posterRole         the role of the post creator (e.g. "admin", "mod"), or empty string if none
+     * @param posterRole         the role of the post creator (e.g. "admin", "mod"), or null if none
      * @param posterAvatarUrl    the URL of the post creator's avatar
      * @return the configured menu, ready to show
      */
@@ -85,7 +85,7 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
                                               @NonNull String posterUsername,
                                               int posterUserId,
                                               boolean posterHasPlat,
-                                              @NonNull String posterRole,
+                                              String posterRole,
                                               Integer postFilterUserId,
                                               String posterAvatarUrl) {
         Bundle args = new Bundle();
