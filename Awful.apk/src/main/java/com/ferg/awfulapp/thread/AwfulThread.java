@@ -89,6 +89,7 @@ public class AwfulThread extends AwfulPagedItem  {
 	public static final String STICKY               = "sticky";
 	public static final String CATEGORY             = "category";
 	public static final String LASTPOSTER           = "killedby";
+	public static final String LAST_POST_DATE       = "last_post_date";
 	public static final String FORUM_TITLE          = "forum_title";
 	public static final String HAS_NEW_POSTS        = "has_new_posts";
     public static final String HAS_VIEWED_THREAD    = "has_viewed_thread";
@@ -110,6 +111,7 @@ public class AwfulThread extends AwfulPagedItem  {
     public String author;
     public int authorId;
     public String lastPoster;
+    public long lastPostDate;
     public int postCount;
     public int unreadCount;
 
@@ -147,6 +149,7 @@ public class AwfulThread extends AwfulPagedItem  {
         thread.author = row.getString(row.getColumnIndex(AUTHOR));
         thread.authorId = row.getInt(row.getColumnIndex(AUTHOR_ID));
         thread.lastPoster = row.getString(row.getColumnIndex(LASTPOSTER));
+        thread.lastPostDate = row.getLong(row.getColumnIndex(LAST_POST_DATE));
         thread.postCount = row.getInt(row.getColumnIndex(POSTCOUNT));
         thread.unreadCount = row.getInt(row.getColumnIndex(UNREADCOUNT));
 
@@ -181,6 +184,7 @@ public class AwfulThread extends AwfulPagedItem  {
         cv.put(CAN_OPEN_CLOSE, asSqlBoolean(canOpenClose));
 
         cv.put(LASTPOSTER, lastPoster);
+        cv.put(LAST_POST_DATE, lastPostDate);
         cv.put(LOCKED, asSqlBoolean(isLocked));
         cv.put(STICKY, asSqlBoolean(isSticky));
         cv.put(RATING, rating);

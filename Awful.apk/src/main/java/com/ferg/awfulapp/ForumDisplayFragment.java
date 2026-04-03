@@ -654,7 +654,13 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
                 selectionArgs = AwfulProvider.int2StrArray(getForumId(), thisPageIndex, nextPageIndex);
             }
             boolean sortNewFirst = (isBookmarks && getPrefs().newThreadsFirstUCP) || (!isBookmarks && getPrefs().newThreadsFirstForum);
-            String sortOrder = sortNewFirst ? AwfulThread.HAS_NEW_POSTS + " DESC, " + AwfulThread.INDEX : AwfulThread.INDEX;
+            String sortOrder;
+            if (sortNewFirst) {
+                String secondarySort = isBookmarks ? AwfulThread.LAST_POST_DATE + " DESC" : AwfulThread.INDEX;
+                sortOrder = AwfulThread.HAS_NEW_POSTS + " DESC, " + secondarySort;
+            } else {
+                sortOrder = isBookmarks ? AwfulThread.LAST_POST_DATE + " DESC" : AwfulThread.INDEX;
+            }
 
             return new CursorLoader(getActivity(), contentUri, AwfulProvider.ThreadProjection, selection, selectionArgs, sortOrder);
         }

@@ -14,6 +14,8 @@ import com.ferg.awfulapp.thread.AwfulThread.*
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import timber.log.Timber
+import java.text.SimpleDateFormat
+import java.util.Locale
 import java.util.concurrent.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -276,6 +278,10 @@ class ForumParseTask(
             canOpenClose = author == username
 
             lastPoster = threadElement.selectFirst(".lastpost .author")!!.text()
+            lastPostDate = threadElement.selectFirst(".lastpost div")?.text()?.let {
+                try { SimpleDateFormat("HH:mm MMM dd, yyyy", Locale.US).parse(it)?.time ?: 0L }
+                catch (e: Exception) { 0L }
+            } ?: 0L
             isLocked = threadElement.hasClass("closed")
             isSticky = threadElement.selectFirst(".title_sticky") != null
 
