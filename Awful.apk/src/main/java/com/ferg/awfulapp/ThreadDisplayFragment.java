@@ -46,8 +46,11 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.format.Formatter;
+import android.text.style.ForegroundColorSpan;
 import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -84,6 +87,7 @@ import com.ferg.awfulapp.task.MarkLastReadRequest;
 import com.ferg.awfulapp.task.RedirectTask;
 import com.ferg.awfulapp.task.RefreshUserProfileRequest;
 import com.ferg.awfulapp.task.ReportCheckRequest;
+import com.ferg.awfulapp.task.ReportCheckResult;
 import com.ferg.awfulapp.task.ReportRequest;
 import com.ferg.awfulapp.task.SinglePostRequest;
 import com.ferg.awfulapp.task.ThreadLockUnlockRequest;
@@ -770,14 +774,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
      */
 	public void reportUser(int postId){
 		queueRequest(new ReportCheckRequest(getActivity(), postId)
-			.build(ThreadDisplayFragment.this, new AwfulRequest.AwfulResultCallback<Boolean>() {
+			.build(ThreadDisplayFragment.this, new AwfulRequest.AwfulResultCallback<ReportCheckResult>() {
 				@Override
-				public void success(Boolean alreadyReported) {
-					if (alreadyReported) {
+				public void success(ReportCheckResult result) {
+					if (result.getAlreadyReported()) {
 						getAlertView().setTitle("This post has already been reported recently")
 							.setIcon(R.drawable.ic_mood).show();
 					} else {
-						showReportDialog(postId);
+						showReportDialog(postId, result.getWarning() != null ? result.getWarning() : "");
 					}
 				}
 
@@ -789,12 +793,27 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 			}));
 	}
 
-	private void showReportDialog(int postId) {
+	private void showReportDialog(int postId, String warning) {
 		final EditText reportReason = new EditText(this.getActivity());
+
+		String body = "Did this post break the forum rules? If so, please report it by clicking below. If you would like to add any comments explaining why you submitted this post, please do so here:";
+		CharSequence message;
+		if (warning.isEmpty()) {
+			message = body;
+		} else {
+			int warningColor = getResources().getColor(R.color.popup_warning_text);
+			SpannableString warningSpan = new SpannableString(warning);
+			warningSpan.setSpan(new ForegroundColorSpan(warningColor), 0, warning.length(), 0);
+			SpannableStringBuilder sb = new SpannableStringBuilder();
+			sb.append(warningSpan);
+			sb.append("\n\n");
+			sb.append(body);
+			message = sb;
+		}
 
 		new AlertDialog.Builder(this.getActivity())
 		  .setTitle("Report inappropriate post")
-		  .setMessage("Did this post break the forum rules? If so, please report it by clicking below. If you would like to add any comments explaining why you submitted this post, please do so here:")
+		  .setMessage(message)
 		  .setView(reportReason)
 		  .setPositiveButton("Report", (dialog, whichButton) -> {
             String reason = reportReason.getText().toString();
