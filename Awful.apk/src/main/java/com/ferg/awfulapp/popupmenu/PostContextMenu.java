@@ -55,7 +55,7 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
     private boolean editable;
     private boolean posterHasPlat;
     private boolean posterHasRole;
-    private boolean posterIsAdmin;
+    private boolean posterIsUnreportable;
     private int threadId;
     private int postId;
     private int lastReadCode;
@@ -115,7 +115,7 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
         posterHasPlat = args.getBoolean(ARG_POSTER_HAS_PLAT);
         String posterRole = args.getString(ARG_POSTER_ROLE, "");
         posterHasRole = !posterRole.isEmpty();
-        posterIsAdmin = "admin".equals(posterRole);
+        posterIsUnreportable = "admin".equals(posterRole) || "coder".equals(posterRole);
         threadId = args.getInt(ARG_THREAD_ID);
         postId = args.getInt(ARG_POST_ID);
         lastReadCode = args.getInt(ARG_LAST_READ_CODE);
@@ -146,7 +146,7 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
         if (!ownPost) {
             awfulActions.add(prefs.markedUsers.contains(posterUsername) ? UNMARK_USER : MARK_USER);
         }
-        if (!ownPost && !posterIsAdmin) {
+        if (!ownPost && !posterIsUnreportable) {
             awfulActions.add(REPORT_POST);
         }
         awfulActions.add(COPY_URL);
