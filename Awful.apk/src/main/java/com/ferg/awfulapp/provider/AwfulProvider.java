@@ -161,6 +161,7 @@ public class AwfulProvider extends ContentProvider {
         sThreadProjectionMap.put(AwfulThread.STICKY, AwfulThread.STICKY);
         sThreadProjectionMap.put(AwfulThread.CATEGORY, AwfulThread.CATEGORY);
         sThreadProjectionMap.put(AwfulThread.LASTPOSTER, AwfulThread.LASTPOSTER);
+        sThreadProjectionMap.put(AwfulThread.LAST_POST_DATE, AwfulThread.LAST_POST_DATE);
         sThreadProjectionMap.put(AwfulThread.HAS_NEW_POSTS, AwfulThread.UNREADCOUNT+" > 0 AS "+ AwfulThread.HAS_NEW_POSTS);
         sThreadProjectionMap.put(AwfulThread.HAS_VIEWED_THREAD, AwfulThread.HAS_VIEWED_THREAD);
         sThreadProjectionMap.put(AwfulThread.ARCHIVED, AwfulThread.ARCHIVED);
@@ -217,6 +218,7 @@ public class AwfulProvider extends ContentProvider {
         sUCPThreadProjectionMap.put(AwfulThread.STICKY, AwfulThread.STICKY);
         sUCPThreadProjectionMap.put(AwfulThread.CATEGORY, AwfulThread.CATEGORY);
         sUCPThreadProjectionMap.put(AwfulThread.LASTPOSTER, AwfulThread.LASTPOSTER);
+        sUCPThreadProjectionMap.put(AwfulThread.LAST_POST_DATE, AwfulThread.LAST_POST_DATE);
         sUCPThreadProjectionMap.put(AwfulThread.TAG_URL, AwfulThread.TAG_URL);
         sUCPThreadProjectionMap.put(AwfulThread.TAG_EXTRA, AwfulThread.TAG_EXTRA);
         sUCPThreadProjectionMap.put(AwfulThread.TAG_CACHEFILE, AwfulThread.TAG_CACHEFILE);

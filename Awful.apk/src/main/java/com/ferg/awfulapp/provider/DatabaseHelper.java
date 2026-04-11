@@ -20,7 +20,7 @@ import com.ferg.awfulapp.thread.AwfulThread;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 38;
+    private static final int DATABASE_VERSION = 39;
 
     static final String TABLE_FORUM    = "forum";
     public static final String TABLE_THREADS    = "threads";
@@ -86,6 +86,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 AwfulThread.HAS_VIEWED_THREAD + " INTEGER, " +
                 AwfulThread.ARCHIVED + " INTEGER, " +
                 AwfulThread.RATING + " INTEGER, " +
+                AwfulThread.LAST_POST_DATE + " INTEGER, " +
                 UPDATED_TIMESTAMP + " DATETIME);");
     }
 
@@ -212,6 +213,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             case 37:
                 dropTables(aDb, TABLE_POSTS);
                 createPostTable(aDb);
+            case 38:
+                aDb.execSQL("ALTER TABLE " + TABLE_THREADS + " ADD COLUMN " + AwfulThread.LAST_POST_DATE + " INTEGER DEFAULT 0");
                 break;//make sure to keep this break statement on the last case of this switch
             default:
                 wipeRecreateTables(aDb);
