@@ -1161,7 +1161,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 				final String aUserId,
 				final String lastReadUrl,
 				final boolean editable,
-				final boolean isAdminOrMod,
+				final String posterRole,
 				final boolean isPlat,
 				final String avatarUrl) {
 
@@ -1171,7 +1171,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 					editable, aUsername,
 					Integer.parseInt(aUserId),
 					isPlat,
-					isAdminOrMod,
+					posterRole,
 					postFilterUserId,
 					avatarUrl);
 
