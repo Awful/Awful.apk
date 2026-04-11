@@ -206,8 +206,8 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
         val contentType = response.headers?.get("content-type")
         var charset = SITE_HTML_ENCODING;
         if (contentType != null) {
-            val requestCharset = cz.msebera.android.httpclient.entity.ContentType.parse(contentType).charset.toString();
-            if(requestCharset == "utf-8"){
+            val requestCharset = cz.msebera.android.httpclient.entity.ContentType.parse(contentType).charset.toString().lowercase();
+            if (requestCharset == "utf-8") {
                 charset = requestCharset;
             }
         }
