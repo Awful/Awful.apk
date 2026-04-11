@@ -6,7 +6,6 @@
     minor number ahead of production, so they can be updated independently, and the beta can be pushed to production when ready.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="com.ferg.awfulapp"
     android:versionCode="31302"
     android:versionName="3.13.2"
       android:installLocation="auto">
