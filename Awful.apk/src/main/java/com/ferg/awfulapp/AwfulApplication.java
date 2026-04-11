@@ -59,6 +59,9 @@ public class AwfulApplication extends Application {
      * @return User-Agent string of WebView instances on this system.
      */
     private String getWebViewUserAgent() {
+        if (Constants.DEBUG) {
+           return "Microsoft Outlook 15.0.4833";
+        }
         WebView view = new WebView(getApplicationContext());
         return view.getSettings().getUserAgentString();
     }
