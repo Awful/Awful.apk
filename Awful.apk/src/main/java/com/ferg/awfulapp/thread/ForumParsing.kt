@@ -277,7 +277,7 @@ class ForumParseTask(
 
             lastPoster = threadElement.selectFirst(".lastpost .author")!!.text()
             isLocked = threadElement.hasClass("closed")
-            isSticky = threadElement.selectFirst(".title_sticky") != null
+            isSticky = threadElement.selectFirst(".title_sticky, .sticky_closed") != null
 
             // optional thread rating
             rating = threadElement.selectFirst(".rating img")
