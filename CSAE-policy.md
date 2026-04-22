@@ -1,6 +1,6 @@
 
 # Child Sexual Abuse and Exploitation (CSAE) Compliance Declaration
-**Application Name:** Awful.apk
+**Application Name:** Awful (com.ferg.awfulapp)
 **Application Type:** Mobile browser client for accessing the Something Awful forums
 
 ---
