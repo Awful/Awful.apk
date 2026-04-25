@@ -2,6 +2,7 @@ package com.ferg.awfulapp.webview;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import android.util.AttributeSet;
