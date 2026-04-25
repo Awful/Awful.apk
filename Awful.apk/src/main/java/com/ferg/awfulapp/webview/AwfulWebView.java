@@ -5,7 +5,6 @@ import android.graphics.Color;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import android.util.AttributeSet;
-import android.webkit.CookieManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
@@ -102,6 +101,12 @@ public class AwfulWebView extends WebView {
         webSettings.setAllowUniversalAccessFromFileURLs(true);
         webSettings.setAllowFileAccess(true);
         webSettings.setAllowContentAccess(true);
+
+        // Issue #526: third-party embeds (Twitter, Facebook, Imgur,
+        // Instagram) load their iframe content from a different origin
+        // and need their session cookie to render. Without this the
+        // embed area shows a blank box or a "log in" stub.
+        CookieManager.getInstance().setAcceptThirdPartyCookies(this, true);
     }
 
 
