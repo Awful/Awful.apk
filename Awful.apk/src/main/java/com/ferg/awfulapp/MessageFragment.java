@@ -107,6 +107,16 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
     }
+
+    @Override
+    public void onSaveInstanceState(@androidx.annotation.NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        // Issue #691: persist the message WebView so re-entering the
+        // fragment after the settings activity does not redraw blank.
+        if (messageWebView != null) {
+            messageWebView.saveState(outState);
+        }
+    }
 	
 	public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
@@ -134,9 +144,16 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 		messageWebView.setJavascriptHandler(new WebViewJsInterface());
 		messageWebView.setContent(AwfulHtmlPage.getContainerHtml(mPrefs, null, false));
 
+		// Issue #691: restore the saved WebView snapshot when the
+		// fragment is recreated so the message body does not come back
+		// blank after popping back from the settings activity.
+		if (aSavedState != null) {
+			messageWebView.restoreState(aSavedState);
+		}
+
 		if(pmId <=0){
         	messageWebView.setVisibility(GONE);
-        }else{
+        }else if (aSavedState == null) {
             syncPM();
         }
 
