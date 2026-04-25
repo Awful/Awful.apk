@@ -160,6 +160,45 @@ public class AwfulWebView extends WebView {
 
 
     /**
+     * Issue #631: the thread page is rendered by swapping innerHTML, so
+     * neither WebViewClient.onPageFinished nor any other lifecycle
+     * callback fires when the actual posts arrive. This helper installs
+     * a MutationObserver that watches the post container and, once it
+     * has been quiet for a beat, scrolls the target anchor back into
+     * view. Call this after {@link #setBodyHtml(String)} when the
+     * caller knows which post the user came in on.
+     *
+     * @param anchorId the DOM id of the target post (no leading hash).
+     *                 Pass null to fall back to the URL fragment.
+     */
+    public void scrollToTargetAfterContentSettles(@Nullable String anchorId) {
+        String target = anchorId == null ? "null" : "'" + anchorId.replace("'", "") + "'";
+        runJavascript(
+                "(function(){" +
+                    "var anchorId = " + target + ";" +
+                    "var quiet;" +
+                    "function jump() {" +
+                        "var id = anchorId || (location.hash || '').replace('#','');" +
+                        "if (!id) { return; }" +
+                        "var el = document.getElementById(id);" +
+                        "if (el) { el.scrollIntoView({block: 'start'}); }" +
+                    "}" +
+                    "var root = document.getElementById('container') || document.body;" +
+                    "var observer = new MutationObserver(function(){" +
+                        "clearTimeout(quiet);" +
+                        "quiet = setTimeout(function(){" +
+                            "observer.disconnect();" +
+                            "jump();" +
+                        "}, 150);" +
+                    "});" +
+                    "observer.observe(root, {childList: true, subtree: true});" +
+                    // Fallback: if no mutations fire within 2s, jump anyway.
+                    "setTimeout(function(){ observer.disconnect(); jump(); }, 2000);" +
+                "})();");
+    }
+
+
+    /**
      * Calls the javascript function that displays the current body HTML
      * <p>
      * This calls the #loadPageHtml function in <i>thread.js</i>, which displays the HTML passed to
