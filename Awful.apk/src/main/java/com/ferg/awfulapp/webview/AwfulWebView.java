@@ -2,7 +2,6 @@ package com.ferg.awfulapp.webview;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import android.util.AttributeSet;
@@ -115,6 +114,28 @@ public class AwfulWebView extends WebView {
     public void onResume() {
         super.onResume();
         resumeTimers();
+    }
+
+
+    /**
+     * Issue #562: the renderer process leaks when a WebView is dropped
+     * without an explicit destroy(), and the well-known fix is to
+     * detach from the parent first so Chromium can release its surface.
+     * Callers (fragments, activities) should invoke this from their
+     * own onDestroy() / onDestroyView().
+     */
+    public void release() {
+        if (jsInterface != null) {
+            removeJavascriptInterface(HANDLER_NAME_IN_JAVASCRIPT);
+            jsInterface = null;
+        }
+        loadUrl("about:blank");
+        clearHistory();
+        ViewGroup parent = (ViewGroup) getParent();
+        if (parent != null) {
+            parent.removeView(this);
+        }
+        destroy();
     }
 
     /**
