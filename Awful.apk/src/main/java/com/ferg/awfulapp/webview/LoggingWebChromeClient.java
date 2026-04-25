@@ -1,6 +1,5 @@
 package com.ferg.awfulapp.webview;
 
-import android.os.Message;
 import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
