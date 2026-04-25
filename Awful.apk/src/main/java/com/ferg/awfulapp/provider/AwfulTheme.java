@@ -4,7 +4,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Environment;
 import androidx.annotation.NonNull;
@@ -134,6 +133,34 @@ public enum AwfulTheme {
     @NonNull
     public static String getCustomThemePath() {
         return CUSTOM_THEME_PATH;
+    }
+
+
+    /**
+     * Issue #534: pick the night-mode counterpart of the user-selected
+     * light theme when the system reports it is currently night.
+     *
+     * Returns the supplied light theme unchanged when the system is in
+     * day mode or in the unspecified state. Mapping is conservative,
+     * only the standard app themes are translated. Custom themes are
+     * returned as-is so users keep their explicit choice.
+     */
+    @NonNull
+    public static AwfulTheme forSystemNightMode(@NonNull Context context, @NonNull AwfulTheme lightTheme) {
+        int mode = context.getResources().getConfiguration().uiMode
+                & Configuration.UI_MODE_NIGHT_MASK;
+        if (mode != Configuration.UI_MODE_NIGHT_YES) {
+            return lightTheme;
+        }
+        switch (lightTheme) {
+            case DEFAULT:
+            case CLASSIC:
+                return DARK;
+            case CUSTOM_DEFAULT:
+                return CUSTOM_DARK;
+            default:
+                return lightTheme;
+        }
     }
 
 
