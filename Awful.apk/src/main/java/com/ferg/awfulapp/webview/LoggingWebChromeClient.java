@@ -1,5 +1,6 @@
 package com.ferg.awfulapp.webview;
 
+import android.os.Message;
 import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -37,28 +38,6 @@ public class LoggingWebChromeClient extends WebChromeClient {
     public LoggingWebChromeClient(WebView webView) {
         super();
         this.webView = webView;
-    }
-
-    @CallSuper
-    @Override
-    public void onCloseWindow(WebView window) {
-        super.onCloseWindow(window);
-        if (DEBUG) Log.d(TAG, "onCloseWindow");
-    }
-
-    @CallSuper
-    @Override
-    public boolean onCreateWindow(WebView view, boolean isDialog, boolean isUserGesture, Message resultMsg) {
-        if (DEBUG)
-            Log.d(TAG, "onCreateWindow" + (isDialog ? " isDialog" : "") + (isUserGesture ? " isUserGesture" : ""));
-        return super.onCreateWindow(view, isDialog, isUserGesture, resultMsg);
-    }
-
-    @CallSuper
-    @Override
-    public boolean onJsTimeout() {
-        if (DEBUG) Log.d(TAG, "onJsTimeout");
-        return super.onJsTimeout();
     }
 
     @Override
