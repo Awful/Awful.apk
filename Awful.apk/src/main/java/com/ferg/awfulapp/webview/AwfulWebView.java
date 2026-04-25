@@ -173,6 +173,38 @@ public class AwfulWebView extends WebView {
 
 
     /**
+     * Issue #626: capture the current scroll position into a
+     * window-scoped variable so a follow-up content swap can restore it.
+     * Pair with {@link #restoreScrollPosition()} called once the new
+     * body HTML has been rendered.
+     */
+    public void saveScrollPosition() {
+        runJavascript("window.__awfulSavedScroll = window.scrollY;");
+    }
+
+    /**
+     * Restore a previously captured scroll position. Safe to call before
+     * the DOM has finished settling, the JS uses requestAnimationFrame
+     * to retry until the document height covers the saved offset.
+     */
+    public void restoreScrollPosition() {
+        runJavascript(
+                "(function(){" +
+                    "var target = window.__awfulSavedScroll;" +
+                    "if (target == null) { return; }" +
+                    "function tryScroll() {" +
+                        "if (document.documentElement.scrollHeight >= target) {" +
+                            "window.scrollTo({top: target});" +
+                        "} else {" +
+                            "window.requestAnimationFrame(tryScroll);" +
+                        "}" +
+                    "}" +
+                    "tryScroll();" +
+                "})();");
+    }
+
+
+    /**
      * Set and display the current HTML for the container body.
      * <p>
      * Call this to update the WebView with new HTML content, calling {@link #refreshPageContents()}
