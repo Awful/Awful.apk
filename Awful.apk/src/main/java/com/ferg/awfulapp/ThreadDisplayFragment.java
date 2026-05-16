@@ -796,7 +796,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	private void showReportDialog(int postId, String warning) {
 		final EditText reportReason = new EditText(this.getActivity());
 
-		String body = "Did this post break the forum rules? If so, please report it by clicking below. If you would like to add any comments explaining why you submitted this post, please do so here:";
+		String body = getString(R.string.report_post_message);
 		CharSequence message;
 		if (warning.isEmpty()) {
 			message = body;
