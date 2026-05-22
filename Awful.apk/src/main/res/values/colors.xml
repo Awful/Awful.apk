@@ -57,6 +57,8 @@
     <color name="self_thread_dark">#1A2800</color>
     <color name="self_thread_oled">#1E0E00</color>
 
+    <color name="popup_warning_text">#FF0000</color>
+
 
     <!-- Bookmark colours for stars/unread counters -->
     <integer-array name="bookmarkColors">

@@ -18,7 +18,7 @@ class ReportRequest(context: Context, private val postId: Int, private val comme
 
         init {
         with(parameters) {
-            add(PARAM_COMMENTS, comments)
+            add(PARAM_MESSAGE, comments)
             add(PARAM_POST_ID, postId.toString())
             add(PARAM_ACTION, "submit")
         }
