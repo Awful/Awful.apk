@@ -118,17 +118,17 @@ dependencies {
 
     implementation 'com.google.code.gson:gson:2.13.2'
 
-    implementation 'org.jsoup:jsoup:1.21.2'
+    implementation 'org.jsoup:jsoup:1.22.1'
     implementation 'com.jakewharton.threetenabp:threetenabp:1.4.9'
     implementation 'com.samskivert:jmustache:1.16'
 
-    implementation group: 'cz.msebera.android' , name: 'httpclient', version: '4.4.1.1'
+    implementation group: 'cz.msebera.android' , name: 'httpclient', version: '4.5.8'
     implementation ('org.apache.httpcomponents:httpmime:4.3.1') {
         exclude module: "httpclient"
     }
     implementation 'org.apache.httpcomponents:httpcore:4.3.1'
 
-    implementation 'org.apache.commons:commons-lang3:3.8.1'
+    implementation 'org.apache.commons:commons-lang3:3.20.0'
     implementation 'com.ToxicBakery.viewpager.transforms:view-pager-transforms:2.0.24@aar'
     implementation 'com.github.orangegangsters:swipy:1.2.3@aar'
     implementation 'com.bignerdranch.android:expandablerecyclerview:2.1.1'
@@ -141,7 +141,7 @@ dependencies {
     testImplementation 'org.hamcrest:hamcrest-library:3.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
 
-    implementation "androidx.core:core-ktx:1.17.0"
+    implementation "androidx.core:core-ktx:1.18.0"
     implementation 'androidx.core:core-google-shortcuts:1.1.0'
 
     // updating this might cause the status and navigation bar to become blue, test for this
