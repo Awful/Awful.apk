@@ -6,8 +6,8 @@
     minor number ahead of production, so they can be updated independently, and the beta can be pushed to production when ready.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    android:versionCode="31303"
-    android:versionName="3.13.3"
+    android:versionCode="31304"
+    android:versionName="3.13.4"
       android:installLocation="auto">
     <supports-screens
         android:smallScreens="true"
