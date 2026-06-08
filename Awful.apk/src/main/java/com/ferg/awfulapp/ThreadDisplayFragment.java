@@ -1269,6 +1269,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 		public void openUrlMenu(String url) {
 			showUrlMenu(url);
 		}
+
+		@JavascriptInterface
+		public void displayImageZoom(String url) {
+			displayImage(url);
+		}
     }
 
 	
