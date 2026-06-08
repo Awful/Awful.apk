@@ -113,6 +113,7 @@ import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -1314,7 +1315,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 		Matcher youtube = Pattern.compile("youtube\\.com/watch\\?v=([a-zA-Z0-9-_]+).*").matcher(linkUrl);
 		if (youtube.find()) {
 			linkUrl = path.getScheme() + "://" + path.getAuthority() + path.getPath() + "?v="+youtube.group(1);
-		} else if(StringUtils.contains(path.getHost(), "twitter.com") || StringUtils.contains(path.getHost(), "bsky.app")) {
+		} else if(Strings.CS.contains(path.getHost(), "twitter.com") || Strings.CS.contains(path.getHost(), "x.com") || Strings.CS.contains(path.getHost(), "bsky.app")) {
 			linkUrl = path.getScheme() + "://" + path.getAuthority() + path.getPath();
 		}
 
