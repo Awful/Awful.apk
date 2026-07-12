@@ -9,7 +9,7 @@ import com.ferg.awfulapp.util.AwfulUtils;
 
 public class AwfulURL {
 	
-	public enum TYPE{FORUM,THREAD,POST,EXTERNAL,NONE,INDEX,BANLIST}
+	public enum TYPE{FORUM,THREAD,POST,EXTERNAL,NONE,INDEX,BANLIST,MODQUEUE_REQUEST}
 	private long id;
 	private long pageNum = 1;
 	private int perPage = Constants.ITEMS_PER_PAGE;
@@ -17,6 +17,9 @@ public class AwfulURL {
 	private TYPE type = TYPE.NONE;
 	private String gotoParam;
 	private String fragment;
+	private long targetPostId;
+	private long threadId;
+	private boolean banRequest;
 	
 	public static AwfulURL forum(long id){
 		return forum(id, 1);
@@ -121,6 +124,14 @@ public class AwfulURL {
 			}else if(Constants.PATH_BANLIST.equals(uri.getLastPathSegment())){
 				aurl.type = TYPE.BANLIST;
 				aurl.id = AwfulUtils.safeParseLong(uri.getQueryParameter(Constants.PARAM_USER_ID), 0);
+			}else if(Constants.PATH_MODQUEUE.equals(uri.getLastPathSegment())
+					&& (Constants.ACTION_REQUEST_PROBATION.equals(uri.getQueryParameter(Constants.PARAM_ACTION))
+						|| Constants.ACTION_REQUEST_BAN.equals(uri.getQueryParameter(Constants.PARAM_ACTION)))){
+				aurl.type = TYPE.MODQUEUE_REQUEST;
+				aurl.banRequest = Constants.ACTION_REQUEST_BAN.equals(uri.getQueryParameter(Constants.PARAM_ACTION));
+				aurl.id = AwfulUtils.safeParseLong(uri.getQueryParameter(Constants.PARAM_USER_ID), 0);
+				aurl.targetPostId = AwfulUtils.safeParseLong(uri.getQueryParameter(Constants.PARAM_TARGET_POST_ID), 0);
+				aurl.threadId = AwfulUtils.safeParseLong(uri.getQueryParameter(Constants.PARAM_THREAD_ID), 0);
 			}else if("index.php".equalsIgnoreCase(uri.getLastPathSegment()) || uri.getPath() == null || uri.getPath().length() < 2){
 				aurl.type = TYPE.INDEX;
 			}else{
@@ -171,6 +182,13 @@ public class AwfulURL {
 			url.appendQueryParameter(Constants.PARAM_GOTO, Constants.VALUE_POST);
 			url.appendQueryParameter(Constants.PARAM_PER_PAGE, Integer.toString(postPerPage));
 			url.appendQueryParameter(Constants.PARAM_POST_ID, Long.toString(id));
+			break;
+		case MODQUEUE_REQUEST:
+			url = Uri.parse(Constants.FUNCTION_MODQUEUE).buildUpon();
+			url.appendQueryParameter(Constants.PARAM_ACTION, banRequest ? Constants.ACTION_REQUEST_BAN : Constants.ACTION_REQUEST_PROBATION);
+			url.appendQueryParameter(Constants.PARAM_USER_ID, Long.toString(id));
+			url.appendQueryParameter(Constants.PARAM_TARGET_POST_ID, Long.toString(targetPostId));
+			url.appendQueryParameter(Constants.PARAM_THREAD_ID, Long.toString(threadId));
 			break;
 		case EXTERNAL:
 			return externalURL;
@@ -248,6 +266,22 @@ public class AwfulURL {
 
 	public boolean isBanlist() {
 		return type == TYPE.BANLIST;
+	}
+
+	public boolean isModQueueRequest() {
+		return type == TYPE.MODQUEUE_REQUEST;
+	}
+
+	public boolean isBanRequest() {
+		return banRequest;
+	}
+
+	public long getTargetPostId() {
+		return targetPostId;
+	}
+
+	public long getThreadId() {
+		return threadId;
 	}
 
 	public AwfulURL setPerPage(int postPerPage) {

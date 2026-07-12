@@ -87,6 +87,7 @@ public class AwfulPost {
     public static final String IS_IGNORED            = "is_ignored";
     public static final String PREVIOUSLY_READ       = "previously_read";
     public static final String EDITABLE              = "editable";
+    public static final String HAS_MOD_CONTROLS      = "has_mod_controls";
     public static final String IS_OP                 = "is_op";
     public static final String IS_PLAT               = "is_plat";
     public static final String ROLE                  = "role";
@@ -126,6 +127,7 @@ public class AwfulPost {
 	private boolean mPreviouslyRead = false;
     private String mLastReadUrl = "";
     private boolean mEditable;
+    private boolean mHasModControls = false;
     private boolean isOp = false;
     private boolean isPlat = false;
     private String mRole = "";
@@ -260,6 +262,7 @@ public class AwfulPost {
             int isIgnoredIndex = aCursor.getColumnIndex(IS_IGNORED);
             int previouslyReadIndex = aCursor.getColumnIndex(PREVIOUSLY_READ);
             int editableIndex = aCursor.getColumnIndex(EDITABLE);
+            int hasModControlsIndex = aCursor.getColumnIndex(HAS_MOD_CONTROLS);
             int isOpIndex = aCursor.getColumnIndex(IS_OP);
             int isPlatIndex = aCursor.getColumnIndex(IS_PLAT);
             int roleIndex = aCursor.getColumnIndex(ROLE);
@@ -284,6 +287,7 @@ public class AwfulPost {
                 current.setPreviouslyRead(aCursor.getInt(previouslyReadIndex) > 0);
                 current.setLastReadUrl(aCursor.getInt(postIndexIndex)+"");
                 current.setEditable(aCursor.getInt(editableIndex) == 1);
+                current.setHasModControls(aCursor.getInt(hasModControlsIndex) == 1);
                 current.setIsOp(aCursor.getInt(isOpIndex) == 1);
                 current.setIsPlat(aCursor.getInt(isPlatIndex) > 0);
                 current.setRole(aCursor.getString(roleIndex));
@@ -494,6 +498,14 @@ public class AwfulPost {
 
 	public void setEditable(boolean aEditable) {
 		mEditable = aEditable;
+	}
+
+	public boolean hasModControls() {
+		return mHasModControls;
+	}
+
+	public void setHasModControls(boolean aHasModControls) {
+		mHasModControls = aHasModControls;
 	}
 
 

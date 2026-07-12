@@ -11,6 +11,7 @@ import com.ferg.awfulapp.search.SearchFilter
 import com.ferg.awfulapp.search.SearchFragment
 import com.ferg.awfulapp.thread.AwfulURL
 import com.ferg.awfulapp.users.LepersColonyFragment
+import com.ferg.awfulapp.users.ModQueueRequestFragment
 import com.ferg.awfulapp.util.AwfulUtils
 import com.ferg.awfulapp.util.tryGetIntExtra
 import timber.log.Timber
@@ -135,6 +136,24 @@ sealed class NavigationEvent(private val extraTypeId: String) {
         }
     }
 
+    /**
+     * Show the modqueue probation/ban request page for a post ([ban] selects which), targeting
+     * the [userId] who made the post [postId] in thread [threadId].
+     */
+    data class ModQueueRequest(val ban: Boolean, val userId: Int, val postId: Int, val threadId: Int) : NavigationEvent(TYPE_MODQUEUE_REQUEST) {
+
+        override fun activityIntent(context: Context) =
+                BasicActivity.intentFor(ModQueueRequestFragment::class.java, context,
+                        context.getString(if (ban) R.string.mod_ban_request_title else R.string.mod_probation_request_title))
+
+        override val addDataToIntent: Intent.() -> Unit = {
+            putExtra(KEY_MODQUEUE_IS_BAN, ban)
+            putExtra(Constants.PARAM_USER_ID, userId)
+            putExtra(Constants.PARAM_POST_ID, postId)
+            putExtra(Constants.PARAM_THREAD_ID, threadId)
+        }
+    }
+
 
     /**
      * Build an Intent for this NavigationEvent.
@@ -168,8 +187,10 @@ sealed class NavigationEvent(private val extraTypeId: String) {
         private const val TYPE_COMPOSE_PRIVATE_MESSAGE = "nav_compose_private_message"
         private const val TYPE_ANNOUNCEMENTS = "nav_announcements"
         private const val TYPE_LEPERS_COLONY = "nav_rap_sheet"
+        private const val TYPE_MODQUEUE_REQUEST = "nav_modqueue_request"
 
         private const val KEY_SEARCH_FILTERS = "key_search_filters"
+        private const val KEY_MODQUEUE_IS_BAN = "key_modqueue_is_ban"
 
         private fun Context.intentFor(clazz: Class<out Activity>): Intent = Intent().setClass(this, clazz)
 
@@ -211,6 +232,12 @@ sealed class NavigationEvent(private val extraTypeId: String) {
                         userId = getIntExtra(Constants.PARAM_USER_ID),
                         page = getIntExtra(Constants.PARAM_PAGE) ?: LepersColonyFragment.FIRST_PAGE
                 )
+                TYPE_MODQUEUE_REQUEST -> ModQueueRequest(
+                        ban = getBooleanExtra(KEY_MODQUEUE_IS_BAN, false),
+                        userId = getIntExtra(Constants.PARAM_USER_ID)!!,
+                        postId = getIntExtra(Constants.PARAM_POST_ID)!!,
+                        threadId = getIntExtra(Constants.PARAM_THREAD_ID)!!
+                )
                 else -> {
                     Timber.w("Couldn't parse Intent as NavigationEvent - event key: ${getStringExtra(EVENT_EXTRA_KEY)}")
                     MainActivity
@@ -244,6 +271,8 @@ sealed class NavigationEvent(private val extraTypeId: String) {
                         ForumIndex
                     isBanlist ->
                         LepersColony(id.toInt())
+                    isModQueueRequest ->
+                        ModQueueRequest(isBanRequest, id.toInt(), targetPostId.toInt(), threadId.toInt())
                     else -> null
                 }
             }

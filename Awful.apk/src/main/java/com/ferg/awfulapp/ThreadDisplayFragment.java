@@ -377,6 +377,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 				case BANLIST:
 					navigate(new NavigationEvent.LepersColony((int) aLink.getId()));
 					break;
+				case MODQUEUE_REQUEST:
+					navigate(new NavigationEvent.ModQueueRequest(aLink.isBanRequest(),
+							(int) aLink.getId(), (int) aLink.getTargetPostId(), (int) aLink.getThreadId()));
+					break;
 				case INDEX:
 					navigate(NavigationEvent.ForumIndex.INSTANCE);
 					break;
@@ -1180,6 +1184,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 				final String aUserId,
 				final String lastReadUrl,
 				final boolean editable,
+				final boolean hasModControls,
 				final String posterRole,
 				final boolean isPlat,
 				final String avatarUrl) {
@@ -1187,7 +1192,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 			PostContextMenu postActions = PostContextMenu.newInstance(getThreadId(),
 					Integer.parseInt(aPostId),
 					Integer.parseInt(lastReadUrl),
-					editable, aUsername,
+					editable,
+					hasModControls,
+					aUsername,
 					Integer.parseInt(aUserId),
 					isPlat,
 					posterRole,
