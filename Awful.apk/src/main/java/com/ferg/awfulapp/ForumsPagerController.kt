@@ -312,9 +312,17 @@ private class ForumPagerAdapter(
     override fun onPageSelected(pageNum: Int) {
         Timber.i("onPageSelected: $pageNum")
         // TODO: this only allows for one 'focused' page, even though 2 might be visible in tablet mode. If we ever get a way to make #isFragmentVisible work properly, use that here
-        fragments[currentPage]?.setAsBackgroundPage()
+        fragments[currentPage]?.apply {
+            setAsBackgroundPage()
+            // #setPrimaryItem doesn't swap the fragments' menus until the settle animation ends
+            // (the pager defers #populate), so swap them here where the title updates
+            setMenuVisibility(false)
+        }
         currentPage = Pages[pageNum]
-        fragments[currentPage]?.setAsFocusedPage()
+        fragments[currentPage]?.apply {
+            setAsFocusedPage()
+            setMenuVisibility(true)
+        }
         controller.onCurrentPageChanged()
     }
 
