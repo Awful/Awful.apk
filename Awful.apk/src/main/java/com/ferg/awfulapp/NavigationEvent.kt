@@ -11,7 +11,7 @@ import com.ferg.awfulapp.search.SearchFilter
 import com.ferg.awfulapp.search.SearchFragment
 import com.ferg.awfulapp.thread.AwfulURL
 import com.ferg.awfulapp.users.LepersColonyFragment
-import com.ferg.awfulapp.users.ModQueueRequestFragment
+import com.ferg.awfulapp.users.ModActionFragment
 import com.ferg.awfulapp.util.AwfulUtils
 import com.ferg.awfulapp.util.tryGetIntExtra
 import timber.log.Timber
@@ -143,7 +143,7 @@ sealed class NavigationEvent(private val extraTypeId: String) {
     data class ModQueueRequest(val ban: Boolean, val userId: Int, val postId: Int, val threadId: Int) : NavigationEvent(TYPE_MODQUEUE_REQUEST) {
 
         override fun activityIntent(context: Context) =
-                BasicActivity.intentFor(ModQueueRequestFragment::class.java, context,
+                BasicActivity.intentFor(ModActionFragment::class.java, context,
                         context.getString(if (ban) R.string.mod_ban_request_title else R.string.mod_probation_request_title))
 
         override val addDataToIntent: Intent.() -> Unit = {

@@ -132,12 +132,17 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
     }
 
 
+    private boolean isOwnPost() {
+        return AwfulPreferences.getInstance().username.equals(posterUsername);
+    }
+
+
     @NonNull
     @Override
     List<PostMenuAction> generateMenuItems() {
         AwfulPreferences prefs = AwfulPreferences.getInstance();
         boolean youHavePlat = prefs.hasPlatinum;
-        boolean ownPost = prefs.username.equals(posterUsername);
+        boolean ownPost = isOwnPost();
 
         List<PostMenuAction> awfulActions = new ArrayList<>();
 
@@ -165,7 +170,7 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
             awfulActions.add(prefs.blockedAvatarUrls.contains(posterAvatarUrl) ?
                     SHOW_AVATAR : HIDE_AVATAR);
         }
-        if (!ownPost && (editable || hasModControls)) {
+        if (hasModControls || (!ownPost && editable)) {
             awfulActions.add(MODERATE);
         }
         return awfulActions;
@@ -223,8 +228,9 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
                 parent.toggleAvatar(posterAvatarUrl);
                 break;
             case MODERATE:
+                // editing your own posts is already in this menu, so don't offer it again in the moderation menu
                 ModeratePostMenu moderateMenu = ModeratePostMenu.newInstance(threadId, postId,
-                        posterUserId, editable, hasModControls);
+                        posterUserId, editable && !isOwnPost(), hasModControls);
                 moderateMenu.setTargetFragment(parent, -1);
                 moderateMenu.show(parent.getParentFragmentManager(), ModeratePostMenu.TAG);
                 break;

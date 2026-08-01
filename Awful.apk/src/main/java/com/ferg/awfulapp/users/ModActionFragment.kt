@@ -30,7 +30,7 @@ import com.ferg.awfulapp.util.bind
  * intent. Submitting the request just waits for the form post to complete (without displaying the
  * site's response) and closes the screen, so the user lands back where they came from.
  */
-class ModQueueRequestFragment : AwfulFragment() {
+class ModActionFragment : AwfulFragment() {
 
     private val formContainer: View by bind(R.id.form_container)
     private val userName: TextView by bind(R.id.user_name)

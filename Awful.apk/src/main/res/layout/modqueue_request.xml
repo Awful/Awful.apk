@@ -76,11 +76,9 @@
                 android:id="@+id/reason_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="top"
                 android:hint="@string/mod_request_reason_hint"
                 android:imeOptions="flagNoExtractUi"
                 android:inputType="textMultiLine|textCapSentences"
-                android:minLines="3"
                 android:textColor="@color/default_post_font"
                 android:textCursorDrawable="@null"/>
         </com.google.android.material.textfield.TextInputLayout>
@@ -100,11 +98,9 @@
                 android:id="@+id/notes_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="top"
                 android:hint="@string/mod_request_notes_hint"
                 android:imeOptions="flagNoExtractUi"
                 android:inputType="textMultiLine|textCapSentences"
-                android:minLines="2"
                 android:textColor="@color/default_post_font"
                 android:textCursorDrawable="@null"/>
         </com.google.android.material.textfield.TextInputLayout>

@@ -13,7 +13,7 @@ import com.ferg.awfulapp.popupmenu.ModeratePostMenu.ModerateMenuAction.REQUEST_P
 import com.ferg.awfulapp.thread.AwfulMessage
 
 /**
- * Context menu with moderation actions for someone else's post.
+ * Context menu with moderation actions for a post.
  *
  * Shows an edit option when the post is editable by the current user, plus the modqueue
  * probation/ban request options when the post carries modqueue controls.
