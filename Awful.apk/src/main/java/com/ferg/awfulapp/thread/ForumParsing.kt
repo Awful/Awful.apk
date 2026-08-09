@@ -196,6 +196,7 @@ class PostParseTask(
                 ?.let { put(EDITED, "<i>${it.text()}</i>") }
 
             put(EDITABLE, postData.getElementsByAttributeValue("alt", "Edit").isNotEmpty().sqlBool)
+            put(HAS_MOD_CONTROLS, postData.hasDescendantWithClass("modqueue_ctl").sqlBool)
         }
     }
 

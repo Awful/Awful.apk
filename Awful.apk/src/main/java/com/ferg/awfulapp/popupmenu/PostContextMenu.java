@@ -23,6 +23,7 @@ import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.HIDE_AV
 import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.IGNORE_USER;
 import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.MARK_LAST_SEEN;
 import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.MARK_USER;
+import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.MODERATE;
 import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.RAP_SHEET;
 import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.REPORT_POST;
 import static com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction.SEND_PM;
@@ -42,6 +43,7 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
 
     private static final String ARG_POSTER_USER_ID = "posterUserId";
     private static final String ARG_EDITABLE = "editable";
+    private static final String ARG_HAS_MOD_CONTROLS = "hasModControls";
     private static final String ARG_POSTER_HAS_PLAT = "posterHasPlat";
     private static final String ARG_POSTER_ROLE = "posterRole";
     private static final String ARG_THREAD_ID = "threadId";
@@ -53,6 +55,7 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
 
     private int posterUserId;
     private boolean editable;
+    private boolean hasModControls;
     private boolean posterHasPlat;
     private boolean posterHasRole;
     private boolean posterIsUnreportable;
@@ -71,6 +74,7 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
      * @param postId             the ID of the post the menu is for
      * @param lastReadCode       the ID code used when marking a post as the last-read (see {@link ThreadDisplayFragment#markLastRead(int)})
      * @param editable           true if the post can be edited by you
+     * @param hasModControls     true if the post has moderator queue controls (i.e. you can probate/ban for it)
      * @param posterUsername     the username of the post creator
      * @param posterUserId       the user ID of the post creator
      * @param posterHasPlat      true if the post creator has a platinum account
@@ -82,6 +86,7 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
                                               int postId,
                                               int lastReadCode,
                                               boolean editable,
+                                              boolean hasModControls,
                                               @NonNull String posterUsername,
                                               int posterUserId,
                                               boolean posterHasPlat,
@@ -93,6 +98,7 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
 
         args.putInt(ARG_POSTER_USER_ID, posterUserId);
         args.putBoolean(ARG_EDITABLE, editable);
+        args.putBoolean(ARG_HAS_MOD_CONTROLS, hasModControls);
         args.putBoolean(ARG_POSTER_HAS_PLAT, posterHasPlat);
         args.putString(ARG_POSTER_ROLE, posterRole);
         args.putInt(ARG_THREAD_ID, threadId);
@@ -112,6 +118,7 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
     void init(@NonNull Bundle args) {
         posterUserId = args.getInt(ARG_POSTER_USER_ID);
         editable = args.getBoolean(ARG_EDITABLE);
+        hasModControls = args.getBoolean(ARG_HAS_MOD_CONTROLS);
         posterHasPlat = args.getBoolean(ARG_POSTER_HAS_PLAT);
         String posterRole = args.getString(ARG_POSTER_ROLE, "");
         posterHasRole = !posterRole.isEmpty();
@@ -125,17 +132,22 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
     }
 
 
+    private boolean isOwnPost() {
+        return AwfulPreferences.getInstance().username.equals(posterUsername);
+    }
+
+
     @NonNull
     @Override
     List<PostMenuAction> generateMenuItems() {
         AwfulPreferences prefs = AwfulPreferences.getInstance();
         boolean youHavePlat = prefs.hasPlatinum;
-        boolean ownPost = prefs.username.equals(posterUsername);
+        boolean ownPost = isOwnPost();
 
         List<PostMenuAction> awfulActions = new ArrayList<>();
 
         awfulActions.add(PostMenuAction.QUOTE);
-        if (editable) {
+        if (editable && ownPost) {
             awfulActions.add(EDIT);
         }
         awfulActions.add(MARK_LAST_SEEN);
@@ -157,6 +169,9 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
         if (prefs.avatarsEnabled && posterAvatarUrl != null) {
             awfulActions.add(prefs.blockedAvatarUrls.contains(posterAvatarUrl) ?
                     SHOW_AVATAR : HIDE_AVATAR);
+        }
+        if (hasModControls || (!ownPost && editable)) {
+            awfulActions.add(MODERATE);
         }
         return awfulActions;
     }
@@ -212,6 +227,13 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
             case HIDE_AVATAR:
                 parent.toggleAvatar(posterAvatarUrl);
                 break;
+            case MODERATE:
+                // editing your own posts is already in this menu, so don't offer it again in the moderation menu
+                ModeratePostMenu moderateMenu = ModeratePostMenu.newInstance(threadId, postId,
+                        posterUserId, editable && !isOwnPost(), hasModControls);
+                moderateMenu.setTargetFragment(parent, -1);
+                moderateMenu.show(parent.getParentFragmentManager(), ModeratePostMenu.TAG);
+                break;
         }
     }
 
@@ -219,6 +241,9 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
     @NonNull
     @Override
     String getMenuLabel(@NonNull PostMenuAction action) {
+        if (action == MODERATE) {
+            return getString(R.string.action_moderate_post);
+        }
         // need to add the post's username to some of these
         return String.format(action.getMenuLabel(), posterUsername);
     }
@@ -244,7 +269,9 @@ public class PostContextMenu extends BasePopupMenu<PostContextMenu.PostMenuActio
         RAP_SHEET(R.drawable.ic_gavel_dark_24dp, "%s's rap sheet"),
         IGNORE_USER(R.drawable.ic_ignore_dark, "Ignore %s"),
         SHOW_AVATAR(R.drawable.ic_visibility_dark, "Show avatar of %s"),
-        HIDE_AVATAR(R.drawable.ic_ignore_dark, "Hide avatar of %s");
+        HIDE_AVATAR(R.drawable.ic_ignore_dark, "Hide avatar of %s"),
+        // label comes from R.string.action_moderate_post, see #getMenuLabel
+        MODERATE(R.drawable.ic_info_dark, "");
 
         final int iconId;
         @NonNull

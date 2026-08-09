@@ -187,6 +187,7 @@ public class AwfulProvider extends ContentProvider {
         sPostProjectionMap.put(AwfulPost.IS_IGNORED, AwfulPost.IS_IGNORED);
         sPostProjectionMap.put(AwfulPost.PREVIOUSLY_READ, AwfulPost.PREVIOUSLY_READ);
         sPostProjectionMap.put(AwfulPost.EDITABLE, AwfulPost.EDITABLE);
+        sPostProjectionMap.put(AwfulPost.HAS_MOD_CONTROLS, AwfulPost.HAS_MOD_CONTROLS);
         sPostProjectionMap.put(AwfulPost.IS_OP, AwfulPost.IS_OP);
         sPostProjectionMap.put(AwfulPost.IS_PLAT, AwfulPost.IS_PLAT);
         sPostProjectionMap.put(AwfulPost.ROLE, AwfulPost.ROLE);

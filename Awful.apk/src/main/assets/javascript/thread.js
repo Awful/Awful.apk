@@ -522,6 +522,7 @@ function showPostMenu(postMenu) {
 		postMenu.getAttribute('userid'),
 		postMenu.getAttribute('lastreadurl'),
 		postMenu.hasAttribute('editable'),
+		postMenu.hasAttribute('modControls'),
 		postMenu.getAttribute('data-role'),
 		postMenu.hasAttribute('isPlat'),
 		avatar ? avatar.getAttribute('src') : null

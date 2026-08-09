@@ -226,6 +226,7 @@ public abstract class AwfulHtmlPage {
             postData.put("avatarText", post.getAvatarText());
             postData.put("lastReadUrl", post.getLastReadUrl());
             postData.put("editable", post.isEditable() ? "editable" : null);
+            postData.put("modControls", post.hasModControls() ? "modControls" : null);
             postData.put("postcontent", post.getContent());
             postData.put("hideAvatar", aPrefs.isBlockedAvatar(avatar) ? "blockedAvatar" : null);
 

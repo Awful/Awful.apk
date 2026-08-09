@@ -528,6 +528,26 @@
     <string name="report_post_message">Did this post break the forum rules? If so, please report it by clicking below. If you would like to add any comments explaining why you submitted this post, please do so here:</string>
     <string name="terms_and_conditions">I accept the <a href="https://www.somethingawful.com/forum-rules/forum-rules/">terms and conditions of the forum rules</a></string>
 
+    <!-- Post moderation -->
+    <string name="action_moderate_post">Moderate Post</string>
+    <string name="action_edit_post">Edit Post</string>
+    <string name="action_request_probation">Probation</string>
+    <string name="action_request_ban">Ban</string>
+    <string name="mod_probation_request_title">Probation Request</string>
+    <string name="mod_ban_request_title">Ban Request</string>
+    <string name="mod_request_user">User: %1$s</string>
+    <string name="mod_request_duration_label">Block posting for</string>
+    <string name="mod_request_ban_type_label">Ban type</string>
+    <string name="mod_request_reason_hint">Reason</string>
+    <string name="mod_request_reason_caption">Visible to ALL forum members, and used as the reason in the Leper\'s Colony.</string>
+    <string name="mod_request_notes_hint">Moderator notes (optional)</string>
+    <string name="mod_request_notes_caption">Only visible to other mods and admins.</string>
+    <string name="mod_request_reason_required">A reason is required</string>
+    <string name="mod_request_submit">Submit</string>
+    <string name="mod_request_probation_queued">Probation Queued</string>
+    <string name="mod_request_ban_queued">Ban Queued</string>
+    <string name="mod_request_form_load_failed">Couldn\'t find the request form – do you have mod privileges?</string>
+
 
     <!--
         End of Settings menu strings
