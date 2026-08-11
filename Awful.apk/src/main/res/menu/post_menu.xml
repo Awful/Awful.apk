@@ -2,6 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/poll"
+        android:title="@string/poll_view_results"
+        android:icon="@drawable/ic_poll_outline"
+        android:visible="false"
+        app:showAsAction="always"
+        />
+    <item
         android:id="@+id/lock_unlock"
         android:title="@string/thread_lock"
         android:icon="@drawable/ic_https_dark"

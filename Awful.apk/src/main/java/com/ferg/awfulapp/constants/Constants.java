@@ -55,6 +55,7 @@ public class Constants {
     public static final String FUNCTION_MISC            = BASE_URL + "/misc.php";
     public static final String FUNCTION_REPORT 			= BASE_URL + "/modalert.php";
     public static final String FUNCTION_MODQUEUE 		= BASE_URL + "/modqueue.php";
+    public static final String FUNCTION_POLL 			= BASE_URL + "/poll.php";
     public static final String FUNCTION_POSTINGS 		= BASE_URL + "/postings.php";
     public static final String FUNCTION_NEW_THREAD 		= BASE_URL + "/newthread.php";
 
@@ -76,6 +77,8 @@ public class Constants {
     public static final String ACTION_TOGGLE_THREAD_LOCKED = "openclosethread";
     public static final String ACTION_REQUEST_PROBATION   = "request_probation";
     public static final String ACTION_REQUEST_BAN         = "request_ban";
+    public static final String ACTION_POLL_VOTE           = "pollvote";
+    public static final String ACTION_SHOW_RESULTS        = "showresults";
 
     public static final String PARAM_USER_ID   = "userid";
     public static final String PARAM_USERNAME  = "username";
@@ -92,6 +95,7 @@ public class Constants {
 	public static final String PARAM_VOTE 	   = "vote";
 	public static final String PARAM_POST_ID   = "postid";
 	public static final String PARAM_TARGET_POST_ID = "tpostid";
+	public static final String PARAM_POLL_ID   = "pollid";
 	public static final String PARAM_USERLIST  = "userlist";
     public static final String PARAM_FORMKEY = "formkey";
     public static final String PARAM_FORM_COOKIE = "form_cookie";

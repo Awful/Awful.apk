@@ -337,6 +337,8 @@ class ForumParseTask(
         // TODO: 04/06/2017 handle this in the database classes
         return awfulThread.toContentValues().apply {
             put(DatabaseHelper.UPDATED_TIMESTAMP, parseTimestamp)
+            // thread list pages don't show polls, so don't overwrite what the thread page parser stored
+            remove(POLL)
             // don't update these values if we are loading bookmarks, or it will overwrite the cached forum results.
             if (forumId == Constants.USERCP_ID) {
                 remove(INDEX)
@@ -403,6 +405,8 @@ class ThreadPageParseTask(
                 ?.map { FORUM_ID_REGEX.matcher(it.attr("href")) }
                 ?.lastOrNull(Matcher::find)
                 ?.group(1)?.toInt() ?: -1
+
+            poll = AwfulPoll.parse(page)?.toJson()
 
 
             // now calculate some read/unread numbers based on what we can see on the page
