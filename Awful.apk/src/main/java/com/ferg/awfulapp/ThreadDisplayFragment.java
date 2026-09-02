@@ -96,6 +96,7 @@ import com.ferg.awfulapp.task.VoteRequest;
 import com.ferg.awfulapp.thread.AwfulHtmlPage;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPagedItem;
+import com.ferg.awfulapp.thread.AwfulPoll;
 import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
 import com.ferg.awfulapp.thread.AwfulURL;
@@ -189,6 +190,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 	private boolean threadBookmarked = false;
     private boolean threadArchived = false;
 	private boolean threadLockableUnlockable = false;
+	@Nullable
+	private AwfulPoll threadPoll = null;
 
     private boolean keepScreenOn = false;
 	//oh god i'm replicating core android functionality, this is a bad sign.
@@ -551,6 +554,15 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 		if(yospos != null){
 			yospos.setVisible(mParentForumId == Constants.FORUM_ID_YOSPOS);
 		}
+		MenuItem poll = menu.findItem(R.id.poll);
+		if(poll != null){
+			poll.setVisible(threadPoll != null);
+			if(threadPoll != null){
+				boolean canVote = threadPoll instanceof AwfulPoll.Votable;
+				poll.setIcon(canVote ? R.drawable.ic_poll : R.drawable.ic_poll_outline);
+				poll.setTitle(getString(canVote ? R.string.poll_vote : R.string.poll_view_results));
+			}
+		}
 		FontManager fm = FontManager.getInstance();
 		for (int i = 0; i < menu.size(); i++) {
 			fm.setMenuItemFont(menu.getItem(i));
@@ -590,6 +602,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 				break;
 			case R.id.show_self:
 				showUsersPosts(getPrefs().userId, getPrefs().username);
+				break;
+			case R.id.poll:
+				if (threadPoll != null) {
+					navigate(new NavigationEvent.Poll(getThreadId(), threadPoll.toJson()));
+				}
 				break;
 			case R.id.search_this_thread:
 				SearchFilter threadFilter = new SearchFilter(SearchFilter.FilterType.ThreadId, Integer.toString(currentThreadId));
@@ -1590,6 +1607,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
 				threadLockableUnlockable = aData.getInt(aData.getColumnIndex(AwfulThread.CAN_OPEN_CLOSE))>0;
         		threadBookmarked = aData.getInt(aData.getColumnIndex(AwfulThread.BOOKMARKED))>0;
 				threadArchived = aData.getInt(aData.getColumnIndex(AwfulThread.ARCHIVED))>0;
+				threadPoll = AwfulPoll.fromJson(aData.getString(aData.getColumnIndex(AwfulThread.POLL)));
 				mTitle = aData.getString(aData.getColumnIndex(AwfulThread.TITLE));
         		mParentForumId = aData.getInt(aData.getColumnIndex(AwfulThread.FORUM_ID));
 				if(mParentForumId != 0 && mThreadView != null){

@@ -166,6 +166,7 @@ public class AwfulProvider extends ContentProvider {
         sThreadProjectionMap.put(AwfulThread.HAS_VIEWED_THREAD, AwfulThread.HAS_VIEWED_THREAD);
         sThreadProjectionMap.put(AwfulThread.ARCHIVED, AwfulThread.ARCHIVED);
         sThreadProjectionMap.put(AwfulThread.RATING, AwfulThread.RATING);
+        sThreadProjectionMap.put(AwfulThread.POLL, AwfulThread.POLL);
         sThreadProjectionMap.put(AwfulThread.TAG_URL, TABLE_THREADS+"."+AwfulThread.TAG_URL+" AS "+AwfulThread.TAG_URL);
         sThreadProjectionMap.put(AwfulThread.TAG_EXTRA, TABLE_THREADS+"."+AwfulThread.TAG_EXTRA+" AS "+AwfulThread.TAG_EXTRA);
         sThreadProjectionMap.put(AwfulThread.TAG_CACHEFILE, TABLE_THREADS+"."+AwfulThread.TAG_CACHEFILE+" AS "+AwfulThread.TAG_CACHEFILE);
@@ -227,6 +228,7 @@ public class AwfulProvider extends ContentProvider {
         sUCPThreadProjectionMap.put(AwfulThread.HAS_VIEWED_THREAD, AwfulThread.HAS_VIEWED_THREAD);
         sUCPThreadProjectionMap.put(AwfulThread.ARCHIVED, AwfulThread.ARCHIVED);
         sUCPThreadProjectionMap.put(AwfulThread.RATING, AwfulThread.RATING);
+        sUCPThreadProjectionMap.put(AwfulThread.POLL, AwfulThread.POLL);
         sUCPThreadProjectionMap.put(AwfulThread.FORUM_TITLE, "null");
         sUCPThreadProjectionMap.put(DatabaseHelper.UPDATED_TIMESTAMP, TABLE_UCP_THREADS+"."+ DatabaseHelper.UPDATED_TIMESTAMP+" AS "+ DatabaseHelper.UPDATED_TIMESTAMP);
     }
@@ -445,6 +447,14 @@ public class AwfulProvider extends ContentProvider {
                             int2StrArray(value.getAsInteger(AwfulPost.POST_INDEX), value.getAsInteger(AwfulPost.THREAD_ID)));
                 } else if (uriType == URI_EMOTE) {
                     db.delete(table, AwfulEmote.TEXT + "=?", new String[]{value.getAsString(AwfulEmote.TEXT)});
+                } else if (uriType == URI_THREAD) {
+                    // update existing threads instead of replacing them, so columns the thread list
+                    // doesn't provide (e.g. poll data) survive a refresh
+                    int updated = db.update(table, value, AwfulThread.ID + "=?",
+                            int2StrArray(value.getAsInteger(AwfulThread.ID)));
+                    if (updated > 0) {
+                        continue;
+                    }
                 }
                 db.replace(table, "", value);
             }

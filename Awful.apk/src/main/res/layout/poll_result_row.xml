@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableRow
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="2dp"
+    android:paddingBottom="2dp">
+
+    <TextView
+        android:id="@+id/result_label"
+        android:layout_gravity="center_vertical"
+        android:gravity="end"
+        android:paddingEnd="8dp"
+        android:textAppearance="?android:attr/textAppearanceSmall"/>
+
+    <LinearLayout
+        android:layout_gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <View
+            android:id="@+id/result_bar_fill"
+            android:layout_width="0dp"
+            android:layout_height="12dp"
+            android:layout_weight="0"
+            android:background="?attr/colorAccent"/>
+
+        <View
+            android:id="@+id/result_bar_space"
+            android:layout_width="0dp"
+            android:layout_height="12dp"
+            android:layout_weight="1"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/result_votes"
+        android:layout_gravity="center_vertical"
+        android:gravity="end"
+        android:paddingStart="8dp"
+        android:textAppearance="?android:attr/textAppearanceSmall"/>
+
+    <TextView
+        android:id="@+id/result_percent"
+        android:layout_gravity="center_vertical"
+        android:gravity="end"
+        android:paddingStart="8dp"
+        android:textAppearance="?android:attr/textAppearanceSmall"/>
+</TableRow>

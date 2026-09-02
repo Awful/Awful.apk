@@ -137,6 +137,21 @@ sealed class NavigationEvent(private val extraTypeId: String) {
     }
 
     /**
+     * Show the poll for thread [threadId] - the voting form if the user can still vote, otherwise
+     * the current results. [pollJson] is the serialised [com.ferg.awfulapp.thread.AwfulPoll].
+     */
+    data class Poll(val threadId: Int, val pollJson: String) : NavigationEvent(TYPE_POLL) {
+
+        override fun activityIntent(context: Context) =
+                BasicActivity.intentFor(PollFragment::class.java, context, context.getString(R.string.poll_title))
+
+        override val addDataToIntent: Intent.() -> Unit = {
+            putExtra(Constants.PARAM_THREAD_ID, threadId)
+            putExtra(KEY_POLL_JSON, pollJson)
+        }
+    }
+
+    /**
      * Show the modqueue probation/ban request page for a post ([ban] selects which), targeting
      * the [userId] who made the post [postId] in thread [threadId].
      */
@@ -188,9 +203,11 @@ sealed class NavigationEvent(private val extraTypeId: String) {
         private const val TYPE_ANNOUNCEMENTS = "nav_announcements"
         private const val TYPE_LEPERS_COLONY = "nav_rap_sheet"
         private const val TYPE_MODQUEUE_REQUEST = "nav_modqueue_request"
+        private const val TYPE_POLL = "nav_poll"
 
         private const val KEY_SEARCH_FILTERS = "key_search_filters"
         private const val KEY_MODQUEUE_IS_BAN = "key_modqueue_is_ban"
+        private const val KEY_POLL_JSON = "key_poll_json"
 
         private fun Context.intentFor(clazz: Class<out Activity>): Intent = Intent().setClass(this, clazz)
 
@@ -237,6 +254,10 @@ sealed class NavigationEvent(private val extraTypeId: String) {
                         userId = getIntExtra(Constants.PARAM_USER_ID)!!,
                         postId = getIntExtra(Constants.PARAM_POST_ID)!!,
                         threadId = getIntExtra(Constants.PARAM_THREAD_ID)!!
+                )
+                TYPE_POLL -> Poll(
+                        threadId = getIntExtra(Constants.PARAM_THREAD_ID)!!,
+                        pollJson = getStringExtra(KEY_POLL_JSON)!!
                 )
                 else -> {
                     Timber.w("Couldn't parse Intent as NavigationEvent - event key: ${getStringExtra(EVENT_EXTRA_KEY)}")

@@ -31,6 +31,7 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.net.Uri;
+import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import android.util.Log;
 
@@ -102,7 +103,7 @@ public class AwfulForum extends AwfulPagedItem {
 	public static void parseThreads(int forumId, int pageNumber, int lastPageNumber, Document page, ContentResolver contentInterface) {
 		// get the threads on a (normal) forum page, index them and store
 		List<ContentValues> threads = AwfulThread.parseForumThreads(page, forumId, forumPageToIndex(pageNumber));
-		deletePageOfThreads(forumId, pageNumber, contentInterface);
+		deletePageOfThreads(forumId, pageNumber, threads, contentInterface);
 		insertThreads(threads, contentInterface);
 
 		// update page count for forum
@@ -156,12 +157,20 @@ public class AwfulForum extends AwfulPagedItem {
 	}
 
 
-	private static void deletePageOfThreads(int forumId, int pageNum, @NonNull ContentResolver resolver) {
+	private static void deletePageOfThreads(int forumId, int pageNum, @NonNull List<ContentValues> currentThreads, @NonNull ContentResolver resolver) {
 		if (forumId == Constants.USERCP_ID) {
 			throw new RuntimeException("This method deletes threads from forums, not the bookmarks table!");
 		}
+		// spare the threads still on the page - those get updated in place, so columns the thread
+		// list doesn't provide (e.g. poll data) survive a refresh
+		List<String> currentIds = new ArrayList<>();
+		for (ContentValues thread : currentThreads) {
+			currentIds.add(String.valueOf(thread.getAsInteger(AwfulThread.ID)));
+		}
+		String stillOnPage = currentIds.isEmpty() ? "" :
+				String.format(" AND %s NOT IN (%s)", AwfulThread.ID, TextUtils.join(",", currentIds));
 		resolver.delete(AwfulThread.CONTENT_URI,
-				String.format("%s=? AND %s>=? AND %s<?", AwfulThread.FORUM_ID, AwfulThread.INDEX, AwfulThread.INDEX),
+				String.format("%s=? AND %s>=? AND %s<?", AwfulThread.FORUM_ID, AwfulThread.INDEX, AwfulThread.INDEX) + stillOnPage,
 				AwfulProvider.int2StrArray(forumId, forumPageToIndex(pageNum), forumPageToIndex(pageNum + 1)));
 	}
 

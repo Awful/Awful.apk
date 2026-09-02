@@ -59,6 +59,7 @@
 
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
         <item name="android:actionOverflowButtonStyle">@style/Base.Widget.AppCompat.ActionButton.Overflow</item>
+        <item name="actionButtonStyle">@style/ActionButtonStyle</item>
         <item name="awfulPopUpTheme">@style/ThemeOverlay.AppCompat.Light</item>
         <item name="windowActionModeOverlay">true</item>
     </style>
@@ -112,6 +113,7 @@
         <item name="selfThreadBackground">@color/self_thread_dark</item>
 
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
+        <item name="actionButtonStyle">@style/ActionButtonStyle</item>
         <item name="awfulPopUpTheme">@style/ThemeOverlay.AppCompat</item>
         <item name="windowActionModeOverlay">true</item>
     </style>
@@ -205,6 +207,12 @@
     <style name="DrawerArrowStyle" parent="Widget.AppCompat.DrawerArrowToggle">
         <item name="spinBars">true</item>
         <item name="color">?attr/iconColor</item>
+    </style>
+
+    <!-- narrower than the 48dp default, so icon action buttons match the overflow button's width
+         instead of eating into the toolbar title space -->
+    <style name="ActionButtonStyle" parent="Widget.AppCompat.ActionButton">
+        <item name="android:minWidth">40dp</item>
     </style>
 
     <style name="ToolBarStyle" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">

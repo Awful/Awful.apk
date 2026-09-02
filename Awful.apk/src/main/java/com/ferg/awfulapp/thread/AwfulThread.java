@@ -98,6 +98,7 @@ public class AwfulThread extends AwfulPagedItem  {
     public static final String TAG_URL 		        = "tag_url";
     public static final String TAG_CACHEFILE 	    = "tag_cachefile";
     public static final String TAG_EXTRA            = "tag_extra";
+    public static final String POLL                 = "poll";
 
 
     // TODO: 04/06/2017 explicit default values, nulls where parsed data doesn't set values (i.e. never added to the ContentValues)?
@@ -128,6 +129,9 @@ public class AwfulThread extends AwfulPagedItem  {
     public String tagCacheFile;
     public int tagExtra;
     public int category;
+
+    @Nullable
+    public String poll;
 
 
     @Nullable
@@ -166,6 +170,7 @@ public class AwfulThread extends AwfulPagedItem  {
         thread.tagCacheFile = row.getString(row.getColumnIndex(TAG_CACHEFILE));
         thread.tagExtra = row.getInt(row.getColumnIndex(TAG_EXTRA));
         thread.category = row.getInt(row.getColumnIndex(CATEGORY));
+        thread.poll = row.getString(row.getColumnIndex(POLL));
 
         return thread;
     }
@@ -198,6 +203,7 @@ public class AwfulThread extends AwfulPagedItem  {
         cv.put(UNREADCOUNT, unreadCount);
         cv.put(HAS_VIEWED_THREAD, asSqlBoolean(hasBeenViewed));
         cv.put(BOOKMARKED, bookmarkType);
+        cv.put(POLL, poll);
         return cv;
     }
 
