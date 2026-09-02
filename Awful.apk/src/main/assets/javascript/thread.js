@@ -53,12 +53,24 @@ function containerInit() {
 		// title popup on long-press
 		if ((target.tagName === 'IMG' || target.tagName === 'CANVAS')) {
 			Longtap(function longtap() {
-				if (target.hasAttribute('title') && target.classList.contains('sa-smilie')) {
-					listener.popupText(target.getAttribute('title'));
+				if (target.hasAttribute('title')) {
+				    if(target.classList.contains('sa-smilie')){
+					    listener.popupText(target.getAttribute('title'));
+				    }
+				} else {
+				    if (target.src) {
+				        listener.displayImageZoom(target.src);
+				    }
 				}
 			})(event);
 			return;
 		}
+		if (target.tagName === 'VIDEO') {
+            Longtap(function longtap() {
+                listener.openUrlMenu(target.firstElementChild.getAttribute('src'));
+            })(event);
+            return;
+        }
 		var bbcBlock = findInPath(event, 'bbc-block', true);
 		if (bbcBlock && !!bbcBlock.className.match(/pre|code|php/ig)) {
 			listener.haltSwipe();
@@ -79,6 +91,10 @@ function containerInit() {
 	window.addEventListener('awful-scroll-post', function scrollToPost() {
 		window.topScrollID = window.requestAnimationFrame(scrollPost.bind(null, null));
 	});
+
+	document.documentElement.addEventListener('dragstart', function disableDrag(event) {
+	    event.preventDefault();
+	})
 
 	// trigger a page content load, in case some was sent before the container was ready to handle it
 	loadPageHtml();

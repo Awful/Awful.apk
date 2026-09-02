@@ -2,7 +2,7 @@ buildscript {
     ext.kotlin_version = '2.2.21'
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.13.1'
+        classpath 'com.android.tools.build:gradle:9.1.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -15,7 +15,7 @@ plugins {
 
 android {
     namespace "com.ferg.awfulapp"
-    compileSdk = 36
+    compileSdk = 37
 
     buildFeatures {
         viewBinding = true
@@ -25,7 +25,7 @@ android {
     defaultConfig {
         applicationId = "com.ferg.awfulapp"
         minSdkVersion 24
-        targetSdkVersion 36
+        targetSdkVersion 37
         resourceConfigurations += ['en']
 
         // Stops the Gradle plugin’s automatic rasterization of vectors
@@ -67,8 +67,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_21
-        targetCompatibility JavaVersion.VERSION_21
+        sourceCompatibility JavaVersion.VERSION_24
+        targetCompatibility JavaVersion.VERSION_24
     }
 
     tasks.register('copyThreadTags') {
@@ -106,9 +106,9 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     implementation 'androidx.appcompat:appcompat:1.7.1'
-    implementation 'com.google.android.material:material:1.13.0'
+    implementation 'com.google.android.material:material:1.14.0'
     // these are all needed to override some old versions that are dependencies... somewhere
-    implementation 'androidx.media:media:1.7.1'
+    implementation 'androidx.media:media:1.8.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
     // used to fix SSL issues on older devices
@@ -116,13 +116,13 @@ dependencies {
     implementation 'com.android.volley:volley:1.2.1'
 
 
-    implementation 'com.google.code.gson:gson:2.13.2'
+    implementation 'com.google.code.gson:gson:2.14.0'
 
-    implementation 'org.jsoup:jsoup:1.22.1'
+    implementation 'org.jsoup:jsoup:1.22.2'
     implementation 'com.jakewharton.threetenabp:threetenabp:1.4.9'
     implementation 'com.samskivert:jmustache:1.16'
 
-    implementation group: 'cz.msebera.android' , name: 'httpclient', version: '4.5.8'
+    implementation group: 'cz.msebera.android' , name: 'httpclient', version: '4.4.1.1'
     implementation ('org.apache.httpcomponents:httpmime:4.3.1') {
         exclude module: "httpclient"
     }
@@ -141,7 +141,7 @@ dependencies {
     testImplementation 'org.hamcrest:hamcrest-library:3.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
 
-    implementation "androidx.core:core-ktx:1.18.0"
+    implementation "androidx.core:core-ktx:1.19.0"
     implementation 'androidx.core:core-google-shortcuts:1.1.0'
 
     // updating this might cause the status and navigation bar to become blue, test for this

@@ -139,25 +139,27 @@ function processThreadEmbeds(replacementArea) {
         });
 
         for (const link of skeets) {
-            const match = link.href.match(/bsky\.app\/profile\/([\w.]+)\/post\/([\w\d]+)/);
+            const match = link.href.match(/bsky\.app\/profile\/([\w.:]+)\/post\/([\w\d]+)/);
             if (!match) {
                 continue;
             }
 
             const profile = match[1];
             const postId = match[2];
+            let did = profile;
+            if(!did.includes('did:')){
+                const response = await fetch('https://bsky.social/xrpc/com.atproto.identity.resolveHandle?handle='+profile);
+                if (!response.ok) { continue;
+                }
 
-            const response = await fetch('https://bsky.social/xrpc/com.atproto.identity.resolveHandle?handle='+profile);
-            if (!response.ok) { continue;
-            }
-
-            const data = await response.json();
-            if (!data) {
-                continue;
-            }
-            const did = data.did; // Extract DID from the response
-            if (!did) {
-                continue;
+                const data = await response.json();
+                if (!data) {
+                    continue;
+                }
+                did = data.did; // Extract DID from the response
+                if (!did) {
+                    continue;
+                }
             }
 
             const blueskyUri = 'at://' + did + '/app.bsky.feed.post/' + postId;
