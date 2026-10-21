@@ -46,7 +46,7 @@ abstract class AwfulStrippedRequest<T>(context: Context, apiUrl: String) : Awful
         val contentType = response.headers?.get("content-type")
         var charset = SITE_CHARSET
         if (contentType != null) {
-            charset = ContentType.parse(contentType).charset
+            charset = ContentType.parse(contentType).charset ?: SITE_CHARSET
         }
         Timber.d("Stripping page selectors from HTML to speed up parsing")
         // grab the data as a string, and match the select blocks

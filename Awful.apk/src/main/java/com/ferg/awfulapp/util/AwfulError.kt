@@ -101,6 +101,14 @@ class AwfulError @JvmOverloads constructor(
          */
         @Suppress("SpellCheckingInspection")
         fun checkPageErrors(page: Document, prefs: AwfulPreferences): AwfulError? {
+
+            // Forums are _down_ down
+            if (page.getElementsByTag("title").text() == "Something Awful Forum Status") {
+                val reason = page.getElementsByClass("info").text()
+                val message = if (TextUtils.isEmpty(reason)) null else "Forums Closed - $reason"
+                return AwfulError(ERROR_FORUM_CLOSED, message)
+            }
+
             // not logged in
             if (null != page.getElementById("notregistered")) {
                 w("!!!Page says not registered - You are now LOGGED OUT")
