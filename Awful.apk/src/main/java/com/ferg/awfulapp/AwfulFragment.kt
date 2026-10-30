@@ -150,6 +150,9 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
         progressBar?.setProgress(percent, activity)
     }
 
+    protected fun makeToast(text: Int, length: Int = Toast.LENGTH_LONG) {
+        makeToast(getString(text), length)
+    }
     protected fun makeToast(text: String, length: Int = Toast.LENGTH_LONG) {
         activity?.let { Toast.makeText(it, text, length).show() }
     }

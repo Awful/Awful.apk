@@ -236,6 +236,7 @@ object AwfulHtmlPage {
             postData["avatarText"] = post.avatarText
             postData["lastReadUrl"] = post.lastReadUrl
             postData["editable"] = if (post.isEditable) "editable" else null
+            postData["modControls"] = if (post.hasModControls) "modControls" else null
             postData["postcontent"] = post.content
             postData["hideAvatar"] = if (aPrefs.isBlockedAvatar(avatar)) "blockedAvatar" else null
 

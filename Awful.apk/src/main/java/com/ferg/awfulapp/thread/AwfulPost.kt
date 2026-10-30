@@ -62,6 +62,7 @@ class AwfulPost {
     var isPreviouslyRead: Boolean = false
     var lastReadUrl: String? = ""
     var isEditable: Boolean = false
+    var hasModControls: Boolean = false
     var isOp: Boolean = false
     var isPlat: Boolean = false
     var role: String? = ""
@@ -99,6 +100,7 @@ class AwfulPost {
         const val IS_IGNORED: String = "is_ignored"
         const val PREVIOUSLY_READ: String = "previously_read"
         const val EDITABLE: String = "editable"
+        const val HAS_MOD_CONTROLS: String = "has_mod_controls"
         const val IS_OP: String = "is_op"
         const val IS_PLAT: String = "is_plat"
         const val ROLE: String = "role"
@@ -136,6 +138,7 @@ class AwfulPost {
                 val isIgnoredIndex = aCursor.getColumnIndex(IS_IGNORED)
                 val previouslyReadIndex = aCursor.getColumnIndex(PREVIOUSLY_READ)
                 val editableIndex = aCursor.getColumnIndex(EDITABLE)
+                val hasModControlsIndex = aCursor.getColumnIndex(HAS_MOD_CONTROLS)
                 val isOpIndex = aCursor.getColumnIndex(IS_OP)
                 val isPlatIndex = aCursor.getColumnIndex(IS_PLAT)
                 val roleIndex = aCursor.getColumnIndex(ROLE)
@@ -160,6 +163,7 @@ class AwfulPost {
                     current.isPreviouslyRead = aCursor.getInt(previouslyReadIndex) > 0
                     current.lastReadUrl = aCursor.getInt(postIndexIndex).toString()
                     current.isEditable = aCursor.getInt(editableIndex) == 1
+                    current.hasModControls = aCursor.getInt(hasModControlsIndex) == 1
                     current.isOp = aCursor.getInt(isOpIndex) == 1
                     current.isPlat = aCursor.getInt(isPlatIndex) > 0
                     current.role = aCursor.getString(roleIndex)

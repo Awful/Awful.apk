@@ -55,6 +55,7 @@ object Constants {
     const val FUNCTION_MISC: String = "$BASE_URL/misc.php"
     const val FUNCTION_REPORT: String = "$BASE_URL/modalert.php"
     const val FUNCTION_POSTINGS: String = "$BASE_URL/postings.php"
+    const val FUNCTION_MODQUEUE: String = "$BASE_URL/modqueue.php"
     const val FUNCTION_NEW_THREAD: String = "$BASE_URL/newthread.php"
 
     const val PATH_FORUM: String = "forumdisplay.php"
@@ -62,6 +63,7 @@ object Constants {
     const val PATH_BOOKMARKS: String = "bookmarkthreads.php"
     const val PATH_USERCP: String = "usercp.php"
     const val PATH_BANLIST: String = "banlist.php"
+    const val PATH_MODQUEUE: String = "modqueue.php"
 
     const val ACTION_PROFILE: String = "getinfo"
     const val ACTION_SEARCH_POST_HISTORY: String = "do_search_posthistory"
@@ -72,6 +74,8 @@ object Constants {
     const val ACTION_QUERY: String = "query"
     const val ACTION_RESULTS: String = "results"
     const val ACTION_TOGGLE_THREAD_LOCKED: String = "openclosethread"
+    const val ACTION_REQUEST_PROBATION: String = "request_probation"
+    const val ACTION_REQUEST_BAN: String = "request_ban"
 
     const val PARAM_USER_ID: String = "userid"
     const val PARAM_USERNAME: String = "username"
@@ -87,6 +91,7 @@ object Constants {
     const val PARAM_PRIVATE_MESSAGE_ID: String = "privatemessageid"
     const val PARAM_VOTE: String = "vote"
     const val PARAM_POST_ID: String = "postid"
+    const val PARAM_TARGET_POST_ID: String = "tpostid"
     const val PARAM_USERLIST: String = "userlist"
     const val PARAM_FORMKEY: String = "formkey"
     const val PARAM_FORM_COOKIE: String = "form_cookie"

@@ -94,6 +94,7 @@ class DatabaseHelper internal constructor(aContext: Context?) :
                     AwfulPost.IS_IGNORED + " INTEGER," +
                     AwfulPost.PREVIOUSLY_READ + " INTEGER," +
                     AwfulPost.EDITABLE + " INTEGER," +
+                    AwfulPost.HAS_MOD_CONTROLS + " INTEGER," +
                     AwfulPost.IS_OP + " INTEGER," +
                     AwfulPost.IS_PLAT + " INTEGER," +
                     AwfulPost.ROLE + " VARCHAR," +
@@ -281,6 +282,7 @@ class DatabaseHelper internal constructor(aContext: Context?) :
             }
 
             38 -> aDb.execSQL("ALTER TABLE " + TABLE_THREADS + " ADD COLUMN " + AwfulThread.LAST_POST_DATE + " INTEGER DEFAULT 0")
+            39 -> aDb.execSQL("ALTER TABLE " + TABLE_POSTS + " ADD COLUMN " + AwfulPost.HAS_MOD_CONTROLS + " INTEGER DEFAULT 0");
             else -> wipeRecreateTables(aDb)
         }
     }
@@ -315,7 +317,7 @@ class DatabaseHelper internal constructor(aContext: Context?) :
 
     companion object {
         private const val DATABASE_NAME = "awful.db"
-        private const val DATABASE_VERSION = 39
+        private const val DATABASE_VERSION = 40
 
         const val TABLE_FORUM: String = "forum"
         const val TABLE_THREADS: String = "threads"

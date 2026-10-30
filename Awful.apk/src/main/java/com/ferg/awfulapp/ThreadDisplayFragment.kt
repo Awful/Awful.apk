@@ -65,7 +65,12 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.ShareActionProvider
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.core.view.MenuItemCompat
+import androidx.core.view.get
+import androidx.core.view.isEmpty
+import androidx.core.view.size
+import androidx.fragment.app.FragmentActivity
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
@@ -74,6 +79,7 @@ import com.android.volley.VolleyError
 import com.ferg.awfulapp.CaptchaActivity.Companion.handleCaptchaChallenge
 import com.ferg.awfulapp.FontManager.Companion.getInstance
 import com.ferg.awfulapp.NavigationEvent.LepersColony
+import com.ferg.awfulapp.NavigationEvent.ModQueueRequest
 import com.ferg.awfulapp.NavigationEvent.SearchForums
 import com.ferg.awfulapp.NavigationEvent.Url
 import com.ferg.awfulapp.constants.Constants
@@ -84,6 +90,8 @@ import com.ferg.awfulapp.popupmenu.PostContextMenu
 import com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction
 import com.ferg.awfulapp.popupmenu.UrlContextMenu
 import com.ferg.awfulapp.preferences.AwfulPreferences
+import com.ferg.awfulapp.preferences.BooleanPreference
+import com.ferg.awfulapp.preferences.StringSetPreference
 import com.ferg.awfulapp.provider.AwfulProvider
 import com.ferg.awfulapp.provider.AwfulTheme
 import com.ferg.awfulapp.provider.ColorProvider
@@ -130,13 +138,6 @@ import timber.log.Timber.Forest.w
 import java.util.LinkedList
 import java.util.Locale
 import java.util.regex.Pattern
-import androidx.core.net.toUri
-import androidx.core.view.get
-import androidx.core.view.size
-import androidx.core.view.isEmpty
-import androidx.fragment.app.FragmentActivity
-import com.ferg.awfulapp.preferences.BooleanPreference
-import com.ferg.awfulapp.preferences.StringSetPreference
 
 /**
  * Uses intent extras:
@@ -398,6 +399,14 @@ class ThreadDisplayFragment : AwfulFragment(), NavigationEventHandler {
                     showUrlMenu(aUrl)
                 }
 
+                TYPE.MODQUEUE_REQUEST -> navigate(
+                    ModQueueRequest(
+                        aLink.isBanRequest,
+                        aLink.id.toInt(),
+                        aLink.targetPostId.toInt(),
+                        aLink.threadId.toInt()
+                    )
+                )
                 TYPE.BANLIST -> navigate(LepersColony(aLink.id.toInt()))
                 TYPE.INDEX -> navigate(NavigationEvent.ForumIndex)
                 else -> return true
@@ -1209,6 +1218,7 @@ class ThreadDisplayFragment : AwfulFragment(), NavigationEventHandler {
             aUserId: String,
             lastReadUrl: String,
             editable: Boolean,
+            hasModControls: Boolean,
             posterRole: String?,
             isPlat: Boolean,
             avatarUrl: String
@@ -1217,7 +1227,9 @@ class ThreadDisplayFragment : AwfulFragment(), NavigationEventHandler {
                 this@ThreadDisplayFragment.threadId,
                 aPostId.toInt(),
                 lastReadUrl.toInt(),
-                editable, aUsername,
+                editable,
+                hasModControls,
+                aUsername,
                 aUserId.toInt(),
                 isPlat,
                 posterRole,

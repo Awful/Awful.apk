@@ -16,6 +16,7 @@ import com.ferg.awfulapp.thread.AwfulPost.Companion.CONTENT
 import com.ferg.awfulapp.thread.AwfulPost.Companion.DATE
 import com.ferg.awfulapp.thread.AwfulPost.Companion.EDITABLE
 import com.ferg.awfulapp.thread.AwfulPost.Companion.EDITED
+import com.ferg.awfulapp.thread.AwfulPost.Companion.HAS_MOD_CONTROLS
 import com.ferg.awfulapp.thread.AwfulPost.Companion.ICON
 import com.ferg.awfulapp.thread.AwfulPost.Companion.IS_IGNORED
 import com.ferg.awfulapp.thread.AwfulPost.Companion.IS_OP
@@ -222,6 +223,7 @@ class PostParseTask(
                 ?.let { put(EDITED, "<i>${it.text()}</i>") }
 
             put(EDITABLE, postData.getElementsByAttributeValue("alt", "Edit").isNotEmpty().sqlBool)
+            put(HAS_MOD_CONTROLS, postData.hasDescendantWithClass("modqueue_ctl").sqlBool)
         }
     }
 

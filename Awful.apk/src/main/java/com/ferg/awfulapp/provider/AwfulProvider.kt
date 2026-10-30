@@ -170,6 +170,7 @@ class AwfulProvider : ContentProvider() {
         AwfulPost.IS_IGNORED to AwfulPost.IS_IGNORED,
         AwfulPost.PREVIOUSLY_READ to AwfulPost.PREVIOUSLY_READ,
         AwfulPost.EDITABLE to AwfulPost.EDITABLE,
+        AwfulPost.HAS_MOD_CONTROLS to AwfulPost.HAS_MOD_CONTROLS,
         AwfulPost.IS_OP to AwfulPost.IS_OP,
         AwfulPost.IS_PLAT to AwfulPost.IS_PLAT,
         AwfulPost.ROLE to AwfulPost.ROLE,

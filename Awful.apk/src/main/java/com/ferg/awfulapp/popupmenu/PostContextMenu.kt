@@ -8,6 +8,7 @@ import com.ferg.awfulapp.NavigationEvent.ComposePrivateMessage
 import com.ferg.awfulapp.NavigationEvent.LepersColony
 import com.ferg.awfulapp.R
 import com.ferg.awfulapp.ThreadDisplayFragment
+import com.ferg.awfulapp.popupmenu.ModeratePostMenu.Companion.newInstance
 import com.ferg.awfulapp.popupmenu.PostContextMenu.PostMenuAction
 import com.ferg.awfulapp.preferences.AwfulPreferences
 import com.ferg.awfulapp.thread.AwfulMessage
@@ -21,6 +22,7 @@ import com.ferg.awfulapp.thread.AwfulMessage
 class PostContextMenu : BasePopupMenu<PostMenuAction>() {
     private var posterUserId = 0
     private var editable = false
+    private var hasModControls = false
     private var posterHasPlat = false
     private var posterHasRole = false
     private var posterIsUnreportable = false
@@ -35,6 +37,7 @@ class PostContextMenu : BasePopupMenu<PostMenuAction>() {
     override fun init(args: Bundle) {
         posterUserId = args.getInt(ARG_POSTER_USER_ID)
         editable = args.getBoolean(ARG_EDITABLE)
+        hasModControls = args.getBoolean(ARG_HAS_MOD_CONTROLS);
         posterHasPlat = args.getBoolean(ARG_POSTER_HAS_PLAT)
         val posterRole = args.getString(ARG_POSTER_ROLE, "")
         posterHasRole = posterRole.isNotEmpty()
@@ -56,7 +59,7 @@ class PostContextMenu : BasePopupMenu<PostMenuAction>() {
         val awfulActions: MutableList<PostMenuAction?> = ArrayList<PostMenuAction?>()
 
         awfulActions.add(PostMenuAction.QUOTE)
-        if (editable) {
+        if (editable && ownPost) {
             awfulActions.add(PostMenuAction.EDIT)
         }
         awfulActions.add(PostMenuAction.MARK_LAST_SEEN)
@@ -77,6 +80,9 @@ class PostContextMenu : BasePopupMenu<PostMenuAction>() {
         }
         if (prefs.avatarsEnabled && posterAvatarUrl != null) {
             awfulActions.add(if (prefs.blockedAvatarUrls?.contains(posterAvatarUrl) == true) PostMenuAction.SHOW_AVATAR else PostMenuAction.HIDE_AVATAR)
+        }
+        if (!ownPost && (editable || hasModControls)) {
+            awfulActions.add(PostMenuAction.MODERATE);
         }
         return awfulActions
     }
@@ -123,11 +129,23 @@ class PostContextMenu : BasePopupMenu<PostMenuAction>() {
             PostMenuAction.SHOW_AVATAR, PostMenuAction.HIDE_AVATAR -> parent.toggleAvatar(
                 posterAvatarUrl
             )
+
+            PostMenuAction.MODERATE -> {
+                val moderateMenu = newInstance(
+                    threadId, postId,
+                    posterUserId, editable, hasModControls
+                )
+                moderateMenu.setTargetFragment(parent, -1)
+                moderateMenu.show(parent.getParentFragmentManager(), ModeratePostMenu.TAG)
+            }
         }
     }
 
 
     override fun getMenuLabel(action: PostMenuAction): String {
+        if (action == PostMenuAction.MODERATE) {
+            return getString(R.string.action_moderate_post);
+        }
         // need to add the post's username to some of these
         return String.format(action.menuLabel, posterUsername)
     }
@@ -152,7 +170,9 @@ class PostContextMenu : BasePopupMenu<PostMenuAction>() {
         RAP_SHEET(R.drawable.ic_gavel_dark_24dp, "%s's rap sheet"),
         IGNORE_USER(R.drawable.ic_ignore_dark, "Ignore %s"),
         SHOW_AVATAR(R.drawable.ic_visibility_dark, "Show avatar of %s"),
-        HIDE_AVATAR(R.drawable.ic_ignore_dark, "Hide avatar of %s")
+        HIDE_AVATAR(R.drawable.ic_ignore_dark, "Hide avatar of %s"),
+        // label comes from R.string.action_moderate_post, see #getMenuLabel
+        MODERATE(R.drawable.ic_info_dark, "")
     }
 
     companion object {
@@ -160,6 +180,7 @@ class PostContextMenu : BasePopupMenu<PostMenuAction>() {
 
         private const val ARG_POSTER_USER_ID = "posterUserId"
         private const val ARG_EDITABLE = "editable"
+        private const val ARG_HAS_MOD_CONTROLS = "hasModControls"
         private const val ARG_POSTER_HAS_PLAT = "posterHasPlat"
         private const val ARG_POSTER_ROLE = "posterRole"
         private const val ARG_THREAD_ID = "threadId"
@@ -188,6 +209,7 @@ class PostContextMenu : BasePopupMenu<PostMenuAction>() {
             postId: Int,
             lastReadCode: Int,
             editable: Boolean,
+            hasModControls: Boolean,
             posterUsername: String,
             posterUserId: Int,
             posterHasPlat: Boolean,
@@ -199,6 +221,7 @@ class PostContextMenu : BasePopupMenu<PostMenuAction>() {
             val args = Bundle().apply {
                 putInt(ARG_POSTER_USER_ID, posterUserId)
                 putBoolean(ARG_EDITABLE, editable)
+                putBoolean(ARG_HAS_MOD_CONTROLS, hasModControls)
                 putBoolean(ARG_POSTER_HAS_PLAT, posterHasPlat)
                 putString(ARG_POSTER_ROLE, posterRole)
                 putInt(ARG_THREAD_ID, threadId)
