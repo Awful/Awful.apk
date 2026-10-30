@@ -32,7 +32,7 @@
             android:textCursorDrawable="@null"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.ferg.awfulapp.widget.SwipyRefreshLayout
+    <com.ferg.awfulapp.widget.AwfulRefreshLayout
         android:id="@+id/search_srl"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
@@ -49,6 +49,6 @@
             android:dividerHeight="1dp"
             tools:listitem="@layout/search_result_item"
             />
-    </com.ferg.awfulapp.widget.SwipyRefreshLayout>
+    </com.ferg.awfulapp.widget.AwfulRefreshLayout>
 
 </LinearLayout>

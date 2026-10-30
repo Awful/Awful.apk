@@ -3,7 +3,6 @@ package com.ferg.awfulapp.forums
 import android.content.Context
 import androidx.annotation.WorkerThread
 import com.ferg.awfulapp.constants.Constants.DEBUG
-import com.ferg.awfulapp.forums.UpdateTask.ResultListener
 import com.ferg.awfulapp.network.NetworkUtils
 import com.ferg.awfulapp.task.AwfulRequest
 import com.ferg.awfulapp.util.AwfulError
@@ -27,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * added task by this amount of time, allowing you to space out requests and avoid hitting the site
  * too heavily.
  */
-internal abstract class UpdateTask(protected val context: Context, private val taskDelayMillis: Int = 0) {
+abstract class UpdateTask(protected val context: Context, private val taskDelayMillis: Int = 0) {
 
     /**
      * Single thread, basically processes request tasks sequentially, so they can be delayed
@@ -59,7 +58,7 @@ internal abstract class UpdateTask(protected val context: Context, private val t
     private var resultListener: ResultListener? = null
 
 
-    internal interface ResultListener {
+    interface ResultListener {
         /**
          * Called when the UpdateTask has finished.
          *
@@ -126,7 +125,7 @@ internal abstract class UpdateTask(protected val context: Context, private val t
 
         // print some debug infos about what was produced
         if (DEBUG && forumStructure != null) {
-            val allForums = forumStructure.asList.formatAs(ForumStructure.FLAT).build()
+            val allForums = forumStructure.asList.formatAs(ForumStructure.ListFormat.FLAT).build()
             Timber.w("Forums parsed! ${allForums.size} sections found:\n\n")
             for (line in printForums(forumStructure).split("\\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()) {
                 Timber.w(line)
@@ -254,7 +253,7 @@ internal abstract class UpdateTask(protected val context: Context, private val t
 
 
     private fun printForums(forums: ForumStructure): String {
-        val topLevelForums = forums.asList.formatAs(ForumStructure.FULL_TREE).build()
+        val topLevelForums = forums.asList.formatAs(ForumStructure.ListFormat.FULL_TREE).build()
         return buildString {
             topLevelForums.forEach { printForum(it, 0) }
         }
@@ -263,8 +262,8 @@ internal abstract class UpdateTask(protected val context: Context, private val t
 
     private fun StringBuilder.printForum(forum: Forum, depth: Int) {
         with(forum) {
-            appendPadded(title, depth)
-            if (subtitle.isNotBlank()) appendPadded(subtitle, depth)
+            appendPadded(title!!, depth)
+            if (subtitle?.isNotBlank() == true) appendPadded(subtitle!!, depth)
             subforums.forEach { printForum(it, depth + 1) }
         }
     }

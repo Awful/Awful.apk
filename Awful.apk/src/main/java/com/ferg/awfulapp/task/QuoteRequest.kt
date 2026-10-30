@@ -2,7 +2,9 @@ package com.ferg.awfulapp.task
 
 import android.content.ContentValues
 import android.content.Context
-import com.ferg.awfulapp.constants.Constants.*
+import com.ferg.awfulapp.constants.Constants.FUNCTION_POST_REPLY
+import com.ferg.awfulapp.constants.Constants.PARAM_ACTION
+import com.ferg.awfulapp.constants.Constants.PARAM_POST_ID
 import com.ferg.awfulapp.provider.DatabaseHelper
 import com.ferg.awfulapp.reply.Reply
 import com.ferg.awfulapp.util.AwfulError

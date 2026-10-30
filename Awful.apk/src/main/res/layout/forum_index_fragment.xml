@@ -26,14 +26,10 @@
             app:status_message="@string/no_forums_data"
             />
 
-        <androidx.recyclerview.widget.RecyclerView
+        <androidx.compose.ui.platform.ComposeView
             android:id="@+id/forum_index_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:cacheColorHint="@android:color/white"
-            android:dividerHeight="1dp"
-            android:drawSelectorOnTop="false"
-            android:groupIndicator="@android:color/transparent"
             android:visibility="visible"
             />
 

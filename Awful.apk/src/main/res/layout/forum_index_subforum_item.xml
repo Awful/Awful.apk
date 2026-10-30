@@ -19,7 +19,6 @@
         android:id="@+id/forum_details"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@id/section_title"
         android:layout_centerVertical="true"
         android:layout_marginLeft="40dp"
         android:paddingBottom="@dimen/material_list_item_vertical_padding"

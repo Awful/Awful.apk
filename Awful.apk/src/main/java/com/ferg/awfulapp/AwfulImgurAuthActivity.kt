@@ -5,7 +5,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import com.ferg.awfulapp.preferences.AwfulPreferences
-import com.ferg.awfulapp.preferences.Keys
+import com.ferg.awfulapp.preferences.LongPreference
+import com.ferg.awfulapp.preferences.StringPreference
 
 
 /**
@@ -23,15 +24,15 @@ class AwfulImgurAuthActivity : Activity() {
     }
 
     private fun parseImgurResponse() {
-        val tokenUri = Uri.parse(intent.data?.toString()?.replace("#","?"));
-        val accessToken = tokenUri.getQueryParameter("access_token");
-        val refreshToken = tokenUri.getQueryParameter("refresh_token");
-        val account = tokenUri.getQueryParameter("account_username");
-        val expiresIn = (tokenUri.getQueryParameter("expires_in")!!.toLong() * 1000L) + System.currentTimeMillis();
+        val tokenUri = Uri.parse(intent.data?.toString()?.replace("#","?"))
+        val accessToken = tokenUri.getQueryParameter("access_token")
+        val refreshToken = tokenUri.getQueryParameter("refresh_token")
+        val account = tokenUri.getQueryParameter("account_username")
+        val expiresIn = tokenUri.getQueryParameter("expires_in")?.toLong()?.times(1000L)?.plus(System.currentTimeMillis())
 
-        AwfulPreferences.getInstance().setPreference(Keys.IMGUR_ACCOUNT_TOKEN, accessToken);
-        AwfulPreferences.getInstance().setPreference(Keys.IMGUR_REFRESH_TOKEN, refreshToken);
-        AwfulPreferences.getInstance().setPreference(Keys.IMGUR_ACCOUNT, account);
-        AwfulPreferences.getInstance().setPreference(Keys.IMGUR_TOKEN_EXPIRES, expiresIn ?: 0L);
+        AwfulPreferences.getInstance().setPreference(StringPreference.IMGUR_ACCOUNT_TOKEN, accessToken)
+        AwfulPreferences.getInstance().setPreference(StringPreference.IMGUR_REFRESH_TOKEN, refreshToken)
+        AwfulPreferences.getInstance().setPreference(StringPreference.IMGUR_ACCOUNT, account)
+        AwfulPreferences.getInstance().setPreference(LongPreference.IMGUR_TOKEN_EXPIRES, expiresIn ?: 0)
     }
 }

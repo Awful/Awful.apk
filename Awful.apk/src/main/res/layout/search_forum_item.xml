@@ -8,11 +8,11 @@
         android:id="@+id/search_forum_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical|left"
+        android:layout_gravity="center_vertical|start"
         android:text="General Bullshit 2: On The Move"/>
     <CheckBox
         android:id="@+id/search_forum_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical|right" />
+        android:layout_gravity="center_vertical|end" />
 </FrameLayout>

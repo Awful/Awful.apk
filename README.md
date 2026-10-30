@@ -25,13 +25,13 @@ Or take a look at [our issues][issues] and set up your own fork to quash some bu
    1. [Register a new application for the Imgur API][imgur-api-docs].
    2. Create the file [`secrets.xml`][secrets-example] in `/Awful.apk/src/main/res/values/`.
    3. Place the client ID in `secrets.xml`, like so:
-```
-<?xml version=1.0 encoding="utf-8"?>
-<resources>
-    <string name="imgur_api_client_id">YOUR_CLIENT_ID</string>
-</resources>
-```
-6. `Build > Make Project` should run without any issues!
+   ```
+   <?xml version=1.0 encoding="utf-8"?>
+   <resources>
+       <string name="imgur_api_client_id">YOUR_CLIENT_ID</string>
+   </resources>
+   ```
+5. `Build > Make Project` should run without any issues!
 
 Further questions or problems? Please let us know in the [dev thread][dev-thread].
 

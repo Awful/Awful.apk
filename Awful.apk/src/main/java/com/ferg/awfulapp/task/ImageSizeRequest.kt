@@ -18,7 +18,7 @@ class ImageSizeRequest
  * @param url      the url of the resource
  * @param listener receives a response containing the resource size, or null if there was an error
  */
-(url: String, private val listener: Response.Listener<Int>) : Request<Int>(Request.Method.HEAD, url, null) {
+(url: String, private val listener: Response.Listener<Int>) : Request<Int>(Method.HEAD, url, null) {
 
     override fun parseNetworkResponse(response: NetworkResponse): Response<Int>? {
         val length = response.headers?.get("Content-Length") ?: return null

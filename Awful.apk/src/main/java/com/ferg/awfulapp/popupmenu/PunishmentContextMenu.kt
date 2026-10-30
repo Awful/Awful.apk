@@ -20,7 +20,7 @@ class PunishmentContextMenu : BasePopupMenu<PunishmentContextMenu.PunishmentMenu
 
     private lateinit var punishedUser: User
     private lateinit var admin: User
-    private var badPostUrl: String? = null
+    private lateinit var badPostUrl: String
     private var isRapSheet: Boolean = false
 
     companion object {
@@ -57,15 +57,17 @@ class PunishmentContextMenu : BasePopupMenu<PunishmentContextMenu.PunishmentMenu
     override fun init(args: Bundle) = with(args) {
         punishedUser = User(id = getInt(ARG_USER_ID), username = getString(ARG_USERNAME)!!)
         admin = User(id = getInt(ARG_ADMIN_ID), username = getString(ARG_ADMIN_NAME)!!)
-        badPostUrl = getString(ARG_BAD_POST_URL)
+        badPostUrl = getString(ARG_BAD_POST_URL) ?: ""
         isRapSheet = getBoolean(ARG_IS_RAP_SHEET)
     }
 
     override fun generateMenuItems() =
-            mutableListOf<PunishmentMenuAction>()
-                    .apply { badPostUrl?.let { add(GO_TO_BAD_POST) } }
-                    .apply { if (!isRapSheet) add(USER_RAP_SHEET) }
-//                    .apply { add(MORE_BY_ADMIN) }
+            mutableListOf<PunishmentMenuAction?>()
+                    .apply {
+                        add(GO_TO_BAD_POST)
+                        if (!isRapSheet) add(USER_RAP_SHEET)
+                        // add(MORE_BY_ADMIN)
+                    }
 
     override fun getMenuLabel(action: PunishmentMenuAction) =
             String.format(action.menuLabel, punishedUser.username)
@@ -73,15 +75,14 @@ class PunishmentContextMenu : BasePopupMenu<PunishmentContextMenu.PunishmentMenu
     // TODO: this doesn't really NEED a title, maybe make it optional (with the title area removed)?
     // this would probably be better with a disabled menu entry (a new MISSING_POST Action or something)
     // but I ain't rewriting the whole context menu system to make that happen right now
-    override fun getTitle() = badPostUrl?.let { "Select an action" } ?: "(post is unavailable)"
+    override fun getTitle() = badPostUrl.let { "Select an action" }
 
     override fun onActionClicked(action: PunishmentMenuAction) {
         fun tryNavigate(e: NavigationEvent) {
             (activity as AwfulActivity?)?.navigate(e)
         }
         when (action) {
-            GO_TO_BAD_POST ->
-                badPostUrl.run(AwfulURL::parse).run(NavigationEvent::Url).run(::tryNavigate)
+            GO_TO_BAD_POST -> badPostUrl.run(AwfulURL::parse).run(NavigationEvent::Url).run(::tryNavigate)
             USER_RAP_SHEET ->
                 NavigationEvent.LepersColony(punishedUser.id).run(::tryNavigate)
             MORE_BY_ADMIN ->
@@ -92,7 +93,7 @@ class PunishmentContextMenu : BasePopupMenu<PunishmentContextMenu.PunishmentMenu
 
     enum class PunishmentMenuAction(
             @DrawableRes private val iconResId: Int,
-            private val menuText: String
+            menuText: String
     ) : AwfulAction {
 
         GO_TO_BAD_POST(R.drawable.ic_insert_comment_dark_24dp, "View this bad post"),
@@ -100,8 +101,8 @@ class PunishmentContextMenu : BasePopupMenu<PunishmentContextMenu.PunishmentMenu
         MORE_BY_ADMIN(R.drawable.ic_error_dark, "More approved by this admin");
 
         // TODO: if these menus are all reworked in Kotlin, make these overridable vals instead of functions so we don't have to add getters like this
-        override fun getIconId() = iconResId
-        override fun getMenuLabel() = menuText
+        override val iconId = iconResId
+        override val menuLabel = menuText
     }
 
 }

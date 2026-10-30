@@ -48,14 +48,14 @@ class ZoomViewFragment : AwfulFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         return inflateView(R.layout.zoom_view_fragment, container, inflater)
     }
 
     override fun onActivityCreated(aSavedState: Bundle?) {
         super.onActivityCreated(aSavedState)
-        val mImageView = requireActivity().findViewById<View>(R.id.zoom_view) as AwfulWebView
-        val imageUrl = requireActivity().intent.getStringExtra(EXTRA_IMAGE_URL);
+        val mImageView = requireActivity().findViewById<AwfulWebView>(R.id.zoom_view)
+        val imageUrl = requireActivity().intent.getStringExtra(EXTRA_IMAGE_URL)
 
         val imageHtml = StringBuilder()
         imageHtml.append("<html><head><meta name=\"viewport\" content=\"width=device-width, maximum-scale=10\"></head>")
@@ -63,12 +63,12 @@ class ZoomViewFragment : AwfulFragment() {
         imageHtml.append(imageUrl)
         imageHtml.append("\"></body></html>")
 
-        mImageView.getSettings().setSupportZoom(true)
-        mImageView.getSettings().setBuiltInZoomControls(true)
-        mImageView.getSettings().setDisplayZoomControls(false)
-        mImageView.getSettings().setLoadWithOverviewMode(true);
-        mImageView.getSettings().setUseWideViewPort(true);
-        mImageView.setInitialScale(1);
+        mImageView.settings.setSupportZoom(true)
+        mImageView.settings.builtInZoomControls = true
+        mImageView.settings.displayZoomControls = false
+        mImageView.settings.loadWithOverviewMode = true
+        mImageView.settings.useWideViewPort = true
+        mImageView.setInitialScale(1)
         mImageView.loadDataWithBaseURL(null, imageHtml.toString(), "text/html", "UTF-8", null)
 
         setActionBarTitle(imageUrl!!)

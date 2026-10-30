@@ -60,7 +60,7 @@
     <color name="popup_warning_text">#FF0000</color>
 
 
-    <!-- Bookmark colours for stars/unread counters -->
+    <!-- Bookmark colors for stars/unread counters -->
     <integer-array name="bookmarkColors">
         <item>@color/bookmark_default</item>
         <item>@color/bookmark_orange</item>
@@ -79,39 +79,6 @@
         <item>@color/bookmark_cyan_dim</item>
         <item>@color/bookmark_green_dim</item>
         <item>@color/bookmark_purple_dim</item>
-    </integer-array>
-
-
-    <!-- Arrays for the spinny progress wheel colours -->
-
-    <integer-array name="defaultSrlProgressColors">
-        <item>@android:color/holo_green_light</item>
-        <item>@android:color/holo_orange_light</item>
-        <item>@android:color/holo_red_light</item>
-        <item>@android:color/holo_blue_bright</item>
-    </integer-array>
-
-    <integer-array name="darkSrlProgressColors">
-        <item>@color/forums_blue_darker</item>
-        <item>@color/forums_blue_evendarker</item>
-    </integer-array>
-
-    <integer-array name="oledSrlProgressColors">
-        <item>@color/dark_default_post_font</item>
-    </integer-array>
-
-    <integer-array name="yosposSrlProgressColors">
-        <item>@android:color/black</item>
-    </integer-array>
-
-    <integer-array name="fyadSrlProgressColors">
-        <item>@color/fyad_default_post_font</item>
-        <item>@color/fyad_secondary_post_font</item>
-    </integer-array>
-
-    <integer-array name="byobSrlProgressColors">
-        <item>@color/byob_secondary_post_font</item>
-        <item>@color/byob_default_post_font</item>
     </integer-array>
 
     <!-- page bar -->

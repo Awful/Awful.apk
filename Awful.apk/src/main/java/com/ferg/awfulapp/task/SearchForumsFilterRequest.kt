@@ -12,7 +12,5 @@ import java.util.*
 class SearchForumsFilterRequest(context: Context)
     : AwfulRequest<ArrayList<AwfulSearchForum>>(context, FUNCTION_SEARCH) {
 
-    override fun handleResponse(doc: Document): ArrayList<AwfulSearchForum> =
-            AwfulSearchForum.parseSearchForums(doc)
-
+    override fun handleResponse(doc: Document): ArrayList<AwfulSearchForum> = AwfulSearchForum.parseSearchForums(doc)
 }

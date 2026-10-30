@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
@@ -14,6 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:adjustViewBounds="true"
+        android:contentDescription="@string/smugdog_description"
         android:scaleType="fitCenter"
         android:src="@drawable/dealwithit" />
 
@@ -22,7 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:drawableLeft="@drawable/emot_goonsay"
+        android:drawableStart="@drawable/emot_goonsay"
         android:drawablePadding="4dp"
         android:text="@string/login_message"
         android:textSize="18sp" />
@@ -44,6 +44,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/username"
+                android:autofillHints="username"
                 android:inputType="textVisiblePassword|textNoSuggestions">
 
                 <requestFocus />
@@ -59,6 +60,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/password"
+                android:autofillHints="password"
                 android:inputType="textPassword" />
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
@@ -68,8 +70,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/login_text_container"
-        android:layout_alignParentLeft="true"
-        android:layout_marginRight="5dip"
+        android:layout_alignParentStart="true"
+        android:layout_marginEnd="5dip"
         android:layout_marginTop="5dip" />
 
 
@@ -78,16 +80,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/login_text_container"
-        android:layout_toLeftOf="@id/login"
-        android:layout_toRightOf="@id/login_accept"
-        android:layout_marginRight="15dip"
+        android:layout_toStartOf="@id/login"
+        android:layout_toEndOf="@id/login_accept"
+        android:layout_marginEnd="15dip"
         android:text="@string/terms_and_conditions" />
 
     <Button
         android:id="@+id/login"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_below="@+id/login_text_container"
         android:background="#AAFFFFFF"
         android:drawablePadding="15dip"

@@ -2,6 +2,7 @@ package com.ferg.awfulapp
 
 import android.app.Activity
 import android.app.Dialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
@@ -26,11 +27,11 @@ class LogOutDialog : DialogFragment() {
             AlertDialog.Builder(requireActivity())
                     .setTitle(R.string.logout)
                     .setMessage(R.string.logout_message)
-                    .setPositiveButton(R.string.logout, { _, _ ->
+                    .setPositiveButton(R.string.logout) { _, _ ->
                         activity?.let(::reAuthenticate) ?: logOut()
-                    })
-                    .setNegativeButton(R.string.cancel, { _, _ -> Unit })
-                    .create()
+                    }
+                .setNegativeButton(R.string.cancel) { _, _ -> }
+                .create()
 
 }
 
@@ -59,5 +60,5 @@ object Authentication {
     }
 
 
-    private val context by lazy { AwfulPreferences.getInstance().context }
+    private val context: Context by lazy { AwfulPreferences.getInstance().context }
 }

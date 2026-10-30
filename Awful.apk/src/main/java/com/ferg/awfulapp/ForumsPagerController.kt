@@ -2,19 +2,20 @@ package com.ferg.awfulapp
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.drawable.ColorDrawable
-import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
+import android.util.AttributeSet
+import android.view.MotionEvent
+import android.view.ViewGroup
+import androidx.core.graphics.drawable.toDrawable
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
-import android.util.AttributeSet
-import android.view.MotionEvent
-import android.view.ViewGroup
-import com.ferg.awfulapp.Pages.*
+import com.ferg.awfulapp.Pages.ForumDisplay
+import com.ferg.awfulapp.Pages.ForumIndex
+import com.ferg.awfulapp.Pages.ThreadDisplay
 import com.ferg.awfulapp.constants.Constants
 import com.ferg.awfulapp.preferences.AwfulPreferences
 import com.ferg.awfulapp.provider.ColorProvider
@@ -38,7 +39,7 @@ enum class Pages(val width: Float) {
     ForumIndex(0.4f), ForumDisplay(0.6f), ThreadDisplay(1f);
 
     companion object {
-        operator fun get(index: Int) = values()[index]
+        operator fun get(index: Int) = entries[index]
     }
 }
 
@@ -221,9 +222,6 @@ class ForumsPagerController(
 
     fun onPreferenceChange(prefs: AwfulPreferences) {
         setSwipeEnabled(!prefs.lockScrolling)
-        if (!AwfulUtils.isTablet(prefs.context) && AwfulUtils.isAtLeast(Build.VERSION_CODES.JELLY_BEAN_MR1) && prefs.transformer != "Disabled") {
-            viewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer())
-        }
     }
 
     fun onConfigurationChange(prefs: AwfulPreferences) {
@@ -231,7 +229,7 @@ class ForumsPagerController(
         // only update if there's a change in tablet mode (also happens on init when tabletMode is null)
         if (tabletMode != isTablet) {
             viewPager.pageMargin = if (isTablet) 1 else 0
-            if (isTablet) viewPager.setPageMarginDrawable(ColorDrawable(ColorProvider.ACTION_BAR.color))
+            if (isTablet) viewPager.setPageMarginDrawable(ColorProvider.ACTION_BAR.color.toDrawable())
         }
         tabletMode = isTablet
     }
@@ -372,7 +370,7 @@ class SwipeLockViewPager @JvmOverloads constructor(
 ) : ViewPager(context, attrs) {
 
     /** Enable or disable swiping on this viewpager */
-    var swipeEnabled by Delegates.observable(true, { _, _, enabled -> if (!enabled) cancelSwipe() })
+    var swipeEnabled by Delegates.observable(true) { _, _, enabled -> if (!enabled) cancelSwipe() }
     private var ignoreMotion = false
 
     /** Forcibly end the current swipe, and ignore any further motion events (avoids regaining focus during a swipe and seeing it as a large, sudden move) */

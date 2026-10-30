@@ -2,7 +2,9 @@ package com.ferg.awfulapp.task
 
 import android.content.Context
 import android.net.Uri
-import com.ferg.awfulapp.constants.Constants.*
+import com.ferg.awfulapp.constants.Constants.FUNCTION_BANLIST
+import com.ferg.awfulapp.constants.Constants.PARAM_PAGE
+import com.ferg.awfulapp.constants.Constants.PARAM_USER_ID
 import com.ferg.awfulapp.task.LepersColonyRequest.LepersColonyPage
 import com.ferg.awfulapp.users.LepersColonyFragment.Companion.FIRST_PAGE
 import com.ferg.awfulapp.users.Punishment

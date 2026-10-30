@@ -1,7 +1,13 @@
 package com.ferg.awfulapp.task
 
 import android.content.Context
-import com.ferg.awfulapp.constants.Constants.*
+import com.ferg.awfulapp.constants.Constants.ACTION_ADDLIST
+import com.ferg.awfulapp.constants.Constants.FORMKEY
+import com.ferg.awfulapp.constants.Constants.FUNCTION_MEMBER2
+import com.ferg.awfulapp.constants.Constants.PARAM_ACTION
+import com.ferg.awfulapp.constants.Constants.PARAM_USERLIST
+import com.ferg.awfulapp.constants.Constants.PARAM_USER_ID
+import com.ferg.awfulapp.constants.Constants.USERLIST_IGNORE
 import com.ferg.awfulapp.util.AwfulError
 import org.jsoup.nodes.Document
 
@@ -14,8 +20,8 @@ class IgnoreRequest(context: Context, userId: Int)
         with(parameters) {
             add(PARAM_ACTION, ACTION_ADDLIST)
             add(PARAM_USERLIST, USERLIST_IGNORE)
-            add(FORMKEY, preferences.ignoreFormkey)
-            add(PARAM_USER_ID, Integer.toString(userId))
+            add(FORMKEY, preferences.ignoreFormkey!!)
+            add(PARAM_USER_ID, userId.toString())
         }
     }
 

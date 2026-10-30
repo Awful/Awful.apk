@@ -8,12 +8,25 @@ import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
 import androidx.annotation.UiThread
-import com.android.volley.*
+import com.android.volley.AuthFailureError
+import com.android.volley.DefaultRetryPolicy
+import com.android.volley.Header
+import com.android.volley.NetworkResponse
+import com.android.volley.ParseError
+import com.android.volley.Request
+import com.android.volley.RequestQueue
+import com.android.volley.Response
+import com.android.volley.VolleyError
 import com.android.volley.toolbox.HttpHeaderParser
 import com.ferg.awfulapp.AwfulApplication
-import com.ferg.awfulapp.CaptchaActivity
 import com.ferg.awfulapp.R
-import com.ferg.awfulapp.constants.Constants.*
+import com.ferg.awfulapp.constants.Constants.BASE_URL
+import com.ferg.awfulapp.constants.Constants.COOKIE_NAME_PASSWORD
+import com.ferg.awfulapp.constants.Constants.COOKIE_NAME_SESSIONHASH
+import com.ferg.awfulapp.constants.Constants.COOKIE_NAME_SESSIONID
+import com.ferg.awfulapp.constants.Constants.COOKIE_PREFERENCE
+import com.ferg.awfulapp.constants.Constants.COOKIE_PREF_USERID
+import com.ferg.awfulapp.constants.Constants.SITE_HTML_ENCODING
 import com.ferg.awfulapp.network.CookieController
 import com.ferg.awfulapp.network.NetworkUtils
 import com.ferg.awfulapp.preferences.AwfulPreferences
@@ -33,6 +46,8 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
 import java.net.HttpCookie
+import androidx.core.net.toUri
+import androidx.core.content.edit
 
 /**
  * Base class for requests to the Something Awful forums site, with HTML response and error handling.
@@ -62,11 +77,7 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
      * Represents parameters to be added to the final request.
      * The concrete type depends on whether this is a GET or POST request.
      */
-    protected val parameters: Parameters
-
-    init {
-        parameters = if (isPostRequest) PostParams() else GetParams()
-    }
+    protected val parameters: Parameters = if (isPostRequest) PostParams() else GetParams()
 
 
     protected sealed class Parameters {
@@ -129,7 +140,7 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
         // if it's a GET request, we need to build the full parameterised URL here
         val requestUrl =
                 if (parameters is GetParams) {
-                    val builder = Uri.parse(baseUrl).buildUpon()
+                    val builder = baseUrl.toUri().buildUpon()
                     parameters.params.entries
                             .fold(builder) { uri, (k, v) -> uri.appendQueryParameter(k, v) }
                             .build().toString()
@@ -204,11 +215,11 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
     protected open fun parseAsHtml(response: NetworkResponse): Document {
         val jsoupParseStart = System.currentTimeMillis()
         val contentType = response.headers?.get("content-type")
-        var charset = SITE_HTML_ENCODING;
+        var charset = SITE_HTML_ENCODING
         if (contentType != null) {
-            val requestCharset = cz.msebera.android.httpclient.entity.ContentType.parse(contentType).charset.toString().lowercase();
+            val requestCharset = cz.msebera.android.httpclient.entity.ContentType.parse(contentType)?.charset.toString().lowercase()
             if (requestCharset == "utf-8") {
-                charset = requestCharset;
+                charset = requestCharset
             }
         }
         val doc = Jsoup.parse(ByteArrayInputStream(response.data), charset, BASE_URL)
@@ -232,7 +243,7 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
             val importantCookies = arrayOf(COOKIE_PREF_USERID, COOKIE_NAME_PASSWORD, COOKIE_NAME_SESSIONID, COOKIE_NAME_SESSIONHASH)
             headers.forEach {
                 if (it.name != "Set-Cookie") { return@forEach; }
-                val cookie = HttpCookie.parse(it.value).first();
+                val cookie = HttpCookie.parse(it.value).first()
                 if (importantCookies.contains(cookie.name)){
                     cookieMap[cookie.name] = it.value
                 }
@@ -242,11 +253,11 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
                     COOKIE_PREFERENCE,
                     Context.MODE_PRIVATE
                 )
-                val edit = prefs.edit()
-                cookieMap.forEach {
-                    edit.putString(it.key, it.value)
+                prefs.edit {
+                    cookieMap.forEach {
+                        putString(it.key, it.value)
+                    }
                 }
-                edit.apply()
             }
         }
     }
@@ -259,12 +270,12 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
      * the constructor here, we can't just make AwfulRequest a subclass of this, since its subclasses
      * add their GET parameters in the init blocks
      */
-    private inner class ActualRequest internal constructor(
+    private inner class ActualRequest(
             url: String,
             private val success: Response.Listener<T>?,
             errorListener: Response.ErrorListener
     ) : Request<T>(
-            if (isPostRequest) Request.Method.POST else Request.Method.GET,
+            if (isPostRequest) Method.POST else Method.GET,
             url,
             errorListener
     ) {
@@ -289,7 +300,7 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
 
                 val result = handleResponseDocument(doc)
                 Timber.d("Successful parse: $url\nTook ${System.currentTimeMillis() - startTime}ms")
-                updateCookies(context, response.allHeaders);
+                updateCookies(context, response.allHeaders)
                 return Response.success(result, HttpHeaderParser.parseCacheHeaders(response))
             } catch (ae: AwfulError) {
                 return Response.error(ae)
@@ -344,9 +355,9 @@ abstract class AwfulRequest<T>(protected val context: Context, private val baseU
 
         @Throws(AuthFailureError::class)
         override fun getHeaders(): Map<String, String> {
-            return mutableMapOf<String, String>("User-Agent" to AwfulApplication.getAwfulUserAgent())
+            return mutableMapOf("User-Agent" to AwfulApplication.getAwfulUserAgent())
                 .apply(CookieController::setCookieHeaders)
-                .also { Timber.i("getHeaders: %s", this) };
+                .also { Timber.i("getHeaders: %s", this) }
         }
 
         @Throws(AuthFailureError::class)

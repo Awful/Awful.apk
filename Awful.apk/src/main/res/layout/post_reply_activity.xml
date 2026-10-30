@@ -1,42 +1,52 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/reply_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/background"
-    android:orientation="vertical">
+    android:background="?attr/background">
 
-    <include layout="@layout/toolbar" android:id="@+id/post_toolbar"/>
-
-    <TextView
-        android:id="@+id/thread_title"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:minHeight="@dimen/material_list_subtitle_height"
-        android:paddingLeft="@dimen/material_screen_edge_margin"
-        android:paddingRight="@dimen/material_screen_edge_margin"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        tools:text="Thread title"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <ImageView
+        <include
+            android:id="@+id/post_toolbar"
+            layout="@layout/toolbar" />
+
+        <TextView
+            android:id="@+id/thread_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:minHeight="@dimen/material_list_subtitle_height"
+            android:paddingLeft="@dimen/material_screen_edge_margin"
+            android:paddingRight="@dimen/material_screen_edge_margin"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            tools:text="Thread title"/>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?android:attr/listDivider"
+            tools:ignore="ContentDescription"/>
+
+        <fragment
+            android:id="@+id/reply_fragment"
+            android:name="com.ferg.awfulapp.PostReplyFragment"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginLeft="@dimen/material_screen_edge_margin"
+            android:layout_marginRight="@dimen/material_screen_edge_margin"
+            android:layout_weight="1"
+            tools:layout="@layout/message_composer"/>
+
+    </LinearLayout>
+
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/bottom_sheet_compose"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="?android:attr/listDivider"
-        tools:ignore="ContentDescription"/>
+        android:layout_height="match_parent" />
 
-    <fragment
-        android:id="@+id/reply_fragment"
-        android:name="com.ferg.awfulapp.PostReplyFragment"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginLeft="@dimen/material_screen_edge_margin"
-        android:layout_marginRight="@dimen/material_screen_edge_margin"
-        android:layout_weight="1"
-        tools:layout="@layout/message_composer"/>
-
-</LinearLayout>
+</FrameLayout>

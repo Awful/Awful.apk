@@ -3,7 +3,9 @@ package com.ferg.awfulapp.task
 import android.content.Context
 import com.android.volley.VolleyError
 import com.ferg.awfulapp.R
-import com.ferg.awfulapp.constants.Constants.*
+import com.ferg.awfulapp.constants.Constants.FUNCTION_RATE_THREAD
+import com.ferg.awfulapp.constants.Constants.PARAM_THREAD_ID
+import com.ferg.awfulapp.constants.Constants.PARAM_VOTE
 import com.ferg.awfulapp.util.AwfulError
 import org.jsoup.nodes.Document
 

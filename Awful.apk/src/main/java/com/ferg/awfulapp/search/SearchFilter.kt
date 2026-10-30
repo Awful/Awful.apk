@@ -48,12 +48,17 @@ class SearchFilter(val type: FilterType, val param: String) : Parcelable {
                 val add = AlertDialog.Builder(this)
                         .setTitle("Add search filter")
                         .setView(layout)
-                        .setPositiveButton("Add filter", { _, _ ->
-                            searchFragment.addFilter(SearchFilter(this@FilterType, textField.text.toString()))
-                        })
-                        .show()
-                searchFragment.awfulActivity?.setPreferredFont(add.findViewById<View>(androidx.appcompat.R.id.alertTitle))
-                searchFragment.awfulActivity?.setPreferredFont(add.findViewById<View>(android.R.id.button1))
+                        .setPositiveButton("Add filter") { _, _ ->
+                            searchFragment.addFilter(
+                                SearchFilter(
+                                    this@FilterType,
+                                    textField.text.toString()
+                                )
+                            )
+                        }
+                    .show()
+                searchFragment.awfulActivity?.setPreferredFont(add.findViewById(androidx.appcompat.R.id.alertTitle))
+                searchFragment.awfulActivity?.setPreferredFont(add.findViewById(android.R.id.button1))
                 searchFragment.awfulActivity?.setPreferredFont(layout)
             }
         }
@@ -67,7 +72,7 @@ class SearchFilter(val type: FilterType, val param: String) : Parcelable {
     //
 
     constructor(parcel: Parcel) : this(
-            FilterType.values()[parcel.readInt()],
+            FilterType.entries[parcel.readInt()],
             parcel.readString()!!
     )
 

@@ -1,7 +1,8 @@
 package com.ferg.awfulapp.task
 
 import android.content.Context
-import com.ferg.awfulapp.constants.Constants.*
+import com.ferg.awfulapp.constants.Constants.FUNCTION_REPORT
+import com.ferg.awfulapp.constants.Constants.PARAM_POST_ID
 import com.ferg.awfulapp.util.AwfulError
 import org.jsoup.nodes.Document
 
@@ -27,9 +28,9 @@ class ReportCheckRequest(context: Context, postId: Int)
             return ReportCheckResult(alreadyReported = true)
         }
         val warning = body.select("span.warningsmalltext")
-            ?.mapNotNull { it.text().takeIf(String::isNotBlank) }
-            ?.joinToString("\n")
-            ?.takeIf(String::isNotEmpty)
+            .mapNotNull { it.text().takeIf(String::isNotBlank) }
+            .joinToString("\n")
+            .takeIf(String::isNotEmpty)
         return ReportCheckResult(alreadyReported = false, warning = warning)
     }
 }

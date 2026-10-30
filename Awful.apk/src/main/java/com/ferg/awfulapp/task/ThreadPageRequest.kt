@@ -1,7 +1,11 @@
 package com.ferg.awfulapp.task
 
 import android.content.Context
-import com.ferg.awfulapp.constants.Constants.*
+import com.ferg.awfulapp.constants.Constants.FUNCTION_THREAD
+import com.ferg.awfulapp.constants.Constants.PARAM_PAGE
+import com.ferg.awfulapp.constants.Constants.PARAM_PER_PAGE
+import com.ferg.awfulapp.constants.Constants.PARAM_THREAD_ID
+import com.ferg.awfulapp.constants.Constants.PARAM_USER_ID
 import com.ferg.awfulapp.thread.AwfulThread
 import org.jsoup.nodes.Document
 

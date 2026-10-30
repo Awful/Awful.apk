@@ -17,7 +17,6 @@ import com.ferg.awfulapp.R
 import com.ferg.awfulapp.network.NetworkUtils
 import com.ferg.awfulapp.popupmenu.PunishmentContextMenu
 import com.ferg.awfulapp.provider.AwfulTheme
-import com.ferg.awfulapp.provider.ColorProvider
 import com.ferg.awfulapp.task.AwfulRequest
 import com.ferg.awfulapp.task.LepersColonyRequest
 import com.ferg.awfulapp.thread.AwfulHtmlPage
@@ -26,12 +25,9 @@ import com.ferg.awfulapp.util.bind
 import com.ferg.awfulapp.util.tryGetInt
 import com.ferg.awfulapp.webview.AwfulWebView
 import com.ferg.awfulapp.webview.WebViewJsInterface
+import com.ferg.awfulapp.widget.MinMaxNumberPicker
 import com.ferg.awfulapp.widget.PageBar
 import com.ferg.awfulapp.widget.PagePicker
-import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
-import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection
-import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection.BOTH
-import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection.TOP
 import com.samskivert.mustache.Mustache
 
 /**
@@ -58,7 +54,7 @@ import com.samskivert.mustache.Mustache
  */
 
 
-class LepersColonyFragment : AwfulFragment(), SwipyRefreshLayout.OnRefreshListener {
+class LepersColonyFragment : AwfulFragment() {
 
     private val webView: AwfulWebView by bind(R.id.web_view)
     private val pageBar: PageBar by bind(R.id.page_bar)
@@ -79,28 +75,36 @@ class LepersColonyFragment : AwfulFragment(), SwipyRefreshLayout.OnRefreshListen
         private const val KEY_CURRENT_PAGE = "current page"
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
             inflateView(R.layout.rap_sheet, container, inflater)
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        swipyLayout = view.findViewById(R.id.swipe_refresh_layout)
-        allowedSwipeRefreshDirections = BOTH
-        swipyLayout?.apply {
-            setColorSchemeResources(*ColorProvider.getSRLProgressColors(null))
-            setProgressBackgroundColor(ColorProvider.getSRLBackgroundColor(null))
+        refreshLayout = view.findViewById(R.id.swipe_refresh_layout)
+        refreshLayout?.apply {
             isEnabled = !prefs.disablePullNext
-            setOnRefreshListener(this@LepersColonyFragment)
+            onRefresh = {
+                refreshPage()
+            }
+            onRefresh = {
+                if(navigationState.page == lastPage) {
+                    refreshPage()
+                } else {
+                    turnPage(true)
+                }
+            }
         }
 
         pageBar.setListener(object : PageBar.PageBarCallbacks {
             override fun onPageNavigation(nextPage: Boolean) = turnPage(nextPage)
             override fun onRefreshClicked() = refreshPage()
-            override fun onPageNumberClicked() = PagePicker(activity, lastPage, navigationState.page) { button, resultValue ->
-                if (button == BUTTON_POSITIVE) navigationState.copy(page = resultValue).run(::navigate)
-            }.show()
+            override fun onPageNumberClicked() = PagePicker(requireActivity(), lastPage, navigationState.page, object : MinMaxNumberPicker.ResultListener {
+                override fun onButtonPressed(button: Int, resultValue: Int) {
+                    if (button == BUTTON_POSITIVE) navigationState.copy(page = resultValue).run(::navigate)
+                }
+            }).show()
         })
 
         webView.initialise()
@@ -157,14 +161,6 @@ class LepersColonyFragment : AwfulFragment(), SwipyRefreshLayout.OnRefreshListen
 
     /** Handle up navigation - just moves RapSheet -> LC -> Forums */
     private fun goUp() = navigate(if (isRapSheet) NavigationEvent.LepersColony() else NavigationEvent.MainActivity)
-
-
-    override fun onRefresh(direction: SwipyRefreshLayoutDirection) =
-            when {
-                direction == TOP -> refreshPage()
-                navigationState.page == lastPage -> refreshPage()
-                else -> turnPage(true)
-            }
 
     /**
      * Refresh the currently displayed page

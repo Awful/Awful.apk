@@ -1,17 +1,13 @@
 package com.ferg.awfulapp.task
 
-import android.net.Uri
-import com.ferg.awfulapp.constants.Constants
-import com.ferg.awfulapp.thread.AwfulPostIcon
-import java.util.ArrayList
-
 import android.content.Context
-import com.ferg.awfulapp.util.AwfulError
-import org.jsoup.nodes.Document
-
+import com.ferg.awfulapp.constants.Constants
 import com.ferg.awfulapp.constants.Constants.FUNCTION_NEW_THREAD
 import com.ferg.awfulapp.constants.Constants.FUNCTION_PRIVATE_MESSAGE
 import com.ferg.awfulapp.constants.Constants.POST_ICON_REQUEST_TYPES.PM
+import com.ferg.awfulapp.thread.AwfulPostIcon
+import com.ferg.awfulapp.util.AwfulError
+import org.jsoup.nodes.Document
 
 /**
  * An AwfulRequest that parses forum icons from the main forums page, and stores them in the database.

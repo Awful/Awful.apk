@@ -4,7 +4,7 @@ import android.content.Context
 import com.ferg.awfulapp.constants.Constants.FUNCTION_ANNOUNCEMENTS
 import com.ferg.awfulapp.preferences.AwfulPreferences
 import com.ferg.awfulapp.thread.AwfulPost
-import com.ferg.awfulapp.thread.AwfulPost.tryConvertToHttps
+import com.ferg.awfulapp.thread.AwfulPost.Companion.tryConvertToHttps
 import com.ferg.awfulapp.util.AwfulError
 import org.jsoup.nodes.Document
 import timber.log.Timber

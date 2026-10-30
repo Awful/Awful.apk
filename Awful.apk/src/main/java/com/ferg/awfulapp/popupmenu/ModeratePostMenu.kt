@@ -62,7 +62,7 @@ class ModeratePostMenu : BasePopupMenu<ModeratePostMenu.ModerateMenuAction>() {
     }
 
     override fun generateMenuItems() =
-            mutableListOf<ModerateMenuAction>()
+            mutableListOf<ModerateMenuAction?>()
                     .apply { if (editable) add(EDIT_POST) }
                     .apply { if (hasModControls) { add(REQUEST_PROBATION); add(REQUEST_BAN) } }
 
@@ -95,8 +95,8 @@ class ModeratePostMenu : BasePopupMenu<ModeratePostMenu.ModerateMenuAction>() {
         REQUEST_PROBATION(R.drawable.ic_history_dark_24dp, R.string.action_request_probation),
         REQUEST_BAN(R.drawable.ic_gavel_dark_24dp, R.string.action_request_ban);
 
-        override fun getIconId() = iconResId
+        override val iconId = iconResId
         // labels are resolved from menuLabelRes in getMenuLabel above, where a Context is available
-        override fun getMenuLabel() = ""
+        override val menuLabel = ""
     }
 }

@@ -38,7 +38,7 @@ class AlertView(private val activity: FragmentActivity?) {
     @DrawableRes
     private var iconResId = 0
     private var animation: Animation? = null
-    private var displayLength = Toast.LENGTH_SHORT;
+    private var displayLength = Toast.LENGTH_SHORT
 
 
     fun setTitle(@StringRes title: Int): AlertView {
@@ -70,11 +70,6 @@ class AlertView(private val activity: FragmentActivity?) {
         return this
     }
 
-    fun setIconAnimation(animation: Animation?): AlertView {
-        this.animation = animation
-        return this
-    }
-
     fun setDisplayLength(length: Int): AlertView {
         this.displayLength = length
         return this
@@ -88,7 +83,8 @@ class AlertView(private val activity: FragmentActivity?) {
 
     fun show(error: AwfulError) {
         activity?.runOnUiThread {
-            displayAlert(error.message, error.subMessage, error.iconResource, error.iconAnimation)
+            displayAlert(error.message, error.subMessage, error.iconResource, error.iconAnimation,
+                Toast.LENGTH_LONG)
         }
     }
 
@@ -115,15 +111,15 @@ class AlertView(private val activity: FragmentActivity?) {
       * Builds the alert and sets the view content to the input parameters.
       * If there is no content for a corresponding view, it remains hidden
       * The purpose of the [clear] is to reset all the values so the next call will be a fresh start
-      * This will allow the view to be reused to avoid unecessary multiple inflations and allocations
-      * This may be unecessary optimization for such a simple view, but since inflation is one of the
+      * This will allow the view to be reused to avoid unnecessary multiple inflations and allocations
+      * This may be unnecessary optimization for such a simple view, but since inflation is one of the
       * most expensive operations in the android OS we might as well avoid it
       * @param title
       * @param subtitle
       * @param iconRes
       * @param animate
      */
-    private fun displayAlert(title: String?, subtitle: String?, iconRes: Int, animate: Animation?) {
+    private fun displayAlert(title: String?, subtitle: String?, iconRes: Int, animate: Animation?, showDuration: Int = displayLength) {
 
         inflateView()
 
@@ -145,7 +141,7 @@ class AlertView(private val activity: FragmentActivity?) {
 
         with(Toast(activity)) {
             setGravity(Gravity.CENTER_VERTICAL, 0, 0)
-            duration = displayLength
+            duration = showDuration
             view = root
             show()
         }

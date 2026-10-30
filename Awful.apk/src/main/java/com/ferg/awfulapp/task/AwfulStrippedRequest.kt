@@ -44,9 +44,9 @@ abstract class AwfulStrippedRequest<T>(context: Context, apiUrl: String) : Awful
         // TODO: fall back to superclass implementation on error, set retry flag
         val startTime = System.currentTimeMillis()
         val contentType = response.headers?.get("content-type")
-        var charset = SITE_CHARSET;
+        var charset = SITE_CHARSET
         if (contentType != null) {
-            charset = ContentType.parse(contentType).charset
+            charset = ContentType.parse(contentType).charset ?: SITE_CHARSET
         }
         Timber.d("Stripping page selectors from HTML to speed up parsing")
         // grab the data as a string, and match the select blocks
@@ -64,11 +64,10 @@ abstract class AwfulStrippedRequest<T>(context: Context, apiUrl: String) : Awful
             selectedPage = pages.dataset().getValue("current-page").toInt()
             lastPage = pages.dataset().getValue("total-pages").toInt()
         }
-        return jsoupResponse;
+        return jsoupResponse
     }
 
     private val Long.elapsed get() = System.currentTimeMillis() - this
-    private fun MatchResult.tryParseInt() = this.groupValues[1].toIntOrNull()
 
     @Throws(AwfulError::class)
     override fun handleResponseDocument(document: Document): T {

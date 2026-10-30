@@ -49,8 +49,7 @@ import com.ferg.awfulapp.util.AwfulError
 import com.ferg.awfulapp.widget.AlertView
 import com.ferg.awfulapp.widget.AwfulProgressBar
 import com.ferg.awfulapp.widget.ProbationBar
-import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
-import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection.TOP
+import com.ferg.awfulapp.widget.AwfulRefreshLayout
 import timber.log.Timber
 
 abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdate,
@@ -61,10 +60,8 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
     protected val handler: Handler by lazy { Handler() }
     protected val alertView: AlertView by lazy { AlertView(activity) }
 
-    protected var swipyLayout: SwipyRefreshLayout? = null
+    protected var refreshLayout: AwfulRefreshLayout? = null
     // TODO: don't think this was ever initially set - just got reset (depending on the fragment type AFTER the first request ended) - fix that!
-    /** set to configure swiping on a particular fragment */
-    protected var allowedSwipeRefreshDirections = TOP
     private var progressBar: AwfulProgressBar? = null
     protected var probationBar: ProbationBar? = null
 
@@ -104,7 +101,11 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
         // set up the probation and progress bar, if we have them - use this ID when adding to a layout!
         progressBar = v.findViewById(R.id.progress_bar)
         probationBar = v.findViewById(R.id.probation_bar)
-        probationBar?.setListener { navigate(NavigationEvent.LepersColony(prefs.userId)) }
+        probationBar?.setListener(object : ProbationBar.Callbacks {
+            override fun onProbationButtonClicked() {
+                navigate(NavigationEvent.LepersColony(prefs.userId))
+            }
+        })
         awfulActivity!!.setPreferredFont(v)
         return v
     }
@@ -146,16 +147,12 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
 
     protected fun setProgress(percent: Int) {
         progressPercent = percent
-        if (progressPercent > 0) {
-            swipyLayout?.isRefreshing = false
-        }
         progressBar?.setProgress(percent, activity)
     }
 
-    protected fun makeToast(@StringRes text: Int, length: Int = Toast.LENGTH_LONG) {
+    protected fun makeToast(text: Int, length: Int = Toast.LENGTH_LONG) {
         makeToast(getString(text), length)
     }
-
     protected fun makeToast(text: String, length: Int = Toast.LENGTH_LONG) {
         activity?.let { Toast.makeText(it, text, length).show() }
     }
@@ -176,8 +173,7 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
 
     override fun requestStarted(req: AwfulRequest<*>) {
         // P2R Library is ... awful - part 1
-        swipyLayout?.direction = TOP
-        swipyLayout?.isRefreshing = true
+        setProgress(1)
     }
 
     override fun requestUpdate(req: AwfulRequest<*>, percent: Int) {
@@ -186,8 +182,6 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
 
     override fun requestEnded(req: AwfulRequest<*>, error: VolleyError?) {
         // P2R Library is ... awful - part 2
-        swipyLayout?.isRefreshing = false
-        swipyLayout?.direction = allowedSwipeRefreshDirections
 
         when (error) {
             is AwfulError -> alertView.show(error)
@@ -222,12 +216,7 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
     }
 
 
-    override fun onPreferenceChange(prefs: AwfulPreferences, key: String?) {
-        swipyLayout?.apply {
-            val dpHeight =
-                with(this@AwfulFragment.resources.displayMetrics) { heightPixels / density }
-            setDistanceToTriggerSync(Math.round(prefs.p2rDistance * dpHeight))
-        }
+    override fun onPreferenceChange(preferences: AwfulPreferences, key: String?) {
         refreshProbationBar()
     }
 

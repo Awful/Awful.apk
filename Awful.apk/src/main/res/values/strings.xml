@@ -230,6 +230,8 @@
     <string name="not_available_on_your_version">Not available on this version of Android</string>
     <string name="min_button_text">min</string>
     <string name="max_button_text">max</string>
+    <string name="new_message_placeholder">New Message</string>
+    <string name="message_sender">Sender: %s</string>
 
     <!-- search -->
     <string name="search_forums_activity_title">Search</string>
@@ -527,6 +529,7 @@
     <string name="post_warning">The functionality to create threads is fresh and may contain bugs that could potentially lead to auto-bans.\n\nThere are no safety nets.\n\nBy accepting this you acknowledge that you are voluntarily taking this risk and only have yourself to blame if you get banned, either due to an app-malfunction or (more likely) your dog-shit posting.</string>
     <string name="report_post_message">Did this post break the forum rules? If so, please report it by clicking below. If you would like to add any comments explaining why you submitted this post, please do so here:</string>
     <string name="terms_and_conditions">I accept the <a href="https://www.somethingawful.com/forum-rules/forum-rules/">terms and conditions of the forum rules</a></string>
+    <string name="smugdog_description">smugdog</string>
 
     <!-- Post moderation -->
     <string name="action_moderate_post">Moderate Post</string>

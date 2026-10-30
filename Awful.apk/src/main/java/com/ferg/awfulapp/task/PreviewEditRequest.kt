@@ -2,7 +2,17 @@ package com.ferg.awfulapp.task
 
 import android.content.ContentValues
 import android.content.Context
-import com.ferg.awfulapp.constants.Constants.*
+import com.ferg.awfulapp.constants.Constants.FUNCTION_EDIT_POST
+import com.ferg.awfulapp.constants.Constants.PARAM_ACTION
+import com.ferg.awfulapp.constants.Constants.PARAM_BOOKMARK
+import com.ferg.awfulapp.constants.Constants.PARAM_MESSAGE
+import com.ferg.awfulapp.constants.Constants.PARAM_PARSEURL
+import com.ferg.awfulapp.constants.Constants.PARAM_POST_ID
+import com.ferg.awfulapp.constants.Constants.PARAM_PREVIEW
+import com.ferg.awfulapp.constants.Constants.PARAM_SUBMIT
+import com.ferg.awfulapp.constants.Constants.PREVIEW_REPLY
+import com.ferg.awfulapp.constants.Constants.SUBMIT_REPLY
+import com.ferg.awfulapp.constants.Constants.YES
 import com.ferg.awfulapp.network.NetworkUtils
 import com.ferg.awfulapp.thread.AwfulMessage
 import com.ferg.awfulapp.thread.AwfulPost

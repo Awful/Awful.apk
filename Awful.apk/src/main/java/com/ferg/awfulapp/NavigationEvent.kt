@@ -15,6 +15,7 @@ import com.ferg.awfulapp.users.ModActionFragment
 import com.ferg.awfulapp.util.AwfulUtils
 import com.ferg.awfulapp.util.tryGetIntExtra
 import timber.log.Timber
+import androidx.core.net.toUri
 
 /**
  * Represents the navigation events we handle within the app, and any associated data for each.
@@ -95,7 +96,7 @@ sealed class NavigationEvent(private val extraTypeId: String) {
     data class Url(val url: AwfulURL) : NavigationEvent(TYPE_URL) {
 
         override val addDataToIntent: Intent.() -> Unit = {
-            data = Uri.parse(url.url)
+            data = url.uRL.toUri()
         }
     }
 
@@ -202,7 +203,7 @@ sealed class NavigationEvent(private val extraTypeId: String) {
             return when (getStringExtra(EVENT_EXTRA_KEY)) {
             //TODO: handle behaviour for missing data, e.g. can't navigate to a thread with no thread ID
             // TODO: might be better to default to null? And let the caller decide what to do when parsing fails - can use the elvis ?: to supply a default event
-                TYPE_RE_AUTHENTICATE -> NavigationEvent.ReAuthenticate
+                TYPE_RE_AUTHENTICATE -> ReAuthenticate
                 TYPE_SETTINGS -> Settings(
                         page = getStringExtra(Constants.SETTINGS_PAGE)
                 )
@@ -255,8 +256,8 @@ sealed class NavigationEvent(private val extraTypeId: String) {
             data?.scheme.apply {
                 if (!equals("http") && !equals("https")) return null
             }
-            with(AwfulURL.parse(dataString)) {
-                // this mirrors the old behaviour in ForumsIndexActivity - basically we need to
+            with(AwfulURL.parse(dataString!!)) {
+                // this mirrors the old behavior in ForumsIndexActivity - basically we need to
                 // hand the URL over to the ThreadDisplayFragment if it's a post or a redirecting thread.
                 return when {
                 // TODO: if it's a post, we're meant to pass the actual url through TDF.openThread(url) - let's not do that and just handle it here

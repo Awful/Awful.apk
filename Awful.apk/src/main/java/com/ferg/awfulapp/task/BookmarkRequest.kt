@@ -2,7 +2,9 @@ package com.ferg.awfulapp.task
 
 import android.content.ContentValues
 import android.content.Context
-import com.ferg.awfulapp.constants.Constants.*
+import com.ferg.awfulapp.constants.Constants.FUNCTION_BOOKMARK
+import com.ferg.awfulapp.constants.Constants.PARAM_ACTION
+import com.ferg.awfulapp.constants.Constants.PARAM_THREAD_ID
 import com.ferg.awfulapp.thread.AwfulThread
 import com.ferg.awfulapp.util.AwfulError
 import com.ferg.awfulapp.util.toSqlBoolean

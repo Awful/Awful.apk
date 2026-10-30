@@ -2,9 +2,12 @@ package com.ferg.awfulapp.task
 
 import android.content.Context
 import com.android.volley.NetworkResponse
-import com.ferg.awfulapp.constants.Constants.*
+import com.ferg.awfulapp.constants.Constants.FUNCTION_LOGIN
+import com.ferg.awfulapp.constants.Constants.PARAM_ACTION
+import com.ferg.awfulapp.constants.Constants.PARAM_PASSWORD
+import com.ferg.awfulapp.constants.Constants.PARAM_USERNAME
 import com.ferg.awfulapp.network.CookieController
-import com.ferg.awfulapp.preferences.Keys
+import com.ferg.awfulapp.preferences.StringPreference
 import com.ferg.awfulapp.util.AwfulError
 import org.jsoup.nodes.Document
 
@@ -37,7 +40,7 @@ class LoginRequest(context: Context, private val username: String, password: Str
      */
     private fun validateLoginState(): Boolean {
         return CookieController.saveLoginCookies(context).also { success ->
-            if (success) preferences.setPreference(Keys.USERNAME, username)
+            if (success) preferences.setPreference(StringPreference.USERNAME, username)
             }
     }
 

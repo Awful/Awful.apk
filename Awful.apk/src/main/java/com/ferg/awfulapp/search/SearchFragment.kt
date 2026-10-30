@@ -55,23 +55,23 @@ import com.ferg.awfulapp.R
 import com.ferg.awfulapp.constants.Constants
 import com.ferg.awfulapp.network.NetworkUtils
 import com.ferg.awfulapp.preferences.AwfulPreferences
-import com.ferg.awfulapp.provider.ColorProvider
 import com.ferg.awfulapp.task.AwfulRequest
 import com.ferg.awfulapp.task.SearchRequest
 import com.ferg.awfulapp.task.SearchResultPageRequest
 import com.ferg.awfulapp.thread.AwfulSearch
 import com.ferg.awfulapp.thread.AwfulSearchResult
 import com.ferg.awfulapp.thread.AwfulURL
-import com.ferg.awfulapp.widget.SwipyRefreshLayout
+import com.ferg.awfulapp.widget.AwfulRefreshLayout
 import com.google.android.material.snackbar.Snackbar
-import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection
 import org.apache.commons.lang3.ArrayUtils
 import timber.log.Timber
 import java.util.Locale.getDefault
+import androidx.core.view.size
+import androidx.core.view.get
 
-class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout.OnRefreshListener {
+class SearchFragment : AwfulFragment() {
 
-    private val mSearchQuery by lazy { requireView().findViewById(R.id.search_query) as EditText }
+    private val mSearchQuery by lazy { requireView().findViewById<EditText>(R.id.search_query)!! }
 
     private var mQueryId: Int = 0
     private var mMaxPageQueried: Int = 0
@@ -81,7 +81,7 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
 
     private var mDialog: ProgressDialog? = null
     private val mSearchResultList: RecyclerView by lazy {
-        (requireView().findViewById(R.id.search_results) as RecyclerView)
+        (requireView().findViewById<RecyclerView>(R.id.search_results)!!)
                 .apply {
                     adapter = SearchResultAdapter()
                     layoutManager =
@@ -90,13 +90,10 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
     }
     private var mSearchResults: MutableList<AwfulSearch> = mutableListOf()
 
-    private val mSRL: SwipyRefreshLayout by lazy {
-        (requireView().findViewById(R.id.search_srl) as SwipyRefreshLayout)
+    private val mSRL: AwfulRefreshLayout by lazy {
+        (requireView().findViewById<AwfulRefreshLayout>(R.id.search_srl)!!)
                 .apply {
-                    setOnRefreshListener(this@SearchFragment)
-                    setColorSchemeResources(*ColorProvider.getSRLProgressColors(null))
-                    setProgressBackgroundColor(ColorProvider.getSRLBackgroundColor(null))
-                    isEnabled = false
+                    onLoadMore = ::loadSearchResults
                 }
     }
 
@@ -107,7 +104,7 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
         retainInstance = false
     }
 
-    override fun onCreateView(aInflater: LayoutInflater, aContainer: ViewGroup?, aSavedState: Bundle?): View? {
+    override fun onCreateView(aInflater: LayoutInflater, aContainer: ViewGroup?, aSavedState: Bundle?): View {
         super.onCreateView(aInflater, aContainer, aSavedState)
         Timber.v("onCreateView")
         val result = inflateView(R.layout.search, aContainer, aInflater)
@@ -126,8 +123,8 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
     }
 
 
-    override fun onPreferenceChange(prefs: AwfulPreferences, key: String?) {
-        super.onPreferenceChange(prefs, key)
+    override fun onPreferenceChange(preferences: AwfulPreferences, key: String?) {
+        super.onPreferenceChange(preferences, key)
         invalidateOptionsMenu()
     }
 
@@ -159,7 +156,9 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
                                 mSearchResultList.adapter?.notifyDataSetChanged()
 
                                 mMaxPageQueried = 1
-                                mSRL.isEnabled = (queryId != 0 && mMaxPageQueried < pages)
+                                if(queryId == 0 || mMaxPageQueried >= pages) {
+                                    refreshLayout?.onLoadMore = {}
+                                }
                             }
                             Timber.e("resultsFound: %s\nmQueryPages: %s\nmQueryId: %s", result.resultsFound, mQueryPages, mQueryId)
                         }
@@ -181,18 +180,17 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater!!.inflate(R.menu.search, menu)
+        inflater.inflate(R.menu.search, menu)
         val fm = FontManager.getInstance()
-        val filterMenu = menu?.findItem(R.id.search_terms)!!.subMenu
-        SearchFilter.FilterType.values().forEach { filterMenu?.add(it.label) }
+        val filterMenu = menu.findItem(R.id.search_terms)!!.subMenu
+        SearchFilter.FilterType.entries.forEach { filterMenu?.add(it.label) }
         filterMenu?.forEach { fm.setMenuItemFont(it) }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         Timber.v("onOptionsItemSelected")
-        if (item == null) return super.onOptionsItemSelected(item)
         // check if it's one of our filters
-        SearchFilter.FilterType.values().firstOrNull { it.label == item.title.toString() }?.run {
+        SearchFilter.FilterType.entries.firstOrNull { it.label == item.title.toString() }?.run {
             showDialog(this@SearchFragment)
             return true
         }
@@ -212,8 +210,8 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
         super.onPrepareOptionsMenu(menu)
 
         val fm = FontManager.getInstance()
-        for (i in 0 until menu.size()) {
-            fm.setMenuItemFont(menu.getItem(i))
+        for (i in 0 until menu.size) {
+            fm.setMenuItemFont(menu[i])
         }
     }
 
@@ -237,34 +235,34 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
     }
 
 
-    override fun onRefresh(direction: SwipyRefreshLayoutDirection) {
+    fun loadSearchResults() {
         Timber.i("onRefresh: %s", mMaxPageQueried)
         val preItemCount = mSearchResultList.adapter?.itemCount ?: 0
-        NetworkUtils.queueRequest(SearchResultPageRequest(this.requireContext(), mQueryId, mMaxPageQueried + 1).build(null, object : AwfulRequest.AwfulResultCallback<ArrayList<AwfulSearch>> {
+        NetworkUtils.queueRequest(SearchResultPageRequest(this.requireContext(), mQueryId, mMaxPageQueried + 1).build(null, object : AwfulRequest.AwfulResultCallback<MutableList<AwfulSearch>> {
 
             // TODO: combine this with #search since they share functionality - maybe a SearchQuery object for the current query that holds this state we're changing
-            override fun success(result: ArrayList<AwfulSearch>) {
+            override fun success(result: MutableList<AwfulSearch>) {
                 mSearchResults.addAll(result)
                 mMaxPageQueried++
                 if (mMaxPageQueried >= mQueryPages) {
-                    mSRL.isEnabled = false
+                    mSRL.onLoadMore = {}
                 }
                 mSearchResultList.adapter?.notifyDataSetChanged()
-                mSRL.isRefreshing = false
+                mSRL.finishedLoading()
                 mSearchResultList.smoothScrollToPosition(preItemCount + 1)
             }
 
             override fun failure(error: VolleyError?) {
-                mSRL.isRefreshing = false
+                mSRL.finishedLoading()
             }
         }))
     }
 
-    private inner class SearchResultHolder internal constructor(internal val self: View) : RecyclerView.ViewHolder(self) {
-        internal val threadName: TextView = itemView.findViewById(R.id.search_result_threadname)
-        internal val hitInfo: TextView = itemView.findViewById(R.id.search_result_hit_info)
-        internal val blurb: TextView = itemView.findViewById(R.id.search_result_blurb)
-        internal val timestamp: TextView = itemView.findViewById(R.id.search_result_timestamp)
+    private class SearchResultHolder(val self: View) : RecyclerView.ViewHolder(self) {
+        val threadName: TextView = itemView.findViewById(R.id.search_result_threadname)
+        val hitInfo: TextView = itemView.findViewById(R.id.search_result_hit_info)
+        val blurb: TextView = itemView.findViewById(R.id.search_result_blurb)
+        val timestamp: TextView = itemView.findViewById(R.id.search_result_timestamp)
 
     }
 
@@ -284,7 +282,6 @@ class SearchFragment : AwfulFragment(), com.orangegangsters.github.swipyrefreshl
                 timestamp.text = result.postDate
 
                 val threadLink = result.threadLink
-                val forumId = result.forumId
                 self.setOnClickListener {
                     AwfulURL.parse(Constants.BASE_URL + threadLink).let(NavigationEvent::Url).let(::navigate)
                 }

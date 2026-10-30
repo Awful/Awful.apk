@@ -34,8 +34,7 @@ class LepersColonyActivity : AwfulActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (fragment.onOptionsItemSelected(item)) return true
-        return super.onOptionsItemSelected(item)
+        return fragment.onOptionsItemSelected(item) || super.onOptionsItemSelected(item)
     }
 
     // TODO: maybe replace this with BasicActivity? The fragment handles the intent parsing and navigation, this routing is never actually used?

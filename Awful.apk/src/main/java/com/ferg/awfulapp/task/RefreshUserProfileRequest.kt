@@ -1,12 +1,13 @@
 package com.ferg.awfulapp.task
 
 import android.content.Context
-import com.ferg.awfulapp.constants.Constants.*
+import com.ferg.awfulapp.constants.Constants.ACTION_PROFILE
+import com.ferg.awfulapp.constants.Constants.FUNCTION_MEMBER
+import com.ferg.awfulapp.constants.Constants.PARAM_ACTION
+import com.ferg.awfulapp.constants.Constants.PARAM_USER_ID
 import com.ferg.awfulapp.preferences.AwfulPreferences
-import com.ferg.awfulapp.preferences.Keys.IGNORE_FORMKEY
-import com.ferg.awfulapp.preferences.Keys.USER_AVATAR_URL
-import com.ferg.awfulapp.preferences.Keys.USER_ID
-import com.ferg.awfulapp.preferences.Keys.USERNAME
+import com.ferg.awfulapp.preferences.IntPreference
+import com.ferg.awfulapp.preferences.StringPreference
 import com.ferg.awfulapp.util.AwfulError
 import org.jsoup.nodes.Document
 
@@ -35,14 +36,14 @@ class RefreshUserProfileRequest(context: Context) : AwfulRequest<Void?>(context,
     override fun handleResponse(doc: Document): Void? {
         val formKey = doc.selectFirst("[name=formkey]")
                 ?: throw AwfulError("Couldn't read profile page")
-        preferences.setPreference(IGNORE_FORMKEY, formKey.`val`())
+        preferences.setPreference(StringPreference.IGNORE_FORMKEY, formKey.`val`())
 
         val userId = doc.selectFirst("[name=userId]")
                 ?: throw AwfulError("Couldn't read profile page")
-        preferences.setPreference(USER_ID, userId.`val`().toInt())
+        preferences.setPreference(IntPreference.USER_ID, userId.`val`().toInt())
         val username = doc.getElementById("loggedinusername")
                 ?: throw AwfulError("Couldn't read profile page")
-        preferences.setPreference(USERNAME, username.text().trim())
+        preferences.setPreference(StringPreference.USERNAME, username.text().trim())
 
         // the user's avatar (if any) is the image before the first <br> tag -
         // any images after that are gang tags, extra images to make the avatar longer, etc
@@ -51,7 +52,7 @@ class RefreshUserProfileRequest(context: Context) : AwfulRequest<Void?>(context,
                 ?.takeWhile { it.tagName() != "br" }
                 ?.firstOrNull { it.tagName() == "img" }
                 ?.attr("src")
-        preferences.setPreference(USER_AVATAR_URL, avatarUrl ?: "")
+        preferences.setPreference(StringPreference.USER_AVATAR_URL, avatarUrl ?: "")
         return null
     }
 

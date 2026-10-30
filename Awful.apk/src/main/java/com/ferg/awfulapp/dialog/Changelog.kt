@@ -38,8 +38,8 @@ object Changelog {
                 .setMessage(Html.fromHtml(changelogText, null, listTagHandler))
                 .setPositiveButton(context.getString(R.string.alert_ok)) { dialog, _ -> dialog.dismiss() }.create()
 
-        changelogAlert.show();
-        val activity = context as AwfulActivity;
+        changelogAlert.show()
+        val activity = context as AwfulActivity
         activity.setPreferredFont(changelogAlert.findViewById(androidx.appcompat.R.id.alertTitle))
         activity.setPreferredFont(changelogAlert.findViewById(android.R.id.message))
         activity.setPreferredFont(changelogAlert.findViewById(android.R.id.button1))
@@ -65,9 +65,9 @@ object Changelog {
 
     /** Handles <li> tags pre-Nougat because apparently they were too cutting edge before that */
     private val listTagHandler = Html.TagHandler { opening, tag, output, _ ->
-        when {
-            tag == "li" && opening -> output?.append("\n\t\u25CF\t")
-            tag == "li" -> output?.append("\n")
+        when (tag) {
+            "li" if opening -> output?.append("\n\t\u25CF\t")
+            "li" -> output?.append("\n")
         }
     }
 

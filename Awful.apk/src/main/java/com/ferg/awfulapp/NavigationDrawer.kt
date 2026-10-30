@@ -14,8 +14,8 @@ import android.widget.TextView
 import androidx.core.view.forEach
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.ImageLoader
-import com.ferg.awfulapp.ForumDisplayFragment.NULL_FORUM_ID
-import com.ferg.awfulapp.ThreadDisplayFragment.NULL_THREAD_ID
+import com.ferg.awfulapp.ForumDisplayFragment.Companion.NULL_FORUM_ID
+import com.ferg.awfulapp.ThreadDisplayFragment.Companion.NULL_THREAD_ID
 import com.ferg.awfulapp.announcements.AnnouncementsManager
 import com.ferg.awfulapp.constants.Constants
 import com.ferg.awfulapp.network.NetworkUtils
@@ -79,11 +79,20 @@ class NavigationDrawer(val activity: AwfulActivity, toolbar: Toolbar, val prefs:
         drawerLayout.setDrawerListener(drawerToggle)
 
         val nav = navigationMenu.getHeaderView(0)
-        username = nav.findViewById(R.id.sidebar_username) as TextView
-        avatar = nav.findViewById(R.id.sidebar_avatar) as ImageView
+        username = nav.findViewById(R.id.sidebar_username)
+        avatar = nav.findViewById(R.id.sidebar_avatar)
 
-        prefs.registerCallback { _, _ -> refresh() }
-        AnnouncementsManager.getInstance().registerListener { _, _, _, _ -> refresh() }
+        prefs.registerCallback(object: AwfulPreferences.AwfulPreferenceUpdate {
+            override fun onPreferenceChange(preferences: AwfulPreferences, key: String?) {
+                refresh()
+            }
+        })
+        AnnouncementsManager.getInstance().registerListener(object : AnnouncementsManager.AnnouncementListener {
+            override fun onAnnouncementsUpdated(newCount: Int, oldUnread: Int, oldRead: Int, isFirstUpdate: Boolean) {
+                refresh()
+            }
+        })
+
         refresh()
         activity.setPreferredFont(navigationMenu)
         navigationMenu.menu.forEach {
@@ -95,7 +104,7 @@ class NavigationDrawer(val activity: AwfulActivity, toolbar: Toolbar, val prefs:
 
 
     private fun loadAvatar(userTitle: String, avatar: ImageView) {
-        NetworkUtils.getImageLoader().get(userTitle, object : ImageLoader.ImageListener {
+        NetworkUtils.imageLoader?.get(userTitle, object : ImageLoader.ImageListener {
             override fun onResponse(response: ImageLoader.ImageContainer, isImmediate: Boolean) {
                 response.bitmap?.let(avatar::setImageBitmap)
                 return

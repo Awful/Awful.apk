@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
 
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="?attr/background"
-    android:orientation="vertical">
-
+    android:background="?attr/background">
     <RelativeLayout
         android:id="@+id/thread_container"
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        <com.ferg.awfulapp.widget.SwipyRefreshLayout
+
+        <com.ferg.awfulapp.widget.AwfulRefreshLayout
             android:id="@+id/pm_swipe"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -26,20 +24,28 @@
                 android:cacheColorHint="?attr/background"
                 android:divider="#8c8c8c"
                 android:dividerHeight="1px" />
-        </com.ferg.awfulapp.widget.SwipyRefreshLayout>
+        </com.ferg.awfulapp.widget.AwfulRefreshLayout>
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/just_pm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             app:backgroundTint="?attr/justPostButtonColor"
             android:layout_margin="16dp"
             app:elevation="4sp"
             app:borderWidth="0dp"
             app:srcCompat="@drawable/ic_create"
-            android:tint="?attr/justPostButtonFontColor">
+            android:tint="?attr/justPostButtonFontColor" >
 
         </com.google.android.material.floatingactionbutton.FloatingActionButton>
     </RelativeLayout>
-</LinearLayout>
+    <com.ferg.awfulapp.widget.AwfulProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:layout_gravity="top"
+        android:elevation="8dp"
+        android:visibility="gone" />
+
+</FrameLayout>

@@ -4,10 +4,12 @@ import android.app.Activity
 import androidx.fragment.app.Fragment
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isInvisible
+import androidx.core.view.isGone
 
 
 fun View.isVisible() = (this.visibility == View.VISIBLE)
-fun View.isHidden() = (this.visibility == View.INVISIBLE || this.visibility == View.GONE)
+fun View.isHidden() = (this.isInvisible || this.isGone)
 
 fun View.hide() {
     this.visibility = View.GONE

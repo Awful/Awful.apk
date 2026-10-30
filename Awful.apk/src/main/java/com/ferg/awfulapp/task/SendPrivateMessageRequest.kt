@@ -4,7 +4,14 @@ import android.content.ContentUris
 import android.content.Context
 import android.database.Cursor
 import android.widget.Toast
-import com.ferg.awfulapp.constants.Constants.*
+import com.ferg.awfulapp.constants.Constants.ACTION_DOSEND
+import com.ferg.awfulapp.constants.Constants.DESTINATION_TOUSER
+import com.ferg.awfulapp.constants.Constants.FUNCTION_PRIVATE_MESSAGE
+import com.ferg.awfulapp.constants.Constants.PARAM_ACTION
+import com.ferg.awfulapp.constants.Constants.PARAM_MESSAGE
+import com.ferg.awfulapp.constants.Constants.PARAM_PARSEURL
+import com.ferg.awfulapp.constants.Constants.PARAM_TITLE
+import com.ferg.awfulapp.constants.Constants.YES
 import com.ferg.awfulapp.network.NetworkUtils
 import com.ferg.awfulapp.provider.AwfulProvider
 import com.ferg.awfulapp.thread.AwfulMessage
@@ -30,13 +37,13 @@ class SendPrivateMessageRequest(context: Context, private val pmId: Int)
         storedDraft?.takeIf(Cursor::moveToFirst)?.apply {
             with(parameters) {
                 add(PARAM_ACTION, ACTION_DOSEND)
-                add(DESTINATION_TOUSER, getString(getColumnIndex(AwfulMessage.RECIPIENT)))
-                add(PARAM_TITLE, getString(getColumnIndex(AwfulMessage.TITLE)).run(NetworkUtils::encodeHtml))
+                add(DESTINATION_TOUSER, getString(getColumnIndexOrThrow(AwfulMessage.RECIPIENT)))
+                add(PARAM_TITLE, getString(getColumnIndexOrThrow(AwfulMessage.TITLE)).run(NetworkUtils::encodeHtml))
                 if (pmId > 0) add("prevmessageid", pmId.toString())
                 add(PARAM_PARSEURL, YES)
                 add("savecopy", YES)
-                add("iconid", getString(getColumnIndex(AwfulMessage.REPLY_ICON)))
-                add(PARAM_MESSAGE, getString(getColumnIndex(AwfulMessage.REPLY_CONTENT)).run(NetworkUtils::encodeHtml))
+                add("iconid", getString(getColumnIndexOrThrow(AwfulMessage.REPLY_ICON)))
+                add(PARAM_MESSAGE, getString(getColumnIndexOrThrow(AwfulMessage.REPLY_CONTENT)).run(NetworkUtils::encodeHtml))
             }
             failed = false
         }

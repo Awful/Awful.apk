@@ -1,7 +1,11 @@
 package com.ferg.awfulapp.task
 
 import android.content.Context
-import com.ferg.awfulapp.constants.Constants.*
+import com.ferg.awfulapp.constants.Constants.ACTION_QUERY
+import com.ferg.awfulapp.constants.Constants.FUNCTION_SEARCH
+import com.ferg.awfulapp.constants.Constants.PARAM_ACTION
+import com.ferg.awfulapp.constants.Constants.PARAM_FORUMS
+import com.ferg.awfulapp.constants.Constants.PARAM_QUERY
 import com.ferg.awfulapp.thread.AwfulSearch
 import com.ferg.awfulapp.thread.AwfulSearchResult
 import org.jsoup.nodes.Document

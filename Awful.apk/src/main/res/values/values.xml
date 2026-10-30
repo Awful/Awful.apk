@@ -44,9 +44,9 @@
     <!-- Colour for the basic progress bar -->
     <attr name="progressBarColor" format="color"/>
     <!-- Background colour for the spinning loading icon -->
-    <attr name="srlBackgroundColor" format="color"/>
+    <attr name="arlInertColor" format="color"/>
     <!-- Foreground colour for the spinning loading icon. This should point to an array of colour references -->
-    <attr name="srlProgressColors" format="reference" />
+    <attr name="arlActiveColor" format="reference" />
     <!-- Background colour for threads authored by the current user -->
     <attr name="selfThreadBackground" format="color"/>
 </resources>

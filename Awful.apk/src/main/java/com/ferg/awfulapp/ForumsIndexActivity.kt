@@ -31,10 +31,8 @@
 
 package com.ferg.awfulapp
 
-import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import com.google.android.material.snackbar.Snackbar
@@ -48,10 +46,11 @@ import com.ferg.awfulapp.constants.Constants
 import com.ferg.awfulapp.dialog.Changelog
 import com.ferg.awfulapp.messages.PmManager
 import com.ferg.awfulapp.preferences.AwfulPreferences
-import com.ferg.awfulapp.preferences.Keys
+import com.ferg.awfulapp.preferences.IntPreference
 import com.ferg.awfulapp.sync.SyncManager
 import timber.log.Timber
 import java.util.*
+import androidx.core.net.toUri
 
 
 class ForumsIndexActivity :
@@ -97,7 +96,7 @@ class ForumsIndexActivity :
     }
 
     override fun onNewPm(messageUrl: String, sender: String, unreadCount: Int) {
-        val showPmEvent = NavigationEvent.ShowPrivateMessages(Uri.parse(messageUrl))
+        val showPmEvent = ShowPrivateMessages(messageUrl.toUri())
         runOnUiThread {
             val message = "Private message from %s\n(%d unread)"
             makeSnackbar(String.format(Locale.getDefault(), message, sender, unreadCount), showPmEvent)
@@ -111,15 +110,15 @@ class ForumsIndexActivity :
         if (isFirstUpdate || hasNewAnnouncements) {
             if (hasNewAnnouncements) {
                 val message = resources.getQuantityString(R.plurals.numberOfNewAnnouncements, newCount, newCount)
-                makeSnackbar(message, NavigationEvent.Announcements)
+                makeSnackbar(message, Announcements)
             } else if (oldUnread > 0) {
                 val message = resources.getQuantityString(R.plurals.numberOfOldUnreadAnnouncements, oldUnread, oldUnread)
-                makeSnackbar(message, NavigationEvent.Announcements)
+                makeSnackbar(message, Announcements)
             }
         }
     }
 
-    private fun makeSnackbar(message: String, event: NavigationEvent = NavigationEvent.MainActivity) {
+    private fun makeSnackbar(message: String, event: NavigationEvent = MainActivity) {
         Snackbar.make(toolbar, message, Snackbar.LENGTH_LONG)
                 .setDuration(3000)
                 .setAction("View") { navigate(event) }
@@ -196,7 +195,7 @@ class ForumsIndexActivity :
                 true
             is ForumIndex ->
                 true.also { forumsPager.currentPagerItem = Pages.ForumIndex }
-            is Bookmarks, is NavigationEvent.Forum, is Thread, is Url ->
+            is Bookmarks, is Forum, is Thread, is Url ->
                 true.also { forumsPager.navigate(event) }
             is ReAuthenticate ->
                 true.also { Authentication.reAuthenticate(this) }
@@ -212,7 +211,7 @@ class ForumsIndexActivity :
         if (lastVersionCode != versionCode) {
             Timber.i("App version changed from %d to %d - showing changelog", lastVersionCode, versionCode)
             Changelog.showDialog(this, 1)
-            mPrefs.setPreference(Keys.LAST_VERSION_SEEN, versionCode)
+            mPrefs.setPreference(IntPreference.LAST_VERSION_SEEN, versionCode)
         }
     }
 
@@ -244,7 +243,7 @@ class ForumsIndexActivity :
 
     override fun onActivityResult(request: Int, result: Int, intent: Intent?) {
         super.onActivityResult(request, result, intent)
-        if (request == Constants.LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_OK) {
+        if (request == Constants.LOGIN_ACTIVITY_REQUEST && result == RESULT_OK) {
             Timber.i("Result from login activity: successful login - calling sync")
             SyncManager.sync(this)
         }
@@ -252,14 +251,12 @@ class ForumsIndexActivity :
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         val pagerItem = forumsPager.getCurrentFragment()
-        return if (mPrefs.volumeScroll && pagerItem?.attemptVolumeScroll(event) == true) {
-            true
-        } else super.dispatchKeyEvent(event)
+        return mPrefs.volumeScroll && pagerItem?.attemptVolumeScroll(event) == true || super.dispatchKeyEvent(event)
     }
 
-    override fun onPreferenceChange(prefs: AwfulPreferences, key: String?) {
-        super.onPreferenceChange(prefs, key)
-        forumsPager.onPreferenceChange(prefs)
+    override fun onPreferenceChange(preferences: AwfulPreferences, key: String?) {
+        super.onPreferenceChange(preferences, key)
+        forumsPager.onPreferenceChange(preferences)
         setupImmersion()
     }
 

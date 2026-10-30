@@ -12,7 +12,7 @@
         android:layout_alignParentTop="true"
         />
 
-    <com.ferg.awfulapp.widget.SwipyRefreshLayout
+    <com.ferg.awfulapp.widget.AwfulRefreshLayout
         android:id="@+id/forum_swipe"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -28,7 +28,7 @@
             android:cacheColorHint="@android:color/white"
             android:dividerHeight="1dp"
             tools:listitem="@layout/thread_item" />
-    </com.ferg.awfulapp.widget.SwipyRefreshLayout>
+    </com.ferg.awfulapp.widget.AwfulRefreshLayout>
 
     <com.ferg.awfulapp.widget.PageBar
         android:id="@+id/page_bar"

@@ -1,7 +1,10 @@
 package com.ferg.awfulapp.forums
 
 import android.content.Context
-import com.ferg.awfulapp.constants.Constants.*
+import com.ferg.awfulapp.constants.Constants.DEBUG
+import com.ferg.awfulapp.constants.Constants.FORUM_ID_GOLDMINE
+import com.ferg.awfulapp.constants.Constants.FUNCTION_FORUM
+import com.ferg.awfulapp.constants.Constants.PARAM_FORUM_ID
 import com.ferg.awfulapp.util.AwfulError
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -25,10 +28,10 @@ import java.util.*
 internal class DropdownParserTask(context: Context) : UpdateTask(context) {
 
     override val initialTask: ForumParseTask = DropdownParseRequest()
-    private val parsedForums = ArrayList<Forum>()
+    private val parsedForums = mutableListOf<Forum?>()
 
 
-    private inner class DropdownParseRequest : UpdateTask.ForumParseTask(FUNCTION_FORUM) {
+    private inner class DropdownParseRequest : ForumParseTask(FUNCTION_FORUM) {
 
         init {
             parameters.add(PARAM_FORUM_ID, FORUM_ID_GOLDMINE.toString())

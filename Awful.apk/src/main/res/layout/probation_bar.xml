@@ -14,7 +14,7 @@
         android:id="@+id/probation_icon"
         android:layout_width="15dp"
         android:layout_height="15dp"
-        android:layout_marginRight="2dip"
+        android:layout_marginEnd="2dip"
         android:layout_marginTop="1dip"
         android:src="@drawable/warning"/>
 
@@ -22,12 +22,12 @@
         android:id="@+id/probation_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/probation_icon"
-        android:gravity="left"
+        android:layout_toEndOf="@+id/probation_icon"
+        android:gravity="start"
         android:text="@string/probation_title"
         android:textColor="#ff000000"
         android:textIsSelectable="false"
-        android:textSize="12dip"
+        android:textSize="12sp"
         android:textStyle="bold"
         android:visibility="visible"/>
 
@@ -36,12 +36,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/probation_title"
-        android:gravity="left"
+        android:gravity="start"
         android:singleLine="true"
         android:text="@string/probation_message"
         android:textColor="#ff000000"
         android:textIsSelectable="false"
-        android:textSize="11dip"
+        android:textSize="11sp"
         android:visibility="visible"/>
 
     <ImageButton
@@ -49,8 +49,8 @@
         style="@style/ActionBarButton"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_toLeftOf="@id/go_to_LC"
-        android:layout_marginRight="10dp"
+        android:layout_toStartOf="@id/go_to_LC"
+        android:layout_marginEnd="10dp"
         android:scaleType="fitCenter"
         app:srcCompat="@drawable/ic_check_circle" />
 
@@ -59,7 +59,7 @@
         style="@style/ActionBarButton"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:scaleType="fitCenter"
         app:srcCompat="@drawable/ic_arrow_forward"/>
 

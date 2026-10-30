@@ -24,9 +24,8 @@
                 android:id="@+id/message_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:textSize="20dip"
+                android:textSize="20sp"
                 android:textStyle="bold"
                 tools:text="Message title"
                 />
@@ -36,7 +35,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/message_title"
-                android:textSize="16dip"
+                android:textSize="16sp"
                 tools:text="Username"
                 />
 
@@ -55,7 +54,6 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
                 android:scaleType="center"
                 app:srcCompat="@drawable/ic_expand_more"
                 tools:ignore="MissingPrefix" />

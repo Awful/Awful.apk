@@ -2,7 +2,12 @@ package com.ferg.awfulapp.task
 
 import android.content.Context
 import com.ferg.awfulapp.announcements.AnnouncementsManager
-import com.ferg.awfulapp.constants.Constants.*
+import com.ferg.awfulapp.constants.Constants.FUNCTION_BOOKMARK
+import com.ferg.awfulapp.constants.Constants.FUNCTION_FORUM
+import com.ferg.awfulapp.constants.Constants.FUNCTION_USERCP
+import com.ferg.awfulapp.constants.Constants.PARAM_FORUM_ID
+import com.ferg.awfulapp.constants.Constants.PARAM_PAGE
+import com.ferg.awfulapp.constants.Constants.USERCP_ID
 import com.ferg.awfulapp.messages.PmManager
 import com.ferg.awfulapp.thread.AwfulForum
 import com.ferg.awfulapp.thread.AwfulPagedItem

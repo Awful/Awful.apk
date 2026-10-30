@@ -21,7 +21,7 @@ import androidx.viewpager.widget.ViewPager
 import com.android.volley.VolleyError
 import com.ferg.awfulapp.constants.Constants
 import com.ferg.awfulapp.preferences.AwfulPreferences
-import com.ferg.awfulapp.preferences.Keys
+import com.ferg.awfulapp.preferences.StringPreference
 import com.ferg.awfulapp.provider.AwfulProvider
 import com.ferg.awfulapp.provider.ColorProvider
 import com.ferg.awfulapp.service.AwfulCursorAdapter
@@ -55,7 +55,7 @@ private object EmoteHistory {
     private const val MAX_RECENT_EMOTES = 30
     const val SEPARATOR = " "
     private val recentList: MutableList<String> by lazy {
-        AwfulPreferences.getInstance().getPreference(Keys.RECENT_EMOTES, "")!!.split(SEPARATOR)
+        AwfulPreferences.getInstance().getPreference(StringPreference.RECENT_EMOTES, "")!!.split(SEPARATOR)
                 .toMutableList()
     }
 
@@ -77,7 +77,7 @@ private object EmoteHistory {
             plus(emoteCode).takeLast(MAX_RECENT_EMOTES)
                     .let { newRecent -> clear(); addAll(newRecent) }
         }
-        AwfulPreferences.getInstance().setPreference(Keys.RECENT_EMOTES, getRecent())
+        AwfulPreferences.getInstance().setPreference(StringPreference.RECENT_EMOTES, getRecent())
     }
 }
 
@@ -94,9 +94,9 @@ class EmotePicker : AwfulDialogFragment() {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.emote_picker_container_fragment, container, false);
+        val view = inflater.inflate(R.layout.emote_picker_container_fragment, container, false)
         awfulActivity.setPreferredFont(view)
-        return view;
+        return view
     }
 
     override fun onActivityCreated(aSavedState: Bundle?) {
@@ -190,7 +190,7 @@ class EmoteHistoryFragment : EmoteGridFragment() {
             filterExactCode = true
             currentFilter = EmoteHistory.getRecent().let { recent ->
                 // a blank filter list will show all emotes, so we need a term that shouldn't match anything...
-                if (recent.isBlank()) "match_nothing_thanks" else recent
+                recent.ifBlank { "match_nothing_thanks" }
             }
         }
     }
@@ -214,9 +214,9 @@ abstract class EmoteGridFragment : AwfulFragment() {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(layoutId, container, false);
+        val view = inflater.inflate(layoutId, container, false)
         awfulActivity?.setPreferredFont(view)
-        return view;
+        return view
     }
 
 
@@ -307,7 +307,7 @@ abstract class EmoteGridFragment : AwfulFragment() {
                     ?.asSelectionAndArgs()
                     ?: Pair(null, null)
             return CursorLoader(
-                activity!!,
+                requireActivity(),
                 AwfulEmote.CONTENT_URI,
                 AwfulProvider.EmoteProjection,
                 selectionAndArgs.first,

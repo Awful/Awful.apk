@@ -52,8 +52,8 @@
         <item name="actionBarColor">@android:color/black</item>
         <item name="actionBarFontColor">@android:color/white</item>
         <item name="progressBarColor">@color/holo_blue_light</item>
-        <item name="srlBackgroundColor">@color/default_srl_background_color</item>
-        <item name="srlProgressColors">@array/defaultSrlProgressColors</item>
+        <item name="arlInertColor">?secondaryPostFontColor</item>
+        <item name="arlActiveColor">?colorPrimary</item>
         <item name="android:listDivider">@color/alt_background</item>
         <item name="selfThreadBackground">@color/self_thread_default</item>
 
@@ -106,8 +106,8 @@
         <item name="actionBarColor">@android:color/black</item>
         <item name="actionBarFontColor">?primaryPostFontColor</item>
         <item name="progressBarColor">@color/holo_blue_light</item>
-        <item name="srlBackgroundColor">@color/dark_alt_background</item>
-        <item name="srlProgressColors">@array/darkSrlProgressColors</item>
+        <item name="arlInertColor">?secondaryPostFontColor</item>
+        <item name="arlActiveColor">@color/forums_blue</item>
         <item name="android:listDivider">@color/dark_header_background</item>
         <item name="selfThreadBackground">@color/self_thread_dark</item>
 
@@ -126,8 +126,8 @@
         <item name="colorPrimaryDark">?background</item>
 
         <item name="navbarHeaderBackground">@color/dark_background</item>
-        <item name="srlBackgroundColor">?attr/navbarHeaderBackground</item>
-        <item name="srlProgressColors">@array/oledSrlProgressColors</item>
+        <item name="arlInertColor">?secondaryPostFontColor</item>
+        <item name="arlActiveColor">?primaryPostFontColor</item>
         <item name="justPostButtonColor">@color/forums_blue_evendarker</item>
         <item name="justPostButtonColorPressed">@color/forums_blue_darkest</item>
     </style>
@@ -146,8 +146,8 @@
 
         <item name="actionBarColor">?background</item>
         <item name="progressBarColor">?primaryPostFontColor</item>
-        <item name="srlBackgroundColor">?primaryPostFontColor</item>
-        <item name="srlProgressColors">@array/yosposSrlProgressColors</item>
+        <item name="arlInertColor">?secondaryPostFontColor</item>
+        <item name="arlActiveColor">?primaryPostFontColor</item>
 
         <item name="justPostButtonColor">?colorAccent</item>
         <item name="justPostButtonFontColor">?background</item>
@@ -173,7 +173,8 @@
         <item name="unreadColor">?primaryPostFontColor</item>
         <item name="unreadColorDim">?secondaryPostFontColor</item>
         <item name="progressBarColor">?background</item>
-        <item name="srlBackgroundColor">?background</item>
+        <item name="arlInertColor">?secondaryPostFontColor</item>
+        <item name="arlActiveColor">?primaryPostFontColor</item>
 
         <item name="justPostButtonColor">?background</item>
         <item name="justPostButtonColorPressed">?altBackground</item>
@@ -187,7 +188,8 @@
         <item name="altBackground">@color/byob_alt_background</item>
 
         <item name="colorAccent">@color/byob_secondary_post_font</item>
-        <item name="srlProgressColors">@array/byobSrlProgressColors</item>
+        <item name="arlInertColor">?primaryPostFontColor</item>
+        <item name="arlActiveColor">?secondaryPostFontColor</item>
     </style>
 
 
@@ -198,7 +200,6 @@
         <item name="altBackground">@color/fyad_alt_background</item>
 
         <item name="colorAccent">@color/fyad_hot_pink</item>
-        <item name="srlProgressColors">@array/fyadSrlProgressColors</item>
     </style>
 
 

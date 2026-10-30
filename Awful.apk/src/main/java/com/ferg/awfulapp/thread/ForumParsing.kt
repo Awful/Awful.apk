@@ -3,20 +3,48 @@ package com.ferg.awfulapp.thread
 import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.ContentValues
-import android.net.Uri
+import androidx.core.net.toUri
 import com.ferg.awfulapp.constants.Constants
 import com.ferg.awfulapp.network.NetworkUtils
 import com.ferg.awfulapp.preferences.AwfulPreferences
 import com.ferg.awfulapp.provider.AwfulProvider
 import com.ferg.awfulapp.provider.DatabaseHelper
-import com.ferg.awfulapp.thread.AwfulPost.*
-import com.ferg.awfulapp.thread.AwfulThread.*
+import com.ferg.awfulapp.thread.AwfulPost.Companion.AVATAR
+import com.ferg.awfulapp.thread.AwfulPost.Companion.AVATAR_SECOND
+import com.ferg.awfulapp.thread.AwfulPost.Companion.AVATAR_TEXT
+import com.ferg.awfulapp.thread.AwfulPost.Companion.CONTENT
+import com.ferg.awfulapp.thread.AwfulPost.Companion.DATE
+import com.ferg.awfulapp.thread.AwfulPost.Companion.EDITABLE
+import com.ferg.awfulapp.thread.AwfulPost.Companion.EDITED
+import com.ferg.awfulapp.thread.AwfulPost.Companion.HAS_MOD_CONTROLS
+import com.ferg.awfulapp.thread.AwfulPost.Companion.ICON
+import com.ferg.awfulapp.thread.AwfulPost.Companion.IS_IGNORED
+import com.ferg.awfulapp.thread.AwfulPost.Companion.IS_OP
+import com.ferg.awfulapp.thread.AwfulPost.Companion.IS_PLAT
+import com.ferg.awfulapp.thread.AwfulPost.Companion.POST_INDEX
+import com.ferg.awfulapp.thread.AwfulPost.Companion.PREVIOUSLY_READ
+import com.ferg.awfulapp.thread.AwfulPost.Companion.REGDATE
+import com.ferg.awfulapp.thread.AwfulPost.Companion.ROLE
+import com.ferg.awfulapp.thread.AwfulPost.Companion.THREAD_ID
+import com.ferg.awfulapp.thread.AwfulPost.Companion.USERNAME
+import com.ferg.awfulapp.thread.AwfulPost.Companion.USER_ID
+import com.ferg.awfulapp.thread.AwfulPost.Companion.convertVideos
+import com.ferg.awfulapp.thread.AwfulPost.Companion.processPostImage
+import com.ferg.awfulapp.thread.AwfulPost.Companion.syncPosts
+import com.ferg.awfulapp.thread.AwfulPost.Companion.tryConvertToHttps
+import com.ferg.awfulapp.thread.AwfulThread.Companion.FORUM_ID
+import com.ferg.awfulapp.thread.AwfulThread.Companion.INDEX
+import com.ferg.awfulapp.thread.AwfulThread.Companion.fromCursorRow
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Locale
-import java.util.concurrent.*
+import java.util.concurrent.Callable
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.Future
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -129,7 +157,7 @@ class PostParseTask(
 
             // grab the custom title, and also avatar and alternate avatar if there are any
             postData.selectFirst(".title")
-                ?.also { put(AVATAR_TEXT, it.text() ?: "") }
+                ?.also { put(AVATAR_TEXT, it.text()) }
                 ?.select("img")
                 ?.take(2)
                 ?.forEachIndexed { index, image ->
@@ -158,7 +186,7 @@ class PostParseTask(
                 getElementsByTag("img").forEach { processPostImage(it, postHasBeenRead, prefs) }
                 getElementsByTag("a").forEach(::tryConvertToHttps)
                 userId?.let {
-                    getElementsByTag("strong").forEach { setBanlistLinks(it, userId!!, postData.id()) }
+                    getElementsByTag("strong").forEach { AwfulPost.setBanlistLinks(it, userId, postData.id()) }
                 }
                 if (this == fyadPostBody) {
                     // FYAD sigs are currently a sibling div alongside .complete_shit, so we need to stick them at the end of the content
@@ -176,7 +204,7 @@ class PostParseTask(
                 postData.selectFirst(".profilelinks [href*='userid=']")?.let {
                     with(USER_ID_REGEX.matcher(it.attr("href"))) {
                         if (find()) {
-                            userId = group(1).toInt()
+                            userId = group(1)?.toInt()
                         }
                     }
                 }
@@ -191,8 +219,7 @@ class PostParseTask(
             }
 
             postData.getElementsByClass("editedBy")
-                .mapNotNull { it.children().first() }
-                .firstOrNull()
+                .firstNotNullOfOrNull { it.children().first() }
                 ?.let { put(EDITED, "<i>${it.text()}</i>") }
 
             put(EDITABLE, postData.getElementsByAttributeValue("alt", "Edit").isNotEmpty().sqlBool)
@@ -210,11 +237,11 @@ class PostParseTask(
         author.classNames().find { it.startsWith("role-") }?.substring(5) ?: ""
 
     private fun getCustomIcon(author: Element): String? {
-        val iconClass = author.classNames().last();
+        val iconClass = author.classNames().last()
         if(!iconClass.startsWith("role") && !arrayOf("author", "op", "platinum").contains(iconClass)) {
-            return iconClass;
+            return iconClass
         }
-        return null;
+        return null
     }
 
     private fun Element.hasDescendantWithClass(cssClass: String): Boolean =
@@ -269,12 +296,12 @@ class ForumParseTask(
             forumId = this@ForumParseTask.forumId
 
             threadElement.selectFirst(".thread_title")?.let { title = it.text() }
-            threadElement.selectFirst(".author")?.let {
-                author = it.text()
-                it.selectFirst("a[href*='userid']")
+            threadElement.selectFirst(".author")?.let { tE ->
+                author = tE.text()
+                tE.selectFirst("a[href*='userid']")
                     ?.attr("href")
-                    ?.let { Uri.parse(it).getQueryParameter("userid") }
-                    ?.let { authorId = it.toInt() }
+                    ?.toUri()
+                    ?.getQueryParameter("userid")?.let { authorId = it.toInt() }
             }
             canOpenClose = author == username
 
@@ -295,8 +322,8 @@ class ForumParseTask(
                 with(THREAD_URL_ID_REGEX.matcher(it.attr("src"))) {
                     if (find()) {
                         tagUrl = group(1)
-                        category = group(2).toInt()
-                        with(AwfulEmote.fileName_regex.matcher(tagUrl)) {
+                        category = group(2)!!.toInt()
+                        with(AwfulEmote.fileName_regex.matcher(tagUrl!!)) {
                             if (find()) {
                                 tagCacheFile = group(1)
                             }
@@ -322,9 +349,9 @@ class ForumParseTask(
             hasBeenViewed = unreadCount > 0 || threadElement.selectFirst(".x") != null
 
             // Bookmarks can only be detected now by the presence of a "bmX" class - no star image
-            val star = threadElement.selectFirst(".star")
+            val star = threadElement.selectFirst(".star")!!
             bookmarkType = when {
-                star!!.hasClass("bm0") -> 1
+                star.hasClass("bm0") -> 1
                 star.hasClass("bm1") -> 2
                 star.hasClass("bm2") -> 3
                 star.hasClass("bm3") -> 4
@@ -396,7 +423,7 @@ class ThreadPageParseTask(
                 // so if the thread IS bookmarked, check if the data has an 'unbookmarked' value (i.e. 0) and give it a bookmarked one if necessary
                 bookmarkType = 1
             }
-            // The breadcrumbs display the forum hiearchy, from the top level down through forums and subforums to the thread.
+            // The breadcrumbs display the forum hierarchy, from the top level down through forums and subforums to the thread.
             // So the thread's parent forum is the last forum element in that sequence
             forumId = page.selectFirst(".breadcrumbs")
                 ?.select("[href]")

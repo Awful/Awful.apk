@@ -1,57 +1,66 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/reply_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/background"
-    android:orientation="vertical">
-
-    <include layout="@layout/toolbar" />
+    android:background="?attr/background">
 
     <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?attr/background"
-        android:baselineAligned="false"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
-        <FrameLayout
-            android:id="@+id/fragment_pane"
-            android:layout_width="0dip"
-            android:layout_height="match_parent"
-            android:layout_weight="1"/>
+        <include layout="@layout/toolbar" />
 
         <LinearLayout
-            android:layout_width="0dip"
+            android:id="@+id/background"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="2"
+            android:background="?attr/background"
+            android:baselineAligned="false"
             android:orientation="horizontal">
 
-            <ImageView
-                style="@style/VerticalGradientRight"/>
-
             <FrameLayout
-                android:id="@+id/fragment_pane_two"
-                android:layout_width="match_parent"
+                android:id="@+id/fragment_pane"
+                android:layout_width="0dip"
                 android:layout_height="match_parent"
-                android:layout_marginLeft="@dimen/material_screen_edge_margin"
-                android:layout_marginRight="@dimen/material_screen_edge_margin"
-                >
+                android:layout_weight="1" />
 
-                <com.ferg.awfulapp.widget.StatusFrog
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    app:show_spinner="false"
-                    app:status_message="@string/select_message"
-                    />
+            <LinearLayout
+                android:layout_width="0dip"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:orientation="horizontal">
 
-            </FrameLayout>
+                <ImageView
+                    style="@style/VerticalGradientRight" />
 
+                <FrameLayout
+                    android:id="@+id/fragment_pane_two"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="@dimen/material_screen_edge_margin"
+                    android:layout_marginRight="@dimen/material_screen_edge_margin"
+                    >
+
+                    <com.ferg.awfulapp.widget.StatusFrog
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        app:show_spinner="false"
+                        app:status_message="@string/select_message"
+                        />
+
+                </FrameLayout>
+
+            </LinearLayout>
         </LinearLayout>
+
     </LinearLayout>
 
-</LinearLayout>
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/bottom_sheet_compose"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</FrameLayout>

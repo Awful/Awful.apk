@@ -1,7 +1,10 @@
 package com.ferg.awfulapp.task
 
 import android.content.Context
-import com.ferg.awfulapp.constants.Constants.*
+import com.ferg.awfulapp.constants.Constants.ACTION_TOGGLE_THREAD_LOCKED
+import com.ferg.awfulapp.constants.Constants.FUNCTION_POSTINGS
+import com.ferg.awfulapp.constants.Constants.PARAM_ACTION
+import com.ferg.awfulapp.constants.Constants.PARAM_THREAD_ID
 import org.jsoup.nodes.Document
 
 /**

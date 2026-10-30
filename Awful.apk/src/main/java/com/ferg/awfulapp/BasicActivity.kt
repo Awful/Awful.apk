@@ -7,7 +7,6 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
-import com.ferg.awfulapp.BasicActivity.Companion.intentFor
 
 /**
  * Created by baka kaba on 31/07/2017.
@@ -39,7 +38,7 @@ class BasicActivity : AwfulActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.basic_activity)
-        val extras = intent.extras;
+        val extras = intent.extras
 
         val fragmentName = extras?.getString(FRAGMENT_CLASS)
                 ?: throw RuntimeException("No content fragment specified!")
@@ -58,7 +57,7 @@ class BasicActivity : AwfulActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                finish();
+                finish()
                 navigate(NavigationEvent.MainActivity)
                 return true
             }

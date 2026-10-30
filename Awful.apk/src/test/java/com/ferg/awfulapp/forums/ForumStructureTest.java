@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.ferg.awfulapp.forums.Forum.BOOKMARKS;
-import static com.ferg.awfulapp.forums.Forum.SECTION;
+import static com.ferg.awfulapp.forums.ForumType.BOOKMARKS;
+import static com.ferg.awfulapp.forums.ForumType.SECTION;
 import static com.ferg.awfulapp.forums.ForumStructure.FULL_TREE;
 import static com.ferg.awfulapp.forums.ForumStructure.TWO_LEVEL;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -73,9 +73,9 @@ public class ForumStructureTest {
         */
         sourceTree = new ArrayList<>();
         Collections.addAll(sourceTree, bookmarks, discussion);
-        Collections.addAll(discussion.subforums, shsc, games);
-        shsc.subforums.add(cobol);
-        cobol.subforums.add(projectlog);
+        Collections.addAll(discussion.getSubforums(), shsc, games);
+        shsc.getSubforums().add(cobol);
+        cobol.getSubforums().add(projectlog);
 
         // create an expected 'copy' using copies of the original forum objects, so this is an independent structure
         partialTree = new ArrayList<>();
@@ -86,9 +86,9 @@ public class ForumStructureTest {
         Forum cobolCopy = new Forum(cobol);
         Forum projectlogCopy = new Forum(projectlog);
         Collections.addAll(partialTree, bookmarksCopy, discussionCopy);
-        Collections.addAll(discussionCopy.subforums, shscCopy, gamesCopy);
-        shscCopy.subforums.add(cobolCopy);
-        cobolCopy.subforums.add(projectlogCopy);
+        Collections.addAll(discussionCopy.getSubforums(), shscCopy, gamesCopy);
+        shscCopy.getSubforums().add(cobolCopy);
+        cobolCopy.getSubforums().add(projectlogCopy);
     }
 
 
@@ -121,7 +121,7 @@ public class ForumStructureTest {
         List<Forum> partialSourceList = new ArrayList<>();
         Collections.addAll(partialSourceList, bookmarks, discussion, shsc, cobol, projectlog, games);
         // set a new ID for the root - only forums with discussion as their parent (or their descendants) should be added
-        int newTopLevelId = discussion.id;
+        int newTopLevelId = discussion.getId();
 
         // build the expected result - basically discussion's subforum hierarchy
         partialTree = new ArrayList<>();
@@ -130,8 +130,8 @@ public class ForumStructureTest {
         Forum newCobol = new Forum(cobol);
         Forum newProjectlog = new Forum(projectlog);
         Collections.addAll(partialTree, newShsc, newGames);
-        newShsc.subforums.add(newCobol);
-        newCobol.subforums.add(newProjectlog);
+        newShsc.getSubforums().add(newCobol);
+        newCobol.getSubforums().add(newProjectlog);
 
 
         // build a ForumStructure from the flat list, using the new root ID
@@ -159,8 +159,8 @@ public class ForumStructureTest {
         Forum newCobol = new Forum(cobol);
         Forum newProjectlog = new Forum(projectlog);
         Collections.addAll(topLevelTree, newBookmarks, newGames, newShsc);
-        newShsc.subforums.add(newCobol);
-        newCobol.subforums.add(newProjectlog);
+        newShsc.getSubforums().add(newCobol);
+        newCobol.getSubforums().add(newProjectlog);
 
         // build a ForumStructure from the flat list, and get the tree it creates
         ForumStructure forumStructure = ForumStructure.buildFromOrderedList(sourceList, null);
@@ -198,9 +198,9 @@ public class ForumStructureTest {
         Forum newCobol = new Forum(5, 3, "Cavern of COBOL", "");
         Forum newProjectlog = new Forum(6, TOP_LEVEL_ID, "project.log", "");
         Collections.addAll(inconsistentTree, newBookmarks, newDiscussion);
-        Collections.addAll(newDiscussion.subforums, newShsc, newGames);
-        newShsc.subforums.add(newCobol);
-        newCobol.subforums.add(newProjectlog);
+        Collections.addAll(newDiscussion.getSubforums(), newShsc, newGames);
+        newShsc.getSubforums().add(newCobol);
+        newCobol.getSubforums().add(newProjectlog);
 
         // build a structure from this and get its tree
         ForumStructure forumStructure = ForumStructure.buildFromTree(inconsistentTree, TOP_LEVEL_ID);
@@ -267,7 +267,7 @@ public class ForumStructureTest {
         // all subforums flattened onto one level under the parent forum
         List<Forum> expectedTwoLevelTree = new ArrayList<>();
         Collections.addAll(expectedTwoLevelTree, bookmarksDup, discussionDup, shscDup, gamesDup);
-        Collections.addAll(shscDup.subforums, cobolDup, projectlogDup);
+        Collections.addAll(shscDup.getSubforums(), cobolDup, projectlogDup);
 
         // get the structure as a list representing a two-level tree
         List<Forum> builtList = forumStructure.getAsList().formatAs(TWO_LEVEL).build();
@@ -285,7 +285,7 @@ public class ForumStructureTest {
         // with the discussion section removed, and subforums flattened onto one level
         List<Forum> expectedTwoLevelTree = new ArrayList<>();
         Collections.addAll(expectedTwoLevelTree, bookmarksDup, shscDup, gamesDup);
-        Collections.addAll(shscDup.subforums, cobolDup, projectlogDup);
+        Collections.addAll(shscDup.getSubforums(), cobolDup, projectlogDup);
 
         // get the structure as a list representing a two-level tree
         List<Forum> builtList = forumStructure.getAsList().includeSections(false).formatAs(TWO_LEVEL).build();
@@ -352,10 +352,10 @@ public class ForumStructureTest {
                     if (!firstForum.equals(secondForum)) {
                         errorMsg = String.format("Forums in position %d don't match", i);
                         errorMsg = String.format("%s\nYours: (%d)%s\nShould match: (%d)%s",
-                                errorMsg, firstForum.id, firstForum.title, secondForum.id, secondForum.title);
+                                errorMsg, firstForum.getId(), firstForum.getTitle(), secondForum.getId(), secondForum.getTitle());
                         return false;
-                    } else if (!nodesMatch(firstForum.subforums, secondForum.subforums)) {
-                        errorMsg = String.format("Subforum of %s and %s\n%s", firstForum.title, secondForum.title, errorMsg);
+                    } else if (!nodesMatch(firstForum.getSubforums(), secondForum.getSubforums())) {
+                        errorMsg = String.format("Subforum of %s and %s\n%s", firstForum.getTitle(), secondForum.getTitle(), errorMsg);
                         return false;
                     }
                 }
@@ -366,7 +366,7 @@ public class ForumStructureTest {
             private String printNode(List<Forum> node) {
                 String message = "";
                 for (Forum forum : node) {
-                    message = message + " (" + forum.id + ")" + forum.title;
+                    message = message + " (" + forum.getId() + ")" + forum.getTitle();
                 }
                 return message;
             }

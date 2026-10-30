@@ -42,7 +42,7 @@ class UserCPShortcutActivity : Activity() {
     }
 
     private fun getLauncherIcon(): Int {
-        val launcherIconString = AwfulPreferences.getInstance().launcherIcon.replace('.','_')
+        val launcherIconString = AwfulPreferences.getInstance().launcherIcon?.replace('.','_')
         return when(launcherIconString) {
             "frog" -> R.mipmap.ic_launcher
             else -> resources.getIdentifier("ic_launcher_$launcherIconString","mipmap", packageName)

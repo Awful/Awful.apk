@@ -1,17 +1,19 @@
 package com.ferg.awfulapp
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Intent
-import android.content.pm.ActivityInfo.*
+import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR
+import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
 import android.graphics.Typeface
 import android.net.http.HttpResponseCache
 import android.os.Bundle
-import androidx.annotation.CallSuper
-import androidx.appcompat.app.AppCompatActivity
 import android.text.method.ScrollingMovementMethod
 import android.view.View
 import android.widget.TextView
+import androidx.annotation.CallSuper
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.ferg.awfulapp.constants.Constants
 import com.ferg.awfulapp.constants.Constants.LOGIN_ACTIVITY_REQUEST
@@ -50,7 +52,7 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
     override fun onCreate(savedInstanceState: Bundle?) {
         Timber.i("*** onCreate")
 
-        val splashScreen = installSplashScreen()
+        installSplashScreen()
 
         mPrefs.registerCallback(this)
         updateTheme()
@@ -116,7 +118,7 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
         Timber.i("onActivityResult: $request result: $result")
         super.onActivityResult(request, result, intent)
         supportFragmentManager.fragments.forEach { it.onActivityResult(request, result, intent) }
-        if (request == LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_CANCELED) {
+        if (request == LOGIN_ACTIVITY_REQUEST && result == RESULT_CANCELED) {
             Timber.w("Result from login activity - cancelled, closing app")
             finish()
         }
@@ -175,7 +177,7 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
     // Preferences and other UI
     //
 
-    override fun onPreferenceChange(prefs: AwfulPreferences, key: String?) {
+    override fun onPreferenceChange(preferences: AwfulPreferences, key: String?) {
         Timber.i("Key changed: ${key!!}")
         updateOrientation()
         if ("theme" == key || "page_layout" == key) {
