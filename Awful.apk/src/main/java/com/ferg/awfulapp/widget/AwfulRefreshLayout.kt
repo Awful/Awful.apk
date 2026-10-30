@@ -58,7 +58,7 @@ class AwfulRefreshLayout @JvmOverloads constructor(
     var isLoading: Boolean = false
         private set
 
-    var spinnerDrawable: Int = R.drawable.frog_silhouette
+    var spinnerDrawable: Int = R.drawable.frog_silhouette_spinner
         set(value) {
             field = value
             spinner.setImageDrawable(ContextCompat.getDrawable(context, value))
